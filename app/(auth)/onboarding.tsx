@@ -77,7 +77,7 @@ export default function OnboardingScreen() {
         </View>
       ) : current.mascotVariant ? (
         <View style={styles.mascotContainer}>
-          <BobbleMascot variant={current.mascotVariant} size={1000 * 0.5} />
+          <BobbleMascot variant={current.mascotVariant} size={1000 * 0.4} />
         </View>
       ) : null}
     </OnboardingScreenLayout>

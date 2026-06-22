@@ -2,13 +2,13 @@ import { Platform } from 'react-native';
 
 /**
  * Bobble typography tokens.
- * Inter is loaded via expo-font in the auth flow; fall back to system sans-serif.
+ * Poppins is loaded via expo-font in the auth flow; fall back to system sans-serif.
  */
 export const FontFamily = {
-  regular: 'Inter_400Regular',
-  medium: 'Inter_500Medium',
-  semiBold: 'Inter_600SemiBold',
-  bold: 'Inter_700Bold',
+  regular: 'Poppins_400Regular',
+  medium: 'Poppins_500Medium',
+  semiBold: 'Poppins_600SemiBold',
+  bold: 'Poppins_700Bold',
   /** System fallback when custom fonts aren't loaded yet */
   fallback: Platform.select({
     ios: 'System',
@@ -27,7 +27,7 @@ export const Typography = {
 
   /** Splash tagline — "unwind a messy mind" */
   splashTagline: {
-    fontFamily: FontFamily.regular,
+    fontFamily: FontFamily.semiBold,
     fontSize: 16,
   },
 

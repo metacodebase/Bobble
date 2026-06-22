@@ -18,10 +18,8 @@ export default function SplashScreen() {
         <Text style={styles.title}>Bobble</Text>
         <Text style={styles.tagline}>unwind a messy mind</Text>
       </View>
+      <BobbleMascot variant="splash" size={1000 * 0.4} />
 
-      <View style={styles.mascotContainer}>
-        <BobbleMascot variant="splash" size={1000 * 0.5} />
-      </View>
     </OnboardingScreenLayout>
   );
 }
@@ -29,23 +27,20 @@ export default function SplashScreen() {
 const styles = StyleSheet.create({
   content: {
     alignItems: 'center',
+    justifyContent: 'center',
   },
   header: {
     alignItems: 'center',
-    marginTop: 48,
-    gap: 8,
+    gap: 10,
+    width: "100%",
   },
   title: {
     ...Typography.splashTitle,
     color: BobbleColors.text,
+    fontSize: 60,
   },
   tagline: {
     ...Typography.splashTagline,
     color: BobbleColors.textAccent,
-  },
-  mascotContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
 });
