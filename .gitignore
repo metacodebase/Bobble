@@ -2,6 +2,13 @@
 
 # dependencies
 node_modules/
+package-lock.json
+
+# Yarn Berry
+.pnp.cjs
+.pnp.loader.mjs
+.yarn/cache
+.yarn/install-state.gz
 
 # Expo
 .expo/
@@ -31,10 +38,14 @@ yarn-error.*
 *.pem
 
 # local env files
+.env
+.env.local
 .env*.local
 
 # typescript
 *.tsbuildinfo
+
+app-example
 
 # generated native folders
 /ios

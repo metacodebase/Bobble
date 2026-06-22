@@ -1,31 +1,36 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import EditScreenInfo from '@/components/EditScreenInfo';
-import { Text, View } from '@/components/Themed';
+import { useThemeColor } from '@/src/hooks/use-theme-color';
 
-export default function TabOneScreen() {
+export default function HomeScreen() {
+  const insets = useSafeAreaInsets();
+  const background = useThemeColor({}, 'background');
+  const text = useThemeColor({}, 'text');
+  const textSecondary = useThemeColor({}, 'textSecondary');
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Tab One</Text>
-      <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-      <EditScreenInfo path="app/(tabs)/index.tsx" />
+    <View style={[styles.root, { backgroundColor: background, paddingTop: insets.top + 16 }]}>
+      <Text style={[styles.title, { color: text }]}>Bobble</Text>
+      <Text style={[styles.subtitle, { color: textSecondary }]}>
+        Edit app/(tabs)/index.tsx to start building.
+      </Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  root: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    paddingHorizontal: 24,
+    gap: 8,
   },
   title: {
-    fontSize: 20,
-    fontWeight: 'bold',
+    fontSize: 32,
+    fontWeight: '700',
   },
-  separator: {
-    marginVertical: 30,
-    height: 1,
-    width: '80%',
+  subtitle: {
+    fontSize: 16,
+    lineHeight: 24,
   },
 });
