@@ -6,19 +6,21 @@ import { AgendaEvent } from '@/src/components/calendar/agenda-event';
 import { CalendarGrid } from '@/src/components/calendar/calendar-grid';
 import { PrimaryButton } from '@/src/components/onboarding/primary-button';
 import { DEMO_CALENDAR } from '@/src/data/demo-data';
+import { useTabBarInsets } from '@/src/hooks/use-tab-bar-insets';
 import { BobbleColors } from '@/src/theme/colors';
 import { Typography } from '@/src/theme/fonts';
 import { toast } from '@/src/utils/toast';
 
 export default function CalendarScreen() {
   const insets = useSafeAreaInsets();
+  const { height: tabBarHeight } = useTabBarInsets();
   const [selectedDay, setSelectedDay] = useState(DEMO_CALENDAR.selectedDay);
   const dayEvents = DEMO_CALENDAR.events.filter((event) => event.day === selectedDay);
 
   return (
     <View style={[styles.root, { paddingTop: insets.top + 12 }]}>
       <ScrollView
-        contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 100 }]}
+        contentContainerStyle={[styles.scroll, { paddingBottom: tabBarHeight + 40 }]}
         showsVerticalScrollIndicator={false}
       >
         <CalendarGrid
@@ -41,7 +43,7 @@ export default function CalendarScreen() {
         ) : null}
       </ScrollView>
 
-      <View style={[styles.footer, { paddingBottom: insets.bottom + 88 }]}>
+      <View style={[styles.footer, { paddingBottom: tabBarHeight }]}>
         <PrimaryButton label="+ Add Event" onPress={() => toast.info('Add event coming soon')} />
       </View>
     </View>

@@ -13,11 +13,13 @@ import {
   BOBBLE_FILTERS,
   filterBobbles,
 } from '@/src/data/demo-data';
+import { useTabBarInsets } from '@/src/hooks/use-tab-bar-insets';
 import { BobbleColors } from '@/src/theme/colors';
 import { toast } from '@/src/utils/toast';
 
 export default function BobblesScreen() {
   const insets = useSafeAreaInsets();
+  const { height: tabBarHeight } = useTabBarInsets();
   const [filter, setFilter] = useState<BobbleFilter>('All');
   const [query, setQuery] = useState('');
   const bobbles = filterBobbles(filter, query);
@@ -38,7 +40,7 @@ export default function BobblesScreen() {
       <FlatList
         data={bobbles}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={[styles.list, { paddingBottom: insets.bottom + 100 }]}
+        contentContainerStyle={[styles.list, { paddingBottom: tabBarHeight + 16 }]}
         showsVerticalScrollIndicator={false}
         renderItem={({ item }) => (
           <BobbleLibraryRow
@@ -51,7 +53,7 @@ export default function BobblesScreen() {
       />
 
       <FabButton
-        bottom={insets.bottom + 88}
+        bottom={tabBarHeight + 16}
         onPress={() => router.push('/capture/record' as Href)}
       />
     </View>

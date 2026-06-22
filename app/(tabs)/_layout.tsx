@@ -7,10 +7,11 @@ import {
 } from '@expo-google-fonts/poppins';
 import { Tabs } from 'expo-router';
 import React from 'react';
-import { ActivityIndicator, Platform, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { Calendar, CheckSquare, Home, Sparkles, User } from 'lucide-react-native';
 
 import { HapticTab } from '@/src/components/haptic-tab';
+import { useTabBarInsets } from '@/src/hooks/use-tab-bar-insets';
 import { Colors, BobbleColors } from '@/src/theme';
 import { useColorScheme } from '@/src/hooks/use-color-scheme';
 
@@ -30,9 +31,12 @@ function TabIcon({
   );
 }
 
+const TAB_BAR_PADDING_TOP = 10;
+
 export default function TabLayout() {
   const colorScheme = useColorScheme();
   const theme = Colors[colorScheme ?? 'light'];
+  const { bottomPadding, height: tabBarHeight } = useTabBarInsets();
   const [fontsLoaded] = useFonts({
     Poppins_400Regular,
     Poppins_500Medium,
@@ -56,12 +60,12 @@ export default function TabLayout() {
         tabBarActiveTintColor: theme.tabIconSelected,
         tabBarInactiveTintColor: theme.tabIconDefault,
         tabBarStyle: {
-          backgroundColor: theme.background,
-          borderTopColor: theme.border,
+          backgroundColor: BobbleColors.background,
+          borderTopColor: BobbleColors.border,
           borderTopWidth: StyleSheet.hairlineWidth,
-          height: Platform.OS === 'ios' ? 88 : 68,
-          paddingTop: 10,
-          paddingBottom: Platform.OS === 'ios' ? 28 : 10,
+          height: tabBarHeight,
+          paddingTop: TAB_BAR_PADDING_TOP,
+          paddingBottom: bottomPadding,
         },
         tabBarLabelStyle: {
           fontSize: 11,

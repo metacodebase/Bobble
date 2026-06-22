@@ -8,11 +8,13 @@ import { FabButton } from '@/src/components/ui/fab-button';
 import { FilterChips } from '@/src/components/ui/filter-chips';
 import { ScreenHeader } from '@/src/components/ui/screen-header';
 import { DEMO_TASKS, filterTasks, TaskFilter, TASK_FILTERS } from '@/src/data/demo-data';
+import { useTabBarInsets } from '@/src/hooks/use-tab-bar-insets';
 import { BobbleColors } from '@/src/theme/colors';
 import { toast } from '@/src/utils/toast';
 
 export default function TasksScreen() {
   const insets = useSafeAreaInsets();
+  const { height: tabBarHeight } = useTabBarInsets();
   const [filter, setFilter] = useState<TaskFilter>('All');
   const [tasks, setTasks] = useState(DEMO_TASKS);
   const sections = filterTasks(filter).map((section) => ({
@@ -40,7 +42,7 @@ export default function TasksScreen() {
       </View>
 
       <ScrollView
-        contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 100 }]}
+        contentContainerStyle={[styles.scroll, { paddingBottom: tabBarHeight + 16 }]}
         showsVerticalScrollIndicator={false}
       >
         {sections.map((section) => (
@@ -54,7 +56,7 @@ export default function TasksScreen() {
       </ScrollView>
 
       <FabButton
-        bottom={insets.bottom + 88}
+        bottom={tabBarHeight + 16}
         onPress={() => toast.info('Add task coming soon')}
       />
     </View>
