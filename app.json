@@ -43,10 +43,7 @@
             "backgroundColor": "#0A0F1A"
           }
         }
-      ],
-      "./plugins/with-async-storage-android-maven.js",
-      "expo-image",
-      "expo-secure-store"
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
