@@ -79,4 +79,18 @@ export const Typography = {
     fontSize: 14,
     lineHeight: 20,
   },
+
+  /** Form field label above inputs */
+  formLabel: {
+    fontFamily: FontFamily.medium,
+    fontSize: 14,
+    lineHeight: 20,
+  },
+
+  /** Text input value */
+  input: {
+    fontFamily: FontFamily.regular,
+    fontSize: 16,
+    lineHeight: 24,
+  },
 } as const;

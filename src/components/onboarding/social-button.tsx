@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Pressable, StyleSheet, Text } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { AppleIcon, FacebookIcon, GoogleIcon, XIcon } from '@/src/components/onboarding/social-icons';
 import { BobbleColors } from '@/src/theme/colors';
 import { Typography } from '@/src/theme/fonts';
 
@@ -12,12 +13,13 @@ type SocialButtonProps = {
   onPress: () => void;
 };
 
-const ICON_MAP: Record<SocialProvider, keyof typeof Ionicons.glyphMap> = {
-  google: 'logo-google',
-  apple: 'logo-apple',
-  facebook: 'logo-facebook',
-  x: 'logo-twitter',
-  email: 'mail-outline',
+const ICON_SIZE = 22;
+
+const SOCIAL_ICON_MAP: Record<Exclude<SocialProvider, 'email'>, () => React.ReactNode> = {
+  google: () => <GoogleIcon size={ICON_SIZE} />,
+  apple: () => <AppleIcon size={ICON_SIZE} />,
+  facebook: () => <FacebookIcon size={ICON_SIZE} />,
+  x: () => <XIcon size={ICON_SIZE} />,
 };
 
 export function SocialButton({ provider, label, onPress }: SocialButtonProps) {
@@ -26,7 +28,13 @@ export function SocialButton({ provider, label, onPress }: SocialButtonProps) {
       onPress={onPress}
       style={({ pressed }) => [styles.button, pressed && styles.pressed]}
     >
-      <Ionicons name={ICON_MAP[provider]} size={22} color={BobbleColors.text} style={styles.icon} />
+      <View style={styles.icon}>
+        {provider === 'email' ? (
+          <Ionicons name="mail-outline" size={ICON_SIZE} color={BobbleColors.text} />
+        ) : (
+          SOCIAL_ICON_MAP[provider]()
+        )}
+      </View>
       <Text style={styles.label}>{label}</Text>
     </Pressable>
   );

@@ -1,10 +1,11 @@
+import { Href, router } from 'expo-router';
+import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { OnboardingScreenLayout } from '@/src/components/onboarding/onboarding-screen-layout';
 import { SocialButton } from '@/src/components/onboarding/social-button';
 import { BobbleColors } from '@/src/theme/colors';
 import { Typography } from '@/src/theme/fonts';
-import { toast } from '@/src/utils/toast';
 
 const SOCIAL_PROVIDERS = [
   { provider: 'google' as const, label: 'Continue with Google' },
@@ -13,17 +14,47 @@ const SOCIAL_PROVIDERS = [
   { provider: 'x' as const, label: 'Continue with X' },
 ];
 
-export default function SignInScreen() {
+type AuthMode = 'sign-in' | 'sign-up';
+
+const AUTH_COPY: Record<AuthMode, { title: string; footerPrompt: string; footerAction: string }> = {
+  'sign-in': {
+    title: 'Welcome back',
+    footerPrompt: "Don't have an account?",
+    footerAction: 'Sign up',
+  },
+  'sign-up': {
+    title: 'Create your account',
+    footerPrompt: 'Already have an account?',
+    footerAction: 'Sign in',
+  },
+};
+
+export default function AuthScreen() {
+  const [mode, setMode] = useState<AuthMode>('sign-in');
+  const copy = AUTH_COPY[mode];
+
   const handleAuth = () => {
-    toast.info('Sign in coming soon');
+    router.push('/(auth)/create-account' as Href);
+  };
+
+  const toggleMode = () => {
+    setMode((current) => (current === 'sign-in' ? 'sign-up' : 'sign-in'));
   };
 
   return (
     <OnboardingScreenLayout contentStyle={styles.content}>
       <View style={styles.header}>
-        <Text style={styles.title}>Welcome back</Text>
+        <Text style={styles.title}>{copy.title}</Text>
         <Text style={styles.subtitle}>
-          Let&apos;s <Text style={styles.accent}>unwind</Text> together
+          {mode === 'sign-in' ? (
+            <>
+              Let&apos;s <Text style={styles.accent}>unwind</Text> together
+            </>
+          ) : (
+            <>
+              Join Bobble and <Text style={styles.accent}>unwind</Text> your mind
+            </>
+          )}
         </Text>
       </View>
 
@@ -48,9 +79,9 @@ export default function SignInScreen() {
 
       <View style={styles.footer}>
         <Text style={styles.footerText}>
-          Don&apos;t have an account?{' '}
-          <Text style={styles.footerLink} onPress={handleAuth}>
-            Sign up
+          {copy.footerPrompt}{' '}
+          <Text style={styles.footerLink} onPress={toggleMode}>
+            {copy.footerAction}
           </Text>
         </Text>
       </View>
