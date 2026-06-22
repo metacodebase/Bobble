@@ -1,3 +1,4 @@
+
 import { Href, router } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 
@@ -19,7 +20,7 @@ export default function SplashScreen() {
       </View>
 
       <View style={styles.mascotContainer}>
-        <BobbleMascot variant="splash" size={240} />
+        <BobbleMascot variant="splash" size={1000 * 0.5} />
       </View>
     </OnboardingScreenLayout>
   );

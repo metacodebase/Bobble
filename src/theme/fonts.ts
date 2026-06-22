@@ -22,33 +22,26 @@ export const Typography = {
   splashTitle: {
     fontFamily: FontFamily.bold,
     fontSize: 40,
-    fontWeight: '700' as const,
     lineHeight: 48,
-    letterSpacing: -0.5,
   },
 
   /** Splash tagline — "unwind a messy mind" */
   splashTagline: {
     fontFamily: FontFamily.regular,
     fontSize: 16,
-    fontWeight: '400' as const,
-    lineHeight: 24,
   },
 
   /** Onboarding & auth headings */
   heading: {
     fontFamily: FontFamily.bold,
     fontSize: 32,
-    fontWeight: '700' as const,
     lineHeight: 40,
-    letterSpacing: -0.3,
   },
 
   /** Auth sub-heading */
   subheading: {
     fontFamily: FontFamily.regular,
     fontSize: 18,
-    fontWeight: '400' as const,
     lineHeight: 26,
   },
 
@@ -56,7 +49,6 @@ export const Typography = {
   body: {
     fontFamily: FontFamily.regular,
     fontSize: 16,
-    fontWeight: '400' as const,
     lineHeight: 24,
   },
 
@@ -64,7 +56,6 @@ export const Typography = {
   button: {
     fontFamily: FontFamily.semiBold,
     fontSize: 17,
-    fontWeight: '600' as const,
     lineHeight: 22,
   },
 
@@ -72,7 +63,6 @@ export const Typography = {
   socialButton: {
     fontFamily: FontFamily.medium,
     fontSize: 16,
-    fontWeight: '500' as const,
     lineHeight: 22,
   },
 
@@ -80,7 +70,6 @@ export const Typography = {
   caption: {
     fontFamily: FontFamily.regular,
     fontSize: 14,
-    fontWeight: '400' as const,
     lineHeight: 20,
   },
 
@@ -88,7 +77,6 @@ export const Typography = {
   divider: {
     fontFamily: FontFamily.regular,
     fontSize: 14,
-    fontWeight: '400' as const,
     lineHeight: 20,
   },
 } as const;
