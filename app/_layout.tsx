@@ -26,6 +26,9 @@ export default function RootLayout() {
             <Stack.Screen name="index" options={{ headerShown: false }} />
             <Stack.Screen name="(auth)" options={{ headerShown: false }} />
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="capture" options={{ headerShown: false, animation: 'slide_from_bottom' }} />
+            <Stack.Screen name="bobble" options={{ headerShown: false }} />
+            <Stack.Screen name="share" options={{ presentation: 'modal', headerShown: false }} />
             <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
           </Stack>
           <StatusBar style="auto" />

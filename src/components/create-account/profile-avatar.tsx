@@ -1,59 +1,89 @@
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View, ViewStyle } from 'react-native';
 
 import { BobbleColors } from '@/src/theme/colors';
 import { BobbleMascot } from '../onboarding/bobble-mascot';
 
 type ProfileAvatarProps = {
   onPress?: () => void;
+  size?: number;
+  showCamera?: boolean;
+  centered?: boolean;
+  style?: ViewStyle;
 };
 
-export function ProfileAvatar({ onPress }: ProfileAvatarProps) {
+export function ProfileAvatar({
+  onPress,
+  size = 140,
+  showCamera = true,
+  centered = true,
+  style,
+}: ProfileAvatarProps) {
+  const radius = size / 2;
+  const mascotSize = size * (135 / 140);
+  const cameraSize = size * (36 / 140);
+  const cameraIcon = size * (18 / 140);
+  const cameraBorder = size * (3 / 140);
+
   return (
-    <View style={styles.wrapper}>
+    <View style={[styles.wrapper, centered && styles.wrapperCentered, style]}>
       <LinearGradient
         colors={[BobbleColors.primary, BobbleColors.primaryLight]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
-        style={styles.avatar}
+        style={[
+          styles.avatar,
+          {
+            width: size,
+            height: size,
+            borderRadius: radius,
+          },
+        ]}
       >
-        <BobbleMascot variant="sitting" size={135} style={{borderRadius: 70}}/>
+        <BobbleMascot variant="sitting" size={mascotSize} style={{ borderRadius: radius }} />
       </LinearGradient>
-      <Pressable
-        onPress={onPress}
-        style={({ pressed }) => [styles.cameraButton, pressed && styles.cameraButtonPressed]}
-      >
-        <Ionicons name="camera" size={18} color={BobbleColors.textOnPrimary} />
-      </Pressable>
+      {showCamera && onPress ? (
+        <Pressable
+          onPress={onPress}
+          style={({ pressed }) => [
+            styles.cameraButton,
+            {
+              width: cameraSize,
+              height: cameraSize,
+              borderRadius: cameraSize / 2,
+              borderWidth: cameraBorder,
+              right: size * (4 / 140),
+              bottom: size * (4 / 140),
+            },
+            pressed && styles.cameraButtonPressed,
+          ]}
+        >
+          <Ionicons name="camera" size={cameraIcon} color={BobbleColors.textOnPrimary} />
+        </Pressable>
+      ) : null}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   wrapper: {
+    position: 'relative',
+  },
+  wrapperCentered: {
     alignSelf: 'center',
     marginVertical: 32,
   },
   avatar: {
-    width: 140,
-    height: 140,
-    borderRadius: 70,
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
   },
   cameraButton: {
     position: 'absolute',
-    right: 4,
-    bottom: 4,
-    width: 36,
-    height: 36,
-    borderRadius: 18,
     backgroundColor: BobbleColors.primary,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 3,
     borderColor: BobbleColors.background,
   },
   cameraButtonPressed: {
