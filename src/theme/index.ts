@@ -1,5 +1,12 @@
 import { Platform } from 'react-native';
 
+import { BobbleColors } from './colors';
+import { FontFamily } from './fonts';
+
+export { BobbleColors } from './colors';
+export { FontFamily, Typography } from './fonts';
+
+/** @deprecated Use BobbleColors for new code */
 export const Palette = {
   navy: '#0A1628',
   cobalt: '#1E3A8A',
@@ -9,41 +16,41 @@ export const Palette = {
   coral: '#F97316',
   stone: '#94A3B8',
   cream: '#F8FAFC',
-  white: '#FFFFFF',
-  black: '#000000',
+  white: BobbleColors.background,
+  black: BobbleColors.text,
 } as const;
 
 export const Brand = {
-  primary: Palette.cobalt,
-  primaryDark: '#172554',
-  primaryLight: Palette.sky,
-  secondary: Palette.mint,
-  surface: Palette.cream,
+  primary: BobbleColors.primary,
+  primaryDark: BobbleColors.primaryDark,
+  primaryLight: BobbleColors.primaryLight,
+  secondary: BobbleColors.success,
+  surface: BobbleColors.background,
 } as const;
 
 export const Colors = {
   light: {
-    text: '#0F172A',
-    textSecondary: '#64748B',
-    background: Palette.white,
-    surface: Palette.cream,
-    surfaceAlt: Palette.ice,
-    surfaceCool: '#F1F5F9',
-    border: '#E2E8F0',
-    tint: Brand.primary,
-    primary: Brand.primary,
-    primaryDark: Brand.primaryDark,
-    primaryLight: Brand.primaryLight,
-    secondary: Brand.secondary,
-    icon: Palette.stone,
-    tabIconDefault: '#94A3B8',
-    tabIconSelected: Brand.primary,
-    success: '#16A34A',
-    warning: Palette.coral,
-    error: '#DC2626',
-    headerBackground: Palette.navy,
-    headerText: Palette.white,
-    footerLink: Brand.primary,
+    text: BobbleColors.text,
+    textSecondary: BobbleColors.textSecondary,
+    background: BobbleColors.background,
+    surface: BobbleColors.surface,
+    surfaceAlt: BobbleColors.borderLight,
+    surfaceCool: BobbleColors.borderLight,
+    border: BobbleColors.border,
+    tint: BobbleColors.primary,
+    primary: BobbleColors.primary,
+    primaryDark: BobbleColors.primaryDark,
+    primaryLight: BobbleColors.primaryLight,
+    secondary: BobbleColors.success,
+    icon: BobbleColors.textSecondary,
+    tabIconDefault: BobbleColors.textSecondary,
+    tabIconSelected: BobbleColors.primary,
+    success: BobbleColors.success,
+    warning: BobbleColors.warning,
+    error: BobbleColors.error,
+    headerBackground: BobbleColors.primary,
+    headerText: BobbleColors.textOnPrimary,
+    footerLink: BobbleColors.textAccent,
   },
   dark: {
     text: '#F8FAFC',
@@ -53,20 +60,20 @@ export const Colors = {
     surfaceAlt: '#0F172A',
     surfaceCool: '#0B1220',
     border: '#1E293B',
-    tint: Palette.sky,
-    primary: Palette.sky,
-    primaryDark: Brand.primary,
-    primaryLight: '#BAE6FD',
-    secondary: Palette.mint,
+    tint: BobbleColors.primaryLight,
+    primary: BobbleColors.primaryLight,
+    primaryDark: BobbleColors.primary,
+    primaryLight: BobbleColors.primaryMuted,
+    secondary: BobbleColors.success,
     icon: '#94A3B8',
     tabIconDefault: '#64748B',
-    tabIconSelected: Palette.sky,
+    tabIconSelected: BobbleColors.primaryLight,
     success: '#4ADE80',
-    warning: Palette.coral,
+    warning: BobbleColors.warning,
     error: '#F87171',
-    headerBackground: Palette.navy,
-    headerText: Palette.white,
-    footerLink: Palette.sky,
+    headerBackground: BobbleColors.primaryDark,
+    headerText: BobbleColors.textOnPrimary,
+    footerLink: BobbleColors.primaryLight,
   },
 } as const;
 
@@ -75,19 +82,19 @@ export type ThemeColors = typeof Colors.light;
 
 export const Fonts = Platform.select({
   ios: {
-    sans: 'system-ui',
+    sans: FontFamily.regular,
     serif: 'ui-serif',
     rounded: 'ui-rounded',
     mono: 'ui-monospace',
   },
   default: {
-    sans: 'normal',
+    sans: FontFamily.regular,
     serif: 'serif',
     rounded: 'normal',
     mono: 'monospace',
   },
   web: {
-    sans: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
+    sans: `${FontFamily.regular}, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif`,
     serif: "Georgia, 'Times New Roman', serif",
     rounded: "'SF Pro Rounded', 'Hiragino Maru Gothic ProN', Meiryo, 'MS PGothic', sans-serif",
     mono: "SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",

@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { router } from 'expo-router';
+import { Href, router } from 'expo-router';
 
 import { authApi, systemApi } from '@/src/api';
 import type { LoginBody, RegisterBody } from '@/src/features/auth/types';
@@ -64,7 +64,7 @@ export function useLogout() {
     onSettled: () => {
       clearSession();
       qc.clear();
-      router.replace('/(auth)/welcome');
+      router.replace('/(auth)/splash' as Href);
     },
   });
 }

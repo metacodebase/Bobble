@@ -10,12 +10,14 @@ interface AppState {
   user: AuthUser | null;
   isAuthenticated: boolean;
   hasOnboarded: boolean;
+  hasHydrated: boolean;
   themeOverride: 'light' | 'dark' | null;
 
   setSession: (session: AuthSession) => void;
   setAuthToken: (token: string | null) => void;
   setUser: (user: AuthUser | null) => void;
   setHasOnboarded: (value: boolean) => void;
+  setHasHydrated: (value: boolean) => void;
   setThemeOverride: (theme: 'light' | 'dark' | null) => void;
   clearSession: () => void;
 }
@@ -28,6 +30,7 @@ export const useAppStore = create<AppState>()(
       user: null,
       isAuthenticated: false,
       hasOnboarded: false,
+      hasHydrated: false,
       themeOverride: null,
 
       setSession: (session) =>
@@ -49,6 +52,8 @@ export const useAppStore = create<AppState>()(
 
       setHasOnboarded: (value) => set({ hasOnboarded: value }),
 
+      setHasHydrated: (value) => set({ hasHydrated: value }),
+
       setThemeOverride: (theme) => set({ themeOverride: theme }),
 
       clearSession: () =>
@@ -61,7 +66,21 @@ export const useAppStore = create<AppState>()(
     }),
     {
       name: 'app-store',
+      version: 2,
       storage: createJSONStorage(() => secureStorage),
+      migrate: (persistedState, version) => {
+        const state = persistedState as AppState;
+        if (version < 2) {
+          return {
+            ...state,
+            hasOnboarded: false,
+          };
+        }
+        return state;
+      },
+      onRehydrateStorage: () => () => {
+        useAppStore.setState({ hasHydrated: true });
+      },
       partialize: (state) => ({
         authToken: state.authToken,
         refreshToken: state.refreshToken,
