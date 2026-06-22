@@ -1,4 +1,3 @@
-import { Ionicons } from '@expo/vector-icons';
 import { Href, router } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
@@ -10,6 +9,7 @@ import { PrimaryButton } from '@/src/components/onboarding/primary-button';
 import { useAppStore } from '@/src/store/app-store';
 import { BobbleColors } from '@/src/theme/colors';
 import { Typography } from '@/src/theme/fonts';
+import { Ionicons } from '@expo/vector-icons';
 
 const STEPS: {
   heading: string;
@@ -17,26 +17,26 @@ const STEPS: {
   features?: readonly string[];
   mascotVariant?: MascotVariant;
 }[] = [
-  {
-    heading: "Your mind. Our space. Let's make sense together.",
-    mascotVariant: 'sitting',
-    buttonLabel: 'Next',
-  },
-  {
-    heading: "Talk it out. We'll handle the rest.",
-    features: [
-      'Voice notes & transcription',
-      'AI organises your ideas',
-      'Tasks, reminders & more',
-    ],
-    buttonLabel: 'Next',
-  },
-  {
-    heading: "You're not just capturing thoughts, you're building your best self.",
-    mascotVariant: 'waving',
-    buttonLabel: "Let's Go",
-  },
-];
+    {
+      heading: "Your mind. Our space. Let's make sense together.",
+      mascotVariant: 'sitting',
+      buttonLabel: 'Next',
+    },
+    {
+      heading: "Talk it out. We'll handle the rest.",
+      features: [
+        'Voice notes & transcription',
+        'AI organises your ideas',
+        'Tasks, reminders & more',
+      ],
+      buttonLabel: 'Next',
+    },
+    {
+      heading: "You're not just capturing thoughts, you're building your best self.",
+      mascotVariant: 'waving',
+      buttonLabel: "Let's Go",
+    },
+  ];
 
 export default function OnboardingScreen() {
   const [step, setStep] = useState(0);
@@ -68,14 +68,16 @@ export default function OnboardingScreen() {
         <View style={styles.featureList}>
           {current.features.map((feature) => (
             <View key={feature} style={styles.featureRow}>
-              <Ionicons name="checkmark-circle" size={24} color={BobbleColors.success} />
+              <View style={styles.featureIcon}>
+                <Ionicons name="checkmark" size={24} color={BobbleColors.success} />
+              </View>
               <Text style={styles.featureText}>{feature}</Text>
             </View>
           ))}
         </View>
       ) : current.mascotVariant ? (
         <View style={styles.mascotContainer}>
-          <BobbleMascot variant={current.mascotVariant} size={220} />
+          <BobbleMascot variant={current.mascotVariant} size={1000 * 0.5} />
         </View>
       ) : null}
     </OnboardingScreenLayout>
@@ -94,17 +96,26 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   featureList: {
-    marginTop: 40,
-    gap: 20,
+    flex:1,
+    justifyContent: 'space-evenly',
+    alignItems: 'center',
+    marginBottom: 100,
   },
   featureRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 14,
+    width:'100%',
   },
   featureText: {
-    ...Typography.body,
+    ...Typography.heading,
     color: BobbleColors.text,
-    flex: 1,
+    fontSize: 22,
+    width:'60%',
+  },
+  featureIcon: {
+    borderRadius: 120,
+    backgroundColor: BobbleColors.success+30,
+    padding: 8,
   },
 });
