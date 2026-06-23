@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { AppleIcon, FacebookIcon, GoogleIcon, XIcon } from '@/src/components/onboarding/social-icons';
-import { BobbleColors } from '@/src/theme/colors';
+import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { Typography } from '@/src/theme/fonts';
 
 type SocialProvider = 'google' | 'apple' | 'facebook' | 'x' | 'email';
@@ -23,19 +23,28 @@ const SOCIAL_ICON_MAP: Record<Exclude<SocialProvider, 'email'>, () => React.Reac
 };
 
 export function SocialButton({ provider, label, onPress }: SocialButtonProps) {
+  const colors = useBobbleColors();
+
   return (
     <Pressable
       onPress={onPress}
-      style={({ pressed }) => [styles.button, pressed && styles.pressed]}
+      style={({ pressed }) => [
+        styles.button,
+        {
+          backgroundColor: pressed ? colors.borderLight : colors.surface,
+          borderColor: colors.border,
+        },
+        pressed && styles.pressed,
+      ]}
     >
       <View style={styles.icon}>
         {provider === 'email' ? (
-          <Ionicons name="mail-outline" size={ICON_SIZE} color={BobbleColors.text} />
+          <Ionicons name="mail-outline" size={ICON_SIZE} color={colors.text} />
         ) : (
           SOCIAL_ICON_MAP[provider]()
         )}
       </View>
-      <Text style={styles.label}>{label}</Text>
+      <Text style={[styles.label, { color: colors.text }]}>{label}</Text>
     </Pressable>
   );
 }
@@ -45,16 +54,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: BobbleColors.background,
     borderWidth: 1,
-    borderColor: BobbleColors.border,
     borderRadius: 32,
     paddingVertical: 16,
     paddingHorizontal: 20,
     width: '100%',
   },
   pressed: {
-    backgroundColor: BobbleColors.borderLight,
+    opacity: 0.9,
   },
   icon: {
     position: 'absolute',
@@ -62,6 +69,5 @@ const styles = StyleSheet.create({
   },
   label: {
     ...Typography.socialButton,
-    color: BobbleColors.text,
   },
 });

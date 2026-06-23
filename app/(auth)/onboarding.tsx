@@ -6,8 +6,8 @@ import { BobbleMascot, MascotVariant } from '@/src/components/onboarding/bobble-
 import { OnboardingScreenLayout } from '@/src/components/onboarding/onboarding-screen-layout';
 import { PaginationDots } from '@/src/components/onboarding/pagination-dots';
 import { PrimaryButton } from '@/src/components/onboarding/primary-button';
+import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { useAppStore } from '@/src/store/app-store';
-import { BobbleColors } from '@/src/theme/colors';
 import { Typography } from '@/src/theme/fonts';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -41,6 +41,7 @@ const STEPS: {
 export default function OnboardingScreen() {
   const scrollRef = useRef<ScrollView>(null);
   const { width } = useWindowDimensions();
+  const colors = useBobbleColors();
   const [step, setStep] = useState(0);
   const setHasOnboarded = useAppStore((s) => s.setHasOnboarded);
   const current = STEPS[step];
@@ -84,16 +85,16 @@ export default function OnboardingScreen() {
       >
         {STEPS.map((item) => (
           <View key={item.heading} style={[styles.slide, { width}]}>
-            <Text style={styles.heading}>{item.heading}</Text>
+            <Text style={[styles.heading, { color: colors.text }]}>{item.heading}</Text>
 
             {item.features ? (
               <View style={styles.featureList}>
                 {item.features.map((feature) => (
                   <View key={feature} style={styles.featureRow}>
-                    <View style={styles.featureIcon}>
-                      <Ionicons name="checkmark" size={24} color={BobbleColors.success} />
+                    <View style={[styles.featureIcon, { backgroundColor: `${colors.success}30` }]}>
+                      <Ionicons name="checkmark" size={24} color={colors.success} />
                     </View>
-                    <Text style={styles.featureText}>{feature}</Text>
+                    <Text style={[styles.featureText, { color: colors.text }]}>{feature}</Text>
                   </View>
                 ))}
               </View>
@@ -115,7 +116,6 @@ const styles = StyleSheet.create({
   },
   heading: {
     ...Typography.heading,
-    color: BobbleColors.text,
     marginTop: 24,
     width:'90%',
     alignSelf:'center',
@@ -141,13 +141,11 @@ const styles = StyleSheet.create({
   },
   featureText: {
     ...Typography.heading,
-    color: BobbleColors.text,
     fontSize: 22,
     width: '60%',
   },
   featureIcon: {
     borderRadius: 120,
-    backgroundColor: `${BobbleColors.success}30`,
     padding: 8,
   },
   footer: {

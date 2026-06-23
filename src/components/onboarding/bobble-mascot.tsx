@@ -1,12 +1,24 @@
 import { Image, ImageSource, ImageStyle } from 'expo-image';
 import { StyleSheet } from 'react-native';
 
+import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
+import { useColorScheme } from '@/src/hooks/use-color-scheme';
+
 export type MascotVariant = 'splash' | 'sitting' | 'waving';
 
-const MASCOT_SOURCES: Record<MascotVariant, ImageSource> = {
-  splash: require('@/src/assets/images/mascot/mascot-splash.png'),
-  sitting: require('@/src/assets/images/mascot/mascot-sitting.png'),
-  waving: require('@/src/assets/images/mascot/mascot-waving.png'),
+const MASCOT_SOURCES: Record<MascotVariant, { light: ImageSource; dark: ImageSource }> = {
+  splash: {
+    light: require('@/src/assets/images/mascot/mascot-splash.png'),
+    dark: require('@/src/assets/images/mascot/mascot-splash-dark.png'),
+  },
+  sitting: {
+    light: require('@/src/assets/images/mascot/mascot-sitting.png'),
+    dark: require('@/src/assets/images/mascot/mascot-sitting-dark.png'),
+  },
+  waving: {
+    light: require('@/src/assets/images/mascot/mascot-waving.png'),
+    dark: require('@/src/assets/images/mascot/mascot-waving-dark.png'),
+  },
 };
 
 type BobbleMascotProps = {
@@ -16,10 +28,23 @@ type BobbleMascotProps = {
 };
 
 export function BobbleMascot({ variant = 'splash', size = 200, style }: BobbleMascotProps) {
+  const scheme = useColorScheme();
+  const colors = useBobbleColors();
+  const borderRadius = typeof style?.borderRadius === 'number' ? style.borderRadius : 100;
+
   return (
     <Image
-      source={MASCOT_SOURCES[variant]}
-      style={[styles.image, { width: size, height: size,borderRadius:100 }, style]}
+      source={MASCOT_SOURCES[variant][scheme]}
+      style={[
+        styles.image,
+        {
+          width: size,
+          height: size,
+          borderRadius,
+          backgroundColor: colors.background,
+        },
+        style,
+      ]}
       contentFit="cover"
     />
   );

@@ -4,7 +4,7 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { OnboardingScreenLayout } from '@/src/components/onboarding/onboarding-screen-layout';
 import { SocialButton } from '@/src/components/onboarding/social-button';
-import { BobbleColors } from '@/src/theme/colors';
+import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { Typography } from '@/src/theme/fonts';
 
 const SOCIAL_PROVIDERS = [
@@ -30,6 +30,7 @@ const AUTH_COPY: Record<AuthMode, { title: string; footerPrompt: string; footerA
 };
 
 export default function AuthScreen() {
+  const colors = useBobbleColors();
   const [mode, setMode] = useState<AuthMode>('sign-in');
   const copy = AUTH_COPY[mode];
 
@@ -44,15 +45,15 @@ export default function AuthScreen() {
   return (
     <OnboardingScreenLayout contentStyle={styles.content}>
       <View style={styles.header}>
-        <Text style={styles.title}>{copy.title}</Text>
-        <Text style={styles.subtitle}>
+        <Text style={[styles.title, { color: colors.text }]}>{copy.title}</Text>
+        <Text style={[styles.subtitle, { color: colors.text }]}>
           {mode === 'sign-in' ? (
             <>
-              Let&apos;s <Text style={styles.accent}>unwind</Text> together
+              Let&apos;s <Text style={[styles.accent, { color: colors.textAccent }]}>unwind</Text> together
             </>
           ) : (
             <>
-              Join Bobble and <Text style={styles.accent}>unwind</Text> your mind
+              Join Bobble and <Text style={[styles.accent, { color: colors.textAccent }]}>unwind</Text> your mind
             </>
           )}
         </Text>
@@ -69,18 +70,18 @@ export default function AuthScreen() {
         ))}
 
         <View style={styles.dividerRow}>
-          <View style={styles.dividerLine} />
-          <Text style={styles.dividerText}>or</Text>
-          <View style={styles.dividerLine} />
+          <View style={[styles.dividerLine, { backgroundColor: colors.divider }]} />
+          <Text style={[styles.dividerText, { color: colors.textSecondary }]}>or</Text>
+          <View style={[styles.dividerLine, { backgroundColor: colors.divider }]} />
         </View>
 
         <SocialButton provider="email" label="Continue with Email" onPress={handleAuth} />
       </View>
 
       <View style={styles.footer}>
-        <Text style={styles.footerText}>
+        <Text style={[styles.footerText, { color: colors.textSecondary }]}>
           {copy.footerPrompt}{' '}
-          <Text style={styles.footerLink} onPress={toggleMode}>
+          <Text style={[styles.footerLink, { color: colors.textAccent }]} onPress={toggleMode}>
             {copy.footerAction}
           </Text>
         </Text>
@@ -101,14 +102,11 @@ const styles = StyleSheet.create({
   },
   title: {
     ...Typography.heading,
-    color: BobbleColors.text,
   },
   subtitle: {
     ...Typography.subheading,
-    color: BobbleColors.text,
   },
   accent: {
-    color: BobbleColors.textAccent,
     fontFamily: Typography.subheading.fontFamily,
     fontWeight: '600',
   },
@@ -124,11 +122,9 @@ const styles = StyleSheet.create({
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: BobbleColors.divider,
   },
   dividerText: {
     ...Typography.divider,
-    color: BobbleColors.textSecondary,
   },
   footer: {
     alignItems: 'center',
@@ -136,11 +132,9 @@ const styles = StyleSheet.create({
   },
   footerText: {
     ...Typography.caption,
-    color: BobbleColors.textSecondary,
   },
   footerLink: {
     ...Typography.caption,
-    color: BobbleColors.textAccent,
     textDecorationLine: 'underline',
     fontWeight: '600',
   },
