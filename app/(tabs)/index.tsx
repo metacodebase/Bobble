@@ -1,13 +1,13 @@
 import { Href, router } from 'expo-router';
+import { Mic } from 'lucide-react-native';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Mic } from 'lucide-react-native';
 
+import { DEMO_BOBBLE } from '@/src/components/capture/summary-content';
 import { RecentBobbleRow } from '@/src/components/home/recent-bobble-row';
 import { SecondaryButton } from '@/src/components/home/secondary-button';
 import { BobbleMascot } from '@/src/components/onboarding/bobble-mascot';
 import { PrimaryButton } from '@/src/components/onboarding/primary-button';
-import { DEMO_BOBBLE } from '@/src/components/capture/summary-content';
 import { BobbleColors } from '@/src/theme/colors';
 import { Typography } from '@/src/theme/fonts';
 
@@ -89,6 +89,7 @@ const styles = StyleSheet.create({
   primaryButton: {
     flexDirection: 'row',
     gap: 4,
+    width: '100%',
   },
   recentSection: {
     borderTopWidth: StyleSheet.hairlineWidth,

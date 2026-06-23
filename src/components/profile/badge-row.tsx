@@ -3,14 +3,13 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { GAMIFICATION } from '@/src/data/demo-data';
 import { BobbleColors } from '@/src/theme/colors';
 import { Typography } from '@/src/theme/fonts';
-import { toast } from '@/src/utils/toast';
 
 export function BadgeRow() {
   return (
     <View style={styles.section}>
       <View style={styles.header}>
         <Text style={styles.title}>Badges</Text>
-        <Pressable onPress={() => toast.info('All badges coming soon')}>
+        <Pressable>
           <Text style={styles.viewAll}>View all</Text>
         </Pressable>
       </View>

@@ -12,7 +12,6 @@ import { useLogout } from '@/src/hooks/api';
 import { useAppStore } from '@/src/store/app-store';
 import { BobbleColors } from '@/src/theme/colors';
 import { Typography } from '@/src/theme/fonts';
-import { toast } from '@/src/utils/toast';
 
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
@@ -31,10 +30,7 @@ export default function ProfileScreen() {
       showsVerticalScrollIndicator={false}
     >
       <View style={styles.profileHeader}>
-        <ProfileAvatar
-          centered={false}
-          onPress={() => toast.info('Photo picker coming soon')}
-        />
+        <ProfileAvatar centered={false} />
         <View style={styles.profileText}>
           <Text style={styles.name}>{displayName.charAt(0).toUpperCase() + displayName.slice(1)}</Text>
           <Text style={styles.email}>{displayEmail}</Text>
@@ -58,12 +54,7 @@ export default function ProfileScreen() {
 
       <View style={styles.menu}>
         {PROFILE_MENU.map((item) => (
-          <ProfileMenuRow
-            key={item.id}
-            label={item.label}
-            icon={item.icon}
-            onPress={() => toast.info(`${item.label} coming soon`)}
-          />
+          <ProfileMenuRow key={item.id} label={item.label} icon={item.icon} />
         ))}
         <ProfileMenuRow
           label="Log Out"
@@ -72,8 +63,6 @@ export default function ProfileScreen() {
           onPress={() => {
             if (user) {
               logout.mutate();
-            } else {
-              toast.info('Signed out');
             }
           }}
         />

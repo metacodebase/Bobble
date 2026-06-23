@@ -10,7 +10,6 @@ import { SegmentTabs, SummaryTab } from '@/src/components/capture/segment-tabs';
 import { PrimaryButton } from '@/src/components/onboarding/primary-button';
 import { BobbleColors } from '@/src/theme/colors';
 import { Typography } from '@/src/theme/fonts';
-import { toast } from '@/src/utils/toast';
 
 export default function SummaryScreen() {
   const insets = useSafeAreaInsets();
@@ -23,7 +22,6 @@ export default function SummaryScreen() {
           title={DEMO_BOBBLE.title}
           onBack={() => router.back()}
           rightIcon={Pencil}
-          onRightPress={() => toast.info('Edit title coming soon')}
         />
         <SegmentTabs active={tab} onChange={setTab} />
       </View>

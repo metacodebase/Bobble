@@ -15,7 +15,6 @@ import {
 } from '@/src/data/demo-data';
 import { useTabBarInsets } from '@/src/hooks/use-tab-bar-insets';
 import { BobbleColors } from '@/src/theme/colors';
-import { toast } from '@/src/utils/toast';
 
 export default function BobblesScreen() {
   const insets = useSafeAreaInsets();
@@ -32,7 +31,6 @@ export default function BobblesScreen() {
           value={query}
           onChangeText={setQuery}
           placeholder="Search bobbles..."
-          onFilterPress={() => toast.info('Advanced filters coming soon')}
         />
         <FilterChips options={BOBBLE_FILTERS} active={filter} onChange={setFilter} />
       </View>
@@ -47,7 +45,6 @@ export default function BobblesScreen() {
             title={item.title}
             timestamp={item.timestamp}
             onPress={() => router.push({ pathname: '/bobble/[id]', params: { id: item.id } } as Href)}
-            onMenuPress={() => toast.info('Bobble options coming soon')}
           />
         )}
       />

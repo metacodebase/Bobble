@@ -9,7 +9,6 @@ import { DEMO_CALENDAR } from '@/src/data/demo-data';
 import { useTabBarInsets } from '@/src/hooks/use-tab-bar-insets';
 import { BobbleColors } from '@/src/theme/colors';
 import { Typography } from '@/src/theme/fonts';
-import { toast } from '@/src/utils/toast';
 
 export default function CalendarScreen() {
   const insets = useSafeAreaInsets();
@@ -27,9 +26,6 @@ export default function CalendarScreen() {
           monthLabel={DEMO_CALENDAR.monthLabel}
           selectedDay={selectedDay}
           onSelectDay={setSelectedDay}
-          onPrevMonth={() => toast.info('Previous month coming soon')}
-          onNextMonth={() => toast.info('Next month coming soon')}
-          onSettingsPress={() => toast.info('Calendar settings coming soon')}
         />
 
         <Text style={styles.agendaLabel}>Today • May {selectedDay}</Text>
@@ -44,7 +40,7 @@ export default function CalendarScreen() {
       </ScrollView>
 
       <View style={[styles.footer, { paddingBottom: tabBarHeight }]}>
-        <PrimaryButton label="+ Add Event" onPress={() => toast.info('Add event coming soon')} />
+        <PrimaryButton label="+ Add Event" onPress={() => {}} />
       </View>
     </View>
   );

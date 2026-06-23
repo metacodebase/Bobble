@@ -13,7 +13,6 @@ import { PrimaryButton } from '@/src/components/onboarding/primary-button';
 import { getBobbleById } from '@/src/data/demo-data';
 import { BobbleColors } from '@/src/theme/colors';
 import { Typography } from '@/src/theme/fonts';
-import { toast } from '@/src/utils/toast';
 
 export default function BobbleDetailScreen() {
   const insets = useSafeAreaInsets();
@@ -30,7 +29,6 @@ export default function BobbleDetailScreen() {
           title={title}
           onBack={() => router.back()}
           rightIcon={Pencil}
-          onRightPress={() => toast.info('Edit title coming soon')}
         />
         <SegmentTabs active={tab} onChange={setTab} />
       </View>
@@ -51,9 +49,6 @@ export default function BobbleDetailScreen() {
 
         <BobbleDetailToolbar
           onShare={() => router.push({ pathname: '/share', params: { title } } as Href)}
-          onAddTask={() => toast.info('Add task coming soon')}
-          onPin={() => toast.info('Pinned')}
-          onMore={() => toast.info('More options coming soon')}
         />
       </ScrollView>
 

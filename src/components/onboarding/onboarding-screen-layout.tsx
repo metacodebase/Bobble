@@ -29,7 +29,7 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
     backgroundColor: BobbleColors.background,
-    paddingHorizontal: 28,
+    // paddingHorizontal: 28,
   },
   content: {
     flex: 1,

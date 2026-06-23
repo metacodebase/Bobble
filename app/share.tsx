@@ -1,14 +1,13 @@
 import { router, useLocalSearchParams } from 'expo-router';
+import { X } from 'lucide-react-native';
 import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { X } from 'lucide-react-native';
 
 import { ShareOption } from '@/src/components/share/share-option';
 import { DEMO_BOBBLE_DETAIL, SHARE_OPTIONS } from '@/src/data/demo-data';
 import { BobbleColors } from '@/src/theme/colors';
 import { Typography } from '@/src/theme/fonts';
-import { toast } from '@/src/utils/toast';
 
 export default function ShareScreen() {
   const insets = useSafeAreaInsets();
@@ -38,7 +37,7 @@ export default function ShareScreen() {
             <ShareOption
               key={option.id}
               label={option.label}
-              onPress={() => toast.info(`${option.label} coming soon`)}
+              onPress={() => {}}
             />
           ))}
         </View>

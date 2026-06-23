@@ -6,7 +6,4 @@ export const toast = {
 
   error: (message: string, title?: string) =>
     Toast.show({ type: 'error', text1: title ?? 'Error', text2: message }),
-
-  info: (message: string, title?: string) =>
-    Toast.show({ type: 'info', text1: title ?? 'Info', text2: message }),
 };

@@ -92,6 +92,8 @@ export default function AuthScreen() {
 const styles = StyleSheet.create({
   content: {
     justifyContent: 'space-between',
+    width:'90%',
+    alignSelf:'center',
   },
   header: {
     marginTop: 24,

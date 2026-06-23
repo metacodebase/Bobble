@@ -1,4 +1,5 @@
 import { Href, router } from 'expo-router';
+import { Brain, Calendar, Leaf, TrendingUp } from 'lucide-react-native';
 import { useState } from 'react';
 import {
   KeyboardAvoidingView,
@@ -7,10 +8,9 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
-import { Brain, Calendar, Leaf, TrendingUp } from 'lucide-react-native';
 
-import { CalendarRow } from '@/src/components/create-account/calendar-row';
 import { OutlookIcon } from '@/src/components/create-account/calendar-brand-icons';
+import { CalendarRow } from '@/src/components/create-account/calendar-row';
 import { CreateAccountHeader } from '@/src/components/create-account/create-account-header';
 import { GoalCard } from '@/src/components/create-account/goal-card';
 import { LabeledTextInput } from '@/src/components/create-account/labeled-text-input';
@@ -21,7 +21,6 @@ import { TextLinkButton } from '@/src/components/create-account/text-link-button
 import { OnboardingScreenLayout } from '@/src/components/onboarding/onboarding-screen-layout';
 import { PrimaryButton } from '@/src/components/onboarding/primary-button';
 import { AppleIcon, GoogleIcon } from '@/src/components/onboarding/social-icons';
-import { toast } from '@/src/utils/toast';
 
 const GOALS = [
   { id: 'productive', label: 'Be more productive', icon: TrendingUp },
@@ -51,7 +50,6 @@ export default function CreateAccountScreen() {
   };
 
   const handleFinish = () => {
-    toast.info('Account setup complete');
     router.replace('/(tabs)' as Href);
   };
 
@@ -73,7 +71,7 @@ export default function CreateAccountScreen() {
         return (
           <>
             <CreateAccountHeader title="Create your account" subtitle="Let's get to know you" />
-            <ProfileAvatar onPress={() => toast.info('Photo picker coming soon')} />
+            <ProfileAvatar />
             <LabeledTextInput
               label="Full Name"
               placeholder="Enter your name"
@@ -111,13 +109,11 @@ export default function CreateAccountScreen() {
                 label="Date of Birth"
                 value="12 May 1995"
                 icon="calendar"
-                onPress={() => toast.info('Date picker coming soon')}
               />
               <SelectField
                 label="Time Zone"
                 value="(GMT+5:30) India Standard Time"
                 icon="chevron"
-                onPress={() => toast.info('Time zone picker coming soon')}
               />
             </View>
           </>
@@ -152,7 +148,6 @@ export default function CreateAccountScreen() {
                   key={calendar.id}
                   name={calendar.name}
                   icon={calendar.icon}
-                  onConnect={() => toast.info(`${calendar.name} connection coming soon`)}
                 />
               ))}
             </View>
@@ -197,6 +192,8 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     paddingBottom: 16,
+    width:'90%',
+    alignSelf:'center',
   },
   formGroup: {
     marginTop: 32,

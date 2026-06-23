@@ -10,7 +10,6 @@ import { ScreenHeader } from '@/src/components/ui/screen-header';
 import { DEMO_TASKS, filterTasks, TaskFilter, TASK_FILTERS } from '@/src/data/demo-data';
 import { useTabBarInsets } from '@/src/hooks/use-tab-bar-insets';
 import { BobbleColors } from '@/src/theme/colors';
-import { toast } from '@/src/utils/toast';
 
 export default function TasksScreen() {
   const insets = useSafeAreaInsets();
@@ -33,11 +32,7 @@ export default function TasksScreen() {
   return (
     <View style={[styles.root, { paddingTop: insets.top + 12 }]}>
       <View style={styles.header}>
-        <ScreenHeader
-          title="Tasks"
-          rightIcon={Settings}
-          onRightPress={() => toast.info('Task settings coming soon')}
-        />
+        <ScreenHeader title="Tasks" rightIcon={Settings} />
         <FilterChips options={TASK_FILTERS} active={filter} onChange={setFilter} />
       </View>
 
@@ -55,10 +50,7 @@ export default function TasksScreen() {
         ))}
       </ScrollView>
 
-      <FabButton
-        bottom={tabBarHeight + 16}
-        onPress={() => toast.info('Add task coming soon')}
-      />
+      <FabButton bottom={tabBarHeight + 16} onPress={() => {}} />
     </View>
   );
 }
