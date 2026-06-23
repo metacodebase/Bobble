@@ -1,8 +1,8 @@
 import { Href, router } from 'expo-router';
+import { Settings } from 'lucide-react-native';
 import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Settings } from 'lucide-react-native';
 
 import { AudioWaveform } from '@/src/components/capture/audio-waveform';
 import { CaptureHeader } from '@/src/components/capture/capture-header';

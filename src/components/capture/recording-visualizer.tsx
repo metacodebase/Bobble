@@ -1,27 +1,31 @@
-import { Mic } from 'lucide-react-native';
 import { StyleSheet, View } from 'react-native';
+import Svg, { Circle, Defs, RadialGradient, Stop } from 'react-native-svg';
 
 import { BobbleColors } from '@/src/theme/colors';
+import { Mic } from 'lucide-react-native';
 
-const RINGS = [220, 170, 120] as const;
+const GLOW_SIZE = 220;
 
 export function RecordingVisualizer() {
   return (
     <View style={styles.root}>
-      {RINGS.map((size) => (
-        <View
-          key={size}
-          style={[
-            styles.ring,
-            {
-              width: size,
-              height: size,
-              borderRadius: size / 2,
-              opacity: size === 220 ? 0.25 : size === 170 ? 0.4 : 0.55,
-            },
-          ]}
+      <Svg width={GLOW_SIZE} height={GLOW_SIZE} style={styles.glow}>
+        <Defs>
+          <RadialGradient id="recordingGlow" cx="50%" cy="50%" r="50%">
+            <Stop offset="0%" stopColor={BobbleColors.primary} stopOpacity={0.85} />
+            <Stop offset="30%" stopColor={BobbleColors.primaryLight} stopOpacity={0.65} />
+            <Stop offset="55%" stopColor={BobbleColors.primaryMuted} stopOpacity={0.8} />
+            <Stop offset="80%" stopColor={BobbleColors.primaryMuted} stopOpacity={0.3} />
+            <Stop offset="100%" stopColor={BobbleColors.primaryMuted} stopOpacity={0.12} />
+          </RadialGradient>
+        </Defs>
+        <Circle
+          cx={GLOW_SIZE / 2}
+          cy={GLOW_SIZE / 2}
+          r={GLOW_SIZE / 2}
+          fill="url(#recordingGlow)"
         />
-      ))}
+      </Svg>
       <View style={styles.micWrap}>
         <Mic size={36} color={'white'} strokeWidth={2} />
       </View>
@@ -35,9 +39,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     height: 260,
   },
-  ring: {
+  glow: {
     position: 'absolute',
-    backgroundColor: BobbleColors.primaryMuted,
   },
   micWrap: {
     width: 72,
