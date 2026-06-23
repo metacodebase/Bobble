@@ -19,7 +19,7 @@ export function BobbleMascot({ variant = 'splash', size = 200, style }: BobbleMa
   return (
     <Image
       source={MASCOT_SOURCES[variant]}
-      style={[styles.image, { width: size, height: size }, style]}
+      style={[styles.image, { width: size, height: size,borderRadius:100 }, style]}
       contentFit="cover"
     />
   );
