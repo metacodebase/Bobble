@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native';
 
-import { BobbleColors } from '@/src/theme/colors';
+import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { Typography } from '@/src/theme/fonts';
 
 type AgendaEventProps = {
@@ -10,12 +10,14 @@ type AgendaEventProps = {
 };
 
 export function AgendaEvent({ title, start, end }: AgendaEventProps) {
+  const colors = useBobbleColors();
+
   return (
-    <View style={styles.card}>
-      <View style={styles.accent} />
+    <View style={[styles.card, { backgroundColor: colors.borderLight }]}>
+      <View style={[styles.accent, { backgroundColor: colors.primary }]} />
       <View style={styles.content}>
-        <Text style={styles.title}>{title}</Text>
-        <Text style={styles.time}>
+        <Text style={[styles.title, { color: colors.text }]}>{title}</Text>
+        <Text style={[styles.time, { color: colors.textSecondary }]}>
           {start} – {end}
         </Text>
       </View>
@@ -26,14 +28,12 @@ export function AgendaEvent({ title, start, end }: AgendaEventProps) {
 const styles = StyleSheet.create({
   card: {
     flexDirection: 'row',
-    backgroundColor: BobbleColors.borderLight,
     borderRadius: 14,
     overflow: 'hidden',
     marginBottom: 10,
   },
   accent: {
     width: 4,
-    backgroundColor: BobbleColors.primary,
   },
   content: {
     flex: 1,
@@ -44,10 +44,8 @@ const styles = StyleSheet.create({
   title: {
     ...Typography.body,
     fontFamily: Typography.button.fontFamily,
-    color: BobbleColors.text,
   },
   time: {
     ...Typography.caption,
-    color: BobbleColors.textSecondary,
   },
 });

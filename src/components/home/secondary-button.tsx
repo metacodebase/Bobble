@@ -1,7 +1,7 @@
 import { LucideIcon } from 'lucide-react-native';
 import { Pressable, StyleSheet, Text, View, ViewStyle } from 'react-native';
 
-import { BobbleColors } from '@/src/theme/colors';
+import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { Typography } from '@/src/theme/fonts';
 
 type SecondaryButtonProps = {
@@ -12,17 +12,26 @@ type SecondaryButtonProps = {
 };
 
 export function SecondaryButton({ label, onPress, icon: Icon, style }: SecondaryButtonProps) {
+  const colors = useBobbleColors();
+
   return (
     <Pressable
       onPress={onPress}
-      style={({ pressed }) => [styles.button, style, pressed && styles.pressed]}
+      style={({ pressed }) => [
+        styles.button,
+        {
+          backgroundColor: pressed ? colors.borderLight : colors.surface,
+          borderColor: colors.primary,
+        },
+        style,
+      ]}
     >
       {Icon ? (
         <View style={styles.icon}>
-          <Icon size={20} color={BobbleColors.primary} strokeWidth={2} />
+          <Icon size={20} color={colors.primary} strokeWidth={2} />
         </View>
       ) : null}
-      <Text style={styles.label}>{label}</Text>
+      <Text style={[styles.label, { color: colors.primary }]}>{label}</Text>
     </Pressable>
   );
 }
@@ -33,22 +42,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 10,
-    backgroundColor: BobbleColors.background,
     borderRadius: 32,
     borderWidth: 1.5,
-    borderColor: BobbleColors.primary,
     paddingVertical: 18,
     width: '100%',
-  },
-  pressed: {
-    opacity: 0.9,
-    backgroundColor: BobbleColors.borderLight,
   },
   icon: {
     marginTop: 1,
   },
   label: {
     ...Typography.button,
-    color: BobbleColors.primary,
   },
 });

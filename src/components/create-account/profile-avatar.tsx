@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Pressable, StyleSheet, View, ViewStyle } from 'react-native';
 
+import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { BobbleColors } from '@/src/theme/colors';
 import { BobbleMascot } from '../onboarding/bobble-mascot';
 
@@ -20,6 +21,7 @@ export function ProfileAvatar({
   centered = true,
   style,
 }: ProfileAvatarProps) {
+  const colors = useBobbleColors();
   const radius = size / 2;
   const mascotSize = size * (135 / 140);
   const cameraSize = size * (36 / 140);
@@ -53,6 +55,7 @@ export function ProfileAvatar({
               height: cameraSize,
               borderRadius: cameraSize / 2,
               borderWidth: cameraBorder,
+              borderColor: colors.background,
               right: size * (4 / 140),
               bottom: size * (4 / 140),
             },
@@ -84,7 +87,6 @@ const styles = StyleSheet.create({
     backgroundColor: BobbleColors.primary,
     alignItems: 'center',
     justifyContent: 'center',
-    borderColor: BobbleColors.background,
   },
   cameraButtonPressed: {
     opacity: 0.85,

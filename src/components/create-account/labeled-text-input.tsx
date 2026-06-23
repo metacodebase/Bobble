@@ -1,7 +1,7 @@
 import { StyleSheet, TextInput, TextInputProps } from 'react-native';
 
 import { FormField } from '@/src/components/create-account/form-field';
-import { BobbleColors } from '@/src/theme/colors';
+import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { Typography } from '@/src/theme/fonts';
 
 type LabeledTextInputProps = TextInputProps & {
@@ -9,11 +9,21 @@ type LabeledTextInputProps = TextInputProps & {
 };
 
 export function LabeledTextInput({ label, style, ...props }: LabeledTextInputProps) {
+  const colors = useBobbleColors();
+
   return (
     <FormField label={label}>
       <TextInput
-        placeholderTextColor={BobbleColors.textSecondary}
-        style={[styles.input, style]}
+        placeholderTextColor={colors.textSecondary}
+        style={[
+          styles.input,
+          {
+            color: colors.text,
+            borderColor: colors.border,
+            backgroundColor: colors.surface,
+          },
+          style,
+        ]}
         {...props}
       />
     </FormField>
@@ -23,12 +33,9 @@ export function LabeledTextInput({ label, style, ...props }: LabeledTextInputPro
 const styles = StyleSheet.create({
   input: {
     ...Typography.input,
-    color: BobbleColors.text,
     borderWidth: 1,
-    borderColor: BobbleColors.border,
     borderRadius: 16,
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: BobbleColors.background,
   },
 });

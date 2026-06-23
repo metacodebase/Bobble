@@ -1,7 +1,7 @@
 import { ChevronLeft, ChevronRight, Settings } from 'lucide-react-native';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { BobbleColors } from '@/src/theme/colors';
+import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { Typography } from '@/src/theme/fonts';
 
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as const;
@@ -16,7 +16,6 @@ type CalendarGridProps = {
 };
 
 function buildMay2024Grid() {
-  // May 2024 starts on Wednesday (index 3), 31 days
   const days: (number | null)[] = [];
   for (let i = 0; i < 3; i += 1) days.push(null);
   for (let d = 1; d <= 31; d += 1) days.push(d);
@@ -35,6 +34,8 @@ export function CalendarGrid({
   onSelectDay,
   onSettingsPress,
 }: CalendarGridProps) {
+  const colors = useBobbleColors();
+
   const weeks: (number | null)[][] = [];
   for (let i = 0; i < GRID_DAYS.length; i += 7) {
     weeks.push(GRID_DAYS.slice(i, i + 7));
@@ -44,16 +45,16 @@ export function CalendarGrid({
     <View style={styles.root}>
       <View style={styles.header}>
         <Pressable onPress={onPrevMonth} hitSlop={12}>
-          <ChevronLeft size={22} color={BobbleColors.text} strokeWidth={2} />
+          <ChevronLeft size={22} color={colors.text} strokeWidth={2} />
         </Pressable>
-        <Text style={styles.month}>{monthLabel}</Text>
+        <Text style={[styles.month, { color: colors.text }]}>{monthLabel}</Text>
         <View style={styles.headerRight}>
           <Pressable onPress={onNextMonth} hitSlop={12} style={styles.navNext}>
-            <ChevronRight size={22} color={BobbleColors.text} strokeWidth={2} />
+            <ChevronRight size={22} color={colors.text} strokeWidth={2} />
           </Pressable>
           {onSettingsPress ? (
             <Pressable onPress={onSettingsPress} hitSlop={12}>
-              <Settings size={20} color={BobbleColors.textSecondary} strokeWidth={2} />
+              <Settings size={20} color={colors.textSecondary} strokeWidth={2} />
             </Pressable>
           ) : null}
         </View>
@@ -61,7 +62,7 @@ export function CalendarGrid({
 
       <View style={styles.weekdays}>
         {WEEKDAYS.map((day) => (
-          <Text key={day} style={styles.weekday}>
+          <Text key={day} style={[styles.weekday, { color: colors.textSecondary }]}>
             {day}
           </Text>
         ))}
@@ -77,14 +78,25 @@ export function CalendarGrid({
                   {day ? (
                     <Pressable
                       onPress={() => onSelectDay?.(day)}
-                      style={[styles.dayWrap, selected && styles.daySelected]}
+                      style={[
+                        styles.dayWrap,
+                        selected && { backgroundColor: colors.primary },
+                      ]}
                       android_ripple={{
-                        color: BobbleColors.primary + '33',
+                        color: colors.primary + '33',
                         borderless: true,
                         radius: DAY_SIZE / 2,
                       }}
                     >
-                      <Text style={[styles.day, selected && styles.dayTextSelected]}>{day}</Text>
+                      <Text
+                        style={[
+                          styles.day,
+                          { color: colors.text },
+                          selected && { color: colors.textOnPrimary, fontFamily: Typography.button.fontFamily },
+                        ]}
+                      >
+                        {day}
+                      </Text>
                     </Pressable>
                   ) : (
                     <View style={styles.daySpacer} />
@@ -121,7 +133,6 @@ const styles = StyleSheet.create({
     ...Typography.heading,
     fontSize: 22,
     lineHeight: 28,
-    color: BobbleColors.text,
     flex: 1,
     textAlign: 'center',
   },
@@ -132,7 +143,6 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: 'center',
     ...Typography.caption,
-    color: BobbleColors.textSecondary,
   },
   grid: {
     gap: 4,
@@ -158,19 +168,11 @@ const styles = StyleSheet.create({
     width: DAY_SIZE,
     height: DAY_SIZE,
   },
-  daySelected: {
-    backgroundColor: BobbleColors.primary,
-  },
   day: {
     ...Typography.body,
     fontSize: 15,
     lineHeight: DAY_SIZE,
     textAlign: 'center',
-    color: BobbleColors.text,
     ...(Platform.OS === 'android' ? { includeFontPadding: false } : null),
-  },
-  dayTextSelected: {
-    color: BobbleColors.textOnPrimary,
-    fontFamily: Typography.button.fontFamily,
   },
 });

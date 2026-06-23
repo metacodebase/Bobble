@@ -1,8 +1,8 @@
 import { StyleSheet, Text, View } from 'react-native';
 
-import { TaskItem } from '@/src/data/demo-data';
 import { TaskRow } from '@/src/components/tasks/task-row';
-import { BobbleColors } from '@/src/theme/colors';
+import { TaskItem } from '@/src/data/demo-data';
+import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { Typography } from '@/src/theme/fonts';
 
 type TaskSectionProps = {
@@ -12,9 +12,11 @@ type TaskSectionProps = {
 };
 
 export function TaskSection({ label, tasks, onToggle }: TaskSectionProps) {
+  const colors = useBobbleColors();
+
   return (
     <View style={styles.section}>
-      <Text style={styles.label}>
+      <Text style={[styles.label, { color: colors.textSecondary }]}>
         {label} ({tasks.length})
       </Text>
       <View style={styles.list}>
@@ -33,7 +35,6 @@ const styles = StyleSheet.create({
   label: {
     ...Typography.formLabel,
     fontSize: 15,
-    color: BobbleColors.textSecondary,
     marginBottom: 8,
   },
   list: {

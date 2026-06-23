@@ -8,6 +8,7 @@ import { AudioWaveform } from '@/src/components/capture/audio-waveform';
 import { CaptureHeader } from '@/src/components/capture/capture-header';
 import { RecordingControls } from '@/src/components/capture/recording-controls';
 import { RecordingVisualizer } from '@/src/components/capture/recording-visualizer';
+import { useVoiceRecorder } from '@/src/hooks/use-voice-recorder';
 import { BobbleColors } from '@/src/theme/colors';
 import { Typography } from '@/src/theme/fonts';
 
@@ -22,6 +23,7 @@ export default function RecordScreen() {
   const [elapsed, setElapsed] = useState(0);
   const [paused, setPaused] = useState(false);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const { metering, stopRecording } = useVoiceRecorder(paused);
 
   useEffect(() => {
     if (paused) {
@@ -38,7 +40,8 @@ export default function RecordScreen() {
     };
   }, [paused]);
 
-  const handleStop = () => {
+  const handleStop = async () => {
+    await stopRecording();
     router.push('/capture/processing' as Href);
   };
 
@@ -57,7 +60,7 @@ export default function RecordScreen() {
 
       <View style={styles.visualBlock}>
         <RecordingVisualizer />
-        <AudioWaveform active={!paused} />
+        <AudioWaveform active={!paused} metering={metering} />
       </View>
 
       <RecordingControls

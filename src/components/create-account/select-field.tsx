@@ -1,8 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text } from 'react-native';
 
 import { FormField } from '@/src/components/create-account/form-field';
-import { BobbleColors } from '@/src/theme/colors';
+import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { Typography } from '@/src/theme/fonts';
 
 type SelectFieldProps = {
@@ -13,17 +13,25 @@ type SelectFieldProps = {
 };
 
 export function SelectField({ label, value, icon, onPress }: SelectFieldProps) {
+  const colors = useBobbleColors();
+
   return (
     <FormField label={label}>
       <Pressable
         onPress={onPress}
-        style={({ pressed }) => [styles.field, pressed && styles.fieldPressed]}
+        style={({ pressed }) => [
+          styles.field,
+          {
+            borderColor: colors.border,
+            backgroundColor: pressed ? colors.borderLight : colors.surface,
+          },
+        ]}
       >
-        <Text style={styles.value}>{value}</Text>
+        <Text style={[styles.value, { color: colors.text }]}>{value}</Text>
         <Ionicons
           name={icon === 'calendar' ? 'calendar-outline' : 'chevron-down'}
           size={20}
-          color={BobbleColors.textSecondary}
+          color={colors.textSecondary}
         />
       </Pressable>
     </FormField>
@@ -36,18 +44,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     borderWidth: 1,
-    borderColor: BobbleColors.border,
     borderRadius: 16,
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: BobbleColors.background,
-  },
-  fieldPressed: {
-    backgroundColor: BobbleColors.borderLight,
   },
   value: {
     ...Typography.input,
-    color: BobbleColors.text,
     flex: 1,
   },
 });

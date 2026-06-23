@@ -2,7 +2,7 @@ import { Check } from 'lucide-react-native';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { TaskItem } from '@/src/data/demo-data';
-import { BobbleColors } from '@/src/theme/colors';
+import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { Typography } from '@/src/theme/fonts';
 
 type TaskRowProps = {
@@ -11,16 +11,38 @@ type TaskRowProps = {
 };
 
 export function TaskRow({ task, onToggle }: TaskRowProps) {
+  const colors = useBobbleColors();
+
   return (
-    <Pressable onPress={onToggle} style={({ pressed }) => [styles.row, pressed && styles.pressed]}>
-      <View style={[styles.checkbox, task.done && styles.checkboxDone]}>
-        {task.done ? <Check size={14} color={BobbleColors.textOnPrimary} strokeWidth={3} /> : null}
+    <Pressable
+      onPress={onToggle}
+      style={({ pressed }) => [
+        styles.row,
+        { borderBottomColor: colors.border },
+        pressed && styles.pressed,
+      ]}
+    >
+      <View
+        style={[
+          styles.checkbox,
+          { borderColor: colors.border },
+          task.done && { backgroundColor: colors.primary, borderColor: colors.primary },
+        ]}
+      >
+        {task.done ? <Check size={14} color={colors.textOnPrimary} strokeWidth={3} /> : null}
       </View>
       <View style={styles.content}>
-        <Text style={[styles.title, task.done && styles.titleDone]} numberOfLines={1}>
+        <Text
+          style={[
+            styles.title,
+            { color: colors.text },
+            task.done && { textDecorationLine: 'line-through', color: colors.textSecondary },
+          ]}
+          numberOfLines={1}
+        >
           {task.title}
         </Text>
-        <Text style={styles.time}>{task.time}</Text>
+        <Text style={[styles.time, { color: colors.textSecondary }]}>{task.time}</Text>
       </View>
     </Pressable>
   );
@@ -33,7 +55,6 @@ const styles = StyleSheet.create({
     gap: 12,
     paddingVertical: 12,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: BobbleColors.border,
   },
   pressed: {
     opacity: 0.85,
@@ -43,13 +64,8 @@ const styles = StyleSheet.create({
     height: 24,
     borderRadius: 8,
     borderWidth: 2,
-    borderColor: BobbleColors.border,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  checkboxDone: {
-    backgroundColor: BobbleColors.primary,
-    borderColor: BobbleColors.primary,
   },
   content: {
     flex: 1,
@@ -58,14 +74,8 @@ const styles = StyleSheet.create({
   title: {
     ...Typography.body,
     fontFamily: Typography.button.fontFamily,
-    color: BobbleColors.text,
-  },
-  titleDone: {
-    textDecorationLine: 'line-through',
-    color: BobbleColors.textSecondary,
   },
   time: {
     ...Typography.caption,
-    color: BobbleColors.textSecondary,
   },
 });

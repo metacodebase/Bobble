@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native';
 
-import { BobbleColors } from '@/src/theme/colors';
+import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { Typography } from '@/src/theme/fonts';
 
 type CreateAccountHeaderProps = {
@@ -9,10 +9,12 @@ type CreateAccountHeaderProps = {
 };
 
 export function CreateAccountHeader({ title, subtitle }: CreateAccountHeaderProps) {
+  const colors = useBobbleColors();
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>{title}</Text>
-      <Text style={styles.subtitle}>{subtitle}</Text>
+      <Text style={[styles.title, { color: colors.text }]}>{title}</Text>
+      <Text style={[styles.subtitle, { color: colors.textSecondary }]}>{subtitle}</Text>
     </View>
   );
 }
@@ -24,10 +26,8 @@ const styles = StyleSheet.create({
   },
   title: {
     ...Typography.heading,
-    color: BobbleColors.text,
   },
   subtitle: {
     ...Typography.subheading,
-    color: BobbleColors.textSecondary,
   },
 });

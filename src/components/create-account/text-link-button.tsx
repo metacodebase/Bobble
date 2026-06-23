@@ -1,6 +1,6 @@
 import { Pressable, StyleSheet, Text } from 'react-native';
 
-import { BobbleColors } from '@/src/theme/colors';
+import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { Typography } from '@/src/theme/fonts';
 
 type TextLinkButtonProps = {
@@ -9,10 +9,14 @@ type TextLinkButtonProps = {
 };
 
 export function TextLinkButton({ label, onPress }: TextLinkButtonProps) {
+  const colors = useBobbleColors();
+
   return (
     <Pressable onPress={onPress} style={styles.wrapper}>
       {({ pressed }) => (
-        <Text style={[styles.label, pressed && styles.pressed]}>{label}</Text>
+        <Text style={[styles.label, { color: colors.textAccent }, pressed && styles.pressed]}>
+          {label}
+        </Text>
       )}
     </Pressable>
   );
@@ -25,7 +29,6 @@ const styles = StyleSheet.create({
   },
   label: {
     ...Typography.button,
-    color: BobbleColors.textAccent,
   },
   pressed: {
     opacity: 0.7,

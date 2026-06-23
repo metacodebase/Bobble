@@ -1,22 +1,48 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { BobbleColors } from '@/src/theme/colors';
 
 const BAR_COUNT = 48;
+const MIN_HEIGHT = 8;
+const MAX_HEIGHT = 44;
 
-export function AudioWaveform({ active = true }: { active?: boolean }) {
-  const [heights, setHeights] = useState(() => Array.from({ length: BAR_COUNT }, () => 12));
+function meteringToNormalized(metering: number): number {
+  const minDb = -50;
+  const maxDb = -5;
+  const clamped = Math.max(minDb, Math.min(maxDb, metering));
+  return (clamped - minDb) / (maxDb - minDb);
+}
+
+export function AudioWaveform({
+  active = true,
+  metering,
+}: {
+  active?: boolean;
+  metering?: number;
+}) {
+  const [heights, setHeights] = useState(() => Array.from({ length: BAR_COUNT }, () => MIN_HEIGHT));
+  const smoothedRef = useRef(0);
+  const historyRef = useRef<number[]>(Array.from({ length: BAR_COUNT }, () => 0));
 
   useEffect(() => {
-    if (!active) return;
+    if (!active) {
+      smoothedRef.current = 0;
+      historyRef.current = Array.from({ length: BAR_COUNT }, () => 0);
+      setHeights(Array.from({ length: BAR_COUNT }, () => MIN_HEIGHT));
+      return;
+    }
 
-    const interval = setInterval(() => {
-      setHeights(Array.from({ length: BAR_COUNT }, () => 8 + Math.random() * 36));
-    }, 120);
+    if (metering == null) return;
 
-    return () => clearInterval(interval);
-  }, [active]);
+    const normalized = meteringToNormalized(metering);
+    smoothedRef.current = smoothedRef.current * 0.55 + normalized * 0.45;
+
+    historyRef.current = [...historyRef.current.slice(1), smoothedRef.current];
+    setHeights(
+      historyRef.current.map((level) => MIN_HEIGHT + level * (MAX_HEIGHT - MIN_HEIGHT)),
+    );
+  }, [active, metering]);
 
   return (
     <View style={styles.root}>

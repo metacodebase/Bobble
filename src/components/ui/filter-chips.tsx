@@ -32,7 +32,7 @@ export function FilterChips<T extends string>({ options, active, onChange }: Fil
             <Text
               style={[
                 styles.label,
-                { color: selected ? colors.textOnPrimary : colors.textSecondary },
+                { color: selected ? colors.textOnPrimary : colors.text },
               ]}
             >
               {option}

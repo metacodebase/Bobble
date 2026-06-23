@@ -2,7 +2,7 @@ import { ReactNode } from 'react';
 import { StyleSheet, View, ViewStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { BobbleColors } from '@/src/theme/colors';
+import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 
 type OnboardingScreenLayoutProps = {
   children: ReactNode;
@@ -16,9 +16,19 @@ export function OnboardingScreenLayout({
   contentStyle,
 }: OnboardingScreenLayoutProps) {
   const insets = useSafeAreaInsets();
+  const colors = useBobbleColors();
 
   return (
-    <View style={[styles.root, { paddingTop: insets.top + 16, paddingBottom: insets.bottom + 24 }]}>
+    <View
+      style={[
+        styles.root,
+        {
+          backgroundColor: colors.background,
+          paddingTop: insets.top + 16,
+          paddingBottom: insets.bottom + 24,
+        },
+      ]}
+    >
       <View style={[styles.content, contentStyle]}>{children}</View>
       {footer ? <View style={styles.footer}>{footer}</View> : null}
     </View>
@@ -28,8 +38,6 @@ export function OnboardingScreenLayout({
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: BobbleColors.background,
-    // paddingHorizontal: 28,
   },
   content: {
     flex: 1,

@@ -15,7 +15,7 @@ export function CalendarRow({ name, icon, onConnect }: CalendarRowProps) {
   return (
     <View style={[styles.row, { borderBottomColor: colors.borderLight }]}>
       <View style={styles.left}>
-      <View style={styles.iconWrapper}>{icon}</View>
+      <View style={[styles.iconWrapper, { backgroundColor: `${colors.primary}1A` }]}>{icon}</View>
         <Text style={[styles.name, { color: colors.text }]}>{name}</Text>
       </View>
       <Pressable onPress={onConnect} hitSlop={8}>
@@ -48,7 +48,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(124, 92, 255, 0.1)',
   },
   name: {
     ...Typography.body,
