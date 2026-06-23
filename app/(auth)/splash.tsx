@@ -31,13 +31,15 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    gap: 10,
+    gap: 4,
     width: "100%",
   },
   title: {
     ...Typography.splashTitle,
     color: BobbleColors.text,
     fontSize: 60,
+    lineHeight: 66,
+    marginBottom: -4,
   },
   tagline: {
     ...Typography.splashTagline,
