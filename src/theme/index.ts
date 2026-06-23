@@ -1,10 +1,11 @@
 import { Platform } from 'react-native';
 
-import { BobbleColors } from './colors';
+import { BobbleColors, type BobbleThemeColors } from './colors';
 import { FontFamily } from './fonts';
 
 export { BobbleColors } from './colors';
 export { FontFamily, Typography } from './fonts';
+export type { BobbleThemeColors } from './colors';
 
 /** @deprecated Use BobbleColors for new code */
 export const Palette = {
@@ -79,6 +80,32 @@ export const Colors = {
 
 export type ColorScheme = 'light' | 'dark';
 export type ThemeColors = typeof Colors.light;
+
+export function getBobbleThemeColors(scheme: ColorScheme): BobbleThemeColors {
+  const theme = Colors[scheme];
+  return {
+    primary: BobbleColors.primary,
+    primaryDark: BobbleColors.primaryDark,
+    primaryLight: BobbleColors.primaryLight,
+    primaryMuted: BobbleColors.primaryMuted,
+    background: theme.background,
+    surface: theme.surface,
+    text: theme.text,
+    textSecondary: theme.textSecondary,
+    textAccent: scheme === 'dark' ? theme.primaryLight : BobbleColors.textAccent,
+    textOnPrimary: BobbleColors.textOnPrimary,
+    success: theme.success,
+    error: theme.error,
+    warning: theme.warning,
+    border: theme.border,
+    borderLight: theme.surfaceAlt,
+    divider: theme.border,
+    dotActive: BobbleColors.dotActive,
+    dotInactive: scheme === 'dark' ? theme.icon : BobbleColors.dotInactive,
+    mascotPlaceholder: BobbleColors.mascotPlaceholder,
+    mascotPlaceholderLight: BobbleColors.mascotPlaceholderLight,
+  };
+}
 
 export const Fonts = Platform.select({
   ios: {

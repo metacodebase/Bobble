@@ -8,7 +8,7 @@ import { RecentBobbleRow } from '@/src/components/home/recent-bobble-row';
 import { SecondaryButton } from '@/src/components/home/secondary-button';
 import { BobbleMascot } from '@/src/components/onboarding/bobble-mascot';
 import { PrimaryButton } from '@/src/components/onboarding/primary-button';
-import { BobbleColors } from '@/src/theme/colors';
+import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { Typography } from '@/src/theme/fonts';
 
 function getGreeting() {
@@ -20,18 +20,19 @@ function getGreeting() {
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
+  const colors = useBobbleColors();
 
   const startCapture = () => {
     router.push('/capture/record' as Href);
   };
 
   return (
-    <View style={[styles.root, { paddingTop: insets.top + 12 }]}>
+    <View style={[styles.root, { paddingTop: insets.top + 12, backgroundColor: colors.background }]}>
       <ScrollView
         contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 24 }]}
         showsVerticalScrollIndicator={false}
       >
-        <Text style={styles.greeting}>{getGreeting()}, Steven 👋</Text>
+        <Text style={[styles.greeting, { color: colors.text }]}>{getGreeting()}, Steven 👋</Text>
 
         <View style={styles.mascotWrap}>
           <BobbleMascot variant="sitting" size={220} />
@@ -46,10 +47,10 @@ export default function HomeScreen() {
           <SecondaryButton label="Quick Capture" icon={Mic} onPress={startCapture} />
         </View>
 
-        <View style={styles.recentSection}>
+        <View style={[styles.recentSection, { borderTopColor: colors.border }]}>
           <View style={styles.recentHeader}>
-            <Text style={styles.recentTitle}>Recent Bobbles</Text>
-            <Text style={styles.seeAll}>See all</Text>
+            <Text style={[styles.recentTitle, { color: colors.text }]}>Recent Bobbles</Text>
+            <Text style={[styles.seeAll, { color: colors.primary }]}>See all</Text>
           </View>
           <RecentBobbleRow
             title={DEMO_BOBBLE.title}
@@ -65,7 +66,6 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: BobbleColors.background,
   },
   scrollContent: {
     paddingHorizontal: 24,
@@ -74,7 +74,6 @@ const styles = StyleSheet.create({
     ...Typography.heading,
     fontSize: 28,
     lineHeight: 36,
-    color: BobbleColors.text,
     marginBottom: 8,
   },
   mascotWrap: {
@@ -93,7 +92,6 @@ const styles = StyleSheet.create({
   },
   recentSection: {
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: BobbleColors.border,
     paddingTop: 20,
   },
   recentHeader: {
@@ -105,11 +103,9 @@ const styles = StyleSheet.create({
   recentTitle: {
     ...Typography.formLabel,
     fontSize: 16,
-    color: BobbleColors.text,
   },
   seeAll: {
     ...Typography.caption,
-    color: BobbleColors.primary,
     fontFamily: Typography.button.fontFamily,
   },
 });

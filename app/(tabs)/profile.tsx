@@ -1,3 +1,4 @@
+import { Href, router } from 'expo-router';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -9,12 +10,24 @@ import { StatCard } from '@/src/components/profile/stat-card';
 import { ProfileMenuRow } from '@/src/components/ui/profile-menu-row';
 import { GAMIFICATION, PROFILE_MENU, PROFILE_USER } from '@/src/data/demo-data';
 import { useLogout } from '@/src/hooks/api';
+import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { useAppStore } from '@/src/store/app-store';
-import { BobbleColors } from '@/src/theme/colors';
 import { Typography } from '@/src/theme/fonts';
+
+const SETTINGS_ROUTES: Record<(typeof PROFILE_MENU)[number]['id'], Href> = {
+  account: '/settings/account',
+  calendar: '/settings/calendar-sync',
+  connections: '/settings/connections',
+  notifications: '/settings/notifications',
+  appearance: '/settings/appearance',
+  language: '/settings/language',
+  help: '/settings/help',
+  about: '/settings/about',
+};
 
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
+  const colors = useBobbleColors();
   const user = useAppStore((s) => s.user);
   const logout = useLogout();
   const displayName = user?.email?.split('@')[0] ?? PROFILE_USER.name;
@@ -22,7 +35,7 @@ export default function ProfileScreen() {
 
   return (
     <ScrollView
-      style={styles.root}
+      style={[styles.root, { backgroundColor: colors.background }]}
       contentContainerStyle={[
         styles.content,
         { paddingTop: insets.top + 12, paddingBottom: insets.bottom + 24 },
@@ -32,8 +45,8 @@ export default function ProfileScreen() {
       <View style={styles.profileHeader}>
         <ProfileAvatar centered={false} />
         <View style={styles.profileText}>
-          <Text style={styles.name}>{displayName.charAt(0).toUpperCase() + displayName.slice(1)}</Text>
-          <Text style={styles.email}>{displayEmail}</Text>
+          <Text style={[styles.name, { color: colors.text }]}>{displayName.charAt(0).toUpperCase() + displayName.slice(1)}</Text>
+          <Text style={[styles.email, { color: colors.textSecondary }]}>{displayEmail}</Text>
         </View>
       </View>
 
@@ -47,14 +60,19 @@ export default function ProfileScreen() {
 
       <BadgeRow />
 
-      <View style={styles.motivation}>
+      <View style={[styles.motivation, { backgroundColor: colors.borderLight }]}>
         <BobbleMascot variant="sitting" size={48} />
-        <Text style={styles.motivationText}>Keep going! You're doing amazing</Text>
+        <Text style={[styles.motivationText, { color: colors.text }]}>Keep going! You're doing amazing</Text>
       </View>
 
-      <View style={styles.menu}>
+      <View style={[styles.menu, { borderTopColor: colors.border }]}>
         {PROFILE_MENU.map((item) => (
-          <ProfileMenuRow key={item.id} label={item.label} icon={item.icon} />
+          <ProfileMenuRow
+            key={item.id}
+            label={item.label}
+            icon={item.icon}
+            onPress={() => router.push(SETTINGS_ROUTES[item.id])}
+          />
         ))}
         <ProfileMenuRow
           label="Log Out"
@@ -74,7 +92,6 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: BobbleColors.background,
   },
   content: {
     paddingHorizontal: 24,
@@ -93,11 +110,9 @@ const styles = StyleSheet.create({
     ...Typography.heading,
     fontSize: 24,
     lineHeight: 32,
-    color: BobbleColors.text,
   },
   email: {
     ...Typography.body,
-    color: BobbleColors.textSecondary,
   },
   statsRow: {
     flexDirection: 'row',
@@ -108,18 +123,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    backgroundColor: BobbleColors.borderLight,
     borderRadius: 16,
     padding: 14,
     marginBottom: 24,
   },
   motivationText: {
     ...Typography.body,
-    color: BobbleColors.text,
     flex: 1,
   },
   menu: {
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: BobbleColors.border,
   },
 });

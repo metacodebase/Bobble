@@ -1,22 +1,30 @@
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { GAMIFICATION } from '@/src/data/demo-data';
-import { BobbleColors } from '@/src/theme/colors';
+import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { Typography } from '@/src/theme/fonts';
 
 export function BadgeRow() {
+  const colors = useBobbleColors();
+
   return (
     <View style={styles.section}>
       <View style={styles.header}>
-        <Text style={styles.title}>Badges</Text>
+        <Text style={[styles.title, { color: colors.text }]}>Badges</Text>
         <Pressable>
-          <Text style={styles.viewAll}>View all</Text>
+          <Text style={[styles.viewAll, { color: colors.primary }]}>View all</Text>
         </Pressable>
       </View>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.row}>
         {GAMIFICATION.badges.map((badge) => (
-          <View key={badge} style={styles.badge}>
-            <Text style={styles.badgeText}>{badge}</Text>
+          <View
+            key={badge}
+            style={[
+              styles.badge,
+              { backgroundColor: colors.primaryMuted + '40', borderColor: colors.primaryMuted },
+            ]}
+          >
+            <Text style={[styles.badgeText, { color: colors.primaryDark }]}>{badge}</Text>
           </View>
         ))}
       </ScrollView>
@@ -37,11 +45,9 @@ const styles = StyleSheet.create({
   title: {
     ...Typography.formLabel,
     fontSize: 16,
-    color: BobbleColors.text,
   },
   viewAll: {
     ...Typography.caption,
-    color: BobbleColors.primary,
     fontFamily: Typography.button.fontFamily,
   },
   row: {
@@ -51,13 +57,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 20,
-    backgroundColor: BobbleColors.primaryMuted + '40',
     borderWidth: 1,
-    borderColor: BobbleColors.primaryMuted,
   },
   badgeText: {
     ...Typography.caption,
     fontFamily: Typography.button.fontFamily,
-    color: BobbleColors.primaryDark,
   },
 });

@@ -1,7 +1,7 @@
 import { ChevronLeft, LucideIcon } from 'lucide-react-native';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { BobbleColors } from '@/src/theme/colors';
+import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { Typography } from '@/src/theme/fonts';
 
 type CaptureHeaderProps = {
@@ -19,18 +19,23 @@ export function CaptureHeader({
   onRightPress,
   centered = false,
 }: CaptureHeaderProps) {
+  const colors = useBobbleColors();
+
   return (
     <View style={styles.root}>
       <View style={styles.side}>
         {onBack ? (
           <Pressable onPress={onBack} hitSlop={12} style={styles.iconButton}>
-            <ChevronLeft size={28} color={BobbleColors.text} strokeWidth={2} />
+            <ChevronLeft size={28} color={colors.text} strokeWidth={2} />
           </Pressable>
         ) : null}
       </View>
 
       {title ? (
-        <Text style={[styles.title, centered && styles.titleCentered]} numberOfLines={1}>
+        <Text
+          style={[styles.title, { color: colors.text }, centered && styles.titleCentered]}
+          numberOfLines={1}
+        >
           {title}
         </Text>
       ) : (
@@ -40,7 +45,7 @@ export function CaptureHeader({
       <View style={[styles.side, styles.sideRight]}>
         {RightIcon ? (
           <Pressable onPress={onRightPress} hitSlop={12} style={styles.iconButton}>
-            <RightIcon size={22} color={BobbleColors.textSecondary} strokeWidth={2} />
+            <RightIcon size={22} color={colors.textSecondary} strokeWidth={2} />
           </Pressable>
         ) : null}
       </View>
@@ -70,7 +75,6 @@ const styles = StyleSheet.create({
     flex: 1,
     ...Typography.body,
     fontFamily: Typography.button.fontFamily,
-    color: BobbleColors.text,
     textAlign: 'left',
   },
   titleCentered: {

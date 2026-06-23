@@ -39,3 +39,8 @@ export const BobbleColors = {
 } as const;
 
 export type BobbleColor = (typeof BobbleColors)[keyof typeof BobbleColors];
+
+/** Theme-aware palette — brand accents stay fixed; surfaces/text follow light/dark. */
+export type BobbleThemeColors = {
+  [K in keyof typeof BobbleColors]: string;
+};

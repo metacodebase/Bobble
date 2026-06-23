@@ -9,10 +9,11 @@ import { FilterChips } from '@/src/components/ui/filter-chips';
 import { ScreenHeader } from '@/src/components/ui/screen-header';
 import { DEMO_TASKS, filterTasks, TaskFilter, TASK_FILTERS } from '@/src/data/demo-data';
 import { useTabBarInsets } from '@/src/hooks/use-tab-bar-insets';
-import { BobbleColors } from '@/src/theme/colors';
+import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 
 export default function TasksScreen() {
   const insets = useSafeAreaInsets();
+  const colors = useBobbleColors();
   const { height: tabBarHeight } = useTabBarInsets();
   const [filter, setFilter] = useState<TaskFilter>('All');
   const [tasks, setTasks] = useState(DEMO_TASKS);
@@ -30,7 +31,7 @@ export default function TasksScreen() {
   };
 
   return (
-    <View style={[styles.root, { paddingTop: insets.top + 12 }]}>
+    <View style={[styles.root, { paddingTop: insets.top + 12, backgroundColor: colors.background }]}>
       <View style={styles.header}>
         <ScreenHeader title="Tasks" rightIcon={Settings} />
         <FilterChips options={TASK_FILTERS} active={filter} onChange={setFilter} />
@@ -58,7 +59,6 @@ export default function TasksScreen() {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: BobbleColors.background,
     paddingHorizontal: 24,
   },
   header: {

@@ -1,5 +1,5 @@
 import { ChevronLeft, ChevronRight, Settings } from 'lucide-react-native';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { BobbleColors } from '@/src/theme/colors';
 import { Typography } from '@/src/theme/fonts';
@@ -25,6 +25,7 @@ function buildMay2024Grid() {
 }
 
 const GRID_DAYS = buildMay2024Grid();
+const DAY_SIZE = 36;
 
 export function CalendarGrid({
   monthLabel,
@@ -72,20 +73,23 @@ export function CalendarGrid({
             {week.map((day, dayIndex) => {
               const selected = day === selectedDay;
               return (
-                <Pressable
-                  key={dayIndex}
-                  disabled={!day}
-                  onPress={() => day && onSelectDay?.(day)}
-                  style={styles.cell}
-                >
+                <View key={dayIndex} style={styles.cell}>
                   {day ? (
-                    <View style={[styles.dayWrap, selected && styles.daySelected]}>
+                    <Pressable
+                      onPress={() => onSelectDay?.(day)}
+                      style={[styles.dayWrap, selected && styles.daySelected]}
+                      android_ripple={{
+                        color: BobbleColors.primary + '33',
+                        borderless: true,
+                        radius: DAY_SIZE / 2,
+                      }}
+                    >
                       <Text style={[styles.day, selected && styles.dayTextSelected]}>{day}</Text>
-                    </View>
+                    </Pressable>
                   ) : (
-                    <View style={styles.dayWrap} />
+                    <View style={styles.daySpacer} />
                   )}
-                </Pressable>
+                </View>
               );
             })}
           </View>
@@ -143,18 +147,27 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
   },
   dayWrap: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: DAY_SIZE,
+    height: DAY_SIZE,
+    borderRadius: DAY_SIZE / 2,
+    overflow: 'hidden',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  daySpacer: {
+    width: DAY_SIZE,
+    height: DAY_SIZE,
   },
   daySelected: {
     backgroundColor: BobbleColors.primary,
   },
   day: {
     ...Typography.body,
+    fontSize: 15,
+    lineHeight: DAY_SIZE,
+    textAlign: 'center',
     color: BobbleColors.text,
+    ...(Platform.OS === 'android' ? { includeFontPadding: false } : null),
   },
   dayTextSelected: {
     color: BobbleColors.textOnPrimary,

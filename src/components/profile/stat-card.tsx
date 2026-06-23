@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native';
 
-import { BobbleColors } from '@/src/theme/colors';
+import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { Typography } from '@/src/theme/fonts';
 
 type StatCardProps = {
@@ -9,10 +9,12 @@ type StatCardProps = {
 };
 
 export function StatCard({ label, value }: StatCardProps) {
+  const colors = useBobbleColors();
+
   return (
-    <View style={styles.card}>
-      <Text style={styles.value}>{value}</Text>
-      <Text style={styles.label}>{label}</Text>
+    <View style={[styles.card, { backgroundColor: colors.borderLight }]}>
+      <Text style={[styles.value, { color: colors.text }]}>{value}</Text>
+      <Text style={[styles.label, { color: colors.textSecondary }]}>{label}</Text>
     </View>
   );
 }
@@ -20,7 +22,6 @@ export function StatCard({ label, value }: StatCardProps) {
 const styles = StyleSheet.create({
   card: {
     flex: 1,
-    backgroundColor: BobbleColors.borderLight,
     borderRadius: 16,
     paddingVertical: 16,
     paddingHorizontal: 12,
@@ -31,11 +32,9 @@ const styles = StyleSheet.create({
     ...Typography.heading,
     fontSize: 22,
     lineHeight: 28,
-    color: BobbleColors.text,
   },
   label: {
     ...Typography.caption,
-    color: BobbleColors.textSecondary,
     textAlign: 'center',
   },
 });

@@ -1,7 +1,7 @@
 import { LucideIcon } from 'lucide-react-native';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { BobbleColors } from '@/src/theme/colors';
+import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { Typography } from '@/src/theme/fonts';
 
 type ScreenHeaderProps = {
@@ -11,12 +11,14 @@ type ScreenHeaderProps = {
 };
 
 export function ScreenHeader({ title, rightIcon: RightIcon, onRightPress }: ScreenHeaderProps) {
+  const colors = useBobbleColors();
+
   return (
     <View style={styles.root}>
-      <Text style={styles.title}>{title}</Text>
+      <Text style={[styles.title, { color: colors.text }]}>{title}</Text>
       {RightIcon ? (
         <Pressable onPress={onRightPress} hitSlop={12} style={styles.iconButton}>
-          <RightIcon size={22} color={BobbleColors.textSecondary} strokeWidth={2} />
+          <RightIcon size={22} color={colors.textSecondary} strokeWidth={2} />
         </Pressable>
       ) : (
         <View style={styles.spacer} />
@@ -36,7 +38,6 @@ const styles = StyleSheet.create({
     ...Typography.heading,
     fontSize: 28,
     lineHeight: 36,
-    color: BobbleColors.text,
   },
   iconButton: {
     padding: 4,

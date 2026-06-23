@@ -11,6 +11,7 @@ import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { Calendar, CheckSquare, Home, Sparkles, User } from 'lucide-react-native';
 
 import { HapticTab } from '@/src/components/haptic-tab';
+import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { useTabBarInsets } from '@/src/hooks/use-tab-bar-insets';
 import { Colors, BobbleColors } from '@/src/theme';
 import { useColorScheme } from '@/src/hooks/use-color-scheme';
@@ -36,6 +37,7 @@ const TAB_BAR_PADDING_TOP = 10;
 export default function TabLayout() {
   const colorScheme = useColorScheme();
   const theme = Colors[colorScheme ?? 'light'];
+  const colors = useBobbleColors();
   const { bottomPadding, height: tabBarHeight } = useTabBarInsets();
   const [fontsLoaded] = useFonts({
     Poppins_400Regular,
@@ -46,7 +48,7 @@ export default function TabLayout() {
 
   if (!fontsLoaded) {
     return (
-      <View style={styles.loader}>
+      <View style={[styles.loader, { backgroundColor: colors.background }]}>
         <ActivityIndicator color={BobbleColors.primary} />
       </View>
     );
@@ -60,8 +62,8 @@ export default function TabLayout() {
         tabBarActiveTintColor: theme.tabIconSelected,
         tabBarInactiveTintColor: theme.tabIconDefault,
         tabBarStyle: {
-          backgroundColor: BobbleColors.background,
-          borderTopColor: BobbleColors.border,
+          backgroundColor: colors.background,
+          borderTopColor: colors.border,
           borderTopWidth: StyleSheet.hairlineWidth,
           height: tabBarHeight,
           paddingTop: TAB_BAR_PADDING_TOP,
@@ -133,6 +135,5 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: BobbleColors.background,
   },
 });

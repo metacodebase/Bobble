@@ -12,7 +12,7 @@ import {
 } from 'lucide-react-native';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { BobbleColors } from '@/src/theme/colors';
+import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { Typography } from '@/src/theme/fonts';
 
 const ICONS: Record<string, LucideIcon> = {
@@ -34,23 +34,36 @@ type ProfileMenuRowProps = {
 };
 
 export function ProfileMenuRow({ label, icon, onPress, destructive }: ProfileMenuRowProps) {
+  const colors = useBobbleColors();
   const Icon = ICONS[icon] ?? User;
 
   return (
     <Pressable
       onPress={onPress}
-      style={({ pressed }) => [styles.row, pressed && styles.pressed]}
+      style={({ pressed }) => [
+        styles.row,
+        { borderBottomColor: colors.border },
+        pressed && styles.pressed,
+      ]}
     >
       <View style={styles.left}>
         <Icon
           size={20}
-          color={destructive ? BobbleColors.error : BobbleColors.textSecondary}
+          color={destructive ? colors.error : colors.textSecondary}
           strokeWidth={2}
         />
-        <Text style={[styles.label, destructive && styles.destructive]}>{label}</Text>
+        <Text
+          style={[
+            styles.label,
+            { color: destructive ? colors.error : colors.text },
+            destructive && styles.destructive,
+          ]}
+        >
+          {label}
+        </Text>
       </View>
       {!destructive ? (
-        <ChevronRight size={18} color={BobbleColors.textSecondary} strokeWidth={2} />
+        <ChevronRight size={18} color={colors.textSecondary} strokeWidth={2} />
       ) : null}
     </Pressable>
   );
@@ -63,7 +76,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: 16,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: BobbleColors.border,
   },
   pressed: {
     opacity: 0.85,
@@ -75,10 +87,8 @@ const styles = StyleSheet.create({
   },
   label: {
     ...Typography.body,
-    color: BobbleColors.text,
   },
   destructive: {
-    color: BobbleColors.error,
     fontFamily: Typography.button.fontFamily,
   },
 });
