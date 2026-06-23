@@ -1,6 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { BobbleColors } from '@/src/theme/colors';
+import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { Typography } from '@/src/theme/fonts';
 
 type CalendarRowProps = {
@@ -10,15 +10,19 @@ type CalendarRowProps = {
 };
 
 export function CalendarRow({ name, icon, onConnect }: CalendarRowProps) {
+  const colors = useBobbleColors();
+
   return (
-    <View style={styles.row}>
+    <View style={[styles.row, { borderBottomColor: colors.borderLight }]}>
       <View style={styles.left}>
-        <View style={styles.iconWrapper}>{icon}</View>
-        <Text style={styles.name}>{name}</Text>
+      <View style={styles.iconWrapper}>{icon}</View>
+        <Text style={[styles.name, { color: colors.text }]}>{name}</Text>
       </View>
       <Pressable onPress={onConnect} hitSlop={8}>
         {({ pressed }) => (
-          <Text style={[styles.connect, pressed && styles.connectPressed]}>Connect</Text>
+          <Text style={[styles.connect, { color: colors.textAccent }, pressed && styles.connectPressed]}>
+            Connect
+          </Text>
         )}
       </Pressable>
     </View>
@@ -32,7 +36,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: BobbleColors.borderLight,
   },
   left: {
     flexDirection: 'row',
@@ -45,16 +48,14 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: BobbleColors.borderLight,
+    backgroundColor: 'rgba(124, 92, 255, 0.1)',
   },
   name: {
     ...Typography.body,
-    color: BobbleColors.text,
     fontFamily: Typography.input.fontFamily,
   },
   connect: {
     ...Typography.body,
-    color: BobbleColors.textAccent,
     fontFamily: Typography.formLabel.fontFamily,
   },
   connectPressed: {
