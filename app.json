@@ -10,7 +10,7 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.metacodebase.Bobble",
+      "bundleIdentifier": "metadots.bobble.app",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
         "NSMicrophoneUsageDescription": "Bobble uses your microphone to record voice memos and show a live waveform while you speak."
