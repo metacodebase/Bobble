@@ -72,7 +72,7 @@ export default function RecordScreen() {
       </View>
 
       <View style={styles.visualBlock}>
-        <RecordingVisualizer />
+        <RecordingVisualizer active={!paused} metering={metering} />
         <AudioWaveform active={!paused} metering={metering} />
       </View>
 
