@@ -4,11 +4,23 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 
+export const ONBOARDING_MASCOT_SIZE = 1000 * 0.4;
+
 type OnboardingScreenLayoutProps = {
   children: ReactNode;
   footer?: ReactNode;
   contentStyle?: ViewStyle;
 };
+
+type OnboardingHeroSlotProps = {
+  children: ReactNode;
+  style?: ViewStyle;
+};
+
+/** Reserves the same vertical space as mascot slides so mixed content stays aligned. */
+export function OnboardingHeroSlot({ children, style }: OnboardingHeroSlotProps) {
+  return <View style={[styles.heroSlot, style]}>{children}</View>;
+}
 
 export function OnboardingScreenLayout({
   children,
@@ -45,5 +57,11 @@ const styles = StyleSheet.create({
   footer: {
     gap: 20,
     paddingTop: 16,
+  },
+  heroSlot: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: ONBOARDING_MASCOT_SIZE,
   },
 });

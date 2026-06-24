@@ -3,7 +3,11 @@ import { useRef, useState } from 'react';
 import { NativeScrollEvent, NativeSyntheticEvent, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 
 import { BobbleMascot, MascotVariant } from '@/src/components/onboarding/bobble-mascot';
-import { OnboardingScreenLayout } from '@/src/components/onboarding/onboarding-screen-layout';
+import {
+  ONBOARDING_MASCOT_SIZE,
+  OnboardingHeroSlot,
+  OnboardingScreenLayout,
+} from '@/src/components/onboarding/onboarding-screen-layout';
 import { PaginationDots } from '@/src/components/onboarding/pagination-dots';
 import { PrimaryButton } from '@/src/components/onboarding/primary-button';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
@@ -88,20 +92,22 @@ export default function OnboardingScreen() {
             <Text style={[styles.heading, { color: colors.text }]}>{item.heading}</Text>
 
             {item.features ? (
-              <View style={styles.featureList}>
-                {item.features.map((feature) => (
-                  <View key={feature} style={styles.featureRow}>
-                    <View style={[styles.featureIcon, { backgroundColor: `${colors.success}30` }]}>
-                      <Ionicons name="checkmark" size={24} color={colors.success} />
+              <OnboardingHeroSlot>
+                <View style={styles.featureList}>
+                  {item.features.map((feature) => (
+                    <View key={feature} style={styles.featureRow}>
+                      <View style={[styles.featureIcon, { backgroundColor: `${colors.success}30` }]}>
+                        <Ionicons name="checkmark" size={24} color={colors.success} />
+                      </View>
+                      <Text style={[styles.featureText, { color: colors.text }]}>{feature}</Text>
                     </View>
-                    <Text style={[styles.featureText, { color: colors.text }]}>{feature}</Text>
-                  </View>
-                ))}
-              </View>
+                  ))}
+                </View>
+              </OnboardingHeroSlot>
             ) : item.mascotVariant ? (
-              <View style={styles.mascotContainer}>
-                <BobbleMascot variant={item.mascotVariant} size={1000 * 0.4} />
-              </View>
+              <OnboardingHeroSlot>
+                <BobbleMascot variant={item.mascotVariant} size={ONBOARDING_MASCOT_SIZE} />
+              </OnboardingHeroSlot>
             ) : null}
           </View>
         ))}
@@ -120,18 +126,10 @@ const styles = StyleSheet.create({
     width:'90%',
     alignSelf:'center',
   },
-  mascotContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   featureList: {
-    flex: 1,
-    justifyContent: 'space-evenly',
-    alignItems: 'center',
-    marginBottom: 100,
-    width:'90%',
-    alignSelf:'center',
+    gap: 28,
+    width: '90%',
+    alignSelf: 'center',
   },
   featureRow: {
     flexDirection: 'row',
