@@ -1,8 +1,32 @@
 import Svg, { Path, Rect } from 'react-native-svg';
 
+import { AppleIcon, GoogleIcon } from '@/src/components/onboarding/social-icons';
+import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
+
 type CalendarBrandIconProps = {
   size?: number;
 };
+
+export type CalendarProvider = 'google' | 'apple' | 'outlook';
+
+export function CalendarProviderIcon({
+  provider,
+  size = 24,
+}: {
+  provider: CalendarProvider;
+  size?: number;
+}) {
+  const colors = useBobbleColors();
+
+  switch (provider) {
+    case 'google':
+      return <GoogleIcon size={size} />;
+    case 'apple':
+      return <AppleIcon size={size} color={colors.text} />;
+    case 'outlook':
+      return <OutlookIcon size={size} />;
+  }
+}
 
 export function OutlookIcon({ size = 24 }: CalendarBrandIconProps) {
   return (

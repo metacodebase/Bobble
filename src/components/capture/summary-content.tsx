@@ -1,7 +1,7 @@
 import { Plus } from 'lucide-react-native';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { BobbleColors } from '@/src/theme/colors';
+import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { Typography } from '@/src/theme/fonts';
 
 export const DEMO_BOBBLE = {
@@ -23,10 +23,12 @@ type SummaryContentProps = {
 };
 
 export function SummaryContent({ tab }: SummaryContentProps) {
+  const colors = useBobbleColors();
+
   if (tab === 'transcript') {
     return (
       <View style={styles.section}>
-        <Text style={styles.body}>{DEMO_BOBBLE.transcript}</Text>
+        <Text style={[styles.body, { color: colors.text }]}>{DEMO_BOBBLE.transcript}</Text>
       </View>
     );
   }
@@ -34,19 +36,15 @@ export function SummaryContent({ tab }: SummaryContentProps) {
   if (tab === 'mindmap') {
     return (
       <View style={styles.mindMap}>
-        <View style={[styles.node, styles.nodePrimary]}>
-          <Text style={styles.nodeTextPrimary}>Fitness plan</Text>
+        <View style={[styles.node, { backgroundColor: colors.primary }]}>
+          <Text style={[styles.nodeTextPrimary, { color: colors.textOnPrimary }]}>Fitness plan</Text>
         </View>
         <View style={styles.branchRow}>
-          <View style={styles.node}>
-            <Text style={styles.nodeText}>Strength</Text>
-          </View>
-          <View style={styles.node}>
-            <Text style={styles.nodeText}>Nutrition</Text>
-          </View>
-          <View style={styles.node}>
-            <Text style={styles.nodeText}>Reminders</Text>
-          </View>
+          {['Strength', 'Nutrition', 'Reminders'].map((label) => (
+            <View key={label} style={[styles.node, { backgroundColor: colors.borderLight }]}>
+              <Text style={[styles.nodeText, { color: colors.text }]}>{label}</Text>
+            </View>
+          ))}
         </View>
       </View>
     );
@@ -54,12 +52,12 @@ export function SummaryContent({ tab }: SummaryContentProps) {
 
   return (
     <View style={styles.section}>
-      <Text style={styles.intro}>{DEMO_BOBBLE.intro}</Text>
+      <Text style={[styles.intro, { color: colors.textSecondary }]}>{DEMO_BOBBLE.intro}</Text>
       <View style={styles.list}>
         {DEMO_BOBBLE.bullets.map((item) => (
           <View key={item.label} style={styles.bulletRow}>
-            <Text style={styles.bulletDot}>•</Text>
-            <Text style={styles.bulletText}>
+            <Text style={[styles.bulletDot, { color: colors.primary }]}>•</Text>
+            <Text style={[styles.bulletText, { color: colors.text }]}>
               <Text style={styles.bulletLabel}>{item.label}: </Text>
               {item.value}
             </Text>
@@ -67,12 +65,15 @@ export function SummaryContent({ tab }: SummaryContentProps) {
         ))}
       </View>
 
-      <Text style={styles.suggestionsTitle}>Suggestions</Text>
+      <Text style={[styles.suggestionsTitle, { color: colors.text }]}>Suggestions</Text>
       {DEMO_BOBBLE.suggestions.map((suggestion) => (
-        <View key={suggestion} style={styles.suggestionCard}>
-          <Text style={styles.suggestionText}>{suggestion}</Text>
-          <Pressable style={styles.suggestionAdd}>
-            <Plus size={18} color={BobbleColors.textOnPrimary} strokeWidth={2.5} />
+        <View
+          key={suggestion}
+          style={[styles.suggestionCard, { backgroundColor: colors.borderLight }]}
+        >
+          <Text style={[styles.suggestionText, { color: colors.text }]}>{suggestion}</Text>
+          <Pressable style={[styles.suggestionAdd, { backgroundColor: colors.primary }]}>
+            <Plus size={18} color={colors.textOnPrimary} strokeWidth={2.5} />
           </Pressable>
         </View>
       ))}
@@ -86,7 +87,6 @@ const styles = StyleSheet.create({
   },
   intro: {
     ...Typography.body,
-    color: BobbleColors.textSecondary,
   },
   list: {
     gap: 10,
@@ -97,12 +97,10 @@ const styles = StyleSheet.create({
   },
   bulletDot: {
     ...Typography.body,
-    color: BobbleColors.primary,
     lineHeight: 24,
   },
   bulletText: {
     ...Typography.body,
-    color: BobbleColors.text,
     flex: 1,
   },
   bulletLabel: {
@@ -110,21 +108,18 @@ const styles = StyleSheet.create({
   },
   suggestionsTitle: {
     ...Typography.formLabel,
-    color: BobbleColors.text,
     marginTop: 8,
   },
   suggestionCard: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: BobbleColors.borderLight,
     borderRadius: 16,
     paddingVertical: 14,
     paddingHorizontal: 16,
   },
   suggestionText: {
     ...Typography.body,
-    color: BobbleColors.text,
     flex: 1,
     marginRight: 12,
   },
@@ -132,13 +127,11 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: BobbleColors.primary,
     alignItems: 'center',
     justifyContent: 'center',
   },
   body: {
     ...Typography.body,
-    color: BobbleColors.text,
   },
   mindMap: {
     alignItems: 'center',
@@ -155,19 +148,13 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 16,
     borderRadius: 20,
-    backgroundColor: BobbleColors.borderLight,
-  },
-  nodePrimary: {
-    backgroundColor: BobbleColors.primary,
   },
   nodeText: {
     ...Typography.caption,
     fontFamily: Typography.button.fontFamily,
-    color: BobbleColors.text,
   },
   nodeTextPrimary: {
     ...Typography.caption,
     fontFamily: Typography.button.fontFamily,
-    color: BobbleColors.textOnPrimary,
   },
 });

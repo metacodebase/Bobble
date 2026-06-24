@@ -1,6 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { BobbleColors } from '@/src/theme/colors';
+import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { Typography } from '@/src/theme/fonts';
 
 export type SummaryTab = 'summary' | 'transcript' | 'mindmap';
@@ -17,14 +17,24 @@ const TABS: { id: SummaryTab; label: string }[] = [
 ];
 
 export function SegmentTabs({ active, onChange }: SegmentTabsProps) {
+  const colors = useBobbleColors();
+
   return (
-    <View style={styles.root}>
+    <View style={[styles.root, { borderBottomColor: colors.border }]}>
       {TABS.map((tab) => {
         const selected = tab.id === active;
         return (
           <Pressable key={tab.id} onPress={() => onChange(tab.id)} style={styles.tab}>
-            <Text style={[styles.label, selected && styles.labelActive]}>{tab.label}</Text>
-            {selected ? <View style={styles.indicator} /> : null}
+            <Text
+              style={[
+                styles.label,
+                { color: colors.textSecondary },
+                selected && { color: colors.primary },
+              ]}
+            >
+              {tab.label}
+            </Text>
+            {selected ? <View style={[styles.indicator, { backgroundColor: colors.primary }]} /> : null}
           </Pressable>
         );
       })}
@@ -36,7 +46,6 @@ const styles = StyleSheet.create({
   root: {
     flexDirection: 'row',
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: BobbleColors.border,
     marginBottom: 20,
   },
   tab: {
@@ -48,10 +57,6 @@ const styles = StyleSheet.create({
   label: {
     ...Typography.caption,
     fontFamily: Typography.button.fontFamily,
-    color: BobbleColors.textSecondary,
-  },
-  labelActive: {
-    color: BobbleColors.primary,
   },
   indicator: {
     position: 'absolute',
@@ -59,6 +64,5 @@ const styles = StyleSheet.create({
     height: 2,
     width: '70%',
     borderRadius: 1,
-    backgroundColor: BobbleColors.primary,
   },
 });

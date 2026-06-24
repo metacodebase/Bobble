@@ -4,19 +4,31 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { BobbleMascot } from '@/src/components/onboarding/bobble-mascot';
 import { PrimaryButton } from '@/src/components/onboarding/primary-button';
-import { BobbleColors } from '@/src/theme/colors';
+import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { Typography } from '@/src/theme/fonts';
 
 export default function BobbleUpdatedScreen() {
+  const colors = useBobbleColors();
   const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams<{ id?: string }>();
 
   return (
-    <View style={[styles.root, { paddingTop: insets.top + 40, paddingBottom: insets.bottom + 24 }]}>
+    <View
+      style={[
+        styles.root,
+        {
+          paddingTop: insets.top + 40,
+          paddingBottom: insets.bottom + 24,
+          backgroundColor: colors.background,
+        },
+      ]}
+    >
       <View style={styles.content}>
-        <Text style={styles.title}>Updated!</Text>
+        <Text style={[styles.title, { color: colors.text }]}>Updated!</Text>
         <BobbleMascot variant="waving" size={180} />
-        <Text style={styles.subtitle}>Your Bobble has been updated successfully.</Text>
+        <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
+          Your Bobble has been updated successfully.
+        </Text>
       </View>
 
       <PrimaryButton
@@ -32,7 +44,6 @@ export default function BobbleUpdatedScreen() {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: BobbleColors.background,
     paddingHorizontal: 28,
     justifyContent: 'space-between',
   },
@@ -44,12 +55,10 @@ const styles = StyleSheet.create({
   },
   title: {
     ...Typography.heading,
-    color: BobbleColors.text,
     textAlign: 'center',
   },
   subtitle: {
     ...Typography.body,
-    color: BobbleColors.textSecondary,
     textAlign: 'center',
     maxWidth: 280,
   },

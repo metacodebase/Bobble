@@ -14,7 +14,7 @@ import { Settings } from 'lucide-react-native';
 import { CaptureHeader } from '@/src/components/capture/capture-header';
 import { ProcessingChecklist } from '@/src/components/capture/processing-checklist';
 import { BobbleMascot } from '@/src/components/onboarding/bobble-mascot';
-import { BobbleColors } from '@/src/theme/colors';
+import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { Typography } from '@/src/theme/fonts';
 
 const STEPS = [
@@ -25,6 +25,7 @@ const STEPS = [
 ] as const;
 
 export default function ProcessingScreen() {
+  const colors = useBobbleColors();
   const insets = useSafeAreaInsets();
   const [completedCount, setCompletedCount] = useState(0);
   const rotation = useSharedValue(0);
@@ -57,10 +58,19 @@ export default function ProcessingScreen() {
   }));
 
   return (
-    <View style={[styles.root, { paddingTop: insets.top + 8, paddingBottom: insets.bottom + 24 }]}>
+    <View
+      style={[
+        styles.root,
+        {
+          paddingTop: insets.top + 8,
+          paddingBottom: insets.bottom + 24,
+          backgroundColor: colors.background,
+        },
+      ]}
+    >
       <CaptureHeader rightIcon={Settings} />
 
-      <Text style={styles.title}>Processing with AI</Text>
+      <Text style={[styles.title, { color: colors.text }]}>Processing with AI</Text>
 
       <View style={styles.mascotWrap}>
         <Animated.View style={mascotStyle}>
@@ -70,7 +80,7 @@ export default function ProcessingScreen() {
 
       <ProcessingChecklist steps={STEPS} completedCount={completedCount} />
 
-      <Text style={styles.footer}>Almost there...</Text>
+      <Text style={[styles.footer, { color: colors.textSecondary }]}>Almost there...</Text>
     </View>
   );
 }
@@ -78,14 +88,12 @@ export default function ProcessingScreen() {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: BobbleColors.background,
     paddingHorizontal: 28,
   },
   title: {
     ...Typography.heading,
     fontSize: 24,
     lineHeight: 32,
-    color: BobbleColors.text,
     textAlign: 'center',
     marginTop: 8,
     marginBottom: 24,
@@ -97,7 +105,6 @@ const styles = StyleSheet.create({
   },
   footer: {
     ...Typography.body,
-    color: BobbleColors.textSecondary,
     textAlign: 'center',
     marginTop: 'auto',
   },

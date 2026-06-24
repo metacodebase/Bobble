@@ -11,10 +11,10 @@ import { SummaryContent } from '@/src/components/capture/summary-content';
 import { SegmentTabs, SummaryTab } from '@/src/components/capture/segment-tabs';
 import { PrimaryButton } from '@/src/components/onboarding/primary-button';
 import { getBobbleById } from '@/src/data/demo-data';
-import { BobbleColors } from '@/src/theme/colors';
-import { Typography } from '@/src/theme/fonts';
+import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 
 export default function BobbleDetailScreen() {
+  const colors = useBobbleColors();
   const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams<{ id: string }>();
   const bobble = getBobbleById(id ?? '1');
@@ -23,7 +23,7 @@ export default function BobbleDetailScreen() {
   const title = bobble?.title ?? 'Bobble';
 
   return (
-    <View style={[styles.root, { paddingTop: insets.top + 8 }]}>
+    <View style={[styles.root, { paddingTop: insets.top + 8, backgroundColor: colors.background }]}>
       <View style={styles.headerBlock}>
         <CaptureHeader
           title={title}
@@ -52,7 +52,7 @@ export default function BobbleDetailScreen() {
         />
       </ScrollView>
 
-      <View style={[styles.footer, { paddingBottom: insets.bottom + 16 }]}>
+      <View style={[styles.footer, { paddingBottom: insets.bottom + 16, backgroundColor: colors.background }]}>
         <PrimaryButton
           label="Continue Bobbling"
           onPress={() => router.push({ pathname: '/bobble/continue', params: { id: id ?? '1' } } as Href)}
@@ -65,7 +65,6 @@ export default function BobbleDetailScreen() {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: BobbleColors.background,
     paddingHorizontal: 24,
   },
   headerBlock: {
@@ -83,6 +82,5 @@ const styles = StyleSheet.create({
     right: 24,
     bottom: 0,
     paddingTop: 12,
-    backgroundColor: BobbleColors.background,
   },
 });

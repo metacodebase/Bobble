@@ -6,20 +6,30 @@ import { ConfettiDecoration } from '@/src/components/capture/confetti-decoration
 import { SecondaryButton } from '@/src/components/home/secondary-button';
 import { BobbleMascot } from '@/src/components/onboarding/bobble-mascot';
 import { PrimaryButton } from '@/src/components/onboarding/primary-button';
-import { BobbleColors } from '@/src/theme/colors';
+import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { Typography } from '@/src/theme/fonts';
 
 export default function SavedScreen() {
+  const colors = useBobbleColors();
   const insets = useSafeAreaInsets();
 
   return (
-    <View style={[styles.root, { paddingTop: insets.top + 24, paddingBottom: insets.bottom + 24 }]}>
+    <View
+      style={[
+        styles.root,
+        {
+          paddingTop: insets.top + 24,
+          paddingBottom: insets.bottom + 24,
+          backgroundColor: colors.background,
+        },
+      ]}
+    >
       <ConfettiDecoration />
 
       <View style={styles.content}>
         <BobbleMascot variant="waving" size={180} />
-        <Text style={styles.title}>Bobble saved!</Text>
-        <Text style={styles.subtitle}>
+        <Text style={[styles.title, { color: colors.text }]}>Bobble saved!</Text>
+        <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
           Your thoughts are organised and ready when you are.
         </Text>
       </View>
@@ -41,7 +51,6 @@ export default function SavedScreen() {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: BobbleColors.background,
     paddingHorizontal: 28,
   },
   content: {
@@ -53,13 +62,11 @@ const styles = StyleSheet.create({
   },
   title: {
     ...Typography.heading,
-    color: BobbleColors.text,
     textAlign: 'center',
     marginTop: 8,
   },
   subtitle: {
     ...Typography.body,
-    color: BobbleColors.textSecondary,
     textAlign: 'center',
     maxWidth: 280,
   },

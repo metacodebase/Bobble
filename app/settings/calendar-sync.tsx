@@ -1,8 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
 
-import { OutlookIcon } from '@/src/components/create-account/calendar-brand-icons';
+import { CalendarProviderIcon } from '@/src/components/create-account/calendar-brand-icons';
 import { CalendarRow } from '@/src/components/create-account/calendar-row';
-import { AppleIcon, GoogleIcon } from '@/src/components/onboarding/social-icons';
 import {
   SettingsScreenLayout,
   SettingsSection,
@@ -11,9 +10,9 @@ import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { Typography } from '@/src/theme/fonts';
 
 const CALENDARS = [
-  { id: 'google', name: 'Google Calendar', icon: <GoogleIcon size={24} /> },
-  { id: 'apple', name: 'Apple Calendar', icon: <AppleIcon size={24} /> },
-  { id: 'outlook', name: 'Outlook Calendar', icon: <OutlookIcon size={24} /> },
+  { id: 'google', name: 'Google Calendar', provider: 'google' as const },
+  { id: 'apple', name: 'Apple Calendar', provider: 'apple' as const },
+  { id: 'outlook', name: 'Outlook Calendar', provider: 'outlook' as const },
 ] as const;
 
 export default function CalendarSyncScreen() {
@@ -28,7 +27,11 @@ export default function CalendarSyncScreen() {
       <SettingsSection>
         <View style={styles.list}>
           {CALENDARS.map((calendar) => (
-            <CalendarRow key={calendar.id} name={calendar.name} icon={calendar.icon} />
+            <CalendarRow
+              key={calendar.id}
+              name={calendar.name}
+              icon={<CalendarProviderIcon provider={calendar.provider} />}
+            />
           ))}
         </View>
       </SettingsSection>

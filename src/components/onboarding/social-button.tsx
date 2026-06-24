@@ -15,12 +15,18 @@ type SocialButtonProps = {
 
 const ICON_SIZE = 22;
 
-const SOCIAL_ICON_MAP: Record<Exclude<SocialProvider, 'email'>, () => React.ReactNode> = {
-  google: () => <GoogleIcon size={ICON_SIZE} />,
-  apple: () => <AppleIcon size={ICON_SIZE} />,
-  facebook: () => <FacebookIcon size={ICON_SIZE} />,
-  x: () => <XIcon size={ICON_SIZE} />,
-};
+function renderSocialIcon(provider: Exclude<SocialProvider, 'email'>, color: string) {
+  switch (provider) {
+    case 'google':
+      return <GoogleIcon size={ICON_SIZE} />;
+    case 'apple':
+      return <AppleIcon size={ICON_SIZE} color={color} />;
+    case 'facebook':
+      return <FacebookIcon size={ICON_SIZE} />;
+    case 'x':
+      return <XIcon size={ICON_SIZE} color={color} />;
+  }
+}
 
 export function SocialButton({ provider, label, onPress }: SocialButtonProps) {
   const colors = useBobbleColors();
@@ -41,7 +47,7 @@ export function SocialButton({ provider, label, onPress }: SocialButtonProps) {
         {provider === 'email' ? (
           <Ionicons name="mail-outline" size={ICON_SIZE} color={colors.text} />
         ) : (
-          SOCIAL_ICON_MAP[provider]()
+          renderSocialIcon(provider, colors.text)
         )}
       </View>
       <Text style={[styles.label, { color: colors.text }]}>{label}</Text>

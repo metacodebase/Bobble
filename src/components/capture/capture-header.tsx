@@ -32,12 +32,19 @@ export function CaptureHeader({
       </View>
 
       {title ? (
-        <Text
-          style={[styles.title, { color: colors.text }, centered && styles.titleCentered]}
-          numberOfLines={1}
-        >
-          {title}
-        </Text>
+        centered ? (
+          <Text
+            style={[styles.titleCentered, { color: colors.text }]}
+            numberOfLines={1}
+            pointerEvents="none"
+          >
+            {title}
+          </Text>
+        ) : (
+          <Text style={[styles.title, { color: colors.text }]} numberOfLines={1}>
+            {title}
+          </Text>
+        )
       ) : (
         <View style={styles.titleSpacer} />
       )}
@@ -57,6 +64,8 @@ const styles = StyleSheet.create({
   root: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
     minHeight: 44,
     marginBottom: 8,
   },
@@ -64,6 +73,7 @@ const styles = StyleSheet.create({
     width: 44,
     alignItems: 'flex-start',
     justifyContent: 'center',
+    zIndex: 1,
   },
   sideRight: {
     alignItems: 'flex-end',
@@ -78,6 +88,11 @@ const styles = StyleSheet.create({
     textAlign: 'left',
   },
   titleCentered: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    ...Typography.body,
+    fontFamily: Typography.button.fontFamily,
     textAlign: 'center',
   },
   titleSpacer: {

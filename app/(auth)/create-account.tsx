@@ -9,7 +9,7 @@ import {
   View,
 } from 'react-native';
 
-import { OutlookIcon } from '@/src/components/create-account/calendar-brand-icons';
+import { CalendarProviderIcon } from '@/src/components/create-account/calendar-brand-icons';
 import { CalendarRow } from '@/src/components/create-account/calendar-row';
 import { CreateAccountHeader } from '@/src/components/create-account/create-account-header';
 import { GoalCard } from '@/src/components/create-account/goal-card';
@@ -20,7 +20,6 @@ import { SelectField } from '@/src/components/create-account/select-field';
 import { TextLinkButton } from '@/src/components/create-account/text-link-button';
 import { OnboardingScreenLayout } from '@/src/components/onboarding/onboarding-screen-layout';
 import { PrimaryButton } from '@/src/components/onboarding/primary-button';
-import { AppleIcon, GoogleIcon } from '@/src/components/onboarding/social-icons';
 
 const GOALS = [
   { id: 'productive', label: 'Be more productive', icon: TrendingUp },
@@ -30,9 +29,9 @@ const GOALS = [
 ] as const;
 
 const CALENDARS = [
-  { id: 'google', name: 'Google Calendar', icon: <GoogleIcon size={24} /> },
-  { id: 'apple', name: 'Apple Calendar', icon: <AppleIcon size={24} /> },
-  { id: 'outlook', name: 'Outlook Calendar', icon: <OutlookIcon size={24} /> },
+  { id: 'google', name: 'Google Calendar', provider: 'google' as const },
+  { id: 'apple', name: 'Apple Calendar', provider: 'apple' as const },
+  { id: 'outlook', name: 'Outlook Calendar', provider: 'outlook' as const },
 ] as const;
 
 export default function CreateAccountScreen() {
@@ -147,7 +146,7 @@ export default function CreateAccountScreen() {
                 <CalendarRow
                   key={calendar.id}
                   name={calendar.name}
-                  icon={calendar.icon}
+                  icon={<CalendarProviderIcon provider={calendar.provider} />}
                 />
               ))}
             </View>

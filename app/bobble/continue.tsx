@@ -9,7 +9,7 @@ import { CaptureHeader } from '@/src/components/capture/capture-header';
 import { RecordingControls } from '@/src/components/capture/recording-controls';
 import { RecordingVisualizer } from '@/src/components/capture/recording-visualizer';
 import { useVoiceRecorder } from '@/src/hooks/use-voice-recorder';
-import { BobbleColors } from '@/src/theme/colors';
+import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { Typography } from '@/src/theme/fonts';
 
 function formatElapsed(seconds: number) {
@@ -19,6 +19,7 @@ function formatElapsed(seconds: number) {
 }
 
 export default function ContinueBobbleScreen() {
+  const colors = useBobbleColors();
   const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams<{ id?: string }>();
   const [elapsed, setElapsed] = useState(0);
@@ -47,16 +48,28 @@ export default function ContinueBobbleScreen() {
   };
 
   return (
-    <View style={[styles.root, { paddingTop: insets.top + 8, paddingBottom: insets.bottom + 24 }]}>
+    <View
+      style={[
+        styles.root,
+        {
+          paddingTop: insets.top + 8,
+          paddingBottom: insets.bottom + 24,
+          backgroundColor: colors.background,
+        },
+      ]}
+    >
       <CaptureHeader
         title="Continue Bobbling"
+        centered
         onBack={() => router.back()}
         rightIcon={Settings}
       />
 
       <View style={styles.statusBlock}>
-        <Text style={styles.status}>{paused ? 'Paused' : 'Recording...'}</Text>
-        <Text style={styles.timer}>{formatElapsed(elapsed)}</Text>
+        <Text style={[styles.status, { color: colors.textSecondary }]}>
+          {paused ? 'Paused' : 'Recording...'}
+        </Text>
+        <Text style={[styles.timer, { color: colors.text }]}>{formatElapsed(elapsed)}</Text>
       </View>
 
       <View style={styles.visualBlock}>
@@ -76,7 +89,6 @@ export default function ContinueBobbleScreen() {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: BobbleColors.background,
     paddingHorizontal: 24,
   },
   statusBlock: {
@@ -87,13 +99,11 @@ const styles = StyleSheet.create({
   },
   status: {
     ...Typography.caption,
-    color: BobbleColors.textSecondary,
   },
   timer: {
     fontFamily: Typography.heading.fontFamily,
     fontSize: 48,
     lineHeight: 56,
-    color: BobbleColors.text,
     fontVariant: ['tabular-nums'],
   },
   visualBlock: {

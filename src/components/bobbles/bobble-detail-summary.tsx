@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
 
 import { DEMO_BOBBLE_DETAIL } from '@/src/data/demo-data';
-import { BobbleColors } from '@/src/theme/colors';
+import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { Typography } from '@/src/theme/fonts';
 
 type BobbleDetailSummaryProps = {
@@ -13,17 +13,19 @@ export function BobbleDetailSummary({
   dateLabel = DEMO_BOBBLE_DETAIL.dateLabel,
   durationMin = DEMO_BOBBLE_DETAIL.durationMin,
 }: BobbleDetailSummaryProps) {
+  const colors = useBobbleColors();
+
   return (
     <View style={styles.section}>
-      <Text style={styles.sectionTitle}>This Bobble</Text>
-      <Text style={styles.meta}>
+      <Text style={[styles.sectionTitle, { color: colors.text }]}>This Bobble</Text>
+      <Text style={[styles.meta, { color: colors.textSecondary }]}>
         {dateLabel} · {durationMin} min
       </Text>
       <View style={styles.list}>
         {DEMO_BOBBLE_DETAIL.bullets.map((item) => (
           <View key={item.label} style={styles.bulletRow}>
-            <Text style={styles.bulletDot}>•</Text>
-            <Text style={styles.bulletText}>
+            <Text style={[styles.bulletDot, { color: colors.primary }]}>•</Text>
+            <Text style={[styles.bulletText, { color: colors.text }]}>
               <Text style={styles.bulletLabel}>{item.label}: </Text>
               {item.value}
             </Text>
@@ -41,11 +43,9 @@ const styles = StyleSheet.create({
   sectionTitle: {
     ...Typography.formLabel,
     fontSize: 16,
-    color: BobbleColors.text,
   },
   meta: {
     ...Typography.caption,
-    color: BobbleColors.textSecondary,
   },
   list: {
     gap: 10,
@@ -57,12 +57,10 @@ const styles = StyleSheet.create({
   },
   bulletDot: {
     ...Typography.body,
-    color: BobbleColors.primary,
     lineHeight: 24,
   },
   bulletText: {
     ...Typography.body,
-    color: BobbleColors.text,
     flex: 1,
   },
   bulletLabel: {

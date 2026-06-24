@@ -1,7 +1,7 @@
 import { Check, Circle } from 'lucide-react-native';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { BobbleColors } from '@/src/theme/colors';
+import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { Typography } from '@/src/theme/fonts';
 
 type ProcessingStep = {
@@ -15,6 +15,8 @@ type ProcessingChecklistProps = {
 };
 
 export function ProcessingChecklist({ steps, completedCount }: ProcessingChecklistProps) {
+  const colors = useBobbleColors();
+
   return (
     <View style={styles.root}>
       {steps.map((step, index) => {
@@ -23,14 +25,31 @@ export function ProcessingChecklist({ steps, completedCount }: ProcessingCheckli
 
         return (
           <View key={step.id} style={styles.row}>
-            <View style={[styles.iconWrap, done && styles.iconDone, active && styles.iconActive]}>
+            <View
+              style={[
+                styles.iconWrap,
+                done && { backgroundColor: colors.primary },
+                active && { backgroundColor: colors.borderLight },
+              ]}
+            >
               {done ? (
-                <Check size={16} color={BobbleColors.textOnPrimary} strokeWidth={3} />
+                <Check size={16} color={colors.textOnPrimary} strokeWidth={3} />
               ) : (
-                <Circle size={16} color={active ? BobbleColors.primary : BobbleColors.dotInactive} strokeWidth={2} />
+                <Circle
+                  size={16}
+                  color={active ? colors.primary : colors.dotInactive}
+                  strokeWidth={2}
+                />
               )}
             </View>
-            <Text style={[styles.label, done && styles.labelDone, active && styles.labelActive]}>
+            <Text
+              style={[
+                styles.label,
+                { color: colors.textSecondary },
+                done && { color: colors.text },
+                active && { color: colors.primary, fontFamily: Typography.button.fontFamily },
+              ]}
+            >
               {step.label}
             </Text>
           </View>
@@ -59,22 +78,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  iconDone: {
-    backgroundColor: BobbleColors.primary,
-  },
-  iconActive: {
-    backgroundColor: BobbleColors.borderLight,
-  },
   label: {
     ...Typography.body,
-    color: BobbleColors.textSecondary,
     flex: 1,
-  },
-  labelDone: {
-    color: BobbleColors.text,
-  },
-  labelActive: {
-    color: BobbleColors.primary,
-    fontFamily: Typography.button.fontFamily,
   },
 });

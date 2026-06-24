@@ -8,15 +8,15 @@ import { CaptureHeader } from '@/src/components/capture/capture-header';
 import { DEMO_BOBBLE, SummaryContent } from '@/src/components/capture/summary-content';
 import { SegmentTabs, SummaryTab } from '@/src/components/capture/segment-tabs';
 import { PrimaryButton } from '@/src/components/onboarding/primary-button';
-import { BobbleColors } from '@/src/theme/colors';
-import { Typography } from '@/src/theme/fonts';
+import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 
 export default function SummaryScreen() {
+  const colors = useBobbleColors();
   const insets = useSafeAreaInsets();
   const [tab, setTab] = useState<SummaryTab>('summary');
 
   return (
-    <View style={[styles.root, { paddingTop: insets.top + 8 }]}>
+    <View style={[styles.root, { paddingTop: insets.top + 8, backgroundColor: colors.background }]}>
       <View style={styles.headerBlock}>
         <CaptureHeader
           title={DEMO_BOBBLE.title}
@@ -34,7 +34,7 @@ export default function SummaryScreen() {
         <SummaryContent tab={tab} />
       </ScrollView>
 
-      <View style={[styles.footer, { paddingBottom: insets.bottom + 16 }]}>
+      <View style={[styles.footer, { paddingBottom: insets.bottom + 16, backgroundColor: colors.background }]}>
         <PrimaryButton
           label="Save Bobble"
           onPress={() => router.push('/capture/saved' as Href)}
@@ -47,7 +47,6 @@ export default function SummaryScreen() {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: BobbleColors.background,
     paddingHorizontal: 24,
   },
   headerBlock: {
@@ -65,6 +64,5 @@ const styles = StyleSheet.create({
     right: 24,
     bottom: 0,
     paddingTop: 12,
-    backgroundColor: BobbleColors.background,
   },
 });

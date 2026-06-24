@@ -99,7 +99,7 @@ export function getBobbleThemeColors(scheme: ColorScheme): BobbleThemeColors {
     warning: theme.warning,
     border: theme.border,
     borderLight: theme.surfaceAlt,
-    divider: theme.border,
+    divider: scheme === 'dark' ? '#475569' : theme.border,
     dotActive: BobbleColors.dotActive,
     dotInactive: scheme === 'dark' ? theme.icon : BobbleColors.dotInactive,
     mascotPlaceholder: BobbleColors.mascotPlaceholder,
