@@ -8,9 +8,11 @@ import {
 import { Stack } from 'expo-router';
 import { ActivityIndicator, View } from 'react-native';
 
+import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { BobbleColors } from '@/src/theme/colors';
 
 export default function AuthLayout() {
+  const colors = useBobbleColors();
   const [fontsLoaded] = useFonts({
     Poppins_400Regular,
     Poppins_500Medium,
@@ -20,7 +22,7 @@ export default function AuthLayout() {
 
   if (!fontsLoaded) {
     return (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: BobbleColors.background }}>
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.background }}>
         <ActivityIndicator color={BobbleColors.primary} />
       </View>
     );

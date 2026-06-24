@@ -17,6 +17,8 @@ ICON_SCALE = 0.82
 FAVICON_SIZE = 48
 SPLASH_SIZE = 1024
 WHITE_THRESHOLD = 245
+DARK_BG = (10, 15, 26, 255)
+LIGHT_BG = (255, 255, 255, 255)
 
 
 def remove_near_white_background(image: Image.Image) -> Image.Image:
@@ -51,9 +53,11 @@ def to_monochrome(image: Image.Image, size: int, scale: float) -> Image.Image:
     return mono
 
 
-def to_opaque_icon(image: Image.Image, size: int, scale: float) -> Image.Image:
+def to_opaque_icon(
+    image: Image.Image, size: int, scale: float, background_rgba: tuple[int, int, int, int]
+) -> Image.Image:
     fitted = fit_on_square(image, size, scale)
-    background = Image.new("RGBA", (size, size), (255, 255, 255, 255))
+    background = Image.new("RGBA", (size, size), background_rgba)
     background.alpha_composite(fitted)
     return background.convert("RGB")
 
@@ -70,7 +74,7 @@ def main() -> None:
     source = Image.open(SOURCE)
     cutout = remove_near_white_background(source)
 
-    save_png(to_opaque_icon(cutout, ICON_SIZE, ICON_SCALE), OUTPUT_DIR / "icon.png")
+    save_png(to_opaque_icon(cutout, ICON_SIZE, ICON_SCALE, DARK_BG), OUTPUT_DIR / "icon.png")
     save_png(
         fit_on_square(cutout, ICON_SIZE, FOREGROUND_SCALE),
         OUTPUT_DIR / "android-icon-foreground.png",
@@ -80,12 +84,12 @@ def main() -> None:
         OUTPUT_DIR / "android-icon-monochrome.png",
     )
     save_png(
-        to_opaque_icon(cutout, FAVICON_SIZE, 0.9),
+        to_opaque_icon(cutout, FAVICON_SIZE, 0.9, LIGHT_BG),
         OUTPUT_DIR / "favicon.png",
     )
-    save_png(to_opaque_icon(cutout, SPLASH_SIZE, 0.72), OUTPUT_DIR / "splash-icon.png")
+    save_png(fit_on_square(cutout, SPLASH_SIZE, 0.72), OUTPUT_DIR / "splash-icon.png")
 
-    background = Image.new("RGB", (ICON_SIZE, ICON_SIZE), (255, 255, 255))
+    background = Image.new("RGB", (ICON_SIZE, ICON_SIZE), DARK_BG[:3])
     save_png(background.convert("RGBA"), OUTPUT_DIR / "android-icon-background.png")
 
     print("Generated app icons from mascot-sitting.png")

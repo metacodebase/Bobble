@@ -8,7 +8,7 @@ import {
 import { Tabs } from 'expo-router';
 import React from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
-import { Calendar, CheckSquare, Home, Sparkles, User } from 'lucide-react-native';
+import { CalendarDays, CircleUserRound, House, ListTodo, Sparkles } from 'lucide-react-native';
 
 import { HapticTab } from '@/src/components/haptic-tab';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
@@ -81,7 +81,7 @@ export default function TabLayout() {
         options={{
           title: 'Home',
           tabBarIcon: ({ color, focused }) => (
-            <TabIcon Icon={Home} color={color as string} focused={focused} />
+            <TabIcon Icon={House} color={color as string} focused={focused} />
           ),
         }}
       />
@@ -99,7 +99,7 @@ export default function TabLayout() {
         options={{
           title: 'Tasks',
           tabBarIcon: ({ color, focused }) => (
-            <TabIcon Icon={CheckSquare} color={color as string} focused={focused} />
+            <TabIcon Icon={ListTodo} color={color as string} focused={focused} />
           ),
         }}
       />
@@ -108,7 +108,7 @@ export default function TabLayout() {
         options={{
           title: 'Calendar',
           tabBarIcon: ({ color, focused }) => (
-            <TabIcon Icon={Calendar} color={color as string} focused={focused} />
+            <TabIcon Icon={CalendarDays} color={color as string} focused={focused} />
           ),
         }}
       />
@@ -117,7 +117,7 @@ export default function TabLayout() {
         options={{
           title: 'Profile',
           tabBarIcon: ({ color, focused }) => (
-            <TabIcon Icon={User} color={color as string} focused={focused} />
+            <TabIcon Icon={CircleUserRound} color={color as string} focused={focused} />
           ),
         }}
       />
