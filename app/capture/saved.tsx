@@ -37,6 +37,8 @@ export default function SavedScreen() {
       <View style={styles.actions}>
         <PrimaryButton
           label="View Bobble"
+          style={{ width: "100%" }}
+
           onPress={() => router.replace({ pathname: '/bobble/[id]', params: { id: '1' } } as Href)}
         />
         <SecondaryButton

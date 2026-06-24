@@ -33,6 +33,7 @@ export default function BobbleUpdatedScreen() {
 
       <PrimaryButton
         label="View Bobble"
+        style={{width:"100%"}}
         onPress={() =>
           router.replace({ pathname: '/bobble/[id]', params: { id: id ?? '1' } } as Href)
         }

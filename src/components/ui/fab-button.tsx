@@ -8,7 +8,12 @@ type FabButtonProps = {
   bottom?: number;
 };
 
-export function FabButton({ onPress, bottom = 24 }: FabButtonProps) {
+export const FAB_SIZE = 56;
+export const FAB_BOTTOM_OFFSET = 16;
+/** Space to reserve below scroll content so it is not hidden under the FAB. */
+export const FAB_SCROLL_CLEARANCE = FAB_SIZE + FAB_BOTTOM_OFFSET + 16;
+
+export function FabButton({ onPress, bottom = FAB_BOTTOM_OFFSET }: FabButtonProps) {
   return (
     <Pressable
       onPress={onPress}

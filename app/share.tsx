@@ -6,28 +6,38 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ShareOption } from '@/src/components/share/share-option';
 import { DEMO_BOBBLE_DETAIL, SHARE_OPTIONS } from '@/src/data/demo-data';
-import { BobbleColors } from '@/src/theme/colors';
+import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { Typography } from '@/src/theme/fonts';
 
 export default function ShareScreen() {
+  const colors = useBobbleColors();
   const insets = useSafeAreaInsets();
   const { title } = useLocalSearchParams<{ title?: string }>();
   const [linkPublic, setLinkPublic] = useState(true);
   const bobbleTitle = title ?? DEMO_BOBBLE_DETAIL.title;
 
   return (
-    <View style={[styles.root, { paddingTop: insets.top + 12, paddingBottom: insets.bottom + 24 }]}>
+    <View
+      style={[
+        styles.root,
+        {
+          paddingTop: insets.top + 12,
+          paddingBottom: insets.bottom + 24,
+          backgroundColor: colors.background,
+        },
+      ]}
+    >
       <View style={styles.header}>
-        <Text style={styles.title}>Share Bobble</Text>
+        <Text style={[styles.title, { color: colors.text }]}>Share Bobble</Text>
         <Pressable onPress={() => router.back()} hitSlop={12}>
-          <X size={24} color={BobbleColors.text} strokeWidth={2} />
+          <X size={24} color={colors.text} strokeWidth={2} />
         </Pressable>
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
-        <View style={styles.preview}>
-          <Text style={styles.previewTitle}>{bobbleTitle}</Text>
-          <Text style={styles.previewBody} numberOfLines={3}>
+        <View style={[styles.preview, { backgroundColor: colors.borderLight }]}>
+          <Text style={[styles.previewTitle, { color: colors.text }]}>{bobbleTitle}</Text>
+          <Text style={[styles.previewBody, { color: colors.textSecondary }]} numberOfLines={3}>
             {DEMO_BOBBLE_DETAIL.bullets.map((b) => `${b.label}: ${b.value}`).join(' · ')}
           </Text>
         </View>
@@ -36,19 +46,27 @@ export default function ShareScreen() {
           {SHARE_OPTIONS.map((option) => (
             <ShareOption
               key={option.id}
+              id={option.id}
               label={option.label}
               onPress={() => {}}
             />
           ))}
         </View>
 
-        <View style={styles.toggleRow}>
-          <Text style={styles.toggleLabel}>Anyone with the link can view</Text>
+        <View
+          style={[
+            styles.toggleRow,
+            { borderTopColor: colors.border },
+          ]}
+        >
+          <Text style={[styles.toggleLabel, { color: colors.text }]}>
+            Anyone with the link can view
+          </Text>
           <Switch
             value={linkPublic}
             onValueChange={setLinkPublic}
-            trackColor={{ false: BobbleColors.border, true: BobbleColors.primaryMuted }}
-            thumbColor={linkPublic ? BobbleColors.primary : BobbleColors.background}
+            trackColor={{ false: colors.border, true: colors.primaryMuted }}
+            thumbColor={linkPublic ? colors.primary : colors.surface}
           />
         </View>
       </ScrollView>
@@ -59,7 +77,6 @@ export default function ShareScreen() {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: BobbleColors.background,
     paddingHorizontal: 24,
   },
   header: {
@@ -72,13 +89,11 @@ const styles = StyleSheet.create({
     ...Typography.heading,
     fontSize: 24,
     lineHeight: 32,
-    color: BobbleColors.text,
   },
   content: {
     paddingBottom: 24,
   },
   preview: {
-    backgroundColor: BobbleColors.borderLight,
     borderRadius: 16,
     padding: 16,
     gap: 8,
@@ -87,11 +102,9 @@ const styles = StyleSheet.create({
   previewTitle: {
     ...Typography.body,
     fontFamily: Typography.button.fontFamily,
-    color: BobbleColors.text,
   },
   previewBody: {
     ...Typography.caption,
-    color: BobbleColors.textSecondary,
     lineHeight: 20,
   },
   grid: {
@@ -106,11 +119,9 @@ const styles = StyleSheet.create({
     marginTop: 8,
     paddingTop: 20,
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: BobbleColors.border,
   },
   toggleLabel: {
     ...Typography.body,
-    color: BobbleColors.text,
     flex: 1,
     marginRight: 12,
   },
