@@ -1,3 +1,4 @@
+import { useIsFocused } from '@react-navigation/native';
 import { Image, ImageSource, ImageStyle } from 'expo-image';
 import { StyleSheet } from 'react-native';
 
@@ -81,12 +82,13 @@ function HomeMascotImage({
   backgroundColor: string;
   style?: ImageStyle;
 }) {
-  const { isLoading, playIntro } = useHomeHeartIntro();
-  const source = !isLoading && playIntro ? HOME_ANIMATED_SOURCE : MASCOT_SOURCES.home.light;
-  const isAnimated = !isLoading && playIntro;
+  const isFocused = useIsFocused();
+  const { playIntro, replayKey } = useHomeHeartIntro(isFocused);
+  const source = playIntro ? HOME_ANIMATED_SOURCE : MASCOT_SOURCES.home.light;
 
   return (
     <Image
+      key={playIntro ? `home-heart-${replayKey}` : 'home-heart-static'}
       source={source}
       style={[
         styles.image,
@@ -99,7 +101,7 @@ function HomeMascotImage({
         style,
       ]}
       contentFit="contain"
-      {...(isAnimated ? { useAppleWebpCodec: false } : {})}
+      {...(playIntro ? { useAppleWebpCodec: false } : {})}
     />
   );
 }

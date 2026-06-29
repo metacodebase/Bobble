@@ -14,17 +14,17 @@ type HomeTabIconProps = {
 };
 
 export function HomeTabIcon({ focused }: HomeTabIconProps) {
-  const { isLoading, playIntro } = useHomeHeartIntro();
-  const source: ImageSource = !isLoading && playIntro ? HOME_TAB_ICON_ANIMATED : HOME_TAB_ICON;
-  const isAnimated = !isLoading && playIntro;
+  const { playIntro, replayKey } = useHomeHeartIntro(focused);
+  const source: ImageSource = playIntro ? HOME_TAB_ICON_ANIMATED : HOME_TAB_ICON;
 
   return (
     <View style={styles.wrapper}>
       <Image
+        key={playIntro ? `home-heart-${replayKey}` : 'home-heart-static'}
         source={source}
         style={[styles.icon, focused ? styles.iconFocused : styles.iconInactive]}
         contentFit="contain"
-        {...(isAnimated ? { useAppleWebpCodec: false } : {})}
+        {...(playIntro ? { useAppleWebpCodec: false } : {})}
       />
     </View>
   );

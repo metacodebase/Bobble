@@ -1,43 +1,41 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useEffect, useState } from 'react';
-
-const STORAGE_KEY = 'bobble.home-heart-intro-seen';
+import { useEffect, useRef, useState } from 'react';
 
 /** Matches the one-shot intro length in scripts/animate-mascot-home.py */
 export const HOME_HEART_INTRO_DURATION_MS = 1200;
 
-export function useHomeHeartIntro() {
-  const [playIntro, setPlayIntro] = useState<boolean | null>(null);
+export function useHomeHeartIntro(isFocused: boolean) {
+  const [playIntro, setPlayIntro] = useState(false);
+  const [replayKey, setReplayKey] = useState(0);
+  const wasFocusedRef = useRef(false);
 
   useEffect(() => {
-    let cancelled = false;
+    if (!isFocused) {
+      wasFocusedRef.current = false;
+      setPlayIntro(false);
+      return;
+    }
 
-    AsyncStorage.getItem(STORAGE_KEY).then((value) => {
-      if (!cancelled) {
-        setPlayIntro(value !== '1');
-      }
-    });
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+    if (!wasFocusedRef.current) {
+      wasFocusedRef.current = true;
+      setReplayKey((key) => key + 1);
+      setPlayIntro(true);
+    }
+  }, [isFocused]);
 
   useEffect(() => {
-    if (playIntro !== true) {
+    if (!playIntro) {
       return;
     }
 
     const timer = setTimeout(() => {
-      void AsyncStorage.setItem(STORAGE_KEY, '1');
       setPlayIntro(false);
     }, HOME_HEART_INTRO_DURATION_MS);
 
     return () => clearTimeout(timer);
-  }, [playIntro]);
+  }, [playIntro, replayKey]);
 
   return {
-    isLoading: playIntro === null,
-    playIntro: playIntro === true,
+    playIntro,
+    replayKey,
   };
 }
