@@ -74,7 +74,7 @@ export default function ProcessingScreen() {
 
       <View style={styles.mascotWrap}>
         <Animated.View style={mascotStyle}>
-          <BobbleMascot variant="sitting" size={160} />
+          <BobbleMascot variant="main" size={160} />
         </Animated.View>
       </View>
 

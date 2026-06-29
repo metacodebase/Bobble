@@ -61,7 +61,7 @@ export default function ProfileScreen() {
       <BadgeRow />
 
       <View style={[styles.motivation, { backgroundColor: colors.borderLight }]}>
-        <BobbleMascot variant="sitting" size={48} />
+        <BobbleMascot variant="main" size={48} />
         <Text style={[styles.motivationText, { color: colors.text }]}>Keep going! You're doing amazing</Text>
       </View>
 

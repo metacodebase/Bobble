@@ -10,6 +10,7 @@ type OnboardingScreenLayoutProps = {
   children: ReactNode;
   footer?: ReactNode;
   contentStyle?: ViewStyle;
+  backgroundColor?: string;
 };
 
 type OnboardingHeroSlotProps = {
@@ -26,6 +27,7 @@ export function OnboardingScreenLayout({
   children,
   footer,
   contentStyle,
+  backgroundColor,
 }: OnboardingScreenLayoutProps) {
   const insets = useSafeAreaInsets();
   const colors = useBobbleColors();
@@ -35,7 +37,7 @@ export function OnboardingScreenLayout({
       style={[
         styles.root,
         {
-          backgroundColor: colors.background,
+          backgroundColor: backgroundColor ?? colors.background,
           paddingTop: insets.top + 16,
           paddingBottom: insets.bottom + 24,
         },

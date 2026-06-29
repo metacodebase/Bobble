@@ -3,14 +3,16 @@ import { Pressable, StyleSheet, View, ViewStyle } from 'react-native';
 
 import { CameraIcon } from '@/src/components/onboarding/ui-icons';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
+import { Colors } from '@/src/theme';
 import { BobbleColors } from '@/src/theme/colors';
-import { BobbleMascot } from '../onboarding/bobble-mascot';
+import { BobbleMascot, MascotVariant } from '../onboarding/bobble-mascot';
 
 type ProfileAvatarProps = {
   onPress?: () => void;
   size?: number;
   showCamera?: boolean;
   centered?: boolean;
+  mascotVariant?: MascotVariant;
   style?: ViewStyle;
 };
 
@@ -19,6 +21,7 @@ export function ProfileAvatar({
   size = 140,
   showCamera = true,
   centered = true,
+  mascotVariant = 'main',
   style,
 }: ProfileAvatarProps) {
   const colors = useBobbleColors();
@@ -31,7 +34,7 @@ export function ProfileAvatar({
   return (
     <View style={[styles.wrapper, centered && styles.wrapperCentered, style]}>
       <LinearGradient
-        colors={[BobbleColors.primary, BobbleColors.primaryLight]}
+        colors={[Colors.dark.background, Colors.light.background]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={[
@@ -43,7 +46,7 @@ export function ProfileAvatar({
           },
         ]}
       >
-        <BobbleMascot variant="sitting" size={mascotSize} style={{ borderRadius: radius }} />
+        <BobbleMascot variant={mascotVariant} size={mascotSize} style={{ borderRadius: radius }} />
       </LinearGradient>
       {showCamera && onPress ? (
         <Pressable

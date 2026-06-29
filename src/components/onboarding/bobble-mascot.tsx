@@ -4,16 +4,12 @@ import { StyleSheet } from 'react-native';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { useColorScheme } from '@/src/hooks/use-color-scheme';
 
-export type MascotVariant = 'splash' | 'sitting' | 'waving' | 'main' | 'voice' | 'greet' | 'home';
+export type MascotVariant = 'splash' | 'waving' | 'main' | 'voice' | 'greet' | 'home';
 
 const MASCOT_SOURCES: Record<MascotVariant, { light: ImageSource; dark: ImageSource }> = {
   splash: {
-    light: require('@/src/assets/images/mascot/mascot-splash.png'),
-    dark: require('@/src/assets/images/mascot/mascot-splash-dark.png'),
-  },
-  sitting: {
-    light: require('@/src/assets/images/mascot/mascot-sitting.png'),
-    dark: require('@/src/assets/images/mascot/mascot-sitting-dark.png'),
+    light: require('@/src/assets/images/bobble-main.png'),
+    dark: require('@/src/assets/images/bobble-main.png'),
   },
   waving: {
     light: require('@/src/assets/images/mascot/mascot-waving.png'),
@@ -49,6 +45,7 @@ export function BobbleMascot({ variant = 'splash', size = 200, style }: BobbleMa
   const scheme = useColorScheme();
   const colors = useBobbleColors();
   const isHome = variant === 'home';
+  const usesOwnBackground = isHome || variant === 'main' || variant === 'splash';
   const width = size;
   const height = isHome ? size * HOME_ASPECT_RATIO : size;
   const borderRadius =
@@ -63,7 +60,7 @@ export function BobbleMascot({ variant = 'splash', size = 200, style }: BobbleMa
           width,
           height,
           borderRadius,
-          backgroundColor: isHome ? 'transparent' : colors.background,
+          backgroundColor: usesOwnBackground ? 'transparent' : colors.background,
         },
         style,
       ]}

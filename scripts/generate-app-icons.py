@@ -8,7 +8,7 @@ from pathlib import Path
 from PIL import Image, ImageChops, ImageOps
 
 ROOT = Path(__file__).resolve().parents[1]
-SOURCE = ROOT / "src/assets/images/mascot/mascot-sitting.png"
+SOURCE = ROOT / "src/assets/images/bobble-main.png"
 OUTPUT_DIR = ROOT / "src/assets/images"
 
 ICON_SIZE = 1024
@@ -17,11 +17,13 @@ ICON_SCALE = 0.82
 FAVICON_SIZE = 48
 SPLASH_SIZE = 1024
 WHITE_THRESHOLD = 245
+BLACK_THRESHOLD = 40
 DARK_BG = (10, 15, 26, 255)
 LIGHT_BG = (255, 255, 255, 255)
 
 
-def remove_near_white_background(image: Image.Image) -> Image.Image:
+def prepare_mascot_cutout(image: Image.Image) -> Image.Image:
+    """Make the mascot background transparent (white or black source art)."""
     rgba = image.convert("RGBA")
     pixels = rgba.load()
     width, height = rgba.size
@@ -30,6 +32,8 @@ def remove_near_white_background(image: Image.Image) -> Image.Image:
         for x in range(width):
             red, green, blue, alpha = pixels[x, y]
             if red >= WHITE_THRESHOLD and green >= WHITE_THRESHOLD and blue >= WHITE_THRESHOLD:
+                pixels[x, y] = (red, green, blue, 0)
+            elif red <= BLACK_THRESHOLD and green <= BLACK_THRESHOLD and blue <= BLACK_THRESHOLD:
                 pixels[x, y] = (red, green, blue, 0)
 
     return rgba
@@ -72,7 +76,7 @@ def save_png(image: Image.Image, path: Path) -> None:
 
 def main() -> None:
     source = Image.open(SOURCE)
-    cutout = remove_near_white_background(source)
+    cutout = prepare_mascot_cutout(source)
 
     save_png(to_opaque_icon(cutout, ICON_SIZE, ICON_SCALE, DARK_BG), OUTPUT_DIR / "icon.png")
     save_png(
@@ -89,10 +93,7 @@ def main() -> None:
     )
     save_png(fit_on_square(cutout, SPLASH_SIZE, 0.72), OUTPUT_DIR / "splash-icon.png")
 
-    background = Image.new("RGB", (ICON_SIZE, ICON_SIZE), DARK_BG[:3])
-    save_png(background.convert("RGBA"), OUTPUT_DIR / "android-icon-background.png")
-
-    print("Generated app icons from mascot-sitting.png")
+    print("Generated app icons from bobble-main.png")
 
 
 if __name__ == "__main__":

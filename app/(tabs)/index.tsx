@@ -44,7 +44,7 @@ export default function HomeScreen() {
         />
 
         <View style={styles.mascotWrap}>
-          <BobbleMascot variant="sitting" size={300} />
+          <BobbleMascot variant="home" size={300} />
         </View>
 
         <View style={styles.actions}>

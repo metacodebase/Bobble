@@ -12,7 +12,7 @@ export function GamificationHeader() {
   return (
     <View style={[styles.root, { backgroundColor: colors.borderLight }]}>
       <View style={styles.topRow}>
-        <BobbleMascot variant="sitting" size={56} />
+        <BobbleMascot variant="main" size={56} />
         <View style={styles.levelBlock}>
           <Text style={[styles.level, { color: colors.primary }]}>Level {GAMIFICATION.level}</Text>
           <Text style={[styles.title, { color: colors.text }]}>{GAMIFICATION.title}</Text>

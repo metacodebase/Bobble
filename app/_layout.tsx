@@ -69,6 +69,7 @@ function NavigationThemeProvider({ children }: { children: ReactNode }) {
 
 function AppShell() {
   const hasHydrated = useAppStore((s) => s.hasHydrated);
+  const isAuthenticated = useAppStore((s) => s.isAuthenticated);
   const colors = useBobbleColors();
   const [fontsLoaded] = useFonts({
     Sniglet_400Regular,
@@ -78,14 +79,15 @@ function AppShell() {
 
   useLayoutEffect(() => {
     if (!hasHydrated) return;
-    void SystemUI.setBackgroundColorAsync(colors.background);
-  }, [hasHydrated, colors.background]);
+    void SystemUI.setBackgroundColorAsync(
+      isAuthenticated ? colors.background : Colors.dark.background,
+    );
+  }, [hasHydrated, colors.background, isAuthenticated]);
 
   useEffect(() => {
-    if (hasHydrated && fontsLoaded) {
-      void SplashScreen.hideAsync();
-    }
-  }, [hasHydrated, fontsLoaded]);
+    if (!hasHydrated || !fontsLoaded || !isAuthenticated) return;
+    void SplashScreen.hideAsync();
+  }, [hasHydrated, fontsLoaded, isAuthenticated]);
 
   if (!hasHydrated || !fontsLoaded) {
     return null;

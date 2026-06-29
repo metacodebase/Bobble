@@ -115,7 +115,7 @@ export default function CreateAccountScreen() {
         return (
           <>
             <StepHeading step={0} />
-            <ProfileAvatar />
+            <ProfileAvatar mascotVariant="main" />
             <LabeledTextInput
               label="Full Name"
               placeholder="Enter your name"

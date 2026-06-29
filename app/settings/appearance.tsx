@@ -46,7 +46,7 @@ export default function AppearanceScreen() {
   return (
     <SettingsScreenLayout title="Appearance">
       <View style={[styles.preview, { backgroundColor: colors.borderLight, borderColor: colors.border }]}>
-        <BobbleMascot variant="sitting" size={72} />
+        <BobbleMascot variant="main" size={72} />
         <Text style={[styles.previewTitle, { color: colors.text }]}>
           {activeScheme === 'dark' ? 'Dark mode active' : 'Light mode active'}
         </Text>

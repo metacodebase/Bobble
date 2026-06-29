@@ -28,7 +28,7 @@ export function RecentBobbleRow({ title, timestamp, onPress, onMenuPress }: Rece
       ]}
     >
       <View style={[styles.iconWrap, { backgroundColor: colors.borderLight }]}>
-        <BobbleMascot variant="sitting" size={36} style={{ borderRadius: 18 }} />
+        <BobbleMascot variant="main" size={36} style={{ borderRadius: 18 }} />
       </View>
       <View style={styles.content}>
         <Text style={[styles.title, { color: colors.text }]} numberOfLines={1}>
