@@ -1,7 +1,10 @@
-import { Image } from 'expo-image';
+import { Image, ImageSource } from 'expo-image';
 import { StyleSheet, View } from 'react-native';
 
+import { useHomeHeartIntro } from '@/src/hooks/use-home-heart-intro';
+
 const HOME_TAB_ICON = require('@/src/assets/images/bobble-home-tab.png');
+const HOME_TAB_ICON_ANIMATED = require('@/src/assets/images/bobble-home-tab-animated.webp');
 
 const ICON_WIDTH = 36;
 const ICON_HEIGHT = ICON_WIDTH * (492 / 738);
@@ -11,15 +14,17 @@ type HomeTabIconProps = {
 };
 
 export function HomeTabIcon({ focused }: HomeTabIconProps) {
+  const { isLoading, playIntro } = useHomeHeartIntro();
+  const source: ImageSource = !isLoading && playIntro ? HOME_TAB_ICON_ANIMATED : HOME_TAB_ICON;
+  const isAnimated = !isLoading && playIntro;
+
   return (
     <View style={styles.wrapper}>
       <Image
-        source={HOME_TAB_ICON}
-        style={[
-          styles.icon,
-          focused ? styles.iconFocused : styles.iconInactive,
-        ]}
+        source={source}
+        style={[styles.icon, focused ? styles.iconFocused : styles.iconInactive]}
         contentFit="contain"
+        {...(isAnimated ? { useAppleWebpCodec: false } : {})}
       />
     </View>
   );

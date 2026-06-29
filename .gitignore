@@ -3,12 +3,21 @@
 # dependencies
 node_modules/
 package-lock.json
+.venv-mascot/
 
 # Yarn Berry
 .pnp.cjs
 .pnp.loader.mjs
 .yarn/cache
 .yarn/install-state.gz
+
+# Python
+__pycache__/
+*.pyc
+
+# Mascot animation previews (app uses .webp only)
+*-animated.gif
+*-animated.mp4
 
 # Expo
 .expo/

@@ -152,6 +152,7 @@ const styles = StyleSheet.create({
   headingWrap: {
     width: '90%',
     alignSelf: 'center',
+    zIndex:100
   },
   heading: {
     marginTop: 0,
