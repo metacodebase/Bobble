@@ -31,7 +31,7 @@ export const useAppStore = create<AppState>()(
       isAuthenticated: false,
       hasOnboarded: false,
       hasHydrated: false,
-      themeOverride: null,
+      themeOverride: 'light',
 
       setSession: (session) =>
         set({

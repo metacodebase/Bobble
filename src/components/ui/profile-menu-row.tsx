@@ -2,15 +2,18 @@ import {
   Bell,
   Calendar,
   ChevronRight,
+  Download,
   Globe,
   HelpCircle,
   Info,
   Link2,
   LucideIcon,
+  Moon,
   Palette,
+  ShieldCheck,
   User,
 } from 'lucide-react-native';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Switch, Text, View } from 'react-native';
 
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { Typography } from '@/src/theme/fonts';
@@ -24,6 +27,9 @@ const ICONS: Record<string, LucideIcon> = {
   globe: Globe,
   help: HelpCircle,
   info: Info,
+  shield: ShieldCheck,
+  download: Download,
+  moon: Moon,
 };
 
 type ProfileMenuRowProps = {
@@ -31,19 +37,24 @@ type ProfileMenuRowProps = {
   icon: string;
   onPress?: () => void;
   destructive?: boolean;
+  toggle?: {
+    value: boolean;
+    onValueChange: (value: boolean) => void;
+  };
 };
 
-export function ProfileMenuRow({ label, icon, onPress, destructive }: ProfileMenuRowProps) {
+export function ProfileMenuRow({ label, icon, onPress, destructive, toggle }: ProfileMenuRowProps) {
   const colors = useBobbleColors();
   const Icon = ICONS[icon] ?? User;
 
   return (
     <Pressable
       onPress={onPress}
+      disabled={!!toggle}
       style={({ pressed }) => [
         styles.row,
         { borderBottomColor: colors.border },
-        pressed && styles.pressed,
+        pressed && onPress && !toggle && styles.pressed,
       ]}
     >
       <View style={styles.left}>
@@ -62,7 +73,14 @@ export function ProfileMenuRow({ label, icon, onPress, destructive }: ProfileMen
           {label}
         </Text>
       </View>
-      {!destructive ? (
+      {toggle ? (
+        <Switch
+          value={toggle.value}
+          onValueChange={toggle.onValueChange}
+          trackColor={{ false: colors.border, true: colors.primaryMuted }}
+          thumbColor={toggle.value ? colors.primary : colors.surface}
+        />
+      ) : !destructive ? (
         <ChevronRight size={18} color={colors.textSecondary} strokeWidth={2} />
       ) : null}
     </Pressable>

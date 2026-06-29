@@ -37,7 +37,7 @@ export default function AppearanceScreen() {
   const activeScheme = useColorScheme();
   const themeOverride = useAppStore((s) => s.themeOverride);
   const setThemeOverride = useAppStore((s) => s.setThemeOverride);
-  const selected: ThemePreference = themeOverride ?? 'system';
+  const selected: ThemePreference = themeOverride ?? 'light';
 
   const handleSelect = (value: ThemePreference) => {
     setThemeOverride(value === 'system' ? null : value);

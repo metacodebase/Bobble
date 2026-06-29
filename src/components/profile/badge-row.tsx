@@ -1,32 +1,42 @@
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Star } from 'lucide-react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { GAMIFICATION } from '@/src/data/demo-data';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { Typography } from '@/src/theme/fonts';
+
+const BADGE_TONES = {
+  blue: {
+    background: '#E0F2FE',
+    foreground: '#0284C7',
+  },
+  yellow: {
+    background: '#FEF9C3',
+    foreground: '#CA8A04',
+  },
+  green: {
+    background: '#DCFCE7',
+    foreground: '#16A34A',
+  },
+} as const;
 
 export function BadgeRow() {
   const colors = useBobbleColors();
 
   return (
     <View style={styles.section}>
-      <View style={styles.header}>
-        <Text style={[styles.title, { color: colors.text }]}>Badges</Text>
-        <Pressable>
-          <Text style={[styles.viewAll, { color: colors.primary }]}>View all</Text>
-        </Pressable>
-      </View>
+      <Text style={[styles.title, { color: colors.text }]}>Your Stars</Text>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.row}>
-        {GAMIFICATION.badges.map((badge) => (
-          <View
-            key={badge}
-            style={[
-              styles.badge,
-              { backgroundColor: colors.primaryMuted + '40', borderColor: colors.primaryMuted },
-            ]}
-          >
-            <Text style={[styles.badgeText, { color: colors.primaryDark }]}>{badge}</Text>
-          </View>
-        ))}
+        {GAMIFICATION.badges.map((badge) => {
+          const tone = BADGE_TONES[badge.tone];
+
+          return (
+            <View key={badge.label} style={[styles.badge, { backgroundColor: tone.background }]}>
+              <Star size={14} color={tone.foreground} fill={tone.foreground} strokeWidth={0} />
+              <Text style={[styles.badgeText, { color: tone.foreground }]}>{badge.label}</Text>
+            </View>
+          );
+        })}
       </ScrollView>
     </View>
   );
@@ -34,30 +44,23 @@ export function BadgeRow() {
 
 const styles = StyleSheet.create({
   section: {
-    marginBottom: 16,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: 24,
+    gap: 12,
   },
   title: {
     ...Typography.formLabel,
     fontSize: 16,
   },
-  viewAll: {
-    ...Typography.caption,
-    fontFamily: Typography.button.fontFamily,
-  },
   row: {
     gap: 10,
   },
   badge: {
-    paddingHorizontal: 16,
-    paddingVertical: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
     borderRadius: 20,
-    borderWidth: 1,
   },
   badgeText: {
     ...Typography.caption,

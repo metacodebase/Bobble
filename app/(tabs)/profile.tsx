@@ -1,27 +1,29 @@
 import { Href, router } from 'expo-router';
+import { Settings } from 'lucide-react-native';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ProfileAvatar } from '@/src/components/create-account/profile-avatar';
-import { BobbleMascot } from '@/src/components/onboarding/bobble-mascot';
 import { BadgeRow } from '@/src/components/profile/badge-row';
-import { GamificationHeader } from '@/src/components/profile/gamification-header';
 import { StatCard } from '@/src/components/profile/stat-card';
 import { ProfileMenuRow } from '@/src/components/ui/profile-menu-row';
+import { ScreenHeader } from '@/src/components/ui/screen-header';
 import { GAMIFICATION, PROFILE_MENU, PROFILE_USER } from '@/src/data/demo-data';
 import { useLogout } from '@/src/hooks/api';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
+import { useThemeToggle } from '@/src/hooks/use-theme-toggle';
 import { useAppStore } from '@/src/store/app-store';
 import { Typography } from '@/src/theme/fonts';
+
+const TAB_BAR_CLEARANCE = 100;
 
 const SETTINGS_ROUTES: Record<(typeof PROFILE_MENU)[number]['id'], Href> = {
   account: '/settings/account',
   calendar: '/settings/calendar-sync',
   connections: '/settings/connections',
-  notifications: '/settings/notifications',
-  appearance: '/settings/appearance',
-  language: '/settings/language',
+  export: '/settings/export-data',
   help: '/settings/help',
+  notifications: '/settings/notifications',
   about: '/settings/about',
 };
 
@@ -30,42 +32,49 @@ export default function ProfileScreen() {
   const colors = useBobbleColors();
   const user = useAppStore((s) => s.user);
   const logout = useLogout();
-  const displayName = user?.email?.split('@')[0] ?? PROFILE_USER.name;
-  const displayEmail = user?.email ?? PROFILE_USER.email;
+  const rawName = user?.email?.split('@')[0] ?? PROFILE_USER.name;
+  const displayName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
+  const displayHandle = user?.email ? `@${user.email.split('@')[0]}` : PROFILE_USER.handle;
+  const { isDark, setIsDark } = useThemeToggle();
 
   return (
-    <ScrollView
-      style={[styles.root, { backgroundColor: colors.background }]}
-      contentContainerStyle={[
-        styles.content,
-        { paddingTop: insets.top + 12, paddingBottom: insets.bottom + 24 },
-      ]}
-      showsVerticalScrollIndicator={false}
-    >
-      <View style={styles.profileHeader}>
-        <ProfileAvatar centered={false} />
-        <View style={styles.profileText}>
-          <Text style={[styles.name, { color: colors.text }]}>{displayName.charAt(0).toUpperCase() + displayName.slice(1)}</Text>
-          <Text style={[styles.email, { color: colors.textSecondary }]}>{displayEmail}</Text>
-        </View>
+    <View style={[styles.root, { paddingTop: insets.top + 12, backgroundColor: colors.background }]}>
+      <View style={styles.header}>
+        <ScreenHeader
+          title="Profile"
+          rightIcon={Settings}
+          onRightPress={() => router.push('/settings' as Href)}
+        />
       </View>
 
-      <GamificationHeader />
+      <ScrollView
+        contentContainerStyle={[
+          styles.content,
+          { paddingBottom: insets.bottom + TAB_BAR_CLEARANCE },
+        ]}
+        showsVerticalScrollIndicator={false}
+      >
+      <View style={[styles.heroCard, { backgroundColor: colors.borderLight }]}>
+        <ProfileAvatar size={140} style={styles.avatar} onPress={() => {}} />
+        <Text style={[styles.name, { color: colors.text }]}>{displayName}</Text>
+        <Text style={[styles.handle, { color: colors.textSecondary }]}>{displayHandle}</Text>
 
-      <View style={styles.statsRow}>
-        <StatCard label="Bobbles" value={GAMIFICATION.stats.bobbles} />
-        <StatCard label="Tasks Done" value={GAMIFICATION.stats.tasksDone} />
-        <StatCard label="Streak" value={`${GAMIFICATION.stats.streakDays} days`} />
+        <View style={styles.statsRow}>
+          <StatCard compact label="Streak" value={GAMIFICATION.stats.streak} />
+          <StatCard compact label="Bobbles" value={GAMIFICATION.stats.bobbles} />
+          <StatCard compact label="Tasks" value={GAMIFICATION.stats.tasks} />
+          <StatCard compact label="XP" value={GAMIFICATION.stats.xp} />
+        </View>
       </View>
 
       <BadgeRow />
 
-      <View style={[styles.motivation, { backgroundColor: colors.borderLight }]}>
-        <BobbleMascot variant="main" size={48} />
-        <Text style={[styles.motivationText, { color: colors.text }]}>Keep going! You're doing amazing</Text>
-      </View>
-
-      <View style={[styles.menu, { borderTopColor: colors.border }]}>
+      <View style={[styles.menu, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+        <ProfileMenuRow
+          label="Dark Mode"
+          icon="moon"
+          toggle={{ value: isDark, onValueChange: setIsDark }}
+        />
         {PROFILE_MENU.map((item) => (
           <ProfileMenuRow
             key={item.id}
@@ -86,6 +95,7 @@ export default function ProfileScreen() {
         />
       </View>
     </ScrollView>
+    </View>
   );
 }
 
@@ -93,45 +103,43 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
   },
+  header: {
+    paddingHorizontal: 24,
+    marginBottom: 4,
+  },
   content: {
     paddingHorizontal: 24,
   },
-  profileHeader: {
-    flexDirection: 'row',
+  heroCard: {
+    borderRadius: 24,
+    paddingHorizontal: 16,
+    paddingTop: 8,
+    paddingBottom: 16,
     alignItems: 'center',
-    gap: 16,
     marginBottom: 24,
   },
-  profileText: {
-    flex: 1,
-    gap: 4,
+  avatar: {
+    marginVertical: 20,
   },
   name: {
     ...Typography.heading,
     fontSize: 24,
     lineHeight: 32,
+    marginBottom: 4,
   },
-  email: {
+  handle: {
     ...Typography.body,
+    marginBottom: 20,
   },
   statsRow: {
     flexDirection: 'row',
-    gap: 10,
-    marginBottom: 20,
-  },
-  motivation: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    borderRadius: 16,
-    padding: 14,
-    marginBottom: 24,
-  },
-  motivationText: {
-    ...Typography.body,
-    flex: 1,
+    gap: 8,
+    width: '100%',
   },
   menu: {
-    borderTopWidth: StyleSheet.hairlineWidth,
+    borderRadius: 20,
+    paddingHorizontal: 16,
+    borderWidth: StyleSheet.hairlineWidth,
+    overflow: 'hidden',
   },
 });

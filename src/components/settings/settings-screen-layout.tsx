@@ -49,7 +49,7 @@ export function SettingsSection({ title, children }: SettingsSectionProps) {
       {title ? (
         <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>{title}</Text>
       ) : null}
-      <View style={[styles.sectionCard, { backgroundColor: colors.borderLight, borderColor: colors.border }]}>
+      <View style={[styles.sectionCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
         {children}
       </View>
     </View>

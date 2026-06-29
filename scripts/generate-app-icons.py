@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+from collections import deque
 from pathlib import Path
 
 from PIL import Image, ImageChops, ImageOps
@@ -22,8 +23,16 @@ DARK_BG = (10, 15, 26, 255)
 LIGHT_BG = (255, 255, 255, 255)
 
 
+def _is_near_white(red: int, green: int, blue: int) -> bool:
+    return red >= WHITE_THRESHOLD and green >= WHITE_THRESHOLD and blue >= WHITE_THRESHOLD
+
+
+def _is_near_black(red: int, green: int, blue: int) -> bool:
+    return red <= BLACK_THRESHOLD and green <= BLACK_THRESHOLD and blue <= BLACK_THRESHOLD
+
+
 def prepare_mascot_cutout(image: Image.Image) -> Image.Image:
-    """Make the mascot background transparent (white or black source art)."""
+    """Make the mascot background transparent without removing interior details like eyes."""
     rgba = image.convert("RGBA")
     pixels = rgba.load()
     width, height = rgba.size
@@ -31,12 +40,42 @@ def prepare_mascot_cutout(image: Image.Image) -> Image.Image:
     for y in range(height):
         for x in range(width):
             red, green, blue, alpha = pixels[x, y]
-            if red >= WHITE_THRESHOLD and green >= WHITE_THRESHOLD and blue >= WHITE_THRESHOLD:
-                pixels[x, y] = (red, green, blue, 0)
-            elif red <= BLACK_THRESHOLD and green <= BLACK_THRESHOLD and blue <= BLACK_THRESHOLD:
+            if _is_near_white(red, green, blue):
                 pixels[x, y] = (red, green, blue, 0)
 
+    # Only remove black pixels connected to the image edge (background),
+    # so interior black features such as the eyes are preserved.
+    queue: deque[tuple[int, int]] = deque()
+    visited: set[tuple[int, int]] = set()
+
+    for x in range(width):
+        queue.append((x, 0))
+        queue.append((x, height - 1))
+    for y in range(1, height - 1):
+        queue.append((0, y))
+        queue.append((width - 1, y))
+
+    while queue:
+        x, y = queue.popleft()
+        if x < 0 or x >= width or y < 0 or y >= height:
+            continue
+        if (x, y) in visited:
+            continue
+        visited.add((x, y))
+
+        red, green, blue, alpha = pixels[x, y]
+        if alpha == 0 or not _is_near_black(red, green, blue):
+            continue
+
+        pixels[x, y] = (red, green, blue, 0)
+        queue.extend(((x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)))
+
     return rgba
+
+
+def fit_bobble_main_for_splash(image: Image.Image, size: int, scale: float) -> Image.Image:
+    """Keep bobble-main as-is (including eyes) for native splash screens."""
+    return fit_on_square(image.convert("RGBA"), size, scale)
 
 
 def fit_on_square(image: Image.Image, size: int, scale: float) -> Image.Image:
@@ -91,7 +130,7 @@ def main() -> None:
         to_opaque_icon(cutout, FAVICON_SIZE, 0.9, LIGHT_BG),
         OUTPUT_DIR / "favicon.png",
     )
-    save_png(fit_on_square(cutout, SPLASH_SIZE, 0.72), OUTPUT_DIR / "splash-icon.png")
+    save_png(fit_bobble_main_for_splash(source, SPLASH_SIZE, 0.85), OUTPUT_DIR / "splash-icon.png")
 
     print("Generated app icons from bobble-main.png")
 

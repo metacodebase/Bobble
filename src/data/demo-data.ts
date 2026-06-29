@@ -108,13 +108,12 @@ export const SHARE_OPTIONS = [
 ] as const;
 
 export const PROFILE_MENU = [
-  { id: 'account', label: 'Account', icon: 'user' },
-  { id: 'calendar', label: 'Calendar Sync', icon: 'calendar' },
-  { id: 'connections', label: 'Connections', icon: 'link' },
+  { id: 'account', label: 'Edit Profile', icon: 'user' },
   { id: 'notifications', label: 'Notifications', icon: 'bell' },
-  { id: 'appearance', label: 'Appearance', icon: 'palette' },
-  { id: 'language', label: 'Language', icon: 'globe' },
-  { id: 'help', label: 'Help & Support', icon: 'help' },
+  { id: 'calendar', label: 'Calendar Sync', icon: 'calendar' },
+  { id: 'connections', label: 'Privacy & Data', icon: 'shield' },
+  { id: 'export', label: 'Export Data', icon: 'download' },
+  { id: 'help', label: 'Support', icon: 'help' },
   { id: 'about', label: 'About Bobble', icon: 'info' },
 ] as const;
 
@@ -124,15 +123,21 @@ export const GAMIFICATION = {
   currentXp: 2450,
   maxXp: 3000,
   stats: {
-    bobbles: 48,
-    tasksDone: 32,
-    streakDays: 7,
+    streak: 14,
+    bobbles: 47,
+    tasks: 128,
+    xp: 2450,
   },
-  badges: ['Early Bird', 'Consistent', 'Mind Tamer'],
+  badges: [
+    { label: 'Early Bird', tone: 'blue' },
+    { label: 'Focus Master', tone: 'yellow' },
+    { label: 'Bobbler', tone: 'green' },
+  ],
 } as const;
 
 export const PROFILE_USER = {
   name: 'Steven',
+  handle: '@steven_thinks',
   email: 'steven@example.com',
 } as const;
 

@@ -1,18 +1,18 @@
-import { LinearGradient } from 'expo-linear-gradient';
+import { Image, ImageSource } from 'expo-image';
 import { Pressable, StyleSheet, View, ViewStyle } from 'react-native';
 
 import { CameraIcon } from '@/src/components/onboarding/ui-icons';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
-import { Colors } from '@/src/theme';
 import { BobbleColors } from '@/src/theme/colors';
-import { BobbleMascot, MascotVariant } from '../onboarding/bobble-mascot';
+
+const DEFAULT_PROFILE_IMAGE = require('@/src/assets/images/profile-avatar-default.png');
 
 type ProfileAvatarProps = {
   onPress?: () => void;
   size?: number;
   showCamera?: boolean;
   centered?: boolean;
-  mascotVariant?: MascotVariant;
+  imageSource?: ImageSource;
   style?: ViewStyle;
 };
 
@@ -21,22 +21,18 @@ export function ProfileAvatar({
   size = 140,
   showCamera = true,
   centered = true,
-  mascotVariant = 'main',
+  imageSource = DEFAULT_PROFILE_IMAGE,
   style,
 }: ProfileAvatarProps) {
   const colors = useBobbleColors();
   const radius = size / 2;
-  const mascotSize = size * (135 / 140);
   const cameraSize = size * (36 / 140);
   const cameraIcon = size * (18 / 140);
   const cameraBorder = size * (3 / 140);
 
   return (
     <View style={[styles.wrapper, centered && styles.wrapperCentered, style]}>
-      <LinearGradient
-        colors={[Colors.dark.background, Colors.light.background]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
+      <View
         style={[
           styles.avatar,
           {
@@ -46,11 +42,16 @@ export function ProfileAvatar({
           },
         ]}
       >
-        <BobbleMascot variant={mascotVariant} size={mascotSize} style={{ borderRadius: radius }} />
-      </LinearGradient>
-      {showCamera && onPress ? (
+        <Image
+          source={imageSource}
+          style={{ width: size, height: size, borderRadius: radius }}
+          contentFit="cover"
+        />
+      </View>
+      {showCamera ? (
         <Pressable
           onPress={onPress}
+          disabled={!onPress}
           style={({ pressed }) => [
             styles.cameraButton,
             {
