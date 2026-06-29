@@ -18,9 +18,11 @@ export default function SplashScreen() {
     >
       <View style={styles.header}>
         <Text style={[styles.title, { color: colors.text }]}>Bobble</Text>
-        <Text style={[styles.tagline, { color: colors.textAccent }]}>unwind a messy mind</Text>
+        <Text style={[styles.tagline, { color: colors.textAccent }]}>
+          Dream, Believe. Bobble. Achieve
+        </Text>
       </View>
-      <BobbleMascot variant="splash" size={1000 * 0.4} />
+      <BobbleMascot variant="main" size={1000 * 0.4} />
 
     </OnboardingScreenLayout>
   );
@@ -38,11 +40,12 @@ const styles = StyleSheet.create({
   },
   title: {
     ...Typography.splashTitle,
-    fontSize: 60,
-    lineHeight: 66,
+    fontSize: 76,
+    lineHeight: 80,
     marginBottom: -4,
   },
   tagline: {
     ...Typography.splashTagline,
+    fontSize: 19,
   },
 });

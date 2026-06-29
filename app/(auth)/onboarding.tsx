@@ -15,6 +15,9 @@ import { useAppStore } from '@/src/store/app-store';
 import { Typography } from '@/src/theme/fonts';
 import { Ionicons } from '@expo/vector-icons';
 
+// Lowercase for robust matching against punctuation/capitalization
+const purpleWords = ['our', 'space', 'sense', 'together', "we'll", 'handle', 'capturing', 'thoughts', 'your', 'best', 'self'];
+
 const STEPS: {
   heading: string;
   buttonLabel: string;
@@ -22,12 +25,12 @@ const STEPS: {
   mascotVariant?: MascotVariant;
 }[] = [
     {
-      heading: "Your mind. Our space. Let's make sense together.",
-      mascotVariant: 'sitting',
+      heading: "Your mind.\nOur space.\nLet's make\nsense together.",
+      mascotVariant: 'voice',
       buttonLabel: 'Next',
     },
     {
-      heading: "Talk it out. We'll handle the rest.",
+      heading: "Talk it out.\nWe'll handle\nthe rest.",
       features: [
         'Voice notes & transcription',
         'AI organises your ideas',
@@ -36,8 +39,8 @@ const STEPS: {
       buttonLabel: 'Next',
     },
     {
-      heading: "You're not just capturing thoughts, you're building your best self.",
-      mascotVariant: 'waving',
+      heading: "You're not just\ncapturing thoughts,\nyou're building\nyour best self.",
+      mascotVariant: 'greet',
       buttonLabel: "Let's Go",
     },
   ];
@@ -70,6 +73,26 @@ export default function OnboardingScreen() {
     setStep(Math.max(0, Math.min(STEPS.length - 1, nextStep)));
   };
 
+  const renderStyledHeading = (text: string, stepIndex: number) => {
+    const tokens = text.split(/(\s+)/);
+
+    return (
+      <Text style={[styles.heading, { color: colors.text }]}>
+        {tokens.map((token, index) => {
+          const cleanWord = token.replace(/[^a-zA-Z']/g, '').toLowerCase();
+          const skipPurpleOnFirstStep = stepIndex === 0 && cleanWord === 'your';
+          const isPurple = !skipPurpleOnFirstStep && purpleWords.includes(cleanWord);
+
+          return (
+            <Text key={index} style={isPurple ? { color: '#7C5CFF' } : undefined}>
+              {token}
+            </Text>
+          );
+        })}
+      </Text>
+    );
+  };
+
   return (
     <OnboardingScreenLayout
       footer={
@@ -87,22 +110,24 @@ export default function OnboardingScreen() {
         onMomentumScrollEnd={handleMomentumEnd}
         bounces={false}
       >
-        {STEPS.map((item) => (
-          <View key={item.heading} style={[styles.slide, { width}]}>
-            <Text style={[styles.heading, { color: colors.text }]}>{item.heading}</Text>
+        {STEPS.map((item, stepIndex) => (
+          <View key={item.heading} style={[styles.slide, { width }]}>
+
+            {/* Fixed styled heading wrapper */}
+            {renderStyledHeading(item.heading, stepIndex)}
 
             {item.features ? (
               <OnboardingHeroSlot>
-                <View style={styles.featureList}>
-                  {item.features.map((feature) => (
-                    <View key={feature} style={styles.featureRow}>
-                      <View style={[styles.featureIcon, { backgroundColor: `${colors.success}30` }]}>
-                        <Ionicons name="checkmark" size={24} color={colors.success} />
-                      </View>
-                      <Text style={[styles.featureText, { color: colors.text }]}>{feature}</Text>
+                    <View style={styles.featureList}>
+                      {item.features.map((feature) => (
+                        <View key={feature} style={styles.featureRow}>
+                          <View style={[styles.featureIcon, { backgroundColor: `${colors.success}30` }]}>
+                            <Ionicons name="checkmark" size={24} color={colors.success} />
+                          </View>
+                          <Text style={[styles.featureText, { color: colors.text }]}>{feature}</Text>
+                        </View>
+                      ))}
                     </View>
-                  ))}
-                </View>
               </OnboardingHeroSlot>
             ) : item.mascotVariant ? (
               <OnboardingHeroSlot>
@@ -123,11 +148,11 @@ const styles = StyleSheet.create({
   heading: {
     ...Typography.heading,
     marginTop: 24,
-    width:'90%',
-    alignSelf:'center',
+    width: '90%',
+    alignSelf: 'center',
   },
   featureList: {
-    gap: 28,
+    gap: 38,
     width: '90%',
     alignSelf: 'center',
   },
@@ -135,20 +160,22 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 14,
-    width: '100%',
+    width: '90%',
+    alignSelf: 'center',
   },
   featureText: {
     ...Typography.heading,
     fontSize: 22,
     width: '60%',
+    lineHeight: 30,
   },
   featureIcon: {
     borderRadius: 120,
     padding: 8,
   },
   footer: {
-    width:'100%',
-    alignSelf:'center',
-    paddingHorizontal:28,
+    width: '100%',
+    alignSelf: 'center',
+    paddingHorizontal: 28,
   },
 });

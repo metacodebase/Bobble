@@ -1,33 +1,6 @@
-import {
-  Poppins_400Regular,
-  Poppins_500Medium,
-  Poppins_600SemiBold,
-  Poppins_700Bold,
-  useFonts,
-} from '@expo-google-fonts/poppins';
 import { Stack } from 'expo-router';
-import { ActivityIndicator, View } from 'react-native';
-
-import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
-import { BobbleColors } from '@/src/theme/colors';
 
 export default function AuthLayout() {
-  const colors = useBobbleColors();
-  const [fontsLoaded] = useFonts({
-    Poppins_400Regular,
-    Poppins_500Medium,
-    Poppins_600SemiBold,
-    Poppins_700Bold,
-  });
-
-  if (!fontsLoaded) {
-    return (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.background }}>
-        <ActivityIndicator color={BobbleColors.primary} />
-      </View>
-    );
-  }
-
   return (
     <Stack
       initialRouteName="splash"

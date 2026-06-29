@@ -11,11 +11,10 @@ export function PaginationDots({ total, activeIndex }: PaginationDotsProps) {
   return (
     <View style={styles.container}>
       {Array.from({ length: total }).map((_, index) => (
-        <View key={index} style={styles.dotSlot}>
-          <View
-            style={[styles.dot, index === activeIndex ? styles.dotActive : styles.dotInactive]}
-          />
-        </View>
+        <View
+          key={index}
+          style={[styles.dot, index === activeIndex ? styles.dotActive : styles.dotInactive]}
+        />
       ))}
     </View>
   );
@@ -26,13 +25,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,
-  },
-  dotSlot: {
-    width: 24,
-    height: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
+    gap: 6,
   },
   dot: {
     width: 8,
@@ -41,8 +34,6 @@ const styles = StyleSheet.create({
   },
   dotActive: {
     backgroundColor: BobbleColors.dotActive,
-    width: 24,
-    borderRadius: 4,
   },
   dotInactive: {
     backgroundColor: BobbleColors.dotInactive,

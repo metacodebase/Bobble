@@ -1230,10 +1230,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@expo-google-fonts/poppins@npm:^0.4.1":
+"@expo-google-fonts/dynapuff@npm:^0.4.3":
+  version: 0.4.3
+  resolution: "@expo-google-fonts/dynapuff@npm:0.4.3"
+  checksum: 10c0/34bdcdb4bf84b2e81da132e6fc5897d45b852f698b2317e210e5659298ee7a55ecc86e22e4c59c41bb162450f9ddcf70aa6b54139dd221829118e853cc634625
+  languageName: node
+  linkType: hard
+
+"@expo-google-fonts/sniglet@npm:^0.4.1":
   version: 0.4.1
-  resolution: "@expo-google-fonts/poppins@npm:0.4.1"
-  checksum: 10c0/068b995d7db0dab2a8884efe8b5d6ae1e78d1d52d86906e771d06af128718780bcf4b147d83cf4cc19fcd66e7a47bc6f867b877eaad6c095e9f7b5edf3bb50d4
+  resolution: "@expo-google-fonts/sniglet@npm:0.4.1"
+  checksum: 10c0/908e5f143bbd35620506e4d679c3ed4f5268e537e059cbe9f5102492a9d55673004235cb8ca989db1f9c9b0e49f310babca498e2e5187b638ae25cd1c8dc4e9d
   languageName: node
   linkType: hard
 
@@ -3708,7 +3715,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "bobble@workspace:."
   dependencies:
-    "@expo-google-fonts/poppins": "npm:^0.4.1"
+    "@expo-google-fonts/dynapuff": "npm:^0.4.3"
+    "@expo-google-fonts/sniglet": "npm:^0.4.1"
     "@expo/vector-icons": "npm:^15.0.3"
     "@react-native-async-storage/async-storage": "npm:2.2.0"
     "@react-navigation/bottom-tabs": "npm:^7.4.0"

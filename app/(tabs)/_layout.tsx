@@ -1,19 +1,13 @@
-import {
-  Poppins_400Regular,
-  Poppins_500Medium,
-  Poppins_600SemiBold,
-  Poppins_700Bold,
-  useFonts,
-} from '@expo-google-fonts/poppins';
 import { Tabs } from 'expo-router';
 import React from 'react';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { CalendarDays, CircleUserRound, House, ListTodo, Sparkles } from 'lucide-react-native';
 
 import { HapticTab } from '@/src/components/haptic-tab';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { useTabBarInsets } from '@/src/hooks/use-tab-bar-insets';
-import { Colors, BobbleColors } from '@/src/theme';
+import { Colors } from '@/src/theme';
+import { FontFamily } from '@/src/theme/fonts';
 import { useColorScheme } from '@/src/hooks/use-color-scheme';
 
 function TabIcon({
@@ -39,20 +33,6 @@ export default function TabLayout() {
   const theme = Colors[colorScheme ?? 'light'];
   const colors = useBobbleColors();
   const { bottomPadding, height: tabBarHeight } = useTabBarInsets();
-  const [fontsLoaded] = useFonts({
-    Poppins_400Regular,
-    Poppins_500Medium,
-    Poppins_600SemiBold,
-    Poppins_700Bold,
-  });
-
-  if (!fontsLoaded) {
-    return (
-      <View style={[styles.loader, { backgroundColor: colors.background }]}>
-        <ActivityIndicator color={BobbleColors.primary} />
-      </View>
-    );
-  }
 
   return (
     <Tabs
@@ -70,8 +50,8 @@ export default function TabLayout() {
           paddingBottom: bottomPadding,
         },
         tabBarLabelStyle: {
+          fontFamily: FontFamily.regular,
           fontSize: 11,
-          fontWeight: '500',
           marginTop: 4,
         },
       }}
@@ -128,11 +108,6 @@ export default function TabLayout() {
 
 const styles = StyleSheet.create({
   iconWrapper: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  loader: {
-    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },

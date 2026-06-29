@@ -2,13 +2,18 @@ import { Platform } from 'react-native';
 
 /**
  * Bobble typography tokens.
- * Poppins is loaded via expo-font in the auth flow; fall back to system sans-serif.
+ * Sniglet and DynaPuff are loaded via expo-font in the root layout; fall back to system sans-serif.
+ * Sniglet only ships Regular (400) and ExtraBold (800).
  */
 export const FontFamily = {
-  regular: 'Poppins_400Regular',
-  medium: 'Poppins_500Medium',
-  semiBold: 'Poppins_600SemiBold',
-  bold: 'Poppins_700Bold',
+  regular: 'Sniglet_400Regular',
+  medium: 'Sniglet_400Regular',
+  semiBold: 'Sniglet_400Regular',
+  bold: 'Sniglet_400Regular',
+  /** Heavier accent — use sparingly */
+  extraBold: 'Sniglet_800ExtraBold',
+  /** Splash "Bobble" title */
+  dynaPuff: 'DynaPuff_400Regular',
   /** System fallback when custom fonts aren't loaded yet */
   fallback: Platform.select({
     ios: 'System',
@@ -20,12 +25,10 @@ export const FontFamily = {
 export const Typography = {
   /** Splash title — "Bobble" */
   splashTitle: {
-    fontFamily: FontFamily.bold,
-    fontSize: 40,
-    lineHeight: 48,
+    fontFamily: FontFamily.dynaPuff,
   },
 
-  /** Splash tagline — "unwind a messy mind" */
+  /** Splash tagline — "Dream, Believe. Bobble. Achieve" */
   splashTagline: {
     fontFamily: FontFamily.semiBold,
     fontSize: 16,
