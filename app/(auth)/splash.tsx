@@ -34,7 +34,7 @@ export default function AuthSplashScreen() {
             Dream, Believe. <AccentText>Bobble.</AccentText> Achieve
           </Text>
         </View>
-        <BobbleMascot variant="main" size={1000 * 0.4} />
+        <BobbleMascot variant="home" size={1000 * 0.4} />
       </View>
     </OnboardingScreenLayout>
   );

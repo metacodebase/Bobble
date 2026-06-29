@@ -10,6 +10,7 @@ import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { BobblesTabIcon } from '@/src/components/ui/bobbles-tab-icon';
+import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { useColorScheme } from '@/src/hooks/use-color-scheme';
 import { BobbleColors } from '@/src/theme/colors';
 import { FontFamily } from '@/src/theme/fonts';
@@ -33,11 +34,13 @@ function TabBarSurface({
   glassEnabled,
   colorScheme,
   isDark,
+  surfaceColor,
 }: {
   children: React.ReactNode;
   glassEnabled: boolean;
   colorScheme: 'light' | 'dark';
   isDark: boolean;
+  surfaceColor: string;
 }) {
   return (
     <View style={[styles.bar, isDark ? styles.barBorderDark : styles.barBorderLight]}>
@@ -56,7 +59,7 @@ function TabBarSurface({
         <View
           style={[
             styles.barGlass,
-            styles.barFallback,
+            { backgroundColor: surfaceColor },
             isDark ? styles.barShadowDark : styles.barShadowLight,
           ]}
           pointerEvents="none"
@@ -70,6 +73,7 @@ function TabBarSurface({
 export function FloatingTabBar({ state, navigation }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
   const scheme = useColorScheme();
+  const colors = useBobbleColors();
   const glassEnabled = useLiquidGlassTabBar();
   const bottom = Math.max(insets.bottom, 10);
 
@@ -127,6 +131,7 @@ export function FloatingTabBar({ state, navigation }: BottomTabBarProps) {
         glassEnabled={glassEnabled}
         colorScheme={scheme === 'dark' ? 'dark' : 'light'}
         isDark={scheme === 'dark'}
+        surfaceColor={colors.surface}
       >
         {slots.map((slot) => {
           if (slot.type === 'mic') {
@@ -148,7 +153,7 @@ export function FloatingTabBar({ state, navigation }: BottomTabBarProps) {
 
           const { tab } = slot;
           const isFocused = activeRoute === tab.name;
-          const color = isFocused ? BobbleColors.primary : BobbleColors.textSecondary;
+          const color = isFocused ? colors.primary : colors.textSecondary;
 
           return (
             <View key={tab.name} style={styles.slot}>
@@ -221,9 +226,6 @@ const styles = StyleSheet.create({
     paddingTop: 8,
     paddingBottom: 8,
     overflow: 'visible',
-  },
-  barFallback: {
-    backgroundColor: BobbleColors.surface,
   },
   slot: {
     flex: 1,

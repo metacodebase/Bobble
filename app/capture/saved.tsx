@@ -2,7 +2,6 @@ import { Href, router } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { ConfettiDecoration } from '@/src/components/capture/confetti-decoration';
 import { SecondaryButton } from '@/src/components/home/secondary-button';
 import { BobbleMascot } from '@/src/components/onboarding/bobble-mascot';
 import { PrimaryButton } from '@/src/components/onboarding/primary-button';
@@ -24,10 +23,10 @@ export default function SavedScreen() {
         },
       ]}
     >
-      <ConfettiDecoration />
+
 
       <View style={styles.content}>
-        <BobbleMascot variant="waving" size={180} />
+        <BobbleMascot variant="greet" size={180} />
         <Text style={[styles.title, { color: colors.text }]}>Bobble saved!</Text>
         <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
           Your thoughts are organised and ready when you are.

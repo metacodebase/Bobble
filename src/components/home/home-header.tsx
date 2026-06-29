@@ -1,6 +1,6 @@
-import { CircleUserRound } from 'lucide-react-native';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { ProfileAvatar } from '@/src/components/create-account/profile-avatar';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { Typography } from '@/src/theme/fonts';
 
@@ -19,12 +19,8 @@ export function HomeHeader({ greeting, name, onProfilePress }: HomeHeaderProps) 
         <Text style={[styles.greeting, { color: colors.textSecondary }]}>{greeting},</Text>
         <Text style={[styles.name, { color: colors.text }]}>{name} 👋</Text>
       </View>
-      <Pressable
-        onPress={onProfilePress}
-        hitSlop={8}
-        style={[styles.avatar, { backgroundColor: colors.borderLight, borderColor: colors.border }]}
-      >
-        <CircleUserRound size={26} color={colors.textSecondary} strokeWidth={1.8} />
+      <Pressable onPress={onProfilePress} hitSlop={8}>
+        <ProfileAvatar size={48} showCamera={false} centered={false} />
       </Pressable>
     </View>
   );
@@ -49,13 +45,5 @@ const styles = StyleSheet.create({
     ...Typography.heading,
     fontSize: 30,
     lineHeight: 38,
-  },
-  avatar: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    borderWidth: 2,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
 });

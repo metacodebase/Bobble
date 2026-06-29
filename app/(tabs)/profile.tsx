@@ -11,7 +11,6 @@ import { ScreenHeader } from '@/src/components/ui/screen-header';
 import { GAMIFICATION, PROFILE_MENU, PROFILE_USER } from '@/src/data/demo-data';
 import { useLogout } from '@/src/hooks/api';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
-import { useThemeToggle } from '@/src/hooks/use-theme-toggle';
 import { useAppStore } from '@/src/store/app-store';
 import { Typography } from '@/src/theme/fonts';
 
@@ -35,7 +34,6 @@ export default function ProfileScreen() {
   const rawName = user?.email?.split('@')[0] ?? PROFILE_USER.name;
   const displayName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
   const displayHandle = user?.email ? `@${user.email.split('@')[0]}` : PROFILE_USER.handle;
-  const { isDark, setIsDark } = useThemeToggle();
 
   return (
     <View style={[styles.root, { paddingTop: insets.top + 12, backgroundColor: colors.background }]}>
@@ -70,11 +68,6 @@ export default function ProfileScreen() {
       <BadgeRow />
 
       <View style={[styles.menu, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-        <ProfileMenuRow
-          label="Dark Mode"
-          icon="moon"
-          toggle={{ value: isDark, onValueChange: setIsDark }}
-        />
         {PROFILE_MENU.map((item) => (
           <ProfileMenuRow
             key={item.id}
