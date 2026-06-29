@@ -1,17 +1,11 @@
 import { Href, router } from 'expo-router';
+import { Settings } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import Animated, {
-  Easing,
-  useAnimatedStyle,
-  useSharedValue,
-  withRepeat,
-  withTiming,
-} from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Settings } from 'lucide-react-native';
 
 import { CaptureHeader } from '@/src/components/capture/capture-header';
+import { MASCOT_THOUGHT_ANCHOR, ProcessingAtomBadge } from '@/src/components/capture/processing-atom-badge';
 import { ProcessingChecklist } from '@/src/components/capture/processing-checklist';
 import { BobbleMascot } from '@/src/components/onboarding/bobble-mascot';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
@@ -28,15 +22,6 @@ export default function ProcessingScreen() {
   const colors = useBobbleColors();
   const insets = useSafeAreaInsets();
   const [completedCount, setCompletedCount] = useState(0);
-  const rotation = useSharedValue(0);
-
-  useEffect(() => {
-    rotation.value = withRepeat(
-      withTiming(360, { duration: 3000, easing: Easing.linear }),
-      -1,
-      false,
-    );
-  }, [rotation]);
 
   useEffect(() => {
     if (completedCount >= STEPS.length) {
@@ -52,10 +37,6 @@ export default function ProcessingScreen() {
 
     return () => clearTimeout(timeout);
   }, [completedCount]);
-
-  const mascotStyle = useAnimatedStyle(() => ({
-    transform: [{ rotate: `${rotation.value}deg` }],
-  }));
 
   return (
     <View
@@ -73,9 +54,12 @@ export default function ProcessingScreen() {
       <Text style={[styles.title, { color: colors.text }]}>Processing with AI</Text>
 
       <View style={styles.mascotWrap}>
-        <Animated.View style={mascotStyle}>
+        <View style={styles.mascotContainer}>
           <BobbleMascot variant="main" size={160} />
-        </Animated.View>
+          <View style={[styles.thinkingBadge,{backgroundColor:colors.background}]}>
+            <ProcessingAtomBadge backgroundColor={colors.background} />
+          </View>
+        </View>
       </View>
 
       <ProcessingChecklist steps={STEPS} completedCount={completedCount} />
@@ -102,6 +86,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 36,
+  },
+  mascotContainer: {
+    position: 'relative',
+    width: 160,
+    height: 160,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  thinkingBadge: {
+    position: 'absolute',
+    top: MASCOT_THOUGHT_ANCHOR.top,
+    right: MASCOT_THOUGHT_ANCHOR.right,
+    zIndex: 100,
   },
   footer: {
     ...Typography.body,

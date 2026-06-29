@@ -1,12 +1,12 @@
 import { Href, router } from 'expo-router';
+import { Pencil } from 'lucide-react-native';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Pencil } from 'lucide-react-native';
 
 import { CaptureHeader } from '@/src/components/capture/capture-header';
-import { DEMO_BOBBLE, SummaryContent } from '@/src/components/capture/summary-content';
 import { SegmentTabs, SummaryTab } from '@/src/components/capture/segment-tabs';
+import { DEMO_BOBBLE, SummaryContent } from '@/src/components/capture/summary-content';
 import { PrimaryButton } from '@/src/components/onboarding/primary-button';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 
@@ -34,9 +34,10 @@ export default function SummaryScreen() {
         <SummaryContent tab={tab} />
       </ScrollView>
 
-      <View style={[styles.footer, { paddingBottom: insets.bottom + 16, backgroundColor: colors.background }]}>
+      <View style={[styles.footer, { paddingBottom: insets.bottom + 16, backgroundColor: colors.background,width:"100%" }]}>
         <PrimaryButton
           label="Save Bobble"
+          style={{ width: '100%' }}
           onPress={() => router.push('/capture/saved' as Href)}
         />
       </View>

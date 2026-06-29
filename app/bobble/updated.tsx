@@ -25,7 +25,7 @@ export default function BobbleUpdatedScreen() {
     >
       <View style={styles.content}>
         <Text style={[styles.title, { color: colors.text }]}>Updated!</Text>
-        <BobbleMascot variant="waving" size={180} />
+        <BobbleMascot variant="greet" size={180} />
         <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
           Your Bobble has been updated successfully.
         </Text>
