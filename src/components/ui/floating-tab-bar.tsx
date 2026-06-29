@@ -1,16 +1,15 @@
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
-import { PlatformPressable } from '@react-navigation/elements';
 import {
   GlassView,
   isGlassEffectAPIAvailable,
   isLiquidGlassAvailable,
 } from 'expo-glass-effect';
-import { CircleUserRound, Cloud, ListTodo, Mic } from 'lucide-react-native';
 import { Href, router } from 'expo-router';
-import { Platform, Pressable, StyleSheet, Text, View, type ViewStyle } from 'react-native';
+import { CircleUserRound, House, ListTodo, Mic } from 'lucide-react-native';
+import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { HomeTabIcon } from '@/src/components/ui/home-tab-icon';
+import { BobblesTabIcon } from '@/src/components/ui/bobbles-tab-icon';
 import { useColorScheme } from '@/src/hooks/use-color-scheme';
 import { BobbleColors } from '@/src/theme/colors';
 import { FontFamily } from '@/src/theme/fonts';
@@ -31,29 +30,41 @@ function useLiquidGlassTabBar() {
 
 function TabBarSurface({
   children,
-  style,
   glassEnabled,
   colorScheme,
+  isDark,
 }: {
   children: React.ReactNode;
-  style: ViewStyle;
   glassEnabled: boolean;
   colorScheme: 'light' | 'dark';
+  isDark: boolean;
 }) {
-  if (glassEnabled) {
-    return (
-      <GlassView
-        style={style}
-        glassEffectStyle="regular"
-        isInteractive
-        colorScheme={colorScheme}
-      >
-        {children}
-      </GlassView>
-    );
-  }
-
-  return <View style={[style, styles.barFallback]}>{children}</View>;
+  return (
+    <View style={[styles.bar, isDark ? styles.barBorderDark : styles.barBorderLight]}>
+      {glassEnabled ? (
+        <GlassView
+          style={[
+            styles.barGlass,
+            isDark ? styles.barShadowDark : styles.barShadowLight,
+          ]}
+          glassEffectStyle="regular"
+          isInteractive
+          colorScheme={colorScheme}
+          pointerEvents="none"
+        />
+      ) : (
+        <View
+          style={[
+            styles.barGlass,
+            styles.barFallback,
+            isDark ? styles.barShadowDark : styles.barShadowLight,
+          ]}
+          pointerEvents="none"
+        />
+      )}
+      <View style={styles.barContent}>{children}</View>
+    </View>
+  );
 }
 
 export function FloatingTabBar({ state, navigation }: BottomTabBarProps) {
@@ -66,12 +77,12 @@ export function FloatingTabBar({ state, navigation }: BottomTabBarProps) {
     {
       name: 'index',
       label: 'Home',
-      renderIcon: (focused) => <HomeTabIcon focused={focused} />,
+      renderIcon: (_focused, color) => <House size={24} color={color} strokeWidth={2} />,
     },
     {
       name: 'bobbles',
       label: 'Bobbles',
-      renderIcon: (_focused, color) => <Cloud size={24} color={color} strokeWidth={2} />,
+      renderIcon: (focused) => <BobblesTabIcon focused={focused} />,
     },
     {
       name: 'tasks',
@@ -113,19 +124,23 @@ export function FloatingTabBar({ state, navigation }: BottomTabBarProps) {
   return (
     <View style={[styles.wrapper, { bottom }]}>
       <TabBarSurface
-        style={styles.bar}
         glassEnabled={glassEnabled}
         colorScheme={scheme === 'dark' ? 'dark' : 'light'}
+        isDark={scheme === 'dark'}
       >
         {slots.map((slot) => {
           if (slot.type === 'mic') {
             return (
-              <View key="mic" style={styles.slot}>
+              <View key="mic" style={styles.micSlot}>
                 <Pressable
                   onPress={() => router.push('/capture/record' as Href)}
-                  style={({ pressed }) => [styles.micButton, pressed && styles.micPressed]}
+                  style={styles.micHitArea}
                 >
-                  <Mic size={26} color={BobbleColors.textOnPrimary} strokeWidth={2.2} />
+                  {({ pressed }) => (
+                    <View style={[styles.micButton, pressed && styles.micPressed]}>
+                      <Mic size={26} color={BobbleColors.textOnPrimary} strokeWidth={2.2} />
+                    </View>
+                  )}
                 </Pressable>
               </View>
             );
@@ -137,15 +152,19 @@ export function FloatingTabBar({ state, navigation }: BottomTabBarProps) {
 
           return (
             <View key={tab.name} style={styles.slot}>
-              <PlatformPressable
+              <Pressable
                 accessibilityRole="button"
                 accessibilityState={isFocused ? { selected: true } : {}}
                 onPress={() => navigateTo(tab.name)}
-                style={styles.tab}
+                style={styles.tabHitArea}
               >
-                {tab.renderIcon(isFocused, color)}
-                <Text style={[styles.label, { color }]}>{tab.label}</Text>
-              </PlatformPressable>
+                {({ pressed }) => (
+                  <View style={[styles.tab, pressed && styles.tabPressed]}>
+                    {tab.renderIcon(isFocused, color)}
+                    <Text style={[styles.label, { color }]}>{tab.label}</Text>
+                  </View>
+                )}
+              </Pressable>
             </View>
           );
         })}
@@ -159,31 +178,72 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 20,
     right: 20,
+    overflow: 'visible',
   },
   bar: {
+    position: 'relative',
+    minHeight: 64,
+    borderRadius: 32,
+    overflow: 'visible',
+  },
+  barBorderLight: {
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.72)',
+  },
+  barBorderDark: {
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.14)',
+  },
+  barShadowLight: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.18,
+    shadowRadius: 24,
+    elevation: 14,
+  },
+  barShadowDark: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.55,
+    shadowRadius: 24,
+    elevation: 14,
+  },
+  barGlass: {
+    ...StyleSheet.absoluteFillObject,
+    borderRadius: 32,
+  },
+  barContent: {
     flexDirection: 'row',
     alignItems: 'flex-end',
     justifyContent: 'space-between',
     minHeight: 64,
-    borderRadius: 32,
     paddingHorizontal: 6,
     paddingTop: 8,
     paddingBottom: 8,
-    overflow: 'hidden',
+    overflow: 'visible',
   },
   barFallback: {
     backgroundColor: BobbleColors.surface,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 16,
-    elevation: 10,
   },
   slot: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'flex-end',
-    minHeight: 48,
+    height: 48,
+  },
+  micSlot: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    height: 48,
+    overflow: 'visible',
+    zIndex: 10,
+  },
+  tabHitArea: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+    height: 48,
   },
   tab: {
     alignItems: 'center',
@@ -191,13 +251,23 @@ const styles = StyleSheet.create({
     gap: 3,
     paddingVertical: 4,
   },
+  tabPressed: {
+    opacity: 0.75,
+    transform: [{ scale: 0.92 }],
+  },
   label: {
     fontFamily: FontFamily.regular,
     fontSize: 11,
   },
-  micButton: {
+  micHitArea: {
     position: 'absolute',
     top: -28,
+    width: 56,
+    height: 56,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  micButton: {
     width: 56,
     height: 56,
     borderRadius: 28,
@@ -209,10 +279,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.35,
     shadowRadius: 8,
     elevation: 8,
-    zIndex: 10,
   },
   micPressed: {
     opacity: 0.92,
-    transform: [{ scale: 0.96 }],
+    transform: [{ scale: 0.92 }],
   },
 });

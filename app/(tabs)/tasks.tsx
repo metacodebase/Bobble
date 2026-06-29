@@ -4,15 +4,18 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Settings } from 'lucide-react-native';
 
 import { TaskSection } from '@/src/components/tasks/task-section';
-import { FAB_BOTTOM_OFFSET, FAB_SCROLL_CLEARANCE, FabButton } from '@/src/components/ui/fab-button';
+import { FAB_SIZE, FabButton } from '@/src/components/ui/fab-button';
 import { FilterChips } from '@/src/components/ui/filter-chips';
 import { ScreenHeader } from '@/src/components/ui/screen-header';
 import { DEMO_TASKS, filterTasks, TaskFilter, TASK_FILTERS } from '@/src/data/demo-data';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
+import { useTabBarInsets } from '@/src/hooks/use-tab-bar-insets';
 
 export default function TasksScreen() {
   const insets = useSafeAreaInsets();
   const colors = useBobbleColors();
+  const { height: tabBarHeight } = useTabBarInsets();
+  const fabBottom = tabBarHeight + 16;
   const [filter, setFilter] = useState<TaskFilter>('All');
   const [tasks, setTasks] = useState(DEMO_TASKS);
   const sections = filterTasks(filter).map((section) => ({
@@ -36,7 +39,7 @@ export default function TasksScreen() {
       </View>
 
       <ScrollView
-        contentContainerStyle={[styles.scroll, { paddingBottom: FAB_SCROLL_CLEARANCE }]}
+        contentContainerStyle={[styles.scroll, { paddingBottom: fabBottom + FAB_SIZE + 16 }]}
         showsVerticalScrollIndicator={false}
       >
         {sections.map((section) => (
@@ -49,7 +52,7 @@ export default function TasksScreen() {
         ))}
       </ScrollView>
 
-      <FabButton bottom={FAB_BOTTOM_OFFSET} onPress={() => {}} />
+      <FabButton bottom={fabBottom} onPress={() => {}} />
     </View>
   );
 }

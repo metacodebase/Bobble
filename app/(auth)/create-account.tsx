@@ -68,10 +68,8 @@ function StepHeading({ step }: { step: number }) {
     case 4:
       return (
         <CreateAccountHeader>
-          Connect your{'\n'}
-          <AccentText>calendars</AccentText>
-          {'\n'}
-          Sync to never miss what matters
+          Connect your Calendars{'\n'}
+          <AccentText>Sync to never Miss What Matters</AccentText>
         </CreateAccountHeader>
       );
     default:

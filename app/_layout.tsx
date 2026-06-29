@@ -24,7 +24,7 @@ import { BobbleColors, Colors } from '@/src/theme';
 
 SplashScreen.preventAutoHideAsync();
 
-void SystemUI.setBackgroundColorAsync(Colors.dark.background);
+void SystemUI.setBackgroundColorAsync(Colors.light.background);
 
 export const unstable_settings = {
   initialRouteName: 'index',
@@ -79,10 +79,8 @@ function AppShell() {
 
   useLayoutEffect(() => {
     if (!hasHydrated) return;
-    void SystemUI.setBackgroundColorAsync(
-      isAuthenticated ? colors.background : Colors.dark.background,
-    );
-  }, [hasHydrated, colors.background, isAuthenticated]);
+    void SystemUI.setBackgroundColorAsync(colors.background);
+  }, [hasHydrated, colors.background]);
 
   useEffect(() => {
     if (!hasHydrated || !fontsLoaded || !isAuthenticated) return;

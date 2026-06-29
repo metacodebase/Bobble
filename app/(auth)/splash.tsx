@@ -8,19 +8,17 @@ import { AccentText } from '@/src/components/onboarding/accent-heading';
 import { BobbleMascot } from '@/src/components/onboarding/bobble-mascot';
 import { OnboardingScreenLayout } from '@/src/components/onboarding/onboarding-screen-layout';
 import { PrimaryButton } from '@/src/components/onboarding/primary-button';
+import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { Typography } from '@/src/theme/fonts';
-import { Colors, getBobbleThemeColors } from '@/src/theme';
-
-const splashColors = getBobbleThemeColors('dark');
 
 export default function AuthSplashScreen() {
+  const colors = useBobbleColors();
   const revealAppSplash = useCallback(() => {
     void ExpoSplashScreen.hideAsync();
   }, []);
 
   return (
     <OnboardingScreenLayout
-      backgroundColor={Colors.dark.background}
       contentStyle={styles.content}
       footer={
         <PrimaryButton
@@ -31,8 +29,8 @@ export default function AuthSplashScreen() {
     >
       <View style={styles.splashBody} onLayout={revealAppSplash}>
         <View style={styles.header}>
-          <Text style={[styles.title, { color: splashColors.text }]}>Bobble</Text>
-          <Text style={[styles.tagline, { color: splashColors.text }]}>
+          <Text style={[styles.title, { color: colors.text }]}>Bobble</Text>
+          <Text style={[styles.tagline, { color: colors.text }]}>
             Dream, Believe. <AccentText>Bobble.</AccentText> Achieve
           </Text>
         </View>
