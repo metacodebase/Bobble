@@ -1,7 +1,7 @@
-import { Ionicons } from '@expo/vector-icons';
 import { Pressable, StyleSheet, Text } from 'react-native';
 
 import { FormField } from '@/src/components/create-account/form-field';
+import { CalendarOutlineIcon, ChevronDownIcon } from '@/src/components/onboarding/ui-icons';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { Typography } from '@/src/theme/fonts';
 
@@ -28,11 +28,11 @@ export function SelectField({ label, value, icon, onPress }: SelectFieldProps) {
         ]}
       >
         <Text style={[styles.value, { color: colors.text }]}>{value}</Text>
-        <Ionicons
-          name={icon === 'calendar' ? 'calendar-outline' : 'chevron-down'}
-          size={20}
-          color={colors.textSecondary}
-        />
+        {icon === 'calendar' ? (
+          <CalendarOutlineIcon size={20} color={colors.textSecondary} />
+        ) : (
+          <ChevronDownIcon size={20} color={colors.textSecondary} />
+        )}
       </Pressable>
     </FormField>
   );
@@ -44,8 +44,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     borderWidth: 1,
-    borderRadius: 16,
-    paddingHorizontal: 16,
+    borderRadius: 32,
+    paddingHorizontal: 20,
     paddingVertical: 16,
   },
   value: {

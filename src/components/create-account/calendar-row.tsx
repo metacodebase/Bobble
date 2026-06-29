@@ -13,9 +13,9 @@ export function CalendarRow({ name, icon, onConnect }: CalendarRowProps) {
   const colors = useBobbleColors();
 
   return (
-    <View style={[styles.row, { borderBottomColor: colors.borderLight }]}>
+    <View style={[styles.row, { borderColor: colors.border, backgroundColor: colors.surface }]}>
       <View style={styles.left}>
-      <View style={[styles.iconWrapper, { backgroundColor: `${colors.primary}1A` }]}>{icon}</View>
+        <View style={styles.iconWrapper}>{icon}</View>
         <Text style={[styles.name, { color: colors.text }]}>{name}</Text>
       </View>
       <Pressable onPress={onConnect} hitSlop={8}>
@@ -34,8 +34,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    borderWidth: 1,
+    borderRadius: 32,
+    paddingHorizontal: 20,
     paddingVertical: 16,
-    borderBottomWidth: 1,
+    marginBottom: 14,
   },
   left: {
     flexDirection: 'row',
@@ -43,18 +46,16 @@ const styles = StyleSheet.create({
     gap: 14,
   },
   iconWrapper: {
-    width: 40,
-    height: 40,
-    borderRadius: 10,
+    width: 28,
+    height: 28,
     alignItems: 'center',
     justifyContent: 'center',
   },
   name: {
-    ...Typography.body,
-    fontFamily: Typography.input.fontFamily,
+    ...Typography.socialButton,
   },
   connect: {
-    ...Typography.body,
+    ...Typography.socialButton,
     fontFamily: Typography.formLabel.fontFamily,
   },
   connectPressed: {

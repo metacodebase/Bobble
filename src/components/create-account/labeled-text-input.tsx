@@ -34,8 +34,8 @@ const styles = StyleSheet.create({
   input: {
     ...Typography.input,
     borderWidth: 1,
-    borderRadius: 16,
-    paddingHorizontal: 16,
+    borderRadius: 32,
+    paddingHorizontal: 20,
     paddingVertical: 16,
   },
 });

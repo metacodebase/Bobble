@@ -14,7 +14,7 @@ export function FormField({ label, children }: FormFieldProps) {
 
   return (
     <View style={styles.container}>
-      <Text style={[styles.label, { color: colors.textSecondary }]}>{label}</Text>
+      <Text style={[styles.label, { color: colors.text }]}>{label}</Text>
       {children}
     </View>
   );
@@ -26,5 +26,6 @@ const styles = StyleSheet.create({
   },
   label: {
     ...Typography.formLabel,
+    fontFamily: Typography.input.fontFamily,
   },
 });

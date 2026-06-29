@@ -50,6 +50,17 @@ export function FacebookIcon({ size = 22 }: SocialIconProps) {
   );
 }
 
+export function MicrosoftIcon({ size = 22 }: SocialIconProps) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 21 21">
+      <Path fill="#F25022" d="M0 0h10v10H0z" />
+      <Path fill="#7FBA00" d="M11 0h10v10H11z" />
+      <Path fill="#00A4EF" d="M0 11h10v10H0z" />
+      <Path fill="#FFB900" d="M11 11h10v10H11z" />
+    </Svg>
+  );
+}
+
 export function XIcon({ size = 22, color = '#000000' }: SocialIconProps) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24">

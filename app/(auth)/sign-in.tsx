@@ -8,26 +8,46 @@ import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { Typography } from '@/src/theme/fonts';
 
 const SOCIAL_PROVIDERS = [
-  { provider: 'google' as const, label: 'Continue with Google' },
-  { provider: 'apple' as const, label: 'Continue with Apple' },
-  { provider: 'facebook' as const, label: 'Continue with Facebook' },
   { provider: 'x' as const, label: 'Continue with X' },
+  { provider: 'facebook' as const, label: 'Continue with Facebook' },
+  { provider: 'google' as const, label: 'Continue with Google' },
+  { provider: 'microsoft' as const, label: 'Continue with Microsoft' },
+  { provider: 'apple' as const, label: 'Continue with Apple' },
 ];
 
 type AuthMode = 'sign-in' | 'sign-up';
 
-const AUTH_COPY: Record<AuthMode, { title: string; footerPrompt: string; footerAction: string }> = {
+const AUTH_COPY: Record<AuthMode, { footerPrompt: string; footerAction: string }> = {
   'sign-in': {
-    title: 'Welcome back',
     footerPrompt: "Don't have an account?",
     footerAction: 'Sign up',
   },
   'sign-up': {
-    title: 'Create your account',
     footerPrompt: 'Already have an account?',
     footerAction: 'Sign in',
   },
 };
+
+function AuthHeading({ mode }: { mode: AuthMode }) {
+  const colors = useBobbleColors();
+
+  if (mode === 'sign-in') {
+    return (
+      <Text style={[styles.heading, { color: colors.text }]}>
+        Welcome back.{'\n'}
+        <Text style={[Typography.accentSubtitle, { color: colors.textAccent }]}>
+          Let&apos;s unwind
+        </Text>
+        {'\n'}
+        together.
+      </Text>
+    );
+  }
+
+  return (
+    <Text style={[styles.heading, { color: colors.text }]}>Create your account</Text>
+  );
+}
 
 export default function AuthScreen() {
   const colors = useBobbleColors();
@@ -45,18 +65,7 @@ export default function AuthScreen() {
   return (
     <OnboardingScreenLayout contentStyle={styles.content}>
       <View style={styles.header}>
-        <Text style={[styles.title, { color: colors.text }]}>{copy.title}</Text>
-        <Text style={[styles.subtitle, { color: colors.text }]}>
-          {mode === 'sign-in' ? (
-            <>
-              Let&apos;s <Text style={[styles.accent, { color: colors.textAccent }]}>unwind</Text> together
-            </>
-          ) : (
-            <>
-              Join Bobble and <Text style={[styles.accent, { color: colors.textAccent }]}>unwind</Text> your mind
-            </>
-          )}
-        </Text>
+        <AuthHeading mode={mode} />
       </View>
 
       <View style={styles.buttons}>
@@ -69,17 +78,13 @@ export default function AuthScreen() {
           />
         ))}
 
-        <View style={styles.dividerRow}>
-          <View style={[styles.dividerLine, { backgroundColor: colors.divider }]} />
-          <Text style={[styles.dividerText, { color: colors.textSecondary }]}>or</Text>
-          <View style={[styles.dividerLine, { backgroundColor: colors.divider }]} />
-        </View>
+        <Text style={[styles.dividerText, { color: colors.text }]}>or</Text>
 
         <SocialButton provider="email" label="Continue with Email" onPress={handleAuth} />
       </View>
 
       <View style={styles.footer}>
-        <Text style={[styles.footerText, { color: colors.textSecondary }]}>
+        <Text style={[styles.footerText, { color: colors.text }]}>
           {copy.footerPrompt}{' '}
           <Text style={[styles.footerLink, { color: colors.textAccent }]} onPress={toggleMode}>
             {copy.footerAction}
@@ -93,38 +98,22 @@ export default function AuthScreen() {
 const styles = StyleSheet.create({
   content: {
     justifyContent: 'space-between',
-    width:'90%',
-    alignSelf:'center',
+    width: '90%',
+    alignSelf: 'center',
   },
   header: {
     marginTop: 24,
-    gap: 8,
   },
-  title: {
+  heading: {
     ...Typography.heading,
-  },
-  subtitle: {
-    ...Typography.subheading,
-  },
-  accent: {
-    fontFamily: Typography.subheading.fontFamily,
-    fontWeight: '600',
   },
   buttons: {
     gap: 14,
   },
-  dividerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 16,
-    marginVertical: 4,
-  },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-  },
   dividerText: {
     ...Typography.divider,
+    textAlign: 'center',
+    marginVertical: 4,
   },
   footer: {
     alignItems: 'center',
@@ -135,7 +124,6 @@ const styles = StyleSheet.create({
   },
   footerLink: {
     ...Typography.caption,
-    textDecorationLine: 'underline',
     fontWeight: '600',
   },
 });

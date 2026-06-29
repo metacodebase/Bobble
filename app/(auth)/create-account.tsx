@@ -1,5 +1,4 @@
 import { Href, router } from 'expo-router';
-import { Brain, Calendar, Leaf, TrendingUp } from 'lucide-react-native';
 import { useState } from 'react';
 import {
   KeyboardAvoidingView,
@@ -18,21 +17,67 @@ import { PhoneInput } from '@/src/components/create-account/phone-input';
 import { ProfileAvatar } from '@/src/components/create-account/profile-avatar';
 import { SelectField } from '@/src/components/create-account/select-field';
 import { TextLinkButton } from '@/src/components/create-account/text-link-button';
+import { AccentText } from '@/src/components/onboarding/accent-heading';
 import { OnboardingScreenLayout } from '@/src/components/onboarding/onboarding-screen-layout';
 import { PrimaryButton } from '@/src/components/onboarding/primary-button';
+import { GoalIconId } from '@/src/components/onboarding/ui-icons';
 
-const GOALS = [
-  { id: 'productive', label: 'Be more productive', icon: TrendingUp },
-  { id: 'stress', label: 'Reduce stress', icon: Leaf },
-  { id: 'organised', label: 'Stay organised', icon: Calendar },
-  { id: 'growth', label: 'Personal growth', icon: Brain },
-] as const;
+const GOALS: { id: GoalIconId; label: string }[] = [
+  { id: 'productive', label: 'Be more productive' },
+  { id: 'stress', label: 'Reduce stress' },
+  { id: 'organised', label: 'Stay organised' },
+  { id: 'growth', label: 'Personal growth' },
+];
 
 const CALENDARS = [
   { id: 'google', name: 'Google Calendar', provider: 'google' as const },
   { id: 'apple', name: 'Apple Calendar', provider: 'apple' as const },
   { id: 'outlook', name: 'Outlook Calendar', provider: 'outlook' as const },
 ] as const;
+
+function StepHeading({ step }: { step: number }) {
+  switch (step) {
+    case 0:
+      return (
+        <CreateAccountHeader>
+          Create your account{'\n'}
+          <AccentText>Let&apos;s get to know you</AccentText>
+        </CreateAccountHeader>
+      );
+    case 1:
+      return (
+        <CreateAccountHeader>
+          Create your account{'\n'}
+          <AccentText>Almost there!</AccentText>
+        </CreateAccountHeader>
+      );
+    case 2:
+      return (
+        <CreateAccountHeader>
+          Create your account{'\n'}
+          <AccentText>Tell us a bit more</AccentText>
+        </CreateAccountHeader>
+      );
+    case 3:
+      return (
+        <CreateAccountHeader>
+          Choose your goals{'\n'}
+          <AccentText>What&apos;s most important to you?</AccentText>
+        </CreateAccountHeader>
+      );
+    case 4:
+      return (
+        <CreateAccountHeader>
+          Connect your{'\n'}
+          <AccentText>calendars</AccentText>
+          {'\n'}
+          Sync to never miss what matters
+        </CreateAccountHeader>
+      );
+    default:
+      return null;
+  }
+}
 
 export default function CreateAccountScreen() {
   const [step, setStep] = useState(0);
@@ -69,7 +114,7 @@ export default function CreateAccountScreen() {
       case 0:
         return (
           <>
-            <CreateAccountHeader title="Create your account" subtitle="Let's get to know you" />
+            <StepHeading step={0} />
             <ProfileAvatar />
             <LabeledTextInput
               label="Full Name"
@@ -84,7 +129,7 @@ export default function CreateAccountScreen() {
       case 1:
         return (
           <>
-            <CreateAccountHeader title="Create your account" subtitle="Almost there!" />
+            <StepHeading step={1} />
             <View style={styles.formGroup}>
               <LabeledTextInput
                 label="Email"
@@ -102,7 +147,7 @@ export default function CreateAccountScreen() {
       case 2:
         return (
           <>
-            <CreateAccountHeader title="Create your account" subtitle="Tell us a bit more" />
+            <StepHeading step={2} />
             <View style={styles.formGroup}>
               <SelectField
                 label="Date of Birth"
@@ -120,13 +165,13 @@ export default function CreateAccountScreen() {
       case 3:
         return (
           <>
-            <CreateAccountHeader title="Choose your goals" subtitle="What's most important to you?" />
+            <StepHeading step={3} />
             <View style={styles.goalList}>
               {GOALS.map((goal) => (
                 <GoalCard
                   key={goal.id}
                   label={goal.label}
-                  icon={goal.icon}
+                  iconId={goal.id}
                   selected={selectedGoals.has(goal.id)}
                   onPress={() => toggleGoal(goal.id)}
                 />
@@ -137,10 +182,7 @@ export default function CreateAccountScreen() {
       case 4:
         return (
           <>
-            <CreateAccountHeader
-              title="Connect your calendars"
-              subtitle="Sync to never miss what matters"
-            />
+            <StepHeading step={4} />
             <View style={styles.calendarList}>
               {CALENDARS.map((calendar) => (
                 <CalendarRow
@@ -191,8 +233,8 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     paddingBottom: 16,
-    width:'90%',
-    alignSelf:'center',
+    width: '90%',
+    alignSelf: 'center',
   },
   formGroup: {
     marginTop: 32,
@@ -200,7 +242,7 @@ const styles = StyleSheet.create({
   },
   goalList: {
     marginTop: 28,
-    gap: 12,
+    gap: 14,
   },
   calendarList: {
     marginTop: 28,

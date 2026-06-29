@@ -48,6 +48,13 @@ export const Typography = {
     lineHeight: 26,
   },
 
+  /** Purple accent lines under auth headings */
+  accentSubtitle: {
+    fontFamily: FontFamily.regular,
+    fontSize: 22,
+    lineHeight: 28,
+  },
+
   /** Body copy, feature list items */
   body: {
     fontFamily: FontFamily.regular,

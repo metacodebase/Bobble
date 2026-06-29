@@ -2,6 +2,7 @@
 import { Href, router } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 
+import { AccentText } from '@/src/components/onboarding/accent-heading';
 import { BobbleMascot } from '@/src/components/onboarding/bobble-mascot';
 import { OnboardingScreenLayout } from '@/src/components/onboarding/onboarding-screen-layout';
 import { PrimaryButton } from '@/src/components/onboarding/primary-button';
@@ -18,12 +19,11 @@ export default function SplashScreen() {
     >
       <View style={styles.header}>
         <Text style={[styles.title, { color: colors.text }]}>Bobble</Text>
-        <Text style={[styles.tagline, { color: colors.textAccent }]}>
-          Dream, Believe. Bobble. Achieve
+        <Text style={[styles.tagline, { color: colors.text }]}>
+          Dream, Believe. <AccentText>Bobble.</AccentText> Achieve
         </Text>
       </View>
       <BobbleMascot variant="main" size={1000 * 0.4} />
-
     </OnboardingScreenLayout>
   );
 }
@@ -36,7 +36,7 @@ const styles = StyleSheet.create({
   header: {
     alignItems: 'center',
     gap: 4,
-    width: "100%",
+    width: '100%',
   },
   title: {
     ...Typography.splashTitle,

@@ -1,18 +1,17 @@
-import { Ionicons } from '@expo/vector-icons';
-import { LucideIcon } from 'lucide-react-native';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { CheckIcon, GoalIcon, GoalIconId } from '@/src/components/onboarding/ui-icons';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { Typography } from '@/src/theme/fonts';
 
 type GoalCardProps = {
   label: string;
-  icon: LucideIcon;
+  iconId: GoalIconId;
   selected: boolean;
   onPress: () => void;
 };
 
-export function GoalCard({ label, icon: Icon, selected, onPress }: GoalCardProps) {
+export function GoalCard({ label, iconId, selected, onPress }: GoalCardProps) {
   const colors = useBobbleColors();
 
   return (
@@ -22,31 +21,27 @@ export function GoalCard({ label, icon: Icon, selected, onPress }: GoalCardProps
         styles.card,
         {
           borderColor: selected ? colors.primary : colors.border,
-          backgroundColor: colors.surface,
+          backgroundColor: pressed ? colors.borderLight : colors.surface,
         },
         pressed && styles.cardPressed,
       ]}
     >
-      <View
-        style={[
-          styles.iconContainer,
-          { backgroundColor: `${colors.primary}18` },
-          selected && { backgroundColor: colors.primary },
-        ]}
-      >
-        <Icon size={22} color={selected ? colors.textOnPrimary : colors.primary} />
+      <View style={styles.icon}>
+        <GoalIcon
+          id={iconId}
+          size={22}
+          color={selected ? colors.primary : colors.textSecondary}
+        />
       </View>
       <Text style={[styles.label, { color: colors.text }]}>{label}</Text>
       <View
         style={[
           styles.checkbox,
           { borderColor: colors.border },
-          selected && { backgroundColor: colors.primary, borderColor: colors.primary },
+          selected && { backgroundColor: colors.success, borderColor: colors.success },
         ]}
       >
-        {selected ? (
-          <Ionicons name="checkmark" size={16} color={colors.textOnPrimary} />
-        ) : null}
+        {selected ? <CheckIcon size={16} strokeWidth={4} color={colors.textOnPrimary} /> : null}
       </View>
     </Pressable>
   );
@@ -56,31 +51,27 @@ const styles = StyleSheet.create({
   card: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 14,
     borderWidth: 1,
-    borderRadius: 16,
-    paddingHorizontal: 16,
-    paddingVertical: 18,
+    borderRadius: 32,
+    paddingHorizontal: 20,
+    paddingVertical: 16,
   },
   cardPressed: {
     opacity: 0.9,
   },
-  iconContainer: {
-    width: 44,
-    height: 44,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
+  icon: {
+    position: 'absolute',
+    left: 24,
   },
   label: {
-    ...Typography.body,
+    ...Typography.socialButton,
     flex: 1,
-    fontFamily: Typography.input.fontFamily,
+    textAlign: 'center',
   },
   checkbox: {
-    width: 24,
-    height: 24,
-    borderRadius: 6,
+    width: 26,
+    height: 26,
+    borderRadius: 13,
     borderWidth: 1.5,
     alignItems: 'center',
     justifyContent: 'center',

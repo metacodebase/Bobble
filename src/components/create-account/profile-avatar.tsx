@@ -1,7 +1,7 @@
-import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Pressable, StyleSheet, View, ViewStyle } from 'react-native';
 
+import { CameraIcon } from '@/src/components/onboarding/ui-icons';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { BobbleColors } from '@/src/theme/colors';
 import { BobbleMascot } from '../onboarding/bobble-mascot';
@@ -62,7 +62,7 @@ export function ProfileAvatar({
             pressed && styles.cameraButtonPressed,
           ]}
         >
-          <Ionicons name="camera" size={cameraIcon} color={BobbleColors.textOnPrimary} />
+          <CameraIcon size={cameraIcon} color={BobbleColors.textOnPrimary} />
         </Pressable>
       ) : null}
     </View>
