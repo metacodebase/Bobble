@@ -135,7 +135,11 @@ export default function OnboardingScreen() {
               </OnboardingHeroSlot>
             ) : item.mascotVariant ? (
               <OnboardingHeroSlot>
-                <BobbleMascot variant={item.mascotVariant} size={ONBOARDING_MASCOT_SIZE} />
+                <BobbleMascot
+                  variant={item.mascotVariant}
+                  size={ONBOARDING_MASCOT_SIZE}
+                  playAnimation={step === stepIndex}
+                />
               </OnboardingHeroSlot>
             ) : null}
           </View>

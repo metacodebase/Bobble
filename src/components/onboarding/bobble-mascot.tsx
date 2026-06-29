@@ -1,5 +1,6 @@
 import { useIsFocused } from '@react-navigation/native';
 import { Image, ImageSource, ImageStyle } from 'expo-image';
+import { useEffect, useRef, useState } from 'react';
 import { StyleSheet } from 'react-native';
 
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
@@ -42,11 +43,15 @@ const ANIMATED_MASCOT_SOURCES: Partial<Record<MascotVariant, ImageSource>> = {
 
 const HOME_ANIMATED_SOURCE = require('@/src/assets/images/bobble-home-tab-animated.webp');
 
+type AnimatedMascotVariant = keyof typeof ANIMATED_MASCOT_SOURCES;
+
 type BobbleMascotProps = {
   variant?: MascotVariant;
   size?: number;
   style?: ImageStyle;
   backgroundColor?: string;
+  /** When false, shows the static frame until set true (restarts the animation). */
+  playAnimation?: boolean;
 };
 
 const HOME_ASPECT_RATIO = 492 / 738;
@@ -67,6 +72,62 @@ function getMascotDimensions(variant: MascotVariant, size: number) {
   }
 
   return { width: size, height: size };
+}
+
+function AnimatedMascotImage({
+  variant,
+  playAnimation,
+  width,
+  height,
+  borderRadius,
+  backgroundColor,
+  style,
+}: {
+  variant: AnimatedMascotVariant;
+  playAnimation: boolean;
+  width: number;
+  height: number;
+  borderRadius: number;
+  backgroundColor: string;
+  style?: ImageStyle;
+}) {
+  const [replayKey, setReplayKey] = useState(0);
+  const wasPlayingRef = useRef(false);
+
+  useEffect(() => {
+    if (!playAnimation) {
+      wasPlayingRef.current = false;
+      return;
+    }
+
+    if (!wasPlayingRef.current) {
+      wasPlayingRef.current = true;
+      setReplayKey((key) => key + 1);
+    }
+  }, [playAnimation]);
+
+  const source = playAnimation
+    ? ANIMATED_MASCOT_SOURCES[variant]!
+    : MASCOT_SOURCES[variant].light;
+
+  return (
+    <Image
+      key={playAnimation ? `${variant}-animated-${replayKey}` : `${variant}-static`}
+      source={source}
+      style={[
+        styles.image,
+        {
+          width,
+          height,
+          borderRadius,
+          backgroundColor,
+        },
+        style,
+      ]}
+      contentFit="contain"
+      {...(playAnimation ? { useAppleWebpCodec: false } : {})}
+    />
+  );
 }
 
 function HomeMascotImage({
@@ -111,6 +172,7 @@ export function BobbleMascot({
   size = 200,
   style,
   backgroundColor: backgroundColorProp,
+  playAnimation = true,
 }: BobbleMascotProps) {
   const scheme = useColorScheme();
   const colors = useBobbleColors();
@@ -134,12 +196,23 @@ export function BobbleMascot({
     );
   }
 
-  const source = ANIMATED_MASCOT_SOURCES[variant] ?? MASCOT_SOURCES[variant][scheme];
-  const isAnimated = variant in ANIMATED_MASCOT_SOURCES;
+  if (variant in ANIMATED_MASCOT_SOURCES) {
+    return (
+      <AnimatedMascotImage
+        variant={variant as AnimatedMascotVariant}
+        playAnimation={playAnimation}
+        width={width}
+        height={height}
+        borderRadius={borderRadius}
+        backgroundColor={backgroundColor}
+        style={style}
+      />
+    );
+  }
 
   return (
     <Image
-      source={source}
+      source={MASCOT_SOURCES[variant][scheme]}
       style={[
         styles.image,
         {
@@ -151,7 +224,6 @@ export function BobbleMascot({
         style,
       ]}
       contentFit="contain"
-      {...(isAnimated ? { useAppleWebpCodec: false } : {})}
     />
   );
 }
