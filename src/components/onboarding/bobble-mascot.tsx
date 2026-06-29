@@ -145,22 +145,22 @@ function HomeMascotImage({
 }) {
   const isFocused = useIsFocused();
   const { playIntro, replayKey } = useHomeHeartIntro(isFocused);
-  const source = playIntro ? HOME_ANIMATED_SOURCE : MASCOT_SOURCES.home.light;
+  const imageStyle = [
+    styles.image,
+    {
+      width,
+      height,
+      borderRadius,
+      backgroundColor,
+    },
+    style,
+  ];
 
   return (
     <Image
       key={playIntro ? `home-heart-${replayKey}` : 'home-heart-static'}
-      source={source}
-      style={[
-        styles.image,
-        {
-          width,
-          height,
-          borderRadius,
-          backgroundColor,
-        },
-        style,
-      ]}
+      source={playIntro ? HOME_ANIMATED_SOURCE : MASCOT_SOURCES.home.light}
+      style={imageStyle}
       contentFit="contain"
       {...(playIntro ? { useAppleWebpCodec: false } : {})}
     />

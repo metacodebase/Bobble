@@ -1,4 +1,4 @@
-import { Image, ImageSource } from 'expo-image';
+import { Image } from 'expo-image';
 import { StyleSheet, View } from 'react-native';
 
 import { useHomeHeartIntro } from '@/src/hooks/use-home-heart-intro';
@@ -15,14 +15,14 @@ type HomeTabIconProps = {
 
 export function HomeTabIcon({ focused }: HomeTabIconProps) {
   const { playIntro, replayKey } = useHomeHeartIntro(focused);
-  const source: ImageSource = playIntro ? HOME_TAB_ICON_ANIMATED : HOME_TAB_ICON;
+  const iconStyle = [styles.icon, focused ? styles.iconFocused : styles.iconInactive];
 
   return (
     <View style={styles.wrapper}>
       <Image
         key={playIntro ? `home-heart-${replayKey}` : 'home-heart-static'}
-        source={source}
-        style={[styles.icon, focused ? styles.iconFocused : styles.iconInactive]}
+        source={playIntro ? HOME_TAB_ICON_ANIMATED : HOME_TAB_ICON}
+        style={iconStyle}
         contentFit="contain"
         {...(playIntro ? { useAppleWebpCodec: false } : {})}
       />

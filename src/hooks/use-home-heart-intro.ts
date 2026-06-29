@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 
-/** Matches the one-shot intro length in scripts/animate-mascot-home.py */
-export const HOME_HEART_INTRO_DURATION_MS = 1200;
+/** Slightly before the WebP loops back to frame 0 (72 frames @ 60fps = 1200ms). */
+export const HOME_HEART_INTRO_DURATION_MS = 1180;
+
+let hasPlayedHomeHeartIntro = false;
 
 export function useHomeHeartIntro(isFocused: boolean) {
   const [playIntro, setPlayIntro] = useState(false);
@@ -15,11 +17,19 @@ export function useHomeHeartIntro(isFocused: boolean) {
       return;
     }
 
-    if (!wasFocusedRef.current) {
-      wasFocusedRef.current = true;
-      setReplayKey((key) => key + 1);
-      setPlayIntro(true);
+    if (wasFocusedRef.current) {
+      return;
     }
+
+    wasFocusedRef.current = true;
+
+    if (hasPlayedHomeHeartIntro) {
+      return;
+    }
+
+    hasPlayedHomeHeartIntro = true;
+    setReplayKey((key) => key + 1);
+    setPlayIntro(true);
   }, [isFocused]);
 
   useEffect(() => {

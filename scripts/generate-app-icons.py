@@ -15,6 +15,7 @@ OUTPUT_DIR = ROOT / "src/assets/images"
 ICON_SIZE = 1024
 FOREGROUND_SCALE = 0.78
 ICON_SCALE = 0.82
+APP_ICON_SCALE = 0.85
 FAVICON_SIZE = 48
 SPLASH_SIZE = 1024
 WHITE_THRESHOLD = 245
@@ -78,6 +79,14 @@ def fit_bobble_main_for_splash(image: Image.Image, size: int, scale: float) -> I
     return fit_on_square(image.convert("RGBA"), size, scale)
 
 
+def fit_bobble_main_for_app_icon(image: Image.Image, size: int, scale: float) -> Image.Image:
+    """App icon: bobble-main as-is on black, scaled down with padding."""
+    fitted = fit_on_square(image.convert("RGBA"), size, scale)
+    background = Image.new("RGBA", (size, size), (0, 0, 0, 255))
+    background.alpha_composite(fitted)
+    return background.convert("RGB")
+
+
 def fit_on_square(image: Image.Image, size: int, scale: float) -> Image.Image:
     target = int(size * scale)
     fitted = ImageOps.contain(image, (target, target), method=Image.Resampling.LANCZOS)
@@ -131,6 +140,10 @@ def main() -> None:
         OUTPUT_DIR / "favicon.png",
     )
     save_png(fit_bobble_main_for_splash(source, SPLASH_SIZE, 0.85), OUTPUT_DIR / "splash-icon.png")
+    save_png(
+        fit_bobble_main_for_app_icon(source, ICON_SIZE, APP_ICON_SCALE),
+        OUTPUT_DIR / "bobble-app-icon.png",
+    )
 
     print("Generated app icons from bobble-main.png")
 

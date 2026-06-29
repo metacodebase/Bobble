@@ -226,7 +226,7 @@ def save_animated_webp(frames: list[Image.Image], output_path: Path) -> None:
         save_all=True,
         append_images=frames[1:],
         duration=duration_ms,
-        loop=0,
+        loop=1,
         lossless=True,
         method=6,
     )
@@ -275,6 +275,7 @@ def animate_home(
     output_webp: Path,
     output_gif: Path,
     output_mp4: Path,
+    output_mascot: Path,
 ) -> None:
     if not input_path.exists():
         raise FileNotFoundError(f"{input_path} not found.")
@@ -313,6 +314,7 @@ def animate_home(
         frame_arrays.append(cleaned)
 
     output_webp.parent.mkdir(parents=True, exist_ok=True)
+    mascot_layer.save(output_mascot)
     save_animated_webp(frame_images, output_webp)
     save_animated_gif(frame_images, output_gif)
     imageio.mimsave(output_mp4, frame_arrays, fps=FPS, codec="libx264", quality=8)
@@ -323,9 +325,11 @@ def main() -> None:
     output_webp = ASSETS_DIR / "bobble-home-tab-animated.webp"
     output_gif = ASSETS_DIR / "bobble-home-tab-animated.gif"
     output_mp4 = ASSETS_DIR / "bobble-home-tab-animated.mp4"
+    output_mascot = ASSETS_DIR / "bobble-home-tab-mascot.png"
 
-    animate_home(input_path, output_webp, output_gif, output_mp4)
+    animate_home(input_path, output_webp, output_gif, output_mp4, output_mascot)
     print("Done!")
+    print("Saved:", output_mascot)
     print("Saved:", output_webp)
     print("Saved:", output_gif)
     print("Saved:", output_mp4)

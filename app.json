@@ -4,24 +4,24 @@
     "slug": "Bobble",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./src/assets/images/icon.png",
+    "icon": "./src/assets/images/bobble-app-icon.png",
     "scheme": "bobble",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "metadots.bobble.app",
+      "buildNumber": "3",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
         "NSMicrophoneUsageDescription": "Bobble uses your microphone to record voice memos and show a live waveform while you speak."
       }
     },
     "android": {
-      "icon": "./src/assets/images/icon.png",
+      "icon": "./src/assets/images/bobble-app-icon.png",
       "adaptiveIcon": {
-        "foregroundImage": "./src/assets/images/android-icon-foreground.png",
-        "backgroundColor": "#0A0F1A",
-        "monochromeImage": "./src/assets/images/android-icon-monochrome.png"
+        "foregroundImage": "./src/assets/images/bobble-app-icon.png",
+        "backgroundColor": "#000000"
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
