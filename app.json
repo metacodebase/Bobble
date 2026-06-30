@@ -11,7 +11,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "metadots.bobble.app",
-      "buildNumber": "3",
+      "buildNumber": "4",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
         "NSMicrophoneUsageDescription": "Bobble uses your microphone to record voice memos and show a live waveform while you speak."
@@ -19,6 +19,7 @@
     },
     "android": {
       "icon": "./src/assets/images/bobble-app-icon.png",
+      "versionCode": 4,
       "adaptiveIcon": {
         "foregroundImage": "./src/assets/images/bobble-app-icon.png",
         "backgroundColor": "#000000"
