@@ -74,6 +74,12 @@ export default function OnboardingScreen() {
   const current = STEPS[step];
   const isLast = step === STEPS.length - 1;
 
+  const syncStepFromOffset = (offsetX: number) => {
+    const nextStep = Math.round(offsetX / width);
+    const clamped = Math.max(0, Math.min(STEPS.length - 1, nextStep));
+    setStep((prev) => (prev === clamped ? prev : clamped));
+  };
+
   const scrollToStep = (nextStep: number) => {
     scrollRef.current?.scrollTo({ x: nextStep * width, animated: true });
     setStep(nextStep);
@@ -88,9 +94,23 @@ export default function OnboardingScreen() {
     scrollToStep(step + 1);
   };
 
+  const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    syncStepFromOffset(event.nativeEvent.contentOffset.x);
+  };
+
   const handleMomentumEnd = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-    const nextStep = Math.round(event.nativeEvent.contentOffset.x / width);
-    setStep(Math.max(0, Math.min(STEPS.length - 1, nextStep)));
+    syncStepFromOffset(event.nativeEvent.contentOffset.x);
+  };
+
+  const shouldPlayMascotAnimation = (activeStep: number, slideIndex: number) => {
+    if (activeStep === slideIndex) {
+      return true;
+    }
+
+    // Last mascot slide: start animating one step early so the webp is
+    // already playing before the user swipes onto it (avoids static→animated flicker).
+    const isLastSlide = slideIndex === STEPS.length - 1;
+    return isLastSlide && STEPS[slideIndex].mascotVariant != null && activeStep === slideIndex - 1;
   };
 
   return (
@@ -107,6 +127,8 @@ export default function OnboardingScreen() {
         horizontal
         pagingEnabled
         showsHorizontalScrollIndicator={false}
+        scrollEventThrottle={16}
+        onScroll={handleScroll}
         onMomentumScrollEnd={handleMomentumEnd}
         bounces={false}
       >
@@ -138,7 +160,7 @@ export default function OnboardingScreen() {
                 <BobbleMascot
                   variant={item.mascotVariant}
                   size={ONBOARDING_MASCOT_SIZE}
-                  playAnimation={step === stepIndex}
+                  playAnimation={shouldPlayMascotAnimation(step, stepIndex)}
                 />
               </OnboardingHeroSlot>
             ) : null}
