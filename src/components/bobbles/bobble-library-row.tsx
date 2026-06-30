@@ -1,6 +1,7 @@
-import { MoreHorizontal, Sparkles } from 'lucide-react-native';
+import { MoreHorizontal } from 'lucide-react-native';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { BobbleIcon } from '@/src/components/ui/bobble-icon';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { Typography } from '@/src/theme/fonts';
 
@@ -24,7 +25,7 @@ export function BobbleLibraryRow({ title, timestamp, onPress, onMenuPress }: Bob
       ]}
     >
       <View style={[styles.iconWrap, { backgroundColor: colors.borderLight }]}>
-        <Sparkles size={18} color={colors.primary} strokeWidth={2} />
+        <BobbleIcon size={22} variant="active" />
       </View>
       <View style={styles.content}>
         <Text style={[styles.title, { color: colors.text }]} numberOfLines={1}>

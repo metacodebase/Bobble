@@ -112,7 +112,7 @@ export default function ProcessingScreen() {
       {isComplete ? (
         <View style={styles.actions}>
           <PrimaryButton
-            label="Review Summary"
+            label="Continue"
             style={styles.primaryAction}
             onPress={() => router.replace('/capture/summary' as Href)}
           />

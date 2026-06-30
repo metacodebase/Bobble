@@ -1,15 +1,15 @@
 import { Href, router, useLocalSearchParams } from 'expo-router';
+import { Settings } from 'lucide-react-native';
 import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Settings } from 'lucide-react-native';
 
 import { AudioWaveform } from '@/src/components/capture/audio-waveform';
 import { CaptureHeader } from '@/src/components/capture/capture-header';
 import { RecordingControls } from '@/src/components/capture/recording-controls';
 import { RecordingVisualizer } from '@/src/components/capture/recording-visualizer';
-import { useVoiceRecorder } from '@/src/hooks/use-voice-recorder';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
+import { useVoiceRecorder } from '@/src/hooks/use-voice-recorder';
 import { Typography } from '@/src/theme/fonts';
 
 function formatElapsed(seconds: number) {

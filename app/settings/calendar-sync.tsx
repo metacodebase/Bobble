@@ -3,8 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { CalendarProviderIcon } from '@/src/components/create-account/calendar-brand-icons';
 import { CalendarRow } from '@/src/components/create-account/calendar-row';
 import {
-  SettingsScreenLayout,
-  SettingsSection,
+  SettingsScreenLayout
 } from '@/src/components/settings/settings-screen-layout';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { Typography } from '@/src/theme/fonts';
@@ -24,7 +23,7 @@ export default function CalendarSyncScreen() {
         Connect calendars to sync tasks and events from your Bobbles.
       </Text>
 
-      <SettingsSection>
+    
         <View style={styles.list}>
           {CALENDARS.map((calendar) => (
             <CalendarRow
@@ -34,7 +33,6 @@ export default function CalendarSyncScreen() {
             />
           ))}
         </View>
-      </SettingsSection>
     </SettingsScreenLayout>
   );
 }
@@ -45,6 +43,6 @@ const styles = StyleSheet.create({
     lineHeight: 22,
   },
   list: {
-    paddingHorizontal: 16,
+    // paddingHorizontal: 16,
   },
 });

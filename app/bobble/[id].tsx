@@ -7,8 +7,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BobbleDetailSummary } from '@/src/components/bobbles/bobble-detail-summary';
 import { BobbleDetailToolbar } from '@/src/components/bobbles/bobble-detail-toolbar';
 import { CaptureHeader } from '@/src/components/capture/capture-header';
-import { SummaryContent } from '@/src/components/capture/summary-content';
 import { SegmentTabs, SummaryTab } from '@/src/components/capture/segment-tabs';
+import { SummaryContent } from '@/src/components/capture/summary-content';
 import { PrimaryButton } from '@/src/components/onboarding/primary-button';
 import { ActionSheet } from '@/src/components/ui/action-sheet';
 import { getBobbleById } from '@/src/data/demo-data';
@@ -101,8 +101,8 @@ export default function BobbleDetailScreen() {
 
       <View style={[styles.footer, { paddingBottom: insets.bottom + 16, backgroundColor: colors.background }]}>
         <PrimaryButton
-          label="Continue Bobbling"
-          onPress={() => router.push({ pathname: '/bobble/continue', params: { id: id ?? '1' } } as Href)}
+          label="Back to Home"
+          onPress={() => router.replace('/(tabs)' as Href)}
         />
       </View>
     </View>

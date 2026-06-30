@@ -1,6 +1,7 @@
 import { Plus } from 'lucide-react-native';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { GeneratedTask, GeneratedTaskRow } from '@/src/components/capture/generated-task-row';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { Typography } from '@/src/theme/fonts';
 
@@ -20,9 +21,21 @@ export const DEMO_BOBBLE = {
 
 type SummaryContentProps = {
   tab: 'summary' | 'transcript' | 'mindmap';
+  tasks?: GeneratedTask[];
+  isGeneratingTasks?: boolean;
+  onGenerateTasks?: () => void;
+  onUpdateTask?: (id: string, title: string) => void;
+  onDeleteTask?: (id: string) => void;
 };
 
-export function SummaryContent({ tab }: SummaryContentProps) {
+export function SummaryContent({
+  tab,
+  tasks = [],
+  isGeneratingTasks = false,
+  onGenerateTasks,
+  onUpdateTask,
+  onDeleteTask,
+}: SummaryContentProps) {
   const colors = useBobbleColors();
 
   if (tab === 'transcript') {
@@ -66,17 +79,53 @@ export function SummaryContent({ tab }: SummaryContentProps) {
       </View>
 
       <Text style={[styles.suggestionsTitle, { color: colors.text }]}>Suggestions</Text>
-      {DEMO_BOBBLE.suggestions.map((suggestion) => (
-        <View
-          key={suggestion}
-          style={[styles.suggestionCard, { backgroundColor: colors.borderLight }]}
-        >
-          <Text style={[styles.suggestionText, { color: colors.text }]}>{suggestion}</Text>
-          <Pressable style={[styles.suggestionAdd, { backgroundColor: colors.primary }]}>
-            <Plus size={18} color={colors.textOnPrimary} strokeWidth={2.5} />
-          </Pressable>
+      {DEMO_BOBBLE.suggestions.map((suggestion) => {
+        const canGenerate = tasks.length === 0 && !isGeneratingTasks;
+
+        return (
+          <View
+            key={suggestion}
+            style={[styles.suggestionCard, { backgroundColor: colors.borderLight }]}
+          >
+            <Text style={[styles.suggestionText, { color: colors.text }]}>{suggestion}</Text>
+            <Pressable
+              onPress={canGenerate ? onGenerateTasks : undefined}
+              disabled={!canGenerate}
+              style={[
+                styles.suggestionAdd,
+                { backgroundColor: colors.primary },
+                !canGenerate && styles.suggestionAddDisabled,
+              ]}
+            >
+              <Plus size={18} color={colors.textOnPrimary} strokeWidth={2.5} />
+            </Pressable>
+          </View>
+        );
+      })}
+
+      {tasks.length > 0 || isGeneratingTasks ? (
+        <View style={styles.tasksSection}>
+          <Text style={[styles.tasksTitle, { color: colors.text }]}>Tasks</Text>
+          <View style={styles.tasksList}>
+            {tasks.map((task) => (
+              <GeneratedTaskRow
+                key={task.id}
+                task={task}
+                onUpdate={onUpdateTask ?? (() => {})}
+                onDelete={onDeleteTask ?? (() => {})}
+              />
+            ))}
+            {isGeneratingTasks ? (
+              <View style={styles.generatingRow}>
+                <ActivityIndicator size="small" color={colors.primary} />
+                <Text style={[styles.generatingText, { color: colors.textSecondary }]}>
+                  Adding tasks...
+                </Text>
+              </View>
+            ) : null}
+          </View>
         </View>
-      ))}
+      ) : null}
     </View>
   );
 }
@@ -129,6 +178,29 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  suggestionAddDisabled: {
+    opacity: 0.45,
+  },
+  tasksSection: {
+    gap: 12,
+    marginTop: 4,
+  },
+  tasksTitle: {
+    ...Typography.formLabel,
+  },
+  tasksList: {
+    gap: 10,
+  },
+  generatingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    paddingVertical: 4,
+    paddingHorizontal: 4,
+  },
+  generatingText: {
+    ...Typography.caption,
   },
   body: {
     ...Typography.body,
