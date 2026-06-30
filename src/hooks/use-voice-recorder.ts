@@ -59,10 +59,11 @@ export function useVoiceRecorder(paused: boolean) {
   }, [paused, audioRecorder, recorderState.canRecord, recorderState.isRecording]);
 
   const stopRecording = useCallback(async () => {
-    if (!startedRef.current) return;
+    if (!startedRef.current) return null;
 
     await audioRecorder.stop();
     startedRef.current = false;
+    return audioRecorder.uri;
   }, [audioRecorder]);
 
   return {

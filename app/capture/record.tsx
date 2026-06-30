@@ -10,6 +10,7 @@ import { RecordingControls } from '@/src/components/capture/recording-controls';
 import { RecordingVisualizer } from '@/src/components/capture/recording-visualizer';
 import { useVoiceRecorder } from '@/src/hooks/use-voice-recorder';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
+import { useCaptureStore } from '@/src/store/capture-store';
 import { Typography } from '@/src/theme/fonts';
 
 function formatElapsed(seconds: number) {
@@ -24,6 +25,7 @@ export default function RecordScreen() {
   const [elapsed, setElapsed] = useState(0);
   const [paused, setPaused] = useState(false);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const setRecording = useCaptureStore((state) => state.setRecording);
   const { metering, stopRecording } = useVoiceRecorder(paused);
 
   useEffect(() => {
@@ -42,7 +44,10 @@ export default function RecordScreen() {
   }, [paused]);
 
   const handleStop = async () => {
-    await stopRecording();
+    const uri = await stopRecording();
+    if (uri) {
+      setRecording(uri, elapsed);
+    }
     router.push('/capture/processing' as Href);
   };
 
