@@ -8,25 +8,26 @@ import {
   SettingsSection,
 } from '@/src/components/settings/settings-screen-layout';
 import { PROFILE_USER } from '@/src/data/demo-data';
-import { useLogout } from '@/src/hooks/api';
+import { useLogout, useMe } from '@/src/hooks/api';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { useAppStore } from '@/src/store/app-store';
 import { Typography } from '@/src/theme/fonts';
 
 export default function SettingsAccountScreen() {
   const colors = useBobbleColors();
-  const user = useAppStore((s) => s.user);
+  const storedUser = useAppStore((s) => s.user);
+  const { data: fetchedUser } = useMe();
+  const user = fetchedUser ?? storedUser;
   const logout = useLogout();
-  const displayName = user?.email?.split('@')[0] ?? PROFILE_USER.name;
+  const rawName = user?.name ?? user?.email?.split('@')[0] ?? PROFILE_USER.name;
+  const displayName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
   const displayEmail = user?.email ?? PROFILE_USER.email;
 
   return (
     <SettingsScreenLayout title="Account">
       <View style={styles.avatarWrap}>
         <ProfileAvatar centered={false} showCamera={false} size={100} />
-        <Text style={[styles.name, { color: colors.text }]}>
-          {displayName.charAt(0).toUpperCase() + displayName.slice(1)}
-        </Text>
+        <Text style={[styles.name, { color: colors.text }]}>{displayName}</Text>
         <Text style={[styles.email, { color: colors.textSecondary }]}>{displayEmail}</Text>
       </View>
 
@@ -38,7 +39,7 @@ export default function SettingsAccountScreen() {
 
       <SettingsSection title="Data">
         <SettingsLinkRow label="Export my data" />
-        <SettingsLinkRow label="Delete account" isLast />
+        <SettingsLinkRow label="Delete account" destructive isLast />
       </SettingsSection>
 
       {user ? (

@@ -9,9 +9,10 @@ type SettingsLinkRowProps = {
   value?: string;
   onPress?: () => void;
   isLast?: boolean;
+  destructive?: boolean;
 };
 
-export function SettingsLinkRow({ label, value, onPress, isLast }: SettingsLinkRowProps) {
+export function SettingsLinkRow({ label, value, onPress, isLast, destructive }: SettingsLinkRowProps) {
   const colors = useBobbleColors();
 
   return (
@@ -24,7 +25,7 @@ export function SettingsLinkRow({ label, value, onPress, isLast }: SettingsLinkR
         pressed && onPress && styles.pressed,
       ]}
     >
-      <Text style={[styles.label, { color: colors.text }]}>{label}</Text>
+      <Text style={[styles.label, { color: destructive ? colors.error : colors.text }]}>{label}</Text>
       <View style={styles.right}>
         {value ? <Text style={[styles.value, { color: colors.textSecondary }]}>{value}</Text> : null}
         {onPress ? <ChevronRight size={18} color={colors.textSecondary} strokeWidth={2} /> : null}

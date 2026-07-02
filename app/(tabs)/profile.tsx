@@ -73,7 +73,10 @@ export default function ProfileScreen() {
         </View>
       </View>
 
-      <BadgeRow badges={gamification?.badges} />
+      <BadgeRow
+        badges={gamification?.badges}
+        onSeeAll={() => router.push('/settings/stars' as Href)}
+      />
 
       <View style={[styles.menu, { backgroundColor: colors.surface, borderColor: colors.border }]}>
         {PROFILE_MENU.map((item) => (

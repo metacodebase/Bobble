@@ -1,5 +1,5 @@
-import { Star } from 'lucide-react-native';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ChevronRight, Star } from 'lucide-react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import type { Badge, BadgeTone } from '@/src/features/auth/types';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
@@ -30,14 +30,28 @@ const BADGE_TONES: Record<BadgeTone, { background: string; foreground: string }>
 
 type BadgeRowProps = {
   badges?: Badge[];
+  onSeeAll?: () => void;
 };
 
-export function BadgeRow({ badges = [] }: BadgeRowProps) {
+export function BadgeRow({ badges = [], onSeeAll }: BadgeRowProps) {
   const colors = useBobbleColors();
 
   return (
     <View style={styles.section}>
-      <Text style={[styles.title, { color: colors.text }]}>Your Stars</Text>
+      <Pressable
+        style={styles.header}
+        onPress={onSeeAll}
+        disabled={!onSeeAll}
+        hitSlop={8}
+      >
+        <Text style={[styles.title, { color: colors.text }]}>Your Stars</Text>
+        {onSeeAll ? (
+          <View style={styles.seeAll}>
+            <Text style={[styles.seeAllText, { color: colors.primary }]}>See all</Text>
+            <ChevronRight size={16} color={colors.primary} strokeWidth={2.5} />
+          </View>
+        ) : null}
+      </Pressable>
       {badges.length === 0 ? (
         <Text style={[styles.empty, { color: colors.textSecondary }]}>
           Earn stars by capturing bobbles and completing tasks.
@@ -69,9 +83,23 @@ const styles = StyleSheet.create({
     marginBottom: 24,
     gap: 12,
   },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
   title: {
     ...Typography.formLabel,
     fontSize: 16,
+  },
+  seeAll: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 2,
+  },
+  seeAllText: {
+    ...Typography.caption,
+    fontFamily: Typography.button.fontFamily,
   },
   empty: {
     ...Typography.caption,
