@@ -12,10 +12,13 @@
       "supportsTablet": true,
       "bundleIdentifier": "metadots.bobble.app",
       "buildNumber": "4",
+      "usesAppleSignIn": true,
+      "googleServicesFile": "./GoogleService-Info.plist",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
         "NSMicrophoneUsageDescription": "Bobble uses your microphone to record voice memos and show a live waveform while you speak."
-      }
+      },
+      "appleTeamId": "A9X3L9QMZT"
     },
     "android": {
       "icon": "./src/assets/images/bobble-app-icon.png",
@@ -26,7 +29,12 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.metacodebase.Bobble"
+      "package": "com.metacodebase.Bobble",
+      "googleServicesFile": "./google-services.json",
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.MODIFY_AUDIO_SETTINGS"
+      ]
     },
     "web": {
       "output": "static",
@@ -52,7 +60,28 @@
         {
           "microphonePermission": "Bobble uses your microphone to record voice memos and show a live waveform while you speak."
         }
-      ]
+      ],
+      [
+        "@react-native-google-signin/google-signin",
+        {
+          "iosUrlScheme": "com.googleusercontent.apps.1028741562392-ft0clsr5be90t7ovclfb64uffcu1qrqc"
+        }
+      ],
+      "expo-apple-authentication",
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "extraPods": [
+              {
+                "name": "AppCheckCore",
+                "version": "11.2.0"
+              }
+            ]
+          }
+        }
+      ],
+      "expo-build-properties"
     ],
     "experiments": {
       "typedRoutes": true,

@@ -20,3 +20,12 @@ export interface RegisterBody {
   email: string;
   password: string;
 }
+
+export type SocialProvider = 'google' | 'apple';
+
+export interface SocialAuthBody {
+  provider: SocialProvider;
+  idToken: string;
+  /** Optional display name (Apple only returns it on first authorization). */
+  name?: string;
+}

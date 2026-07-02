@@ -1,4 +1,4 @@
-import { Href, router, useNavigation } from 'expo-router';
+import { useNavigation } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import {
   KeyboardAvoidingView,
@@ -26,6 +26,10 @@ import { PrimaryButton } from '@/src/components/onboarding/primary-button';
 import { GoalIconId } from '@/src/components/onboarding/ui-icons';
 import { DEFAULT_COUNTRY, type Country } from '@/src/data/countries';
 import { DEFAULT_TIME_ZONE, TIME_ZONES } from '@/src/data/timezones';
+import { useLogin, useRegister } from '@/src/hooks/api';
+import { toast } from '@/src/utils/toast';
+
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const GOALS: { id: GoalIconId; label: string }[] = [
   { id: 'productive', label: 'Be more productive' },
@@ -94,7 +98,8 @@ function formatDate(date: Date | null): string {
 export default function CreateAccountScreen() {
   const [step, setStep] = useState(0);
   const [fullName, setFullName] = useState('');
-  const [email, setEmail] = useState('steven@example.com');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [phone, setPhone] = useState('987 654 3210');
   const [country, setCountry] = useState<Country>(DEFAULT_COUNTRY);
   const [dob, setDob] = useState<Date | null>(new Date(1995, 4, 12));
@@ -104,6 +109,9 @@ export default function CreateAccountScreen() {
   const [timeZonePickerVisible, setTimeZonePickerVisible] = useState(false);
 
   const navigation = useNavigation();
+  const register = useRegister();
+  const login = useLogin();
+  const submitting = register.isPending || login.isPending;
   const timeZone = TIME_ZONES.find((tz) => tz.id === timeZoneId) ?? DEFAULT_TIME_ZONE;
 
   const isLast = step === 4;
@@ -154,13 +162,52 @@ export default function CreateAccountScreen() {
       }
     });
 
+  // Validate the current step's inputs before advancing. Returns false (and
+  // surfaces a toast) when the step is incomplete.
+  const validateStep = (current: number): boolean => {
+    if (current === 0 && !fullName.trim()) {
+      toast.error('Please enter your name');
+      return false;
+    }
+    if (current === 1) {
+      if (!EMAIL_REGEX.test(email.trim())) {
+        toast.error('Please enter a valid email address');
+        return false;
+      }
+      if (password.length < 8) {
+        toast.error('Password must be at least 8 characters');
+        return false;
+      }
+    }
+    return true;
+  };
+
   const handleContinue = () => {
+    if (!validateStep(step)) return;
     if (isLast) return;
     setStep((prev) => prev + 1);
   };
 
-  const handleFinish = () => {
-    router.replace('/(tabs)' as Href);
+  // Create the account on the backend, then log in to establish a session.
+  // useLogin's onSuccess handles navigation into the app; errors from either
+  // mutation are surfaced as toasts by the hooks.
+  const handleFinish = async () => {
+    if (submitting) return;
+    if (!fullName.trim() || !EMAIL_REGEX.test(email.trim()) || password.length < 8) {
+      toast.error('Please complete your name, email and password');
+      setStep(email.trim() && password ? 1 : 0);
+      return;
+    }
+    try {
+      await register.mutateAsync({
+        name: fullName.trim(),
+        email: email.trim(),
+        password,
+      });
+      await login.mutateAsync({ email: email.trim(), password });
+    } catch {
+      // Errors are already reported via the mutation onError toasts.
+    }
   };
 
   const toggleGoal = (id: string) => {
@@ -205,6 +252,17 @@ export default function CreateAccountScreen() {
                 keyboardType="email-address"
                 autoCapitalize="none"
                 autoCorrect={false}
+                textContentType="emailAddress"
+              />
+              <LabeledTextInput
+                label="Password"
+                placeholder="At least 8 characters"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry
+                autoCapitalize="none"
+                autoComplete="password-new"
+                textContentType="newPassword"
               />
               <PhoneInput
                 value={phone}
@@ -276,7 +334,14 @@ export default function CreateAccountScreen() {
     <OnboardingScreenLayout
       footer={
         isLast ? (
-          <TextLinkButton label="Skip for now" onPress={handleFinish} />
+          <View style={styles.footerGroup}>
+            <PrimaryButton
+              label="Create Account"
+              onPress={handleFinish}
+              loading={submitting}
+            />
+            <TextLinkButton label="Skip for now" onPress={handleFinish} />
+          </View>
         ) : (
           <PrimaryButton label="Continue" onPress={handleContinue} />
         )
@@ -341,5 +406,9 @@ const styles = StyleSheet.create({
   },
   calendarList: {
     marginTop: 28,
+  },
+  footerGroup: {
+    gap: 8,
+    alignItems: 'center',
   },
 });

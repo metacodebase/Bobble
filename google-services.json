@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "1028741562392",
+    "project_id": "bobble-6b0c0",
+    "storage_bucket": "bobble-6b0c0.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1028741562392:android:ec1d498b30f8e8cc42836d",
+        "android_client_info": {
+          "package_name": "com.metacodebase.Bobble"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1028741562392-cg69nc8g5s7pnpsed7hkrvimp98f5f84.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD-WdX6mrbsdcKXe7dnTOnY9vaG3EQwsdY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1028741562392-cg69nc8g5s7pnpsed7hkrvimp98f5f84.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1028741562392-ft0clsr5be90t7ovclfb64uffcu1qrqc.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "metadots.bobble.app"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

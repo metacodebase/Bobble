@@ -1,10 +1,20 @@
 import { API } from '@/src/api/endpoints';
-import type { AuthSession, LoginBody, RegisterBody } from '@/src/features/auth/types';
+import type {
+  AuthSession,
+  LoginBody,
+  RegisterBody,
+  SocialAuthBody,
+} from '@/src/features/auth/types';
 import type { AuthUser } from '@/src/features/auth/types';
 import { api, unwrap } from '@/src/services/api';
 
 export async function login(body: LoginBody): Promise<AuthSession> {
   const res = await api.post<AuthSession>(API.auth.login, body, { skipAuth: true });
+  return unwrap(res);
+}
+
+export async function social(body: SocialAuthBody): Promise<AuthSession> {
+  const res = await api.post<AuthSession>(API.auth.social, body, { skipAuth: true });
   return unwrap(res);
 }
 

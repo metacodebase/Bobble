@@ -6,7 +6,7 @@ import {
 } from '@expo-google-fonts/sniglet';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { Stack } from 'expo-router';
+import { Href, Stack, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import * as SystemUI from 'expo-system-ui';
 import { StatusBar } from 'expo-status-bar';
@@ -72,6 +72,8 @@ function AppShell() {
   const hasHydrated = useAppStore((s) => s.hasHydrated);
   const isAuthenticated = useAppStore((s) => s.isAuthenticated);
   const colors = useBobbleColors();
+  const router = useRouter();
+  const segments = useSegments();
   const [fontsLoaded] = useFonts({
     Sniglet_400Regular,
     Sniglet_800ExtraBold,
@@ -87,6 +89,24 @@ function AppShell() {
     if (!hasHydrated || !fontsLoaded || !isAuthenticated) return;
     void SplashScreen.hideAsync();
   }, [hasHydrated, fontsLoaded, isAuthenticated]);
+
+  // Store-driven auth guard: the persisted `isAuthenticated` flag is the single
+  // source of truth for access. Signed-in users are kept out of the auth flow,
+  // and signed-out users are pushed back to it from any protected screen. This
+  // reacts automatically to login (`setSession`) and logout (`clearSession`).
+  useEffect(() => {
+    if (!hasHydrated || !fontsLoaded) return;
+
+    const segmentList = segments as string[];
+    const inAuthGroup = segmentList[0] === '(auth)';
+    const atRootIndex = segmentList.length === 0;
+
+    if (isAuthenticated && inAuthGroup) {
+      router.replace('/(tabs)' as Href);
+    } else if (!isAuthenticated && !inAuthGroup && !atRootIndex) {
+      router.replace('/(auth)/splash' as Href);
+    }
+  }, [hasHydrated, fontsLoaded, isAuthenticated, segments, router]);
 
   if (!hasHydrated || !fontsLoaded) {
     return null;

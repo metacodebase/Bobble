@@ -1,11 +1,13 @@
 import { Href, router } from 'expo-router';
 import { useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Platform, StyleSheet, Text, View } from 'react-native';
 
 import { OnboardingScreenLayout } from '@/src/components/onboarding/onboarding-screen-layout';
 import { SocialButton } from '@/src/components/onboarding/social-button';
+import { useSocialAuth } from '@/src/features/auth/use-social-auth';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { Typography } from '@/src/theme/fonts';
+import { toast } from '@/src/utils/toast';
 
 const SOCIAL_PROVIDERS = [
   { provider: 'x' as const, label: 'Continue with X' },
@@ -53,10 +55,31 @@ export default function AuthScreen() {
   const colors = useBobbleColors();
   const [mode, setMode] = useState<AuthMode>('sign-in');
   const copy = AUTH_COPY[mode];
+  const { signInWithGoogle, signInWithApple, appleAvailable, isPending } = useSocialAuth();
 
-  const handleAuth = () => {
+  const handleEmailAuth = () => {
     router.push('/(auth)/create-account' as Href);
   };
+
+  const handleSocialPress = (provider: (typeof SOCIAL_PROVIDERS)[number]['provider']) => {
+    if (isPending) return;
+    switch (provider) {
+      case 'google':
+        void signInWithGoogle();
+        break;
+      case 'apple':
+        void signInWithApple();
+        break;
+      default:
+        // Facebook, X and Microsoft are not wired up yet.
+        toast.success('This sign-in option is coming soon');
+    }
+  };
+
+  const visibleProviders = SOCIAL_PROVIDERS.filter(
+    // "Sign in with Apple" is only offered where it's actually available (iOS 13+).
+    (item) => item.provider !== 'apple' || (Platform.OS === 'ios' && appleAvailable),
+  );
 
   const toggleMode = () => {
     setMode((current) => (current === 'sign-in' ? 'sign-up' : 'sign-in'));
@@ -69,18 +92,18 @@ export default function AuthScreen() {
       </View>
 
       <View style={styles.buttons}>
-        {SOCIAL_PROVIDERS.map((item) => (
+        {visibleProviders.map((item) => (
           <SocialButton
             key={item.provider}
             provider={item.provider}
             label={item.label}
-            onPress={handleAuth}
+            onPress={() => handleSocialPress(item.provider)}
           />
         ))}
 
         <Text style={[styles.dividerText, { color: colors.text }]}>or</Text>
 
-        <SocialButton provider="email" label="Continue with Email" onPress={handleAuth} />
+        <SocialButton provider="email" label="Continue with Email" onPress={handleEmailAuth} />
       </View>
 
       <View style={styles.footer}>
