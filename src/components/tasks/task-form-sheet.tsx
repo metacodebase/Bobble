@@ -17,7 +17,7 @@ import { DatePickerModal } from '@/src/components/create-account/date-picker-mod
 import { PrimaryButton } from '@/src/components/onboarding/primary-button';
 import type { TaskPriority } from '@/src/features/tasks/types';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
-import { FontFamily, Typography } from '@/src/theme/fonts';
+import { Typography } from '@/src/theme/fonts';
 
 const PRIORITIES: TaskPriority[] = ['low', 'medium', 'high'];
 
@@ -285,9 +285,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   title: {
-    fontFamily: FontFamily.extraBold,
-    fontSize: 20,
-    lineHeight: 26,
+    ...Typography.heading,
+    fontSize: 22,
+    lineHeight: 28,
   },
   form: {
     gap: 12,
