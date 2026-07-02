@@ -74,13 +74,27 @@ export default function OnboardingScreen() {
   const current = STEPS[step];
   const isLast = step === STEPS.length - 1;
 
+  // While a button-triggered animated scroll is running, `onScroll` fires with
+  // the stale (pre-animation) offset first, which would round back to the old
+  // step and make the dots jerk backward. Ignore offset-driven syncing until we
+  // land on the target slide (or the user starts a manual drag).
+  const programmaticTarget = useRef<number | null>(null);
+
   const syncStepFromOffset = (offsetX: number) => {
-    const nextStep = Math.round(offsetX / width);
-    const clamped = Math.max(0, Math.min(STEPS.length - 1, nextStep));
-    setStep((prev) => (prev === clamped ? prev : clamped));
+    const nextStep = Math.max(0, Math.min(STEPS.length - 1, Math.round(offsetX / width)));
+
+    if (programmaticTarget.current !== null) {
+      if (nextStep === programmaticTarget.current) {
+        programmaticTarget.current = null;
+      }
+      return;
+    }
+
+    setStep((prev) => (prev === nextStep ? prev : nextStep));
   };
 
   const scrollToStep = (nextStep: number) => {
+    programmaticTarget.current = nextStep;
     scrollRef.current?.scrollTo({ x: nextStep * width, animated: true });
     setStep(nextStep);
   };
@@ -96,6 +110,11 @@ export default function OnboardingScreen() {
 
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     syncStepFromOffset(event.nativeEvent.contentOffset.x);
+  };
+
+  const handleScrollBeginDrag = () => {
+    // A manual swipe always takes over from any in-flight programmatic scroll.
+    programmaticTarget.current = null;
   };
 
   const handleMomentumEnd = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -129,6 +148,7 @@ export default function OnboardingScreen() {
         showsHorizontalScrollIndicator={false}
         scrollEventThrottle={16}
         onScroll={handleScroll}
+        onScrollBeginDrag={handleScrollBeginDrag}
         onMomentumScrollEnd={handleMomentumEnd}
         bounces={false}
       >

@@ -1,3 +1,4 @@
+import { usePreventRemove } from '@react-navigation/native';
 import { Href, router } from 'expo-router';
 import { useState } from 'react';
 import {
@@ -85,6 +86,13 @@ export default function CreateAccountScreen() {
   const [selectedGoals, setSelectedGoals] = useState<Set<string>>(new Set(['productive']));
 
   const isLast = step === 4;
+
+  // Intercept the back gesture / hardware back button: when we're on a later
+  // step, go back one step instead of leaving the screen. On the first step we
+  // allow removal so navigation falls back to the previous screen.
+  usePreventRemove(step > 0, () => {
+    setStep((prev) => Math.max(0, prev - 1));
+  });
 
   const handleContinue = () => {
     if (isLast) return;
