@@ -17,7 +17,7 @@ export default function AboutScreen() {
   return (
     <SettingsScreenLayout title="About Bobble">
       <View style={styles.hero}>
-        <BobbleMascot variant="waving" size={100} />
+        <BobbleMascot variant="main" size={100} />
         <Text style={[styles.appName, { color: colors.text }]}>Bobble</Text>
         <Text style={[styles.version, { color: colors.textSecondary }]}>Version {version}</Text>
         <Text style={[styles.tagline, { color: colors.textSecondary }]}>

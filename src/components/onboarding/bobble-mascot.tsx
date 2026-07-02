@@ -7,16 +7,12 @@ import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { useColorScheme } from '@/src/hooks/use-color-scheme';
 import { useHomeHeartIntro } from '@/src/hooks/use-home-heart-intro';
 
-export type MascotVariant = 'splash' | 'waving' | 'main' | 'voice' | 'greet' | 'home';
+export type MascotVariant = 'splash' | 'main' | 'voice' | 'greet' | 'home';
 
 const MASCOT_SOURCES: Record<MascotVariant, { light: ImageSource; dark: ImageSource }> = {
   splash: {
     light: require('@/src/assets/images/bobble-main.png'),
     dark: require('@/src/assets/images/bobble-main.png'),
-  },
-  waving: {
-    light: require('@/src/assets/images/mascot/mascot-waving.png'),
-    dark: require('@/src/assets/images/mascot/mascot-waving-dark.png'),
   },
   main: {
     light: require('@/src/assets/images/bobble-main.png'),
