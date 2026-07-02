@@ -1,7 +1,28 @@
+export type BadgeTone = 'blue' | 'yellow' | 'green' | 'purple' | 'red';
+
+export interface Badge {
+  label: string;
+  tone: BadgeTone;
+  earnedAt?: string;
+}
+
+export interface Gamification {
+  level: number;
+  title: string;
+  xp: number;
+  streak: number;
+  bobbles: number;
+  tasks: number;
+  badges: Badge[];
+}
+
 export interface AuthUser {
   _id: string;
   name: string;
   email: string;
+  handle?: string;
+  avatarUrl?: string;
+  gamification?: Gamification;
 }
 
 export interface AuthSession {

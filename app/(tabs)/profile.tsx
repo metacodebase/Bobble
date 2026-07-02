@@ -8,8 +8,8 @@ import { BadgeRow } from '@/src/components/profile/badge-row';
 import { StatCard } from '@/src/components/profile/stat-card';
 import { ProfileMenuRow } from '@/src/components/ui/profile-menu-row';
 import { ScreenHeader } from '@/src/components/ui/screen-header';
-import { GAMIFICATION, PROFILE_MENU, PROFILE_USER } from '@/src/data/demo-data';
-import { useLogout } from '@/src/hooks/api';
+import { PROFILE_MENU, PROFILE_USER } from '@/src/data/demo-data';
+import { useLogout, useMe } from '@/src/hooks/api';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { useAppStore } from '@/src/store/app-store';
 import { Typography } from '@/src/theme/fonts';
@@ -29,11 +29,19 @@ const SETTINGS_ROUTES: Record<(typeof PROFILE_MENU)[number]['id'], Href> = {
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
   const colors = useBobbleColors();
-  const user = useAppStore((s) => s.user);
+  const storedUser = useAppStore((s) => s.user);
+  const { data: fetchedUser } = useMe();
+  const user = fetchedUser ?? storedUser;
   const logout = useLogout();
-  const rawName = user?.email?.split('@')[0] ?? PROFILE_USER.name;
+  const rawName = user?.name ?? user?.email?.split('@')[0] ?? PROFILE_USER.name;
   const displayName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
-  const displayHandle = user?.email ? `@${user.email.split('@')[0]}` : PROFILE_USER.handle;
+  const displayHandle = user?.handle
+    ? `@${user.handle}`
+    : user?.email
+      ? `@${user.email.split('@')[0]}`
+      : PROFILE_USER.handle;
+
+  const gamification = user?.gamification;
 
   return (
     <View style={[styles.root, { paddingTop: insets.top + 12, backgroundColor: colors.background }]}>
@@ -58,14 +66,14 @@ export default function ProfileScreen() {
         <Text style={[styles.handle, { color: colors.textSecondary }]}>{displayHandle}</Text>
 
         <View style={styles.statsRow}>
-          <StatCard compact label="Streak" value={GAMIFICATION.stats.streak} />
-          <StatCard compact label="Bobbles" value={GAMIFICATION.stats.bobbles} />
-          <StatCard compact label="Tasks" value={GAMIFICATION.stats.tasks} />
-          <StatCard compact label="XP" value={GAMIFICATION.stats.xp} />
+          <StatCard compact label="Streak" value={gamification?.streak ?? 0} />
+          <StatCard compact label="Bobbles" value={gamification?.bobbles ?? 0} />
+          <StatCard compact label="Tasks" value={gamification?.tasks ?? 0} />
+          <StatCard compact label="XP" value={gamification?.xp ?? 0} />
         </View>
       </View>
 
-      <BadgeRow />
+      <BadgeRow badges={gamification?.badges} />
 
       <View style={[styles.menu, { backgroundColor: colors.surface, borderColor: colors.border }]}>
         {PROFILE_MENU.map((item) => (
