@@ -9,9 +9,10 @@ type TaskSectionProps = {
   label: string;
   tasks: TaskItem[];
   onToggle?: (id: string) => void;
+  onDelete?: (id: string) => void;
 };
 
-export function TaskSection({ label, tasks, onToggle }: TaskSectionProps) {
+export function TaskSection({ label, tasks, onToggle, onDelete }: TaskSectionProps) {
   const colors = useBobbleColors();
 
   return (
@@ -21,7 +22,12 @@ export function TaskSection({ label, tasks, onToggle }: TaskSectionProps) {
       </Text>
       <View style={styles.list}>
         {tasks.map((task) => (
-          <TaskRow key={task.id} task={task} onToggle={() => onToggle?.(task.id)} />
+          <TaskRow
+            key={task.id}
+            task={task}
+            onToggle={() => onToggle?.(task.id)}
+            onDelete={onDelete ? () => onDelete(task.id) : undefined}
+          />
         ))}
       </View>
     </View>

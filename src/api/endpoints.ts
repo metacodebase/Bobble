@@ -8,4 +8,10 @@ export const API = {
     logout: '/api/auth/logout',
     me: '/api/auth/me',
   },
+  tasks: {
+    root: '/api/tasks',
+    bulk: '/api/tasks/bulk',
+    byId: (id: string) => `/api/tasks/${id}`,
+    toggle: (id: string) => `/api/tasks/${id}/toggle`,
+  },
 } as const;

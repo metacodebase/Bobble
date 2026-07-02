@@ -1,4 +1,4 @@
-import { Check } from 'lucide-react-native';
+import { Check, Trash2 } from 'lucide-react-native';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { TaskItem } from '@/src/data/demo-data';
@@ -8,9 +8,10 @@ import { Typography } from '@/src/theme/fonts';
 type TaskRowProps = {
   task: TaskItem;
   onToggle?: () => void;
+  onDelete?: () => void;
 };
 
-export function TaskRow({ task, onToggle }: TaskRowProps) {
+export function TaskRow({ task, onToggle, onDelete }: TaskRowProps) {
   const colors = useBobbleColors();
 
   return (
@@ -42,8 +43,19 @@ export function TaskRow({ task, onToggle }: TaskRowProps) {
         >
           {task.title}
         </Text>
-        <Text style={[styles.time, { color: colors.textSecondary }]}>{task.time}</Text>
+        {task.time ? (
+          <Text style={[styles.time, { color: colors.textSecondary }]}>{task.time}</Text>
+        ) : null}
       </View>
+      {onDelete ? (
+        <Pressable
+          onPress={onDelete}
+          hitSlop={8}
+          style={({ pressed }) => [styles.deleteButton, pressed && styles.pressed]}
+        >
+          <Trash2 size={18} color={colors.textSecondary} strokeWidth={2} />
+        </Pressable>
+      ) : null}
     </Pressable>
   );
 }
@@ -70,6 +82,9 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     gap: 2,
+  },
+  deleteButton: {
+    padding: 8,
   },
   title: {
     ...Typography.body,

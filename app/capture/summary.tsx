@@ -13,6 +13,7 @@ import { GeneratedTask } from '@/src/components/capture/generated-task-row';
 import { SegmentTabs, SummaryTab } from '@/src/components/capture/segment-tabs';
 import { DEMO_BOBBLE, SummaryContent } from '@/src/components/capture/summary-content';
 import { PrimaryButton } from '@/src/components/onboarding/primary-button';
+import { useCreateTasksBulk } from '@/src/hooks/tasks';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 
 export default function SummaryScreen() {
@@ -22,6 +23,21 @@ export default function SummaryScreen() {
   const [tasks, setTasks] = useState<GeneratedTask[]>([]);
   const [isGeneratingTasks, setIsGeneratingTasks] = useState(false);
   const generationTimeoutsRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const createTasksBulk = useCreateTasksBulk();
+
+  const handleSaveBobble = useCallback(() => {
+    const navigateToSaved = () => router.push('/capture/saved' as Href);
+
+    if (tasks.length === 0) {
+      navigateToSaved();
+      return;
+    }
+
+    createTasksBulk.mutate(
+      { tasks: tasks.map((task) => ({ title: task.title })) },
+      { onSettled: navigateToSaved },
+    );
+  }, [createTasksBulk, tasks]);
 
   const clearGenerationTimeouts = useCallback(() => {
     generationTimeoutsRef.current.forEach(clearTimeout);
@@ -88,7 +104,8 @@ export default function SummaryScreen() {
         <PrimaryButton
           label="Save Bobble"
           style={{ width: '100%' }}
-          onPress={() => router.push('/capture/saved' as Href)}
+          loading={createTasksBulk.isPending}
+          onPress={handleSaveBobble}
         />
       </View>
     </View>
