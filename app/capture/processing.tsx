@@ -53,7 +53,14 @@ export default function ProcessingScreen() {
         },
       ]}
     >
-      <CaptureHeader rightIcon={Settings} />
+      <CaptureHeader
+        rightIcon={Settings}
+        leftLabel="Discard"
+        onLeftPress={() => {
+          clearRecording();
+          router.replace('/(tabs)' as Href);
+        }}
+      />
 
       <Text style={[styles.title, { color: colors.text }]}>Processing with AI</Text>
 

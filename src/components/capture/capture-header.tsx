@@ -7,6 +7,8 @@ import { Typography } from '@/src/theme/fonts';
 type CaptureHeaderProps = {
   title?: string;
   onBack?: () => void;
+  leftLabel?: string;
+  onLeftPress?: () => void;
   rightIcon?: LucideIcon;
   onRightPress?: () => void;
   centered?: boolean;
@@ -15,6 +17,8 @@ type CaptureHeaderProps = {
 export function CaptureHeader({
   title,
   onBack,
+  leftLabel,
+  onLeftPress,
   rightIcon: RightIcon,
   onRightPress,
   centered = false,
@@ -23,8 +27,12 @@ export function CaptureHeader({
 
   return (
     <View style={styles.root}>
-      <View style={styles.side}>
-        {onBack ? (
+      <View style={[styles.side, leftLabel ? styles.sideWide : null]}>
+        {leftLabel ? (
+          <Pressable onPress={onLeftPress} hitSlop={12} style={styles.iconButton}>
+            <Text style={[styles.leftLabel, { color: colors.textSecondary }]}>{leftLabel}</Text>
+          </Pressable>
+        ) : onBack ? (
           <Pressable onPress={onBack} hitSlop={12} style={styles.iconButton}>
             <ChevronLeft size={28} color={colors.text} strokeWidth={2} />
           </Pressable>
@@ -74,6 +82,13 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     justifyContent: 'center',
     zIndex: 1,
+  },
+  sideWide: {
+    width: 'auto',
+  },
+  leftLabel: {
+    ...Typography.button,
+    textDecorationLine: 'underline',
   },
   sideRight: {
     alignItems: 'flex-end',
