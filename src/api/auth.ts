@@ -31,3 +31,8 @@ export async function fetchMe(): Promise<AuthUser> {
   const res = await api.get<AuthUser>(API.auth.me);
   return unwrap(res);
 }
+
+export async function deleteAccount(): Promise<{ message: string }> {
+  const res = await api.delete<{ message: string }>(API.auth.me);
+  return unwrap(res);
+}

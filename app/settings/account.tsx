@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { Alert, StyleSheet, Text, View } from 'react-native';
 
 import { ProfileAvatar } from '@/src/components/create-account/profile-avatar';
 import { PrimaryButton } from '@/src/components/onboarding/primary-button';
@@ -8,7 +8,7 @@ import {
   SettingsSection,
 } from '@/src/components/settings/settings-screen-layout';
 import { PROFILE_USER } from '@/src/data/demo-data';
-import { useLogout, useMe } from '@/src/hooks/api';
+import { useDeleteAccount, useLogout, useMe } from '@/src/hooks/api';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { useAppStore } from '@/src/store/app-store';
 import { Typography } from '@/src/theme/fonts';
@@ -19,9 +19,25 @@ export default function SettingsAccountScreen() {
   const { data: fetchedUser } = useMe();
   const user = fetchedUser ?? storedUser;
   const logout = useLogout();
+  const deleteAccount = useDeleteAccount();
   const rawName = user?.name ?? user?.email?.split('@')[0] ?? PROFILE_USER.name;
   const displayName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
   const displayEmail = user?.email ?? PROFILE_USER.email;
+
+  const confirmDeleteAccount = () => {
+    Alert.alert(
+      'Delete account',
+      'This will permanently delete your account and all your data. This action cannot be undone.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () => deleteAccount.mutate(),
+        },
+      ]
+    );
+  };
 
   return (
     <SettingsScreenLayout title="Account">
@@ -39,7 +55,12 @@ export default function SettingsAccountScreen() {
 
       <SettingsSection title="Data">
         <SettingsLinkRow label="Export my data" />
-        <SettingsLinkRow label="Delete account" destructive isLast />
+        <SettingsLinkRow
+          label="Delete account"
+          destructive
+          isLast
+          onPress={deleteAccount.isPending ? undefined : confirmDeleteAccount}
+        />
       </SettingsSection>
 
       {user ? (

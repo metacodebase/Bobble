@@ -83,3 +83,18 @@ export function useLogout() {
     },
   });
 }
+
+export function useDeleteAccount() {
+  const clearSession = useAppStore((s) => s.clearSession);
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: () => authApi.deleteAccount(),
+    onSuccess: () => {
+      clearSession();
+      qc.clear();
+      router.replace('/(auth)/splash' as Href);
+      toast.success('Your account has been deleted');
+    },
+    onError: (e) => toast.error(getApiErrorMessage(e, 'Could not delete account')),
+  });
+}
