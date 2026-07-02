@@ -70,6 +70,7 @@ export type TaskItem = {
   time: string;
   done: boolean;
   group: 'today' | 'tomorrow' | 'upcoming';
+  notes?: string;
 };
 
 export const DEMO_TASKS: TaskItem[] = [

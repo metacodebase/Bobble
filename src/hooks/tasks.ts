@@ -57,16 +57,32 @@ export function useUpdateTask() {
   });
 }
 
+type TasksSnapshot = [readonly unknown[], Task[] | undefined][];
+
 export function useToggleTask() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => tasksApi.toggleTask(id),
+    onMutate: async (id: string) => {
+      await qc.cancelQueries({ queryKey: queryKeys.tasks.all });
+      const snapshot = qc.getQueriesData<Task[]>({ queryKey: queryKeys.tasks.all });
+      qc.setQueriesData<Task[]>({ queryKey: queryKeys.tasks.all }, (prev) =>
+        prev?.map((task) => (task._id === id ? { ...task, done: !task.done } : task)),
+      );
+      return { snapshot } as { snapshot: TasksSnapshot };
+    },
+    onError: (e, _id, context) => {
+      context?.snapshot.forEach(([key, data]) => qc.setQueryData(key, data));
+      toast.error(getApiErrorMessage(e, 'Could not update task'));
+    },
     onSuccess: (updated: Task) => {
       qc.setQueriesData<Task[]>({ queryKey: queryKeys.tasks.all }, (prev) =>
         prev?.map((task) => (task._id === updated._id ? updated : task)),
       );
     },
-    onError: (e) => toast.error(getApiErrorMessage(e, 'Could not update task')),
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.tasks.all });
+    },
   });
 }
 
@@ -74,11 +90,20 @@ export function useDeleteTask() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => tasksApi.deleteTask(id),
-    onSuccess: ({ id }) => {
+    onMutate: async (id: string) => {
+      await qc.cancelQueries({ queryKey: queryKeys.tasks.all });
+      const snapshot = qc.getQueriesData<Task[]>({ queryKey: queryKeys.tasks.all });
       qc.setQueriesData<Task[]>({ queryKey: queryKeys.tasks.all }, (prev) =>
         prev?.filter((task) => task._id !== id),
       );
+      return { snapshot } as { snapshot: TasksSnapshot };
     },
-    onError: (e) => toast.error(getApiErrorMessage(e, 'Could not delete task')),
+    onError: (e, _id, context) => {
+      context?.snapshot.forEach(([key, data]) => qc.setQueryData(key, data));
+      toast.error(getApiErrorMessage(e, 'Could not delete task'));
+    },
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.tasks.all });
+    },
   });
 }

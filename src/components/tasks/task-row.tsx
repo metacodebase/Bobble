@@ -1,5 +1,7 @@
 import { Check, Trash2 } from 'lucide-react-native';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { useRef } from 'react';
+import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Swipeable } from 'react-native-gesture-handler';
 
 import { TaskItem } from '@/src/data/demo-data';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
@@ -8,22 +10,44 @@ import { Typography } from '@/src/theme/fonts';
 type TaskRowProps = {
   task: TaskItem;
   onToggle?: () => void;
+  onPress?: () => void;
   onDelete?: () => void;
 };
 
-export function TaskRow({ task, onToggle, onDelete }: TaskRowProps) {
+export function TaskRow({ task, onToggle, onPress, onDelete }: TaskRowProps) {
   const colors = useBobbleColors();
+  const swipeableRef = useRef<Swipeable>(null);
 
-  return (
+  const confirmDelete = () => {
+    if (!onDelete) return;
+    Alert.alert('Delete task', `Delete "${task.title}"?`, [
+      { text: 'Cancel', style: 'cancel', onPress: () => swipeableRef.current?.close() },
+      {
+        text: 'Delete',
+        style: 'destructive',
+        onPress: () => {
+          swipeableRef.current?.close();
+          onDelete();
+        },
+      },
+    ]);
+  };
+
+  const renderRightActions = () => (
     <Pressable
-      onPress={onToggle}
-      style={({ pressed }) => [
-        styles.row,
-        { borderBottomColor: colors.border },
-        pressed && styles.pressed,
-      ]}
+      onPress={confirmDelete}
+      style={[styles.deleteAction, { backgroundColor: colors.error }]}
     >
-      <View
+      <Trash2 size={20} color={colors.textOnPrimary} strokeWidth={2} />
+      <Text style={[styles.deleteText, { color: colors.textOnPrimary }]}>Delete</Text>
+    </Pressable>
+  );
+
+  const content = (
+    <View style={[styles.row, { borderBottomColor: colors.border, backgroundColor: colors.background }]}>
+      <Pressable
+        onPress={onToggle}
+        hitSlop={8}
         style={[
           styles.checkbox,
           { borderColor: colors.border },
@@ -31,8 +55,8 @@ export function TaskRow({ task, onToggle, onDelete }: TaskRowProps) {
         ]}
       >
         {task.done ? <Check size={14} color={colors.textOnPrimary} strokeWidth={3} /> : null}
-      </View>
-      <View style={styles.content}>
+      </Pressable>
+      <Pressable style={styles.content} onPress={onPress} disabled={!onPress}>
         <Text
           style={[
             styles.title,
@@ -43,20 +67,29 @@ export function TaskRow({ task, onToggle, onDelete }: TaskRowProps) {
         >
           {task.title}
         </Text>
+        {task.notes ? (
+          <Text style={[styles.notes, { color: colors.textSecondary }]} numberOfLines={1}>
+            {task.notes}
+          </Text>
+        ) : null}
         {task.time ? (
           <Text style={[styles.time, { color: colors.textSecondary }]}>{task.time}</Text>
         ) : null}
-      </View>
-      {onDelete ? (
-        <Pressable
-          onPress={onDelete}
-          hitSlop={8}
-          style={({ pressed }) => [styles.deleteButton, pressed && styles.pressed]}
-        >
-          <Trash2 size={18} color={colors.textSecondary} strokeWidth={2} />
-        </Pressable>
-      ) : null}
-    </Pressable>
+      </Pressable>
+    </View>
+  );
+
+  if (!onDelete) return content;
+
+  return (
+    <Swipeable
+      ref={swipeableRef}
+      renderRightActions={renderRightActions}
+      overshootRight={false}
+      friction={2}
+    >
+      {content}
+    </Swipeable>
   );
 }
 
@@ -67,9 +100,6 @@ const styles = StyleSheet.create({
     gap: 12,
     paddingVertical: 12,
     borderBottomWidth: StyleSheet.hairlineWidth,
-  },
-  pressed: {
-    opacity: 0.85,
   },
   checkbox: {
     width: 24,
@@ -83,14 +113,23 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: 2,
   },
-  deleteButton: {
-    padding: 8,
-  },
   title: {
     ...Typography.body,
     fontFamily: Typography.button.fontFamily,
   },
+  notes: {
+    ...Typography.caption,
+  },
   time: {
+    ...Typography.caption,
+  },
+  deleteAction: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 88,
+    gap: 4,
+  },
+  deleteText: {
     ...Typography.caption,
   },
 });

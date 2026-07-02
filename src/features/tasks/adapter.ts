@@ -35,6 +35,7 @@ export function mapTaskToItem(task: Task): TaskItem {
     time: formatTime(task.dueAt),
     done: task.done,
     group: deriveGroup(task.dueAt),
+    notes: task.notes,
   };
 }
 

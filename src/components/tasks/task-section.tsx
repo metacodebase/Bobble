@@ -9,10 +9,11 @@ type TaskSectionProps = {
   label: string;
   tasks: TaskItem[];
   onToggle?: (id: string) => void;
+  onPress?: (id: string) => void;
   onDelete?: (id: string) => void;
 };
 
-export function TaskSection({ label, tasks, onToggle, onDelete }: TaskSectionProps) {
+export function TaskSection({ label, tasks, onToggle, onPress, onDelete }: TaskSectionProps) {
   const colors = useBobbleColors();
 
   return (
@@ -26,6 +27,7 @@ export function TaskSection({ label, tasks, onToggle, onDelete }: TaskSectionPro
             key={task.id}
             task={task}
             onToggle={() => onToggle?.(task.id)}
+            onPress={onPress ? () => onPress(task.id) : undefined}
             onDelete={onDelete ? () => onDelete(task.id) : undefined}
           />
         ))}
