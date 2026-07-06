@@ -51,6 +51,9 @@ export const DEMO_BOBBLE_DETAIL = {
   title: 'Gym routine & nutrition plan',
   dateLabel: 'Today, 11:30 AM',
   durationMin: 5,
+  mindScore: 41,
+  mindMapCenter: 'Fitness plan',
+  mindMapBranches: ['Strength', 'Nutrition', 'Reminders'],
   bullets: [
     { label: 'Goal', value: 'Build muscle & improve stamina' },
     { label: 'Workout', value: '5 days a week (Focus on strength)' },

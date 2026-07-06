@@ -29,7 +29,7 @@ export default function SavedScreen() {
         <BobbleMascot variant="greet" size={180} />
         <Text style={[styles.title, { color: colors.text }]}>Bobble saved!</Text>
         <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-          Your thoughts are organised and ready when you are.
+          Your thoughts are organised and ready whenever you are. Don't Stress, Thats why are here for you.
         </Text>
       </View>
 

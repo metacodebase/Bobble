@@ -1,20 +1,21 @@
 import { Href, router } from 'expo-router';
 import { Pencil } from 'lucide-react-native';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { CaptureHeader } from '@/src/components/capture/capture-header';
 import {
-  buildTasksFromCapture,
+  buildWeeklyWorkoutPlanTasks,
   TASK_STAGGER_MS,
 } from '@/src/components/capture/generate-capture-tasks';
 import { GeneratedTask } from '@/src/components/capture/generated-task-row';
 import { SegmentTabs, SummaryTab } from '@/src/components/capture/segment-tabs';
-import { DEMO_BOBBLE, SummaryContent } from '@/src/components/capture/summary-content';
+import { DEMO_BOBBLE, MindScoreCard, SummaryContent } from '@/src/components/capture/summary-content';
 import { PrimaryButton } from '@/src/components/onboarding/primary-button';
 import { useCreateTasksBulk } from '@/src/hooks/tasks';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
+import { Typography } from '@/src/theme/fonts';
 
 export default function SummaryScreen() {
   const colors = useBobbleColors();
@@ -49,7 +50,7 @@ export default function SummaryScreen() {
   const handleGenerateTasks = useCallback(() => {
     if (isGeneratingTasks || tasks.length > 0) return;
 
-    const templates = buildTasksFromCapture(DEMO_BOBBLE.bullets);
+    const templates = buildWeeklyWorkoutPlanTasks();
     const batchId = Date.now();
     setIsGeneratingTasks(true);
 
@@ -77,12 +78,15 @@ export default function SummaryScreen() {
   return (
     <View style={[styles.root, { paddingTop: insets.top + 8, backgroundColor: colors.background }]}>
       <View style={styles.headerBlock}>
-        <CaptureHeader
-          title={DEMO_BOBBLE.title}
-          onBack={() => router.back()}
-          rightIcon={Pencil}
-        />
-        <SegmentTabs active={tab} onChange={setTab} />
+        <CaptureHeader onBack={() => router.back()} rightIcon={Pencil} />
+        <SegmentTabs active={tab} onChange={setTab} compact={tab === 'mindmap'} />
+        {tab === 'mindmap' ? (
+          <MindScoreCard />
+        ) : (
+          <Text style={[styles.title, { color: colors.text }]} numberOfLines={2}>
+            {DEMO_BOBBLE.title}
+          </Text>
+        )}
       </View>
 
       <ScrollView
@@ -119,6 +123,12 @@ const styles = StyleSheet.create({
   },
   headerBlock: {
     paddingBottom: 4,
+    gap: 4,
+  },
+  title: {
+    ...Typography.body,
+    fontFamily: Typography.button.fontFamily,
+    marginBottom: 8,
   },
   scroll: {
     flex: 1,

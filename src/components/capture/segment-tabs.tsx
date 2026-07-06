@@ -8,6 +8,8 @@ export type SummaryTab = 'summary' | 'transcript' | 'mindmap';
 type SegmentTabsProps = {
   active: SummaryTab;
   onChange: (tab: SummaryTab) => void;
+  /** Tighter spacing when content (e.g. Mind Score) sits directly below */
+  compact?: boolean;
 };
 
 const TABS: { id: SummaryTab; label: string }[] = [
@@ -16,11 +18,17 @@ const TABS: { id: SummaryTab; label: string }[] = [
   { id: 'mindmap', label: 'Mind Map' },
 ];
 
-export function SegmentTabs({ active, onChange }: SegmentTabsProps) {
+export function SegmentTabs({ active, onChange, compact = false }: SegmentTabsProps) {
   const colors = useBobbleColors();
 
   return (
-    <View style={[styles.root, { borderBottomColor: colors.border }]}>
+    <View
+      style={[
+        styles.root,
+        compact ? styles.rootCompact : null,
+        { borderBottomColor: colors.border },
+      ]}
+    >
       {TABS.map((tab) => {
         const selected = tab.id === active;
         return (
@@ -47,6 +55,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     borderBottomWidth: StyleSheet.hairlineWidth,
     marginBottom: 20,
+  },
+  rootCompact: {
+    marginBottom: 12,
   },
   tab: {
     flex: 1,

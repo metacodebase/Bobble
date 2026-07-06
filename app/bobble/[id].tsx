@@ -1,18 +1,19 @@
 import { Href, router, useLocalSearchParams } from 'expo-router';
 import { Copy, Download, Pencil, Trash2 } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { BobbleDetailSummary } from '@/src/components/bobbles/bobble-detail-summary';
 import { BobbleDetailToolbar } from '@/src/components/bobbles/bobble-detail-toolbar';
 import { CaptureHeader } from '@/src/components/capture/capture-header';
 import { SegmentTabs, SummaryTab } from '@/src/components/capture/segment-tabs';
-import { SummaryContent } from '@/src/components/capture/summary-content';
+import { MindScoreCard, SummaryContent } from '@/src/components/capture/summary-content';
 import { PrimaryButton } from '@/src/components/onboarding/primary-button';
 import { ActionSheet } from '@/src/components/ui/action-sheet';
-import { getBobbleById } from '@/src/data/demo-data';
+import { DEMO_BOBBLE_DETAIL, getBobbleById } from '@/src/data/demo-data';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
+import { Typography } from '@/src/theme/fonts';
 import { toast } from '@/src/utils/toast';
 
 export default function BobbleDetailScreen() {
@@ -62,12 +63,15 @@ export default function BobbleDetailScreen() {
   return (
     <View style={[styles.root, { paddingTop: insets.top + 8, backgroundColor: colors.background }]}>
       <View style={styles.headerBlock}>
-        <CaptureHeader
-          title={title}
-          onBack={() => router.back()}
-          rightIcon={Pencil}
-        />
-        <SegmentTabs active={tab} onChange={setTab} />
+        <CaptureHeader onBack={() => router.back()} rightIcon={Pencil} />
+        <SegmentTabs active={tab} onChange={setTab} compact={tab === 'mindmap'} />
+        {tab === 'mindmap' ? (
+          <MindScoreCard score={DEMO_BOBBLE_DETAIL.mindScore} />
+        ) : (
+          <Text style={[styles.title, { color: colors.text }]} numberOfLines={2}>
+            {title}
+          </Text>
+        )}
       </View>
 
       <ScrollView
@@ -116,6 +120,12 @@ const styles = StyleSheet.create({
   },
   headerBlock: {
     paddingBottom: 4,
+    gap: 4,
+  },
+  title: {
+    ...Typography.body,
+    fontFamily: Typography.button.fontFamily,
+    marginBottom: 8,
   },
   scroll: {
     flex: 1,
