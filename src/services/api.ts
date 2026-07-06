@@ -6,6 +6,7 @@ import type {
 } from '@/src/types/api';
 
 import { getConfiguredApiUrl } from '@/src/config/api';
+import { BACKEND_ALLOWED } from '@/src/config/backend';
 
 const BASE_URL = getConfiguredApiUrl();
 
@@ -60,6 +61,12 @@ async function request<TResponse, TBody = unknown>(
   path: string,
   options: RequestOptions<TBody> = {}
 ): Promise<TResponse> {
+  if (!BACKEND_ALLOWED) {
+    throw new Error(
+      `[API] Network call blocked while BACKEND_ALLOWED is false (${options.method ?? 'GET'} ${path})`
+    );
+  }
+
   const { method = 'GET', body, headers = {}, skipAuth = false, _retried = false } = options;
   const token = useAppStore.getState().authToken;
 

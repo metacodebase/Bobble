@@ -5,6 +5,7 @@ import {
   Platform,
   ScrollView,
   StyleSheet,
+  Text,
   View,
 } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
@@ -24,9 +25,12 @@ import { AccentText } from '@/src/components/onboarding/accent-heading';
 import { OnboardingScreenLayout } from '@/src/components/onboarding/onboarding-screen-layout';
 import { PrimaryButton } from '@/src/components/onboarding/primary-button';
 import { GoalIconId } from '@/src/components/onboarding/ui-icons';
-import { DEFAULT_COUNTRY, type Country } from '@/src/data/countries';
+import { COUNTRIES, DEFAULT_COUNTRY, type Country } from '@/src/data/countries';
+import { PROFILE_USER } from '@/src/data/demo-data';
 import { DEFAULT_TIME_ZONE, TIME_ZONES } from '@/src/data/timezones';
+import { isDemoMode } from '@/src/config/backend';
 import { useLogin, useRegister } from '@/src/hooks/api';
+import { useAppStore } from '@/src/store/app-store';
 import { toast } from '@/src/utils/toast';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -100,12 +104,13 @@ export default function CreateAccountScreen() {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [phone, setPhone] = useState('987 654 3210');
+  const [phone, setPhone] = useState('');
   const [country, setCountry] = useState<Country>(DEFAULT_COUNTRY);
-  const [dob, setDob] = useState<Date | null>(new Date(1995, 4, 12));
+  const [dob, setDob] = useState<Date | null>(null);
   const [timeZoneId, setTimeZoneId] = useState<string>(DEFAULT_TIME_ZONE.id);
   const [selectedGoals, setSelectedGoals] = useState<Set<string>>(new Set(['productive']));
   const [datePickerVisible, setDatePickerVisible] = useState(false);
+  const [countryPickerVisible, setCountryPickerVisible] = useState(false);
   const [timeZonePickerVisible, setTimeZonePickerVisible] = useState(false);
 
   const navigation = useNavigation();
@@ -163,21 +168,32 @@ export default function CreateAccountScreen() {
     });
 
   // Validate the current step's inputs before advancing. Returns false (and
-  // surfaces a toast) when the step is incomplete.
+  // surfaces a toast) when the step is incomplete. Skipped in demo mode so
+  // clients can browse the full onboarding UI without filling every field.
   const validateStep = (current: number): boolean => {
-    if (current === 0 && !fullName.trim()) {
-      toast.error('Please enter your name');
-      return false;
-    }
-    if (current === 1) {
+    if (isDemoMode) return true;
+
+    if (current === 0) {
+      if (!fullName.trim()) {
+        toast.error('Please enter your name');
+        return false;
+      }
+      if (!dob) {
+        toast.error('Please select your date of birth');
+        return false;
+      }
       if (!EMAIL_REGEX.test(email.trim())) {
         toast.error('Please enter a valid email address');
         return false;
       }
-      if (password.length < 8) {
-        toast.error('Password must be at least 8 characters');
+      if (!phone.trim()) {
+        toast.error('Please enter your phone number');
         return false;
       }
+    }
+    if (current === 1 && password.length < 8) {
+      toast.error('Password must be at least 8 characters');
+      return false;
     }
     return true;
   };
@@ -193,9 +209,39 @@ export default function CreateAccountScreen() {
   // mutation are surfaced as toasts by the hooks.
   const handleFinish = async () => {
     if (submitting) return;
-    if (!fullName.trim() || !EMAIL_REGEX.test(email.trim()) || password.length < 8) {
-      toast.error('Please complete your name, email and password');
-      setStep(email.trim() && password ? 1 : 0);
+
+    if (isDemoMode) {
+      try {
+        const demoEmail = email.trim() || PROFILE_USER.email;
+        await login.mutateAsync({
+          email: demoEmail,
+          password: password || 'demo-password',
+        });
+        if (fullName.trim()) {
+          const currentUser = useAppStore.getState().user;
+          if (currentUser) {
+            useAppStore.getState().setUser({ ...currentUser, name: fullName.trim() });
+          }
+        }
+      } catch {
+        // Errors are already reported via the mutation onError toasts.
+      }
+      return;
+    }
+
+    if (
+      !fullName.trim() ||
+      !dob ||
+      !EMAIL_REGEX.test(email.trim()) ||
+      !phone.trim() ||
+      password.length < 8
+    ) {
+      toast.error('Please complete all required fields');
+      if (!fullName.trim() || !dob || !EMAIL_REGEX.test(email.trim()) || !phone.trim()) {
+        setStep(0);
+      } else {
+        setStep(1);
+      }
       return;
     }
     try {
@@ -229,21 +275,21 @@ export default function CreateAccountScreen() {
           <>
             <StepHeading step={0} />
             <ProfileAvatar />
-            <LabeledTextInput
-              label="Full Name"
-              placeholder="Enter your name"
-              value={fullName}
-              onChangeText={setFullName}
-              autoCapitalize="words"
-              returnKeyType="next"
-            />
-          </>
-        );
-      case 1:
-        return (
-          <>
-            <StepHeading step={1} />
             <View style={styles.formGroup}>
+              <LabeledTextInput
+                label="Full Name"
+                placeholder="Enter your name"
+                value={fullName}
+                onChangeText={setFullName}
+                autoCapitalize="words"
+                returnKeyType="next"
+              />
+              <SelectField
+                label="Date of Birth"
+                value={dob ? formatDate(dob) : 'Select date'}
+                icon="calendar"
+                onPress={() => setDatePickerVisible(true)}
+              />
               <LabeledTextInput
                 label="Email"
                 placeholder="you@example.com"
@@ -254,6 +300,26 @@ export default function CreateAccountScreen() {
                 autoCorrect={false}
                 textContentType="emailAddress"
               />
+              <PhoneInput
+                value={phone}
+                onChangeText={setPhone}
+                country={country}
+                onChangeCountry={setCountry}
+              />
+              <SelectField
+                label="Country"
+                value={`${country.flag} ${country.name}`}
+                icon="chevron"
+                onPress={() => setCountryPickerVisible(true)}
+              />
+            </View>
+          </>
+        );
+      case 1:
+        return (
+          <>
+            <StepHeading step={1} />
+            <View style={styles.formGroup}>
               <LabeledTextInput
                 label="Password"
                 placeholder="At least 8 characters"
@@ -264,12 +330,6 @@ export default function CreateAccountScreen() {
                 autoComplete="password-new"
                 textContentType="newPassword"
               />
-              <PhoneInput
-                value={phone}
-                onChangeText={setPhone}
-                country={country}
-                onChangeCountry={setCountry}
-              />
             </View>
           </>
         );
@@ -278,12 +338,6 @@ export default function CreateAccountScreen() {
           <>
             <StepHeading step={2} />
             <View style={styles.formGroup}>
-              <SelectField
-                label="Date of Birth"
-                value={dob ? formatDate(dob) : 'Select date'}
-                icon="calendar"
-                onPress={() => setDatePickerVisible(true)}
-              />
               <SelectField
                 label="Time Zone"
                 value={timeZone.label}
@@ -371,6 +425,24 @@ export default function CreateAccountScreen() {
       />
 
       <PickerModal
+        visible={countryPickerVisible}
+        title="Select country"
+        searchPlaceholder="Search country"
+        selectedId={country.code}
+        options={COUNTRIES.map((c) => ({
+          id: c.code,
+          label: c.name,
+          leading: <Text style={styles.countryFlag}>{c.flag}</Text>,
+        }))}
+        onSelect={(id) => {
+          const next = COUNTRIES.find((c) => c.code === id);
+          if (next) setCountry(next);
+          setCountryPickerVisible(false);
+        }}
+        onClose={() => setCountryPickerVisible(false)}
+      />
+
+      <PickerModal
         visible={timeZonePickerVisible}
         title="Select time zone"
         searchPlaceholder="Search time zone"
@@ -410,5 +482,8 @@ const styles = StyleSheet.create({
   footerGroup: {
     gap: 8,
     alignItems: 'center',
+  },
+  countryFlag: {
+    fontSize: 24,
   },
 });

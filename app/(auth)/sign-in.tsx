@@ -4,6 +4,7 @@ import { Platform, StyleSheet, Text, View } from 'react-native';
 
 import { OnboardingScreenLayout } from '@/src/components/onboarding/onboarding-screen-layout';
 import { SocialButton } from '@/src/components/onboarding/social-button';
+import { isDemoMode } from '@/src/config/backend';
 import { useSocialAuth } from '@/src/features/auth/use-social-auth';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { Typography } from '@/src/theme/fonts';
@@ -38,7 +39,7 @@ function AuthHeading({ mode }: { mode: AuthMode }) {
       <Text style={[styles.heading, { color: colors.text }]}>
         Welcome back.{'\n'}
         <Text style={[Typography.accentSubtitle, { color: colors.textAccent }]}>
-          Let&apos;s unwind
+         Start unwinding
         </Text>
         {'\n'}
         together.
@@ -55,7 +56,7 @@ export default function AuthScreen() {
   const colors = useBobbleColors();
   const [mode, setMode] = useState<AuthMode>('sign-in');
   const copy = AUTH_COPY[mode];
-  const { signInWithGoogle, signInWithApple, appleAvailable, isPending } = useSocialAuth();
+  const { signInWithGoogle, signInWithApple, signInDemo, appleAvailable, isPending } = useSocialAuth();
 
   const handleEmailAuth = () => {
     router.push('/(auth)/create-account' as Href);
@@ -72,6 +73,10 @@ export default function AuthScreen() {
         break;
       default:
         // Facebook, X and Microsoft are not wired up yet.
+        if (isDemoMode) {
+          signInDemo();
+          return;
+        }
         toast.success('This sign-in option is coming soon');
     }
   };

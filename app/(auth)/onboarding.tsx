@@ -10,7 +10,7 @@ import {
   View,
 } from 'react-native';
 
-import { WordAccentHeading } from '@/src/components/onboarding/accent-heading';
+import { LineAccentHeading } from '@/src/components/onboarding/accent-heading';
 import { BobbleMascot, MascotVariant } from '@/src/components/onboarding/bobble-mascot';
 import {
   ONBOARDING_MASCOT_SIZE,
@@ -24,20 +24,6 @@ import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { useAppStore } from '@/src/store/app-store';
 import { Typography } from '@/src/theme/fonts';
 
-const purpleWords = [
-  'our',
-  'space',
-  'sense',
-  'together',
-  "we'll",
-  'handle',
-  'capturing',
-  'thoughts',
-  'your',
-  'best',
-  'self',
-] as const;
-
 const STEPS: {
   heading: string;
   buttonLabel: string;
@@ -45,25 +31,60 @@ const STEPS: {
   mascotVariant?: MascotVariant;
 }[] = [
   {
-    heading: "Your mind.\nOur space.\nLet's make\nsense together.",
+    heading: "Your Thoughts.\nYour space.\nSpeak your mind\nLet Bobble give it Grace",
     mascotVariant: 'voice',
     buttonLabel: 'Next',
   },
   {
-    heading: "Talk it out.\nWe'll handle\nthe rest.",
+    heading: "For those Busy doing LIFE!\nTell us what you need to say.\nWe'll handle the rest.",
     features: [
-      'Voice notes & transcription',
-      'AI organises your ideas',
-      'Tasks, reminders & more',
+      'Voice notes & transcription for smooth & fast brain dumps.',
+      'AI organises your ideas & thoughts to help clear the mind',
+      'Tasks, reminders & more to help you focus on the moments, & come back to notes later.',
     ],
     buttonLabel: 'Next',
   },
   {
-    heading: "You're not just\ncapturing thoughts,\nyou're building\nyour best self.",
+    heading:
+      "You're not just\ncapturing thoughts,\nyou're building\nyour best self.\nbecome efficient.",
     mascotVariant: 'greet',
     buttonLabel: "Let's Go",
   },
 ];
+
+function OnboardingHeading({
+  stepIndex,
+  heading,
+  style,
+  textStyle,
+}: {
+  stepIndex: number;
+  heading: string;
+  style?: object;
+  textStyle?: object;
+}) {
+  const colors = useBobbleColors();
+  const lines = heading.split('\n');
+
+  if (stepIndex === 1) {
+    return (
+      <View style={[{ marginTop: 24 }, style]}>
+        <Text style={[Typography.heading, textStyle]}>
+          <Text style={{ color: colors.text }}>For those Busy doing </Text>
+          <Text style={{ color: colors.textAccent }}>LIFE!</Text>
+          {'\n'}
+          <Text style={{ color: colors.text }}>Tell us what you need to say. </Text>
+          {/* {'\n'} */}
+          <Text style={{ color: colors.textAccent }}>We&apos;ll handle the rest.</Text>
+        </Text>
+      </View>
+    );
+  }
+
+  return (
+    <LineAccentHeading lines={lines} style={style} textStyle={textStyle} />
+  );
+}
 
 export default function OnboardingScreen() {
   const scrollRef = useRef<ScrollView>(null);
@@ -154,12 +175,11 @@ export default function OnboardingScreen() {
       >
         {STEPS.map((item, stepIndex) => (
           <View key={item.heading} style={[styles.slide, { width }]}>
-            <WordAccentHeading
-              text={item.heading}
-              accentWords={purpleWords}
+            <OnboardingHeading
+              stepIndex={stepIndex}
+              heading={item.heading}
               style={styles.headingWrap}
               textStyle={styles.heading}
-              skipAccent={(word) => stepIndex === 0 && word === 'your'}
             />
 
             {item.features ? (
@@ -218,7 +238,7 @@ const styles = StyleSheet.create({
   featureText: {
     ...Typography.heading,
     fontSize: 22,
-    width: '60%',
+    flex: 1,
     lineHeight: 30,
   },
   featureIcon: {

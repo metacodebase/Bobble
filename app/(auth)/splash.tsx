@@ -4,7 +4,6 @@ import * as ExpoSplashScreen from 'expo-splash-screen';
 import { useCallback } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { AccentText } from '@/src/components/onboarding/accent-heading';
 import { BobbleMascot } from '@/src/components/onboarding/bobble-mascot';
 import { OnboardingScreenLayout } from '@/src/components/onboarding/onboarding-screen-layout';
 import { PrimaryButton } from '@/src/components/onboarding/primary-button';
@@ -30,11 +29,14 @@ export default function AuthSplashScreen() {
       <View style={styles.splashBody} onLayout={revealAppSplash}>
         <View style={styles.header}>
           <Text style={[styles.title, { color: colors.text }]}>Bobble</Text>
-          <Text style={[styles.tagline, { color: colors.text }]}>
-            Dream, Believe. <AccentText>Bobble.</AccentText> Achieve
-          </Text>
+          <Text style={[styles.subtitle, { color: colors.text }]}>Unwind your messy mind</Text>
         </View>
         <BobbleMascot variant="main" size={1000 * 0.4} />
+        <View style={styles.tagline}>
+          <Text style={[styles.taglineLine, { color: colors.text }]}>Dream, believe.</Text>
+          <Text style={[styles.taglineLine, { color: colors.textAccent }]}>Bobble.</Text>
+          <Text style={[styles.taglineLine, { color: colors.text }]}>ACHIEVE.</Text>
+        </View>
       </View>
     </OnboardingScreenLayout>
   );
@@ -62,8 +64,20 @@ const styles = StyleSheet.create({
     lineHeight: 80,
     marginBottom: -4,
   },
+  subtitle: {
+    ...Typography.accentSubtitle,
+    fontSize: 22,
+    textAlign: 'center',
+  },
   tagline: {
+    alignItems: 'center',
+    gap: 2,
+    marginTop: 4,
+  },
+  taglineLine: {
     ...Typography.splashTagline,
-    fontSize: 19,
+    fontSize: 24,
+    lineHeight: 30,
+    textAlign: 'center',
   },
 });

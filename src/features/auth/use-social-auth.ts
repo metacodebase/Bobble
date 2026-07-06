@@ -8,6 +8,7 @@ import * as AppleAuthentication from 'expo-apple-authentication';
 import { useCallback, useEffect, useState } from 'react';
 import { Platform } from 'react-native';
 
+import { isDemoMode } from '@/src/config/backend';
 import { useSocialLogin } from '@/src/hooks/api';
 import { toast } from '@/src/utils/toast';
 
@@ -51,6 +52,10 @@ export function useSocialAuth() {
   }, []);
 
   const signInWithGoogle = useCallback(async () => {
+    if (isDemoMode) {
+      socialLogin.mutate({ provider: 'google', idToken: 'offline-demo' });
+      return;
+    }
     if (!GOOGLE_WEB_CLIENT_ID && !GOOGLE_IOS_CLIENT_ID) {
       toast.error('Google sign-in is not configured');
       return;
@@ -88,6 +93,10 @@ export function useSocialAuth() {
   }, [socialLogin]);
 
   const signInWithApple = useCallback(async () => {
+    if (isDemoMode) {
+      socialLogin.mutate({ provider: 'apple', idToken: 'offline-demo' });
+      return;
+    }
     try {
       const credential = await AppleAuthentication.signInAsync({
         requestedScopes: [
@@ -126,6 +135,7 @@ export function useSocialAuth() {
   return {
     signInWithGoogle,
     signInWithApple,
+    signInDemo: () => socialLogin.mutate({ provider: 'google', idToken: 'offline-demo' }),
     appleAvailable,
     isPending: socialLogin.isPending,
   };

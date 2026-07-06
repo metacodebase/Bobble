@@ -32,6 +32,33 @@ export function AccentText({ children }: AccentTextProps) {
   );
 }
 
+type LineAccentHeadingProps = {
+  lines: readonly string[];
+  style?: ViewStyle;
+  textStyle?: TextStyle;
+};
+
+/** Renders each line in full — odd lines (2nd, 4th, …) use the accent color. */
+export function LineAccentHeading({ lines, style, textStyle }: LineAccentHeadingProps) {
+  const colors = useBobbleColors();
+
+  return (
+    <View style={[styles.container, style]}>
+      <Text style={[styles.heading, textStyle]}>
+        {lines.map((line, index) => (
+          <Text
+            key={index}
+            style={{ color: index % 2 === 0 ? colors.text : colors.textAccent }}
+          >
+            {line}
+            {index < lines.length - 1 ? '\n' : ''}
+          </Text>
+        ))}
+      </Text>
+    </View>
+  );
+}
+
 type WordAccentHeadingProps = {
   text: string;
   accentWords: readonly string[];
