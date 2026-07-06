@@ -115,6 +115,7 @@ export const PROFILE_MENU = [
   { id: 'connections', label: 'Privacy & Data', icon: 'shield' },
   { id: 'export', label: 'Export Data', icon: 'download' },
   { id: 'help', label: 'Support', icon: 'help' },
+  { id: 'billing', label: 'Billing', icon: 'credit-card' },
   { id: 'about', label: 'About Bobble', icon: 'info' },
 ] as const;
 

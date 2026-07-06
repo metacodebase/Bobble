@@ -67,7 +67,7 @@ export default function ContinueBobbleScreen() {
 
       <View style={styles.statusBlock}>
         <Text style={[styles.status, { color: colors.textSecondary }]}>
-          {paused ? 'Paused' : 'Recording...'}
+          {paused ? 'Paused' : 'Listening...'}
         </Text>
         <Text style={[styles.timer, { color: colors.text }]}>{formatElapsed(elapsed)}</Text>
       </View>

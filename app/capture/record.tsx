@@ -8,8 +8,8 @@ import { AudioWaveform } from '@/src/components/capture/audio-waveform';
 import { CaptureHeader } from '@/src/components/capture/capture-header';
 import { RecordingControls } from '@/src/components/capture/recording-controls';
 import { RecordingVisualizer } from '@/src/components/capture/recording-visualizer';
-import { useVoiceRecorder } from '@/src/hooks/use-voice-recorder';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
+import { useVoiceRecorder } from '@/src/hooks/use-voice-recorder';
 import { useCaptureStore } from '@/src/store/capture-store';
 import { Typography } from '@/src/theme/fonts';
 
@@ -71,7 +71,7 @@ export default function RecordScreen() {
 
       <View style={styles.statusBlock}>
         <Text style={[styles.status, { color: colors.textSecondary }]}>
-          {paused ? 'Paused' : 'Recording...'}
+          {paused ? 'Paused' : 'Listening...'}
         </Text>
         <Text style={[styles.timer, { color: colors.text }]}>{formatElapsed(elapsed)}</Text>
       </View>

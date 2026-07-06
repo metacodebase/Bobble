@@ -62,7 +62,7 @@ export default function ProcessingScreen() {
         }}
       />
 
-      <Text style={[styles.title, { color: colors.text }]}>Processing with AI</Text>
+      <Text style={[styles.title, { color: colors.text }]}>Processing with Bobble</Text>
 
       <ScrollView
         style={styles.scroll}

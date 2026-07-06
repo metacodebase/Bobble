@@ -2,6 +2,7 @@ import {
   Bell,
   Calendar,
   ChevronRight,
+  CreditCard,
   Download,
   Globe,
   HelpCircle,
@@ -29,6 +30,7 @@ const ICONS: Record<string, LucideIcon> = {
   info: Info,
   shield: ShieldCheck,
   download: Download,
+  'credit-card': CreditCard,
   moon: Moon,
 };
 

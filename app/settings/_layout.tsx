@@ -11,6 +11,7 @@ export default function SettingsLayout() {
       <Stack.Screen name="notifications" />
       <Stack.Screen name="language" />
       <Stack.Screen name="help" />
+      <Stack.Screen name="billing" />
       <Stack.Screen name="about" />
       <Stack.Screen name="export-data" />
     </Stack>

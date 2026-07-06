@@ -22,6 +22,7 @@ const SETTINGS_ROUTES: Record<(typeof PROFILE_MENU)[number]['id'], Href> = {
   connections: '/settings/connections',
   export: '/settings/export-data',
   help: '/settings/help',
+  billing: '/settings/billing',
   notifications: '/settings/notifications',
   about: '/settings/about',
 };
