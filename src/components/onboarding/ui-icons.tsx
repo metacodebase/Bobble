@@ -57,6 +57,45 @@ export function CalendarOutlineIcon({ size = 20, color = '#6B7280' }: UiIconProp
   );
 }
 
+export function EfficientIcon({ size = 22, color = '#7C5CFF' }: UiIconProps) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Path
+        d="M13 2.5 5.5 13.5H11l-1.5 8.5L18.5 10.5H13l1.5-8z"
+        stroke={color}
+        strokeWidth={1.8}
+        strokeLinejoin="round"
+        strokeLinecap="round"
+      />
+    </Svg>
+  );
+}
+
+export function UnwindIcon({ size = 22, color = '#7C5CFF' }: UiIconProps) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Path
+        d="M12 5a3 3 0 1 0-5.997.142 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18a4 4 0 1 0 7.971-.142 4 4 0 0 0 .526-5.77 4 4 0 0 0-.556-6.588A3 3 0 1 0 12 5Z"
+        stroke={color}
+        strokeWidth={1.8}
+        strokeLinejoin="round"
+      />
+      <Path
+        d="M12 5v13"
+        stroke={color}
+        strokeWidth={1.8}
+        strokeLinecap="round"
+      />
+      <Path
+        d="M4 17.5c1.8-1.2 3.6-1.2 5.4 0M14.6 17.5c1.8-1.2 3.6-1.2 5.4 0"
+        stroke={color}
+        strokeWidth={1.8}
+        strokeLinecap="round"
+      />
+    </Svg>
+  );
+}
+
 export function ProductivityIcon({ size = 22, color = '#7C5CFF' }: UiIconProps) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
@@ -111,7 +150,7 @@ export function GrowthIcon({ size = 22, color = '#7C5CFF' }: UiIconProps) {
   );
 }
 
-export type GoalIconId = 'productive' | 'stress' | 'organised' | 'growth';
+export type GoalIconId = 'productive' | 'stress' | 'organised' | 'growth' | 'efficient' | 'unwind';
 
 export function GoalIcon({
   id,
@@ -127,5 +166,9 @@ export function GoalIcon({
       return <OrganizeIcon size={size} color={color} />;
     case 'growth':
       return <GrowthIcon size={size} color={color} />;
+    case 'efficient':
+      return <EfficientIcon size={size} color={color} />;
+    case 'unwind':
+      return <UnwindIcon size={size} color={color} />;
   }
 }

@@ -35,11 +35,6 @@ export default function ProfileScreen() {
   const logout = useLogout();
   const rawName = user?.name ?? user?.email?.split('@')[0] ?? PROFILE_USER.name;
   const displayName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
-  const displayHandle = user?.handle
-    ? `@${user.handle}`
-    : user?.email
-      ? `@${user.email.split('@')[0]}`
-      : PROFILE_USER.handle;
 
   const gamification = user?.gamification;
 
@@ -63,13 +58,11 @@ export default function ProfileScreen() {
       <View style={[styles.heroCard, { backgroundColor: colors.borderLight }]}>
         <ProfileAvatar size={140} style={styles.avatar} onPress={() => {}} />
         <Text style={[styles.name, { color: colors.text }]}>{displayName}</Text>
-        <Text style={[styles.handle, { color: colors.textSecondary }]}>{displayHandle}</Text>
 
         <View style={styles.statsRow}>
           <StatCard compact label="Streak" value={gamification?.streak ?? 0} />
           <StatCard compact label="Bobbles" value={gamification?.bobbles ?? 0} />
           <StatCard compact label="Tasks" value={gamification?.tasks ?? 0} />
-          <StatCard compact label="XP" value={gamification?.xp ?? 0} />
         </View>
       </View>
 
@@ -129,10 +122,6 @@ const styles = StyleSheet.create({
     ...Typography.heading,
     fontSize: 24,
     lineHeight: 32,
-    marginBottom: 4,
-  },
-  handle: {
-    ...Typography.body,
     marginBottom: 20,
   },
   statsRow: {

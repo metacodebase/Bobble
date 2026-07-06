@@ -25,10 +25,10 @@ import { AccentText } from '@/src/components/onboarding/accent-heading';
 import { OnboardingScreenLayout } from '@/src/components/onboarding/onboarding-screen-layout';
 import { PrimaryButton } from '@/src/components/onboarding/primary-button';
 import { GoalIconId } from '@/src/components/onboarding/ui-icons';
+import { isDemoMode } from '@/src/config/backend';
 import { COUNTRIES, DEFAULT_COUNTRY, type Country } from '@/src/data/countries';
 import { PROFILE_USER } from '@/src/data/demo-data';
 import { DEFAULT_TIME_ZONE, TIME_ZONES } from '@/src/data/timezones';
-import { isDemoMode } from '@/src/config/backend';
 import { useLogin, useRegister } from '@/src/hooks/api';
 import { useAppStore } from '@/src/store/app-store';
 import { toast } from '@/src/utils/toast';
@@ -40,6 +40,8 @@ const GOALS: { id: GoalIconId; label: string }[] = [
   { id: 'stress', label: 'Reduce stress' },
   { id: 'organised', label: 'Stay organised' },
   { id: 'growth', label: 'Personal growth' },
+  { id: 'efficient', label: 'Become efficient' },
+  { id: 'unwind', label: 'Unwind my mind' },
 ];
 
 const CALENDARS = [
