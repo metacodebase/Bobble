@@ -36,6 +36,6 @@ const styles = StyleSheet.create({
     backgroundColor: BobbleColors.dotActive,
   },
   dotInactive: {
-    backgroundColor: BobbleColors.dotInactive,
+    backgroundColor: '#FFFFFF',
   },
 });

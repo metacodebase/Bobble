@@ -23,8 +23,9 @@ import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { useAppStore } from '@/src/store/app-store';
 import { Typography } from '@/src/theme/fonts';
 
-const FEATURES_MASCOT_MAX_HEIGHT = 310;
+const FEATURES_MASCOT_MAX_HEIGHT = 280;
 const FEATURES_SLIDE_MASCOT_WIDTH = getFeaturesMascotWidth(FEATURES_MASCOT_MAX_HEIGHT);
+const FEATURE_CHECK_BG = '#C8F5D4';
 
 const STEPS: {
   buttonLabel: string;
@@ -73,9 +74,11 @@ function OnboardingHeading({ stepIndex }: { stepIndex: number }) {
   if (stepIndex === 1) {
     return (
       <View style={styles.headingWrap}>
-        <Text style={[Typography.heading, styles.heading, { color: colors.text }]}>
-          Tell us what you need to say.{' '}
-          <Text style={{ color: colors.textAccent }}>We&apos;ll handle the rest.</Text>
+        <Text style={[Typography.heading, styles.heading]}>
+          <Text style={{ color: colors.text }}>Tell us what you need{'\n'}</Text>
+          <Text style={{ color: colors.text }}>to say. </Text>
+          <Text style={{ color: colors.textAccent }}>We&apos;ll handle{'\n'}</Text>
+          <Text style={{ color: colors.textAccent }}>the rest.</Text>
         </Text>
       </View>
     );
@@ -83,9 +86,11 @@ function OnboardingHeading({ stepIndex }: { stepIndex: number }) {
 
   return (
     <View style={styles.headingWrap}>
-      <Text style={[Typography.heading, styles.heading, { color: colors.text }]}>
-        You&apos;re not just capturing thoughts,{' '}
-        <Text style={{ color: colors.textAccent }}>you&apos;re helping build your best self.</Text>
+      <Text style={[Typography.heading, styles.heading]}>
+        <Text style={{ color: colors.text }}>You&apos;re not just{'\n'}</Text>
+        <Text style={{ color: colors.textAccent }}>capturing thoughts,{'\n'}</Text>
+        <Text style={{ color: colors.text }}>you&apos;re helping build{'\n'}</Text>
+        <Text style={{ color: colors.textAccent }}>your best self.</Text>
       </Text>
     </View>
   );
@@ -200,8 +205,8 @@ export default function OnboardingScreen() {
                 <View style={styles.featureList}>
                   {item.features.map((feature) => (
                     <View key={feature} style={styles.featureRow}>
-                      <View style={[styles.featureIcon, { backgroundColor: colors.success }]}>
-                        <CheckIcon size={20} strokeWidth={3.5} color={colors.textOnPrimary} />
+                      <View style={[styles.featureIcon, { backgroundColor: FEATURE_CHECK_BG }]}>
+                        <CheckIcon size={18} strokeWidth={3.5} color={colors.success} />
                       </View>
                       <Text style={[styles.featureText, { color: colors.text }]}>{feature}</Text>
                     </View>
@@ -249,8 +254,8 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     alignItems: 'center',
     justifyContent: 'flex-start',
-    paddingTop: 8,
-    gap: 16,
+    paddingTop: 4,
+    gap: 12,
   },
   mascotSlot: {
     width: '100%',
@@ -258,26 +263,28 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     flexShrink: 1,
+    marginBottom: 4,
   },
   featureList: {
     flexShrink: 0,
-    gap: 24,
+    gap: 20,
     width: '100%',
   },
   featureRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    gap: 14,
+    gap: 12,
     width: '100%',
   },
   featureText: {
-    ...Typography.heading,
-    fontSize: 20,
+    ...Typography.body,
+    fontSize: 17,
     flex: 1,
-    lineHeight: 28,
+    lineHeight: 24,
   },
   featureIcon: {
     borderRadius: 120,
-    padding: 8,
+    padding: 7,
+    marginTop: 1,
   },
 });
