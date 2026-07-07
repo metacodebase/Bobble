@@ -1,3 +1,4 @@
+import { FontAwesome } from '@expo/vector-icons';
 import { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, {
@@ -11,7 +12,6 @@ import Animated, {
 import Svg, { Circle, Defs, RadialGradient, Stop } from 'react-native-svg';
 
 import { BobbleColors } from '@/src/theme/colors';
-import { Mic } from 'lucide-react-native';
 
 const GLOW_SIZE = 240;
 
@@ -153,7 +153,7 @@ export function RecordingVisualizer({ active = true, metering }: RecordingVisual
       <Animated.View style={[styles.rippleRing, rippleStyle]} />
 
       <Animated.View style={[styles.micWrap, micStyle]}>
-        <Mic size={36} color="white" strokeWidth={2} />
+        <FontAwesome name="microphone" size={36} color={BobbleColors.textOnPrimary} />
       </Animated.View>
     </View>
   );

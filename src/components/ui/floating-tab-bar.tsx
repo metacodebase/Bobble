@@ -1,3 +1,4 @@
+import { Feather, FontAwesome, Octicons } from '@expo/vector-icons';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import {
   GlassView,
@@ -5,11 +6,11 @@ import {
   isLiquidGlassAvailable,
 } from 'expo-glass-effect';
 import { Href, router } from 'expo-router';
-import { CircleUserRound, House, ListTodo, Mic } from 'lucide-react-native';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { BobblesTabIcon } from '@/src/components/ui/bobbles-tab-icon';
+import { TAB_ICON_SIZE } from '@/src/components/ui/tab-bar-icons';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { useColorScheme } from '@/src/hooks/use-color-scheme';
 import { BobbleColors } from '@/src/theme/colors';
@@ -81,22 +82,28 @@ export function FloatingTabBar({ state, navigation }: BottomTabBarProps) {
     {
       name: 'index',
       label: 'Home',
-      renderIcon: (_focused, color) => <House size={24} color={color} strokeWidth={2} />,
+      renderIcon: (_focused, color) => (
+        <Feather name="home" size={TAB_ICON_SIZE} color={color} />
+      ),
     },
     {
       name: 'bobbles',
       label: 'Bobbles',
-      renderIcon: (focused) => <BobblesTabIcon focused={focused} />,
+      renderIcon: (focused) => <BobblesTabIcon focused={focused} size={TAB_ICON_SIZE} />,
     },
     {
       name: 'tasks',
       label: 'Tasks',
-      renderIcon: (_focused, color) => <ListTodo size={24} color={color} strokeWidth={2} />,
+      renderIcon: (_focused, color) => (
+        <Feather name="check-circle" size={TAB_ICON_SIZE} color={color} />
+      ),
     },
     {
       name: 'profile',
       label: 'Profile',
-      renderIcon: (_focused, color) => <CircleUserRound size={24} color={color} strokeWidth={2} />,
+      renderIcon: (_focused, color) => (
+        <Octicons name="person" size={TAB_ICON_SIZE} color={color} />
+      ),
     },
   ];
 
@@ -143,7 +150,11 @@ export function FloatingTabBar({ state, navigation }: BottomTabBarProps) {
                 >
                   {({ pressed }) => (
                     <View style={[styles.micButton, pressed && styles.micPressed]}>
-                      <Mic size={26} color={BobbleColors.textOnPrimary} strokeWidth={2.2} />
+                      <FontAwesome
+                        name="microphone"
+                        size={TAB_ICON_SIZE}
+                        color={BobbleColors.textOnPrimary}
+                      />
                     </View>
                   )}
                 </Pressable>

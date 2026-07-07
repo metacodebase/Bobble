@@ -11,22 +11,22 @@ type BobbleIconProps = {
   variant?: 'active' | 'inactive';
 };
 
-export function BobbleIcon({ size = 26, variant = 'active' }: BobbleIconProps) {
+export function BobbleIcon({ size = 24, variant = 'active' }: BobbleIconProps) {
   return (
-    <View style={[styles.wrapper, { width: size, height: size * ASPECT }]}>
+    <View style={[styles.wrapper, { width: size, height: size }]}>
       <Image
         source={variant === 'active' ? BOBBLE_ICON_ACTIVE : BOBBLE_ICON_INACTIVE}
-        style={styles.icon}
-        contentFit="fill"
+        style={[styles.icon, { width: size, height: size * ASPECT }]}
+        contentFit="contain"
       />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  wrapper: {},
-  icon: {
-    width: '100%',
-    height: '100%',
+  wrapper: {
+    alignItems: 'center',
+    justifyContent: 'center',
   },
+  icon: {},
 });
