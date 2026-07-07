@@ -98,7 +98,7 @@ export function WordAccentHeading({
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 24,
+    marginTop: 56,
     width: '100%',
   },
   heading: {

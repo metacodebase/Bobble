@@ -1,4 +1,5 @@
-import { ActivityIndicator, Pressable, StyleSheet, Text, ViewStyle } from 'react-native';
+import { ChevronRight } from 'lucide-react-native';
+import { ActivityIndicator, Pressable, StyleSheet, Text, View, ViewStyle } from 'react-native';
 
 import { BobbleColors } from '@/src/theme/colors';
 import { Typography } from '@/src/theme/fonts';
@@ -34,7 +35,15 @@ export function PrimaryButton({
       {loading ? (
         <ActivityIndicator color={BobbleColors.textOnPrimary} />
       ) : (
-        <Text style={styles.label}>{label}</Text>
+        <View style={styles.content}>
+          <Text style={styles.label}>{label}</Text>
+          <ChevronRight
+            size={22}
+            color={BobbleColors.textOnPrimary}
+            strokeWidth={2.5}
+            style={styles.chevron}
+          />
+        </View>
       )}
     </Pressable>
   );
@@ -56,8 +65,18 @@ const styles = StyleSheet.create({
   disabled: {
     opacity: 0.6,
   },
+  content: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+  },
   label: {
     ...Typography.button,
     color: BobbleColors.textOnPrimary,
+  },
+  chevron: {
+    position: 'absolute',
+    right: 24,
   },
 });

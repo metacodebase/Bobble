@@ -10,8 +10,7 @@ import {
   View,
 } from 'react-native';
 
-import { LineAccentHeading } from '@/src/components/onboarding/accent-heading';
-import { BobbleMascot, MascotVariant } from '@/src/components/onboarding/bobble-mascot';
+import { BobbleMascot, getFeaturesMascotWidth, MascotVariant } from '@/src/components/onboarding/bobble-mascot';
 import {
   ONBOARDING_MASCOT_SIZE,
   OnboardingHeroSlot,
@@ -24,57 +23,58 @@ import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { useAppStore } from '@/src/store/app-store';
 import { Typography } from '@/src/theme/fonts';
 
+const FEATURES_MASCOT_MAX_HEIGHT = 310;
+const FEATURES_SLIDE_MASCOT_WIDTH = getFeaturesMascotWidth(FEATURES_MASCOT_MAX_HEIGHT);
+
 const STEPS: {
-  heading: string;
   buttonLabel: string;
   features?: readonly string[];
   mascotVariant?: MascotVariant;
 }[] = [
     {
-      heading: "Your Thoughts.\nYour space.\nSpeak your mind\nLet Bobble give it Grace",
       mascotVariant: 'voice',
       buttonLabel: 'Next',
     },
     {
-      heading: "For those Busy doing LIFE!\nTell us what you need to say.\nWe'll handle the rest.",
+      mascotVariant: 'features',
       features: [
-        'Voice notes & transcription for smooth & fast brain dumps.',
-        'AI organises your ideas & thoughts to help clear the mind',
-        'Tasks, reminders & more to help you focus on the moments, & come back to notes later.',
+        'Voice notes and transcription for smooth and fast brain dumps.',
+        'AI organises your ideas and thoughts to help clear the mind.',
+        'Tasks, reminders and more to help you focus on the moments and come back to notes later.',
       ],
       buttonLabel: 'Next',
     },
     {
-      heading:
-        "You're not just\ncapturing thoughts,\nyou're building\nyour best self.\nbecome efficient.",
       mascotVariant: 'greet',
       buttonLabel: "Let's Go",
     },
   ];
 
-function OnboardingHeading({
-  stepIndex,
-  heading,
-  style,
-  textStyle,
-}: {
-  stepIndex: number;
-  heading: string;
-  style?: object;
-  textStyle?: object;
-}) {
+function OnboardingHeading({ stepIndex }: { stepIndex: number }) {
   const colors = useBobbleColors();
-  const lines = heading.split('\n');
+
+  if (stepIndex === 0) {
+    return (
+      <View style={styles.headingWrap}>
+        <Text style={[Typography.heading, styles.heading]}>
+          <Text style={{ color: colors.text }}>Your thoughts.{'\n'}</Text>
+          <Text style={{ color: colors.textAccent }}>Your space.</Text>
+        </Text>
+        <Text style={[Typography.heading, styles.heading, styles.headingSubtitle]}>
+          <Text style={{ color: colors.text }}>Speak your mind and{'\n'}</Text>
+          <Text style={{ color: colors.text }}>let </Text>
+          <Text style={{ color: colors.textAccent }}>Bobble</Text>
+          <Text style={{ color: colors.text }}> give it grace.</Text>
+        </Text>
+      </View>
+    );
+  }
 
   if (stepIndex === 1) {
     return (
-      <View style={[{ marginTop: 24 }, style]}>
-        <Text style={[Typography.heading, styles.heading, textStyle]}>
-          <Text style={{ color: colors.text }}>For those Busy doing </Text>
-          <Text style={{ color: colors.textAccent }}>LIFE!</Text>
-          {'\n'}
-          <Text style={{ color: colors.text }}>Tell us what you need to say. </Text>
-          {/* {'\n'} */}
+      <View style={styles.headingWrap}>
+        <Text style={[Typography.heading, styles.heading, { color: colors.text }]}>
+          Tell us what you need to say.{' '}
           <Text style={{ color: colors.textAccent }}>We&apos;ll handle the rest.</Text>
         </Text>
       </View>
@@ -82,7 +82,12 @@ function OnboardingHeading({
   }
 
   return (
-    <LineAccentHeading lines={lines} style={style} textStyle={textStyle} />
+    <View style={styles.headingWrap}>
+      <Text style={[Typography.heading, styles.heading, { color: colors.text }]}>
+        You&apos;re not just capturing thoughts,{' '}
+        <Text style={{ color: colors.textAccent }}>you&apos;re helping build your best self.</Text>
+      </Text>
+    </View>
   );
 }
 
@@ -167,6 +172,7 @@ export default function OnboardingScreen() {
     >
       <ScrollView
         ref={scrollRef}
+        style={styles.scrollView}
         horizontal
         pagingEnabled
         showsHorizontalScrollIndicator={false}
@@ -177,16 +183,20 @@ export default function OnboardingScreen() {
         bounces={false}
       >
         {STEPS.map((item, stepIndex) => (
-          <View key={item.heading} style={[styles.slide, { width }]}>
-            <OnboardingHeading
-              stepIndex={stepIndex}
-              heading={item.heading}
-              style={styles.headingWrap}
-              textStyle={styles.heading}
-            />
+          <View key={stepIndex} style={[styles.slide, { width }]}>
+            <OnboardingHeading stepIndex={stepIndex} />
 
             {item.features ? (
-              <OnboardingHeroSlot>
+              <View style={styles.featuresSlide}>
+                {item.mascotVariant ? (
+                  <View style={styles.mascotSlot}>
+                    <BobbleMascot
+                      variant={item.mascotVariant}
+                      size={FEATURES_SLIDE_MASCOT_WIDTH}
+                      playAnimation={shouldPlayMascotAnimation(step, stepIndex)}
+                    />
+                  </View>
+                ) : null}
                 <View style={styles.featureList}>
                   {item.features.map((feature) => (
                     <View key={feature} style={styles.featureRow}>
@@ -197,7 +207,7 @@ export default function OnboardingScreen() {
                     </View>
                   ))}
                 </View>
-              </OnboardingHeroSlot>
+              </View>
             ) : item.mascotVariant ? (
               <OnboardingHeroSlot>
                 <BobbleMascot
@@ -215,35 +225,56 @@ export default function OnboardingScreen() {
 }
 
 const styles = StyleSheet.create({
+  scrollView: {
+    flex: 1,
+  },
   slide: {
     flex: 1,
   },
   headingWrap: {
     width: '90%',
     alignSelf: 'center',
-    zIndex: 100
+    marginTop: 8,
+    zIndex: 100,
   },
   heading: {
-    marginTop: 0,
     textAlign: 'left',
   },
-  featureList: {
-    gap: 38,
+  headingSubtitle: {
+    marginTop: 16,
+  },
+  featuresSlide: {
+    flex: 1,
     width: '90%',
     alignSelf: 'center',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    paddingTop: 8,
+    gap: 16,
+  },
+  mascotSlot: {
+    width: '100%',
+    maxHeight: FEATURES_MASCOT_MAX_HEIGHT,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 1,
+  },
+  featureList: {
+    flexShrink: 0,
+    gap: 24,
+    width: '100%',
   },
   featureRow: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     gap: 14,
-    width: '90%',
-    alignSelf: 'center',
+    width: '100%',
   },
   featureText: {
     ...Typography.heading,
-    fontSize: 22,
+    fontSize: 20,
     flex: 1,
-    lineHeight: 30,
+    lineHeight: 28,
   },
   featureIcon: {
     borderRadius: 120,

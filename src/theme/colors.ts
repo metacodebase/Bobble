@@ -4,10 +4,10 @@
  */
 export const BobbleColors = {
   /** Vibrant violet — buttons, mascot, accent text */
-  primary: '#7C5CFF',
-  primaryDark: '#6B4FE0',
-  primaryLight: '#9B85FF',
-  primaryMuted: '#B8A8FF',
+  primary: '#9F52F2',
+  primaryDark: '#8642D6',
+  primaryLight: '#B574F5',
+  primaryMuted: '#C99AF8',
 
   /** Surfaces */
   background: '#FFFFFF',
@@ -16,7 +16,7 @@ export const BobbleColors = {
   /** Text */
   text: '#000000',
   textSecondary: '#6B7280',
-  textAccent: '#7C5CFF',
+  textAccent: '#9F52F2',
   textOnPrimary: '#FFFFFF',
 
   /** Semantic */
@@ -30,12 +30,12 @@ export const BobbleColors = {
   divider: '#E5E7EB',
 
   /** Pagination */
-  dotActive: '#7C5CFF',
+  dotActive: '#9F52F2',
   dotInactive: '#D1D5DB',
 
   /** Mascot placeholder */
-  mascotPlaceholder: '#7C5CFF',
-  mascotPlaceholderLight: '#C4B5FD',
+  mascotPlaceholder: '#9F52F2',
+  mascotPlaceholderLight: '#D4B0FA',
 } as const;
 
 export type BobbleColor = (typeof BobbleColors)[keyof typeof BobbleColors];

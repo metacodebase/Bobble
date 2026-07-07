@@ -35,7 +35,7 @@ export default function AuthSplashScreen() {
           </View>
           <BobbleMascot variant="main" size={1000 * 0.4} />
           <View style={styles.tagline}>
-            <Text style={[styles.taglineLine, { color: colors.text }]}>Dream, believe.</Text>
+            <Text style={[styles.taglineLine, { color: colors.text }]}>Dream. Believe.</Text>
             <Text style={[styles.taglineLine, { color: colors.textAccent }]}>Bobble.</Text>
             <Text style={[styles.taglineLine, { color: colors.text }]}>Achieve.</Text>
           </View>
@@ -57,8 +57,9 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    gap: 4,
+    gap: 12,
     width: '100%',
+    marginBottom: 8,
   },
   title: {
     ...Typography.splashTitle,

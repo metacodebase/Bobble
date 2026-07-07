@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { ChevronRight } from 'lucide-react-native';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import {
@@ -59,6 +60,12 @@ export function SocialButton({ provider, label, onPress }: SocialButtonProps) {
         )}
       </View>
       <Text style={[styles.label, { color: colors.text }]}>{label}</Text>
+      <ChevronRight
+        size={20}
+        color={colors.textSecondary}
+        strokeWidth={2.5}
+        style={styles.chevron}
+      />
     </Pressable>
   );
 }
@@ -83,5 +90,9 @@ const styles = StyleSheet.create({
   },
   label: {
     ...Typography.socialButton,
+  },
+  chevron: {
+    position: 'absolute',
+    right: 24,
   },
 });

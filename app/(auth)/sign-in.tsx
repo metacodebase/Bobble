@@ -36,19 +36,19 @@ function AuthHeading({ mode }: { mode: AuthMode }) {
 
   if (mode === 'sign-in') {
     return (
-      <Text style={[styles.heading, { color: colors.text }]}>
-        Welcome back.{'\n'}
-        <Text style={[Typography.accentSubtitle, { color: colors.textAccent }]}>
-         Start unwinding
+      <View style={styles.headingGroup}>
+        <Text style={[styles.heading, { color: colors.text }]}>Welcome back.</Text>
+        <Text style={[styles.headingAccent, { color: colors.textAccent }]}>
+          Let&apos;s start unwinding together.
         </Text>
-        {'\n'}
-        together.
-      </Text>
+      </View>
     );
   }
 
   return (
-    <Text style={[styles.heading, { color: colors.text }]}>Create your account</Text>
+    <View style={styles.headingGroup}>
+      <Text style={[styles.heading, { color: colors.text }]}>Create your account</Text>
+    </View>
   );
 }
 
@@ -91,7 +91,7 @@ export default function AuthScreen() {
   };
 
   return (
-    <OnboardingScreenLayout contentStyle={styles.content}>
+    <OnboardingScreenLayout contentStyle={styles.content} backgroundImage={require('@/src/assets/images/background/five.png')}>
       <View style={styles.header}>
         <AuthHeading mode={mode} />
       </View>
@@ -130,10 +130,17 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   header: {
-    marginTop: 24,
+    marginTop: 56,
     width: '100%',
   },
+  headingGroup: {
+    gap: 16,
+  },
   heading: {
+    ...Typography.heading,
+    textAlign: 'left',
+  },
+  headingAccent: {
     ...Typography.heading,
     textAlign: 'left',
   },

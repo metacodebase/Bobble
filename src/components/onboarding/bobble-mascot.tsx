@@ -7,7 +7,7 @@ import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { useColorScheme } from '@/src/hooks/use-color-scheme';
 import { useHomeHeartIntro } from '@/src/hooks/use-home-heart-intro';
 
-export type MascotVariant = 'splash' | 'main' | 'voice' | 'greet' | 'home';
+export type MascotVariant = 'splash' | 'main' | 'voice' | 'features' | 'greet' | 'home';
 
 const MASCOT_SOURCES: Record<MascotVariant, { light: ImageSource; dark: ImageSource }> = {
   splash: {
@@ -21,6 +21,10 @@ const MASCOT_SOURCES: Record<MascotVariant, { light: ImageSource; dark: ImageSou
   voice: {
     light: require('@/src/assets/images/mascot/bobble-voice.png'),
     dark: require('@/src/assets/images/mascot/bobble-voice.png'),
+  },
+  features: {
+    light: require('@/src/assets/images/mascot/bobble-features.png'),
+    dark: require('@/src/assets/images/mascot/bobble-features.png'),
   },
   greet: {
     light: require('@/src/assets/images/mascot/bobble-greet.png'),
@@ -52,7 +56,12 @@ type BobbleMascotProps = {
 
 const HOME_ASPECT_RATIO = 492 / 738;
 const VOICE_ASPECT_RATIO = 860 / 730;
+const FEATURES_ASPECT_RATIO = 743 / 1024;
 const GREET_ASPECT_RATIO = 860 / 696;
+
+export function getFeaturesMascotWidth(maxHeight: number) {
+  return maxHeight / FEATURES_ASPECT_RATIO;
+}
 
 function getMascotDimensions(variant: MascotVariant, size: number) {
   if (variant === 'home') {
@@ -61,6 +70,10 @@ function getMascotDimensions(variant: MascotVariant, size: number) {
 
   if (variant === 'voice') {
     return { width: size, height: size * VOICE_ASPECT_RATIO };
+  }
+
+  if (variant === 'features') {
+    return { width: size, height: size * FEATURES_ASPECT_RATIO };
   }
 
   if (variant === 'greet') {
@@ -173,12 +186,21 @@ export function BobbleMascot({
   const scheme = useColorScheme();
   const colors = useBobbleColors();
   const isHome = variant === 'home';
-  const usesOwnBackground = isHome || variant === 'main' || variant === 'splash';
+  const usesOwnBackground =
+    isHome ||
+    variant === 'main' ||
+    variant === 'splash' ||
+    variant === 'features' ||
+    variant === 'voice' ||
+    variant === 'greet';
   const { width, height } = getMascotDimensions(variant, size);
   const borderRadius =
-    typeof style?.borderRadius === 'number' ? style.borderRadius : isHome ? 0 : 100;
-  const backgroundColor =
-    backgroundColorProp ?? (usesOwnBackground ?? 'transparent');
+    typeof style?.borderRadius === 'number'
+      ? style.borderRadius
+      : isHome || variant === 'features' || variant === 'voice' || variant === 'greet'
+        ? 0
+        : 100;
+  const backgroundColor = backgroundColorProp ?? (usesOwnBackground ? 'transparent' : colors.background);
 
   if (isHome) {
     return (
@@ -219,7 +241,7 @@ export function BobbleMascot({
         },
         style,
       ]}
-      contentFit="contain"
+      contentFit={variant === 'features' ? 'contain' : 'cover'}
     />
   );
 }

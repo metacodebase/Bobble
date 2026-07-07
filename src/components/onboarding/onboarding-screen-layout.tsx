@@ -4,7 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 
-export const ONBOARDING_MASCOT_SIZE = 1000 * 0.4;
+export const ONBOARDING_MASCOT_SIZE = 1000 * 0.32;
 
 type OnboardingScreenLayoutProps = {
   children: ReactNode;
@@ -35,9 +35,15 @@ export function OnboardingScreenLayout({
   const colors = useBobbleColors();
 
   return (
-    <ImageBackground source={backgroundImage} style={{
-      flex: 1, paddingVertical: 40, width: "100%"
-    }}>
+    <ImageBackground
+      source={backgroundImage}
+      style={{
+        flex: 1,
+        paddingTop: insets.top + 24,
+        paddingBottom: 40,
+        width: '100%',
+      }}
+    >
       <View
         style={[
           {
@@ -57,7 +63,7 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     width: '100%',
   },
   footer: {
@@ -68,7 +74,8 @@ const styles = StyleSheet.create({
   heroSlot: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
+    paddingTop: 24,
     minHeight: ONBOARDING_MASCOT_SIZE,
   },
 });
