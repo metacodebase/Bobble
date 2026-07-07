@@ -70,6 +70,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 16,
     marginBottom: 14,
+    width: '100%',
   },
   left: {
     flexDirection: 'row',

@@ -131,11 +131,14 @@ const styles = StyleSheet.create({
   },
   header: {
     marginTop: 24,
+    width: '100%',
   },
   heading: {
     ...Typography.heading,
+    textAlign: 'left',
   },
   buttons: {
+    width: '100%',
     gap: 14,
   },
   dividerText: {

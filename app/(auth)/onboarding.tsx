@@ -30,27 +30,27 @@ const STEPS: {
   features?: readonly string[];
   mascotVariant?: MascotVariant;
 }[] = [
-  {
-    heading: "Your Thoughts.\nYour space.\nSpeak your mind\nLet Bobble give it Grace",
-    mascotVariant: 'voice',
-    buttonLabel: 'Next',
-  },
-  {
-    heading: "For those Busy doing LIFE!\nTell us what you need to say.\nWe'll handle the rest.",
-    features: [
-      'Voice notes & transcription for smooth & fast brain dumps.',
-      'AI organises your ideas & thoughts to help clear the mind',
-      'Tasks, reminders & more to help you focus on the moments, & come back to notes later.',
-    ],
-    buttonLabel: 'Next',
-  },
-  {
-    heading:
-      "You're not just\ncapturing thoughts,\nyou're building\nyour best self.\nbecome efficient.",
-    mascotVariant: 'greet',
-    buttonLabel: "Let's Go",
-  },
-];
+    {
+      heading: "Your Thoughts.\nYour space.\nSpeak your mind\nLet Bobble give it Grace",
+      mascotVariant: 'voice',
+      buttonLabel: 'Next',
+    },
+    {
+      heading: "For those Busy doing LIFE!\nTell us what you need to say.\nWe'll handle the rest.",
+      features: [
+        'Voice notes & transcription for smooth & fast brain dumps.',
+        'AI organises your ideas & thoughts to help clear the mind',
+        'Tasks, reminders & more to help you focus on the moments, & come back to notes later.',
+      ],
+      buttonLabel: 'Next',
+    },
+    {
+      heading:
+        "You're not just\ncapturing thoughts,\nyou're building\nyour best self.\nbecome efficient.",
+      mascotVariant: 'greet',
+      buttonLabel: "Let's Go",
+    },
+  ];
 
 function OnboardingHeading({
   stepIndex,
@@ -69,7 +69,7 @@ function OnboardingHeading({
   if (stepIndex === 1) {
     return (
       <View style={[{ marginTop: 24 }, style]}>
-        <Text style={[Typography.heading, textStyle]}>
+        <Text style={[Typography.heading, styles.heading, textStyle]}>
           <Text style={{ color: colors.text }}>For those Busy doing </Text>
           <Text style={{ color: colors.textAccent }}>LIFE!</Text>
           {'\n'}
@@ -155,6 +155,9 @@ export default function OnboardingScreen() {
 
   return (
     <OnboardingScreenLayout
+      backgroundImage={step === 0 ? require('@/src/assets/images/background/two.png')
+        : step === 1 ? require('@/src/assets/images/background/three.png')
+          : require('@/src/assets/images/background/four.png')}
       footer={
         <>
           <PrimaryButton label={current.buttonLabel} onPress={handleNext} />
@@ -218,10 +221,11 @@ const styles = StyleSheet.create({
   headingWrap: {
     width: '90%',
     alignSelf: 'center',
-    zIndex:100
+    zIndex: 100
   },
   heading: {
     marginTop: 0,
+    textAlign: 'left',
   },
   featureList: {
     gap: 38,

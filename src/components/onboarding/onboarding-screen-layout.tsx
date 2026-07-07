@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { StyleSheet, View, ViewStyle } from 'react-native';
+import { ImageBackground, ImageSourcePropType, StyleSheet, View, ViewStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
@@ -11,6 +11,7 @@ type OnboardingScreenLayoutProps = {
   footer?: ReactNode;
   contentStyle?: ViewStyle;
   backgroundColor?: string;
+  backgroundImage?: ImageSourcePropType;
 };
 
 type OnboardingHeroSlotProps = {
@@ -28,37 +29,41 @@ export function OnboardingScreenLayout({
   footer,
   contentStyle,
   backgroundColor,
+  backgroundImage,
 }: OnboardingScreenLayoutProps) {
   const insets = useSafeAreaInsets();
   const colors = useBobbleColors();
 
   return (
-    <View
-      style={[
-        styles.root,
-        {
-          backgroundColor: backgroundColor ?? colors.background,
-          paddingTop: insets.top + 16,
-          paddingBottom: insets.bottom + 24,
-        },
-      ]}
-    >
-      <View style={[styles.content, contentStyle]}>{children}</View>
-      {footer ? <View style={styles.footer}>{footer}</View> : null}
-    </View>
+    <ImageBackground source={backgroundImage} style={{
+      flex: 1, paddingVertical: 40, width: "100%"
+    }}>
+      <View
+        style={[
+          {
+            flex: 1,
+            width: '100%',
+          },
+        ]}
+      >
+        <View style={[styles.content, contentStyle]}>{children}</View>
+        {footer ? <View style={styles.footer}>{footer}</View> : null}
+      </View>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-  },
   content: {
     flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
   },
   footer: {
     gap: 20,
-    paddingTop: 16,
+    width: '90%',
+    alignSelf: 'center',
   },
   heroSlot: {
     flex: 1,

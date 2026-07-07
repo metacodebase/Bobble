@@ -18,6 +18,7 @@ export default function AuthSplashScreen() {
 
   return (
     <OnboardingScreenLayout
+      backgroundImage={require('@/src/assets/images/background/one.png')}
       contentStyle={styles.content}
       footer={
         <PrimaryButton
@@ -26,18 +27,19 @@ export default function AuthSplashScreen() {
         />
       }
     >
-      <View style={styles.splashBody} onLayout={revealAppSplash}>
-        <View style={styles.header}>
-          <Text style={[styles.title, { color: colors.text }]}>Bobble</Text>
-          <Text style={[styles.subtitle, { color: colors.text }]}>Unwind your messy mind</Text>
+   
+        <View style={styles.splashBody} onLayout={revealAppSplash}>
+          <View style={styles.header}>
+            <Text style={[styles.title, { color: colors.text }]}>Bobble</Text>
+            <Text style={[styles.subtitle, { color: colors.text }]}>Unwind your messy mind</Text>
+          </View>
+          <BobbleMascot variant="main" size={1000 * 0.4} />
+          <View style={styles.tagline}>
+            <Text style={[styles.taglineLine, { color: colors.text }]}>Dream, believe.</Text>
+            <Text style={[styles.taglineLine, { color: colors.textAccent }]}>Bobble.</Text>
+            <Text style={[styles.taglineLine, { color: colors.text }]}>Achieve.</Text>
+          </View>
         </View>
-        <BobbleMascot variant="main" size={1000 * 0.4} />
-        <View style={styles.tagline}>
-          <Text style={[styles.taglineLine, { color: colors.text }]}>Dream, believe.</Text>
-          <Text style={[styles.taglineLine, { color: colors.textAccent }]}>Bobble.</Text>
-          <Text style={[styles.taglineLine, { color: colors.text }]}>ACHIEVE.</Text>
-        </View>
-      </View>
     </OnboardingScreenLayout>
   );
 }

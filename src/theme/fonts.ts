@@ -28,7 +28,7 @@ export const Typography = {
     fontFamily: FontFamily.dynaPuff,
   },
 
-  /** Splash tagline — "Dream, believe." / "Bobble." / "ACHIEVE." */
+  /** Splash tagline — "Dream, believe." / "Bobble." / "Achieve." */
   splashTagline: {
     fontFamily: FontFamily.semiBold,
     fontSize: 16,

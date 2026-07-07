@@ -99,8 +99,10 @@ export function WordAccentHeading({
 const styles = StyleSheet.create({
   container: {
     marginTop: 24,
+    width: '100%',
   },
   heading: {
     ...Typography.heading,
+    textAlign: 'left',
   },
 });

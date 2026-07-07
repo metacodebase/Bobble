@@ -55,6 +55,7 @@ const styles = StyleSheet.create({
     borderRadius: 32,
     paddingHorizontal: 20,
     paddingVertical: 16,
+    width: '100%',
   },
   cardPressed: {
     opacity: 0.9,

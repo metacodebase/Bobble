@@ -33,8 +33,8 @@ const MASCOT_SOURCES: Record<MascotVariant, { light: ImageSource; dark: ImageSou
 };
 
 const ANIMATED_MASCOT_SOURCES: Partial<Record<MascotVariant, ImageSource>> = {
-  voice: require('@/src/assets/images/mascot/bobble-voice-animated.webp'),
-  greet: require('@/src/assets/images/mascot/bobble-greet-animated.webp'),
+  voice: require('@/src/assets/images/mascot/bobble-voice.png'),
+  greet: require('@/src/assets/images/mascot/bobble-greet.png'),
 };
 
 const HOME_ANIMATED_SOURCE = require('@/src/assets/images/bobble-home-tab-animated.webp');
@@ -178,7 +178,7 @@ export function BobbleMascot({
   const borderRadius =
     typeof style?.borderRadius === 'number' ? style.borderRadius : isHome ? 0 : 100;
   const backgroundColor =
-    backgroundColorProp ?? (usesOwnBackground ? 'transparent' : colors.background);
+    backgroundColorProp ?? (usesOwnBackground ?? 'transparent');
 
   if (isHome) {
     return (

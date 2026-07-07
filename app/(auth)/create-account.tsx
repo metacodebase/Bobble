@@ -388,6 +388,7 @@ export default function CreateAccountScreen() {
 
   return (
     <OnboardingScreenLayout
+      contentStyle={styles.content}
       footer={
         isLast ? (
           <View style={styles.footerGroup}>
@@ -461,29 +462,38 @@ export default function CreateAccountScreen() {
 }
 
 const styles = StyleSheet.create({
+  content: {
+    width: '90%',
+    alignSelf: 'center',
+  },
   flex: {
     flex: 1,
+    width: '100%',
   },
   scrollContent: {
     flexGrow: 1,
     paddingBottom: 16,
-    width: '90%',
-    alignSelf: 'center',
+    width: '100%',
   },
   formGroup: {
     marginTop: 32,
     gap: 20,
+    width: '100%',
   },
   goalList: {
     marginTop: 28,
     gap: 14,
+    width: '100%',
   },
   calendarList: {
     marginTop: 28,
+    width: '100%',
   },
   footerGroup: {
     gap: 8,
     alignItems: 'center',
+    width: '90%',
+    alignSelf: 'center',
   },
   countryFlag: {
     fontSize: 24,

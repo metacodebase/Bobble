@@ -23,6 +23,7 @@ export function FormField({ label, children }: FormFieldProps) {
 const styles = StyleSheet.create({
   container: {
     gap: 8,
+    width: '100%',
   },
   label: {
     ...Typography.formLabel,
