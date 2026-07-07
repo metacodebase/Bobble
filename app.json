@@ -24,8 +24,9 @@
       "icon": "./src/assets/images/bobble-app-icon.png",
       "versionCode": 4,
       "adaptiveIcon": {
-        "foregroundImage": "./src/assets/images/bobble-app-icon.png",
-        "backgroundColor": "#A587F9"
+        "foregroundImage": "./src/assets/images/android-icon-foreground.png",
+        "monochromeImage": "./src/assets/images/android-icon-monochrome.png",
+        "backgroundColor": "#A485FA"
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
@@ -41,8 +42,8 @@
       "favicon": "./src/assets/images/bobble-main.png"
     },
     "plugins": [
-      "expo-router",
       "./plugins/with-bobble-native-splash.js",
+      "expo-router",
       [
         "expo-splash-screen",
         {
@@ -56,9 +57,8 @@
             "enableFullScreenImage_legacy": true
           },
           "android": {
-            "image": "./src/assets/images/bobble-main.png",
-            "imageWidth": 400,
-            "resizeMode": "contain",
+            "image": "./src/assets/images/splash-native.png",
+            "resizeMode": "cover",
             "backgroundColor": "#FBFAFB"
           }
         }

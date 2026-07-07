@@ -6,14 +6,15 @@ from __future__ import annotations
 from collections import deque
 from pathlib import Path
 
-from PIL import Image, ImageChops, ImageOps
+from PIL import Image, ImageChops, ImageFilter, ImageOps
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "src/assets/images/bobble-main.png"
 OUTPUT_DIR = ROOT / "src/assets/images"
 
 ICON_SIZE = 1024
-FOREGROUND_SCALE = 0.78
+FOREGROUND_SCALE = 0.72
+ADAPTIVE_FOREGROUND_SCALE = 0.66
 ICON_SCALE = 0.82
 APP_ICON_SCALE = 0.85
 FAVICON_SIZE = 48
@@ -122,13 +123,27 @@ def save_png(image: Image.Image, path: Path) -> None:
         image.save(path, format="PNG", optimize=True)
 
 
+def fit_adaptive_foreground(app_icon: Image.Image, size: int, scale: float) -> Image.Image:
+    """Scale the full iOS-style icon into the Android adaptive safe zone."""
+    target = int(size * scale)
+    scaled = app_icon.resize((target, target), resample=Image.Resampling.LANCZOS)
+    background = ImageOps.fit(app_icon, (size, size), method=Image.Resampling.LANCZOS).filter(
+        ImageFilter.GaussianBlur(radius=10)
+    )
+    canvas = background.convert("RGBA")
+    offset = ((size - target) // 2, (size - target) // 2)
+    canvas.alpha_composite(scaled, offset)
+    return canvas
+
+
 def main() -> None:
     source = Image.open(SOURCE)
     cutout = prepare_mascot_cutout(source)
+    app_icon = Image.open(OUTPUT_DIR / "bobble-app-icon.png").convert("RGBA")
 
     save_png(to_opaque_icon(cutout, ICON_SIZE, ICON_SCALE, DARK_BG), OUTPUT_DIR / "icon.png")
     save_png(
-        fit_on_square(cutout, ICON_SIZE, FOREGROUND_SCALE),
+        fit_adaptive_foreground(app_icon, ICON_SIZE, ADAPTIVE_FOREGROUND_SCALE),
         OUTPUT_DIR / "android-icon-foreground.png",
     )
     save_png(
@@ -140,10 +155,11 @@ def main() -> None:
         OUTPUT_DIR / "favicon.png",
     )
     save_png(fit_bobble_main_for_splash(source, SPLASH_SIZE, 0.85), OUTPUT_DIR / "splash-icon.png")
-    save_png(
-        fit_bobble_main_for_app_icon(source, ICON_SIZE, APP_ICON_SCALE),
-        OUTPUT_DIR / "bobble-app-icon.png",
-    )
+    if not (OUTPUT_DIR / "bobble-app-icon.png").exists():
+        save_png(
+            fit_bobble_main_for_app_icon(source, ICON_SIZE, APP_ICON_SCALE),
+            OUTPUT_DIR / "bobble-app-icon.png",
+        )
 
     print("Generated app icons from bobble-main.png")
 
