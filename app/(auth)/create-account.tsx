@@ -476,7 +476,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   formGroup: {
-    marginTop: 32,
+    marginTop: 12,
     gap: 20,
     width: '100%',
   },

@@ -1,11 +1,9 @@
-import { useIsFocused } from '@react-navigation/native';
 import { Image, ImageSource, ImageStyle } from 'expo-image';
 import { useEffect, useRef, useState } from 'react';
 import { StyleSheet } from 'react-native';
 
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { useColorScheme } from '@/src/hooks/use-color-scheme';
-import { useHomeHeartIntro } from '@/src/hooks/use-home-heart-intro';
 
 export type MascotVariant = 'splash' | 'main' | 'voice' | 'features' | 'greet' | 'home';
 
@@ -151,9 +149,7 @@ function HomeMascotImage({
   borderRadius: number;
   backgroundColor: string;
   style?: ImageStyle;
-}) {
-  const isFocused = useIsFocused();
-  const { playIntro, replayKey } = useHomeHeartIntro(isFocused);
+  }) {
   const imageStyle = [
     styles.image,
     {
@@ -167,11 +163,9 @@ function HomeMascotImage({
 
   return (
     <Image
-      key={playIntro ? `home-heart-${replayKey}` : 'home-heart-static'}
-      source={playIntro ? HOME_ANIMATED_SOURCE : MASCOT_SOURCES.home.light}
+      source={ MASCOT_SOURCES.home.light}
       style={imageStyle}
       contentFit="contain"
-      {...(playIntro ? { useAppleWebpCodec: false } : {})}
     />
   );
 }
