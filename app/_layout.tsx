@@ -21,11 +21,11 @@ import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { useColorScheme } from '@/src/hooks/use-color-scheme';
 import { queryClient } from '@/src/services/query-client';
 import { useAppStore } from '@/src/store/app-store';
-import { BobbleColors, Colors } from '@/src/theme';
+import { BobbleColors } from '@/src/theme';
 
 SplashScreen.preventAutoHideAsync();
 
-void SystemUI.setBackgroundColorAsync(Colors.light.background);
+void SystemUI.setBackgroundColorAsync('#FBFAFB');
 
 export const unstable_settings = {
   initialRouteName: 'index',

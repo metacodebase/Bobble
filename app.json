@@ -42,16 +42,24 @@
     },
     "plugins": [
       "expo-router",
+      "./plugins/with-bobble-native-splash.js",
       [
         "expo-splash-screen",
         {
-          "image": "./src/assets/images/splash-icon.png",
-          "imageWidth": 200,
-          "resizeMode": "contain",
-          "backgroundColor": "#0A0F1A",
-          "dark": {
-            "image": "./src/assets/images/splash-icon.png",
-            "backgroundColor": "#0A0F1A"
+          "image": "./src/assets/images/splash-native.png",
+          "resizeMode": "cover",
+          "backgroundColor": "#FBFAFB",
+          "ios": {
+            "image": "./src/assets/images/splash-native.png",
+            "resizeMode": "cover",
+            "backgroundColor": "#FBFAFB",
+            "enableFullScreenImage_legacy": true
+          },
+          "android": {
+            "image": "./src/assets/images/bobble-main.png",
+            "imageWidth": 400,
+            "resizeMode": "contain",
+            "backgroundColor": "#FBFAFB"
           }
         }
       ],
