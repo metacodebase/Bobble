@@ -1,5 +1,4 @@
 import { Href, router } from 'expo-router';
-import { Settings } from 'lucide-react-native';
 import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -58,7 +57,7 @@ export default function RecordScreen() {
         {
           paddingTop: insets.top + 8,
           paddingBottom: insets.bottom + 24,
-          backgroundColor: colors.background,
+          backgroundColor: '#F5F2FB',
         },
       ]}
     >
@@ -66,14 +65,14 @@ export default function RecordScreen() {
         title="New Bobble"
         centered
         onBack={() => router.back()}
-        rightIcon={Settings}
+        titleColor="#17164B"
       />
 
       <View style={styles.statusBlock}>
-        <Text style={[styles.status, { color: colors.textSecondary }]}>
+        <Text style={[styles.status, { color: colors.primary }]}>
           {paused ? 'Paused' : 'Listening...'}
         </Text>
-        <Text style={[styles.timer, { color: colors.text }]}>{formatElapsed(elapsed)}</Text>
+        <Text style={[styles.timer, { color: '#17164B' }]}>{formatElapsed(elapsed)}</Text>
       </View>
 
       <View style={styles.visualBlock}>
@@ -93,26 +92,29 @@ export default function RecordScreen() {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    paddingHorizontal: 24,
+    paddingHorizontal: 32,
   },
   statusBlock: {
     alignItems: 'center',
-    marginTop: 12,
-    marginBottom: 8,
-    gap: 8,
+    marginTop: 20,
+    marginBottom: 10,
+    gap: 10,
   },
   status: {
     ...Typography.caption,
+    fontSize: 25,
+    lineHeight: 40,
   },
   timer: {
     fontFamily: Typography.heading.fontFamily,
-    fontSize: 48,
-    lineHeight: 56,
+    fontSize: 50,
+    lineHeight: 68,
     fontVariant: ['tabular-nums'],
   },
   visualBlock: {
     flex: 1,
-    justifyContent: 'center',
-    gap: 24,
+    justifyContent: 'space-evenly',
+    paddingTop: 6,
+    paddingBottom: 22,
   },
 });

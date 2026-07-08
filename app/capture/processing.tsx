@@ -146,8 +146,8 @@ const styles = StyleSheet.create({
   },
   title: {
     ...Typography.heading,
-    fontSize: 24,
-    lineHeight: 32,
+    fontSize: 26,
+    lineHeight: 34,
     textAlign: 'center',
     marginTop: 8,
     marginBottom: 24,
@@ -178,6 +178,8 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
   },
   playbackWrap: {
+    width: '95%',
+    alignSelf: 'center',
     marginBottom: 20,
   },
   previewSection: {
@@ -189,6 +191,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   previewCard: {
+    width: '95%',
+    alignSelf: 'center',
     borderRadius: 20,
     padding: 20,
     gap: 14,
@@ -227,10 +231,12 @@ const styles = StyleSheet.create({
     paddingTop: 12,
   },
   primaryAction: {
-    width: '100%',
+    width: '95%',
+    alignSelf: 'center',
   },
   secondaryAction: {
-    width: '100%',
+    width: '95%',
+    alignSelf: 'center',
   },
   footer: {
     ...Typography.body,

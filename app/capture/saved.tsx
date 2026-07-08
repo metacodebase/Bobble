@@ -36,12 +36,12 @@ export default function SavedScreen() {
       <View style={styles.actions}>
         <PrimaryButton
           label="View Bobble"
-          style={{ width: "100%" }}
-
+          style={styles.primaryAction}
           onPress={() => router.replace({ pathname: '/bobble/[id]', params: { id: '1' } } as Href)}
         />
         <SecondaryButton
           label="Back to Home"
+          style={styles.secondaryAction}
           onPress={() => router.replace('/(tabs)' as Href)}
         />
       </View>
@@ -65,13 +65,22 @@ const styles = StyleSheet.create({
     ...Typography.heading,
     textAlign: 'center',
     marginTop: 8,
+    width: '95%',
   },
   subtitle: {
     ...Typography.body,
     textAlign: 'center',
-    maxWidth: 280,
+    width: '95%',
   },
   actions: {
     gap: 12,
+  },
+  primaryAction: {
+    width: '95%',
+    alignSelf: 'center',
+  },
+  secondaryAction: {
+    width: '95%',
+    alignSelf: 'center',
   },
 });

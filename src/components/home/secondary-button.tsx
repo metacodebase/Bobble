@@ -44,7 +44,8 @@ const styles = StyleSheet.create({
     gap: 10,
     borderRadius: 32,
     borderWidth: 1.5,
-    paddingVertical: 18,
+    paddingVertical: 14,
+    minHeight: 52,
     width: '100%',
   },
   icon: {
@@ -52,5 +53,7 @@ const styles = StyleSheet.create({
   },
   label: {
     ...Typography.button,
+    fontSize: 18,
+    lineHeight: 21,
   },
 });

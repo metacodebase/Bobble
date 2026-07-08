@@ -200,6 +200,8 @@ export function SummaryContent({
 
 const styles = StyleSheet.create({
   section: {
+    width: '95%',
+    alignSelf: 'center',
     gap: 16,
   },
   intro: {
@@ -232,6 +234,7 @@ const styles = StyleSheet.create({
     marginTop: -8,
   },
   suggestionCard: {
+    width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -296,6 +299,8 @@ const styles = StyleSheet.create({
     ...Typography.body,
   },
   mindMapSection: {
+    width: '95%',
+    alignSelf: 'center',
     gap: 16,
   },
   mindMapTitle: {
@@ -333,6 +338,8 @@ const styles = StyleSheet.create({
 
 const mindScoreStyles = StyleSheet.create({
   card: {
+    width: '95%',
+    alignSelf: 'center',
     borderRadius: 20,
     padding: 20,
     gap: 10,

@@ -142,9 +142,13 @@ const styles = StyleSheet.create({
   header: {
     gap: 12,
     marginBottom: 8,
+    width: '95%',
+    alignSelf: 'center',
   },
   scroll: {
     paddingTop: 4,
+    width: '95%',
+    alignSelf: 'center',
   },
   state: {
     marginTop: 48,
@@ -152,5 +156,7 @@ const styles = StyleSheet.create({
   stateText: {
     textAlign: 'center',
     marginTop: 48,
+    width: '95%',
+    alignSelf: 'center',
   },
 });

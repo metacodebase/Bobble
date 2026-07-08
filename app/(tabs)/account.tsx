@@ -45,14 +45,19 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: '700',
+    width: '95%',
+    alignSelf: 'center',
   },
   subtitle: {
     fontSize: 16,
     lineHeight: 24,
+    width: '95%',
+    alignSelf: 'center',
   },
   button: {
     marginTop: 8,
-    alignSelf: 'flex-start',
+    width: '95%',
+    alignSelf: 'center',
     borderWidth: 1,
     borderRadius: 12,
     paddingHorizontal: 20,
@@ -61,5 +66,6 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: 15,
     fontWeight: '600',
+    textAlign: 'center',
   },
 });

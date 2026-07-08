@@ -5,15 +5,10 @@ import Animated, {
   Easing,
   useAnimatedStyle,
   useSharedValue,
-  withRepeat,
-  withSequence,
   withTiming,
 } from 'react-native-reanimated';
-import Svg, { Circle, Defs, RadialGradient, Stop } from 'react-native-svg';
 
 import { BobbleColors } from '@/src/theme/colors';
-
-const GLOW_SIZE = 240;
 
 function meteringToLevel(metering: number): number {
   const minDb = -50;
@@ -29,24 +24,6 @@ type RecordingVisualizerProps = {
 
 export function RecordingVisualizer({ active = true, metering }: RecordingVisualizerProps) {
   const level = useSharedValue(0);
-  const breathe = useSharedValue(0);
-  const ripple = useSharedValue(0);
-
-  useEffect(() => {
-    breathe.value = withRepeat(
-      withSequence(
-        withTiming(1, { duration: 1800, easing: Easing.inOut(Easing.sin) }),
-        withTiming(0, { duration: 1800, easing: Easing.inOut(Easing.sin) }),
-      ),
-      -1,
-      false,
-    );
-    ripple.value = withRepeat(
-      withTiming(1, { duration: 2400, easing: Easing.out(Easing.quad) }),
-      -1,
-      false,
-    );
-  }, [breathe, ripple]);
 
   useEffect(() => {
     if (!active) {
@@ -60,98 +37,18 @@ export function RecordingVisualizer({ active = true, metering }: RecordingVisual
     level.value = withTiming(target, { duration: 90, easing: Easing.out(Easing.quad) });
   }, [active, metering, level]);
 
-  const outerGlowStyle = useAnimatedStyle(() => {
-    const audioScale = 1 + level.value * 0.22 + breathe.value * 0.04;
-    const opacity = active ? 0.55 + level.value * 0.35 + breathe.value * 0.08 : 0.35;
-    return {
-      transform: [{ scale: audioScale }],
-      opacity,
-    };
-  });
-
-  const midGlowStyle = useAnimatedStyle(() => {
-    const audioScale = 1 + level.value * 0.14 + breathe.value * 0.03;
-    const opacity = active ? 0.65 + level.value * 0.25 : 0.45;
-    return {
-      transform: [{ scale: audioScale }],
-      opacity,
-    };
-  });
-
-  const innerGlowStyle = useAnimatedStyle(() => {
-    const audioScale = 1 + level.value * 0.08;
-    return {
-      transform: [{ scale: audioScale }],
-      opacity: active ? 0.85 + level.value * 0.15 : 0.7,
-    };
-  });
-
-  const rippleStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: 0.72 + ripple.value * 0.55 + level.value * 0.12 }],
-    opacity: active ? (1 - ripple.value) * (0.18 + level.value * 0.22) : 0,
-  }));
-
   const micStyle = useAnimatedStyle(() => ({
     transform: [{ scale: 1 + level.value * 0.06 }],
   }));
 
+  const ringStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: 1 + level.value * 0.03 }],
+  }));
+
   return (
     <View style={styles.root}>
-      <Animated.View style={[styles.glowLayer, outerGlowStyle]}>
-        <Svg width={GLOW_SIZE} height={GLOW_SIZE}>
-          <Defs>
-            <RadialGradient id="outerGlow" cx="50%" cy="50%" r="50%">
-              <Stop offset="0%" stopColor={BobbleColors.primary} stopOpacity={0} />
-              <Stop offset="35%" stopColor={BobbleColors.primaryLight} stopOpacity={0.12} />
-              <Stop offset="62%" stopColor={BobbleColors.primaryMuted} stopOpacity={0.28} />
-              <Stop offset="82%" stopColor={BobbleColors.primary} stopOpacity={0.14} />
-              <Stop offset="100%" stopColor={BobbleColors.primary} stopOpacity={0} />
-            </RadialGradient>
-          </Defs>
-          <Circle cx={GLOW_SIZE / 2} cy={GLOW_SIZE / 2} r={GLOW_SIZE / 2} fill="url(#outerGlow)" />
-        </Svg>
-      </Animated.View>
-
-      <Animated.View style={[styles.glowLayer, midGlowStyle]}>
-        <Svg width={GLOW_SIZE * 0.78} height={GLOW_SIZE * 0.78}>
-          <Defs>
-            <RadialGradient id="midGlow" cx="50%" cy="50%" r="50%">
-              <Stop offset="0%" stopColor={BobbleColors.primaryLight} stopOpacity={0.08} />
-              <Stop offset="42%" stopColor={BobbleColors.primary} stopOpacity={0.38} />
-              <Stop offset="72%" stopColor={BobbleColors.primaryMuted} stopOpacity={0.22} />
-              <Stop offset="100%" stopColor={BobbleColors.primaryMuted} stopOpacity={0} />
-            </RadialGradient>
-          </Defs>
-          <Circle
-            cx={(GLOW_SIZE * 0.78) / 2}
-            cy={(GLOW_SIZE * 0.78) / 2}
-            r={(GLOW_SIZE * 0.78) / 2}
-            fill="url(#midGlow)"
-          />
-        </Svg>
-      </Animated.View>
-
-      <Animated.View style={[styles.glowLayer, innerGlowStyle]}>
-        <Svg width={GLOW_SIZE * 0.52} height={GLOW_SIZE * 0.52}>
-          <Defs>
-            <RadialGradient id="innerGlow" cx="50%" cy="50%" r="50%">
-              <Stop offset="0%" stopColor={BobbleColors.primary} stopOpacity={0.95} />
-              <Stop offset="48%" stopColor={BobbleColors.primaryLight} stopOpacity={0.55} />
-              <Stop offset="78%" stopColor={BobbleColors.primaryMuted} stopOpacity={0.18} />
-              <Stop offset="100%" stopColor={BobbleColors.primaryMuted} stopOpacity={0} />
-            </RadialGradient>
-          </Defs>
-          <Circle
-            cx={(GLOW_SIZE * 0.52) / 2}
-            cy={(GLOW_SIZE * 0.52) / 2}
-            r={(GLOW_SIZE * 0.52) / 2}
-            fill="url(#innerGlow)"
-          />
-        </Svg>
-      </Animated.View>
-
-      <Animated.View style={[styles.rippleRing, rippleStyle]} />
-
+      <Animated.View style={[styles.ringOuter, ringStyle]} />
+      <Animated.View style={[styles.ringInner, ringStyle]} />
       <Animated.View style={[styles.micWrap, micStyle]}>
         <FontAwesome name="microphone" size={36} color={BobbleColors.textOnPrimary} />
       </Animated.View>
@@ -163,27 +60,26 @@ const styles = StyleSheet.create({
   root: {
     alignItems: 'center',
     justifyContent: 'center',
-    height: 260,
+    height: 320,
   },
-  glowLayer: {
+  ringOuter: {
     position: 'absolute',
-    width: GLOW_SIZE,
-    height: GLOW_SIZE,
-    alignItems: 'center',
-    justifyContent: 'center',
+    width: 220,
+    height: 220,
+    borderRadius: 110,
+    backgroundColor: '#ECE6F6',
   },
-  rippleRing: {
+  ringInner: {
     position: 'absolute',
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    borderWidth: 1.5,
-    borderColor: BobbleColors.primaryLight,
+    width: 172,
+    height: 172,
+    borderRadius: 86,
+    backgroundColor: '#E2D5F5',
   },
   micWrap: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
+    width: 96,
+    height: 96,
+    borderRadius: 48,
     backgroundColor: BobbleColors.primary,
     alignItems: 'center',
     justifyContent: 'center',

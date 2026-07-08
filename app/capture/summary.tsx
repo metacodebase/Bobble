@@ -104,10 +104,12 @@ export default function SummaryScreen() {
         />
       </ScrollView>
 
-      <View style={[styles.footer, { paddingBottom: insets.bottom + 16, backgroundColor: colors.background,width:"100%" }]}>
+      <View
+        style={[styles.footer, { paddingBottom: insets.bottom + 16, backgroundColor: colors.background }]}
+      >
         <PrimaryButton
           label="Save Bobble"
-          style={{ width: '100%' }}
+          style={styles.saveAction}
           loading={createTasksBulk.isPending}
           onPress={handleSaveBobble}
         />
@@ -129,6 +131,8 @@ const styles = StyleSheet.create({
     ...Typography.body,
     fontFamily: Typography.button.fontFamily,
     marginBottom: 8,
+    width: '95%',
+    alignSelf: 'center',
   },
   scroll: {
     flex: 1,
@@ -142,5 +146,9 @@ const styles = StyleSheet.create({
     right: 24,
     bottom: 0,
     paddingTop: 12,
+  },
+  saveAction: {
+    width: '95%',
+    alignSelf: 'center',
   },
 });

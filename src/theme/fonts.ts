@@ -58,15 +58,15 @@ export const Typography = {
   /** Body copy, feature list items */
   body: {
     fontFamily: FontFamily.regular,
-    fontSize: 16,
-    lineHeight: 24,
+    fontSize: 18,
+    lineHeight: 28,
   },
 
   /** Primary button label */
   button: {
     fontFamily: FontFamily.semiBold,
-    fontSize: 17,
-    lineHeight: 22,
+    fontSize: 18,
+    lineHeight: 24,
   },
 
   /** Social login button label */

@@ -67,8 +67,12 @@ const styles = StyleSheet.create({
   header: {
     gap: 12,
     marginBottom: 8,
+    width: '95%',
+    alignSelf: 'center',
   },
   list: {
     paddingTop: 4,
+    width: '95%',
+    alignSelf: 'center',
   },
 });

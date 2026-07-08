@@ -3,9 +3,9 @@ import { StyleSheet, View } from 'react-native';
 
 import { BobbleColors } from '@/src/theme/colors';
 
-const BAR_COUNT = 48;
+const BAR_COUNT =40;
 const MIN_HEIGHT = 3;
-const MAX_HEIGHT = 54;
+const MAX_HEIGHT = 42;
 
 function meteringToNormalized(metering: number): number {
   const minDb = -50;
@@ -40,6 +40,21 @@ export function AudioWaveform({
   const [heights, setHeights] = useState(() => Array.from({ length: BAR_COUNT }, () => MIN_HEIGHT));
   const smoothedRef = useRef(0);
   const tickRef = useRef(0);
+  const targetLevelRef = useRef(0);
+
+  useEffect(() => {
+    if (!active) {
+      targetLevelRef.current = 0;
+      return;
+    }
+
+    if (metering == null) {
+      targetLevelRef.current = 0.14;
+      return;
+    }
+
+    targetLevelRef.current = meteringToNormalized(metering);
+  }, [active, metering]);
 
   useEffect(() => {
     if (!active) {
@@ -49,14 +64,14 @@ export function AudioWaveform({
       return;
     }
 
-    if (metering == null) return;
+    const interval = setInterval(() => {
+      smoothedRef.current = smoothedRef.current * 0.65 + targetLevelRef.current * 0.35;
+      tickRef.current += 1;
+      setHeights(buildBarHeights(smoothedRef.current, tickRef.current));
+    }, 50);
 
-    const normalized = meteringToNormalized(metering);
-    smoothedRef.current = smoothedRef.current * 0.5 + normalized * 0.5;
-    tickRef.current += 1;
-
-    setHeights(buildBarHeights(smoothedRef.current, tickRef.current));
-  }, [active, metering]);
+    return () => clearInterval(interval);
+  }, [active]);
 
   return (
     <View style={styles.root}>
@@ -86,6 +101,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 3,
     height: 60,
+    width: '100%',
+    alignSelf: 'center',
     paddingHorizontal: 8,
   },
   bar: {

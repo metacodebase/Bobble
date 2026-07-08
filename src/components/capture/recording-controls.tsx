@@ -4,6 +4,8 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { Typography } from '@/src/theme/fonts';
 
+const CONTROL_BG = '#E8E2F5';
+
 type RecordingControlsProps = {
   paused: boolean;
   onPause: () => void;
@@ -19,7 +21,7 @@ export function RecordingControls({ paused, onPause, onStop }: RecordingControls
         onPress={onPause}
         style={({ pressed }) => [
           styles.button,
-          { backgroundColor: colors.borderLight },
+          { backgroundColor: CONTROL_BG },
           pressed && styles.pressed,
         ]}
       >
@@ -31,7 +33,7 @@ export function RecordingControls({ paused, onPause, onStop }: RecordingControls
         onPress={onStop}
         style={({ pressed }) => [
           styles.button,
-          { backgroundColor: colors.borderLight },
+          { backgroundColor: CONTROL_BG },
           pressed && styles.pressed,
         ]}
       >

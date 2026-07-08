@@ -44,12 +44,12 @@ export default function HomeScreen() {
         />
 
         <View style={styles.mascotWrap}>
-          <BobbleMascot variant="home" size={300} />
+          <BobbleMascot variant="home" size={550} />
         </View>
 
         <View style={styles.actions}>
           <PrimaryButton label="Start a Bobble" onPress={startCapture} style={styles.primaryButton} />
-          <SecondaryButton label="Quick Capture" onPress={startCapture} />
+          <SecondaryButton label="Quick Capture" onPress={startCapture} style={styles.secondaryButton} />
         </View>
 
         <View style={styles.recentSection}>
@@ -83,13 +83,19 @@ const styles = StyleSheet.create({
   actions: {
     gap: 12,
     marginBottom: 32,
+    width: '95%',
+    alignSelf: 'center',
   },
   primaryButton: {
     width: '100%',
-    alignSelf: 'stretch',
+  },
+  secondaryButton: {
+    width: '100%',
   },
   recentSection: {
     gap: 12,
+    width: '95%',
+    alignSelf: 'center',
   },
   recentHeader: {
     flexDirection: 'row',

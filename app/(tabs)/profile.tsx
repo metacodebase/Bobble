@@ -56,43 +56,45 @@ export default function ProfileScreen() {
         ]}
         showsVerticalScrollIndicator={false}
       >
-      <View style={[styles.heroCard, { backgroundColor: colors.borderLight }]}>
-        <ProfileAvatar size={140} style={styles.avatar} onPress={() => {}} />
-        <Text style={[styles.name, { color: colors.text }]}>{displayName}</Text>
+        <View style={[styles.heroCard, { backgroundColor: colors.borderLight }]}>
+          <ProfileAvatar size={140} style={styles.avatar} onPress={() => {}} />
+          <Text style={[styles.name, { color: colors.text }]}>{displayName}</Text>
 
-        <View style={styles.statsRow}>
-          <StatCard compact label="Streak" value={gamification?.streak ?? 0} />
-          <StatCard compact label="Bobbles" value={gamification?.bobbles ?? 0} />
-          <StatCard compact label="Tasks" value={gamification?.tasks ?? 0} />
+          <View style={styles.statsRow}>
+            <StatCard compact label="Streak" value={gamification?.streak ?? 0} />
+            <StatCard compact label="Bobbles" value={gamification?.bobbles ?? 0} />
+            <StatCard compact label="Tasks" value={gamification?.tasks ?? 0} />
+          </View>
         </View>
-      </View>
 
-      <BadgeRow
-        badges={gamification?.badges}
-        onSeeAll={() => router.push('/settings/stars' as Href)}
-      />
-
-      <View style={[styles.menu, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-        {PROFILE_MENU.map((item) => (
-          <ProfileMenuRow
-            key={item.id}
-            label={item.label}
-            icon={item.icon}
-            onPress={() => router.push(SETTINGS_ROUTES[item.id])}
+        <View style={styles.badgeWrap}>
+          <BadgeRow
+            badges={gamification?.badges}
+            onSeeAll={() => router.push('/settings/stars' as Href)}
           />
-        ))}
-        <ProfileMenuRow
-          label="Log Out"
-          icon="user"
-          destructive
-          onPress={() => {
-            if (user) {
-              logout.mutate();
-            }
-          }}
-        />
-      </View>
-    </ScrollView>
+        </View>
+
+        <View style={[styles.menu, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          {PROFILE_MENU.map((item) => (
+            <ProfileMenuRow
+              key={item.id}
+              label={item.label}
+              icon={item.icon}
+              onPress={() => router.push(SETTINGS_ROUTES[item.id])}
+            />
+          ))}
+          <ProfileMenuRow
+            label="Log Out"
+            icon="user"
+            destructive
+            onPress={() => {
+              if (user) {
+                logout.mutate();
+              }
+            }}
+          />
+        </View>
+      </ScrollView>
     </View>
   );
 }
@@ -109,6 +111,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
   },
   heroCard: {
+    width: '95%',
+    alignSelf: 'center',
     borderRadius: 24,
     paddingHorizontal: 16,
     paddingTop: 8,
@@ -124,13 +128,22 @@ const styles = StyleSheet.create({
     fontSize: 24,
     lineHeight: 32,
     marginBottom: 20,
+    width: '95%',
+    textAlign: 'center',
   },
   statsRow: {
     flexDirection: 'row',
     gap: 8,
     width: '100%',
   },
+  badgeWrap: {
+    width: '95%',
+    alignSelf: 'center',
+    marginBottom: 24,
+  },
   menu: {
+    width: '95%',
+    alignSelf: 'center',
     borderRadius: 20,
     paddingHorizontal: 16,
     borderWidth: StyleSheet.hairlineWidth,

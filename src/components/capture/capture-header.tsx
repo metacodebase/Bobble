@@ -12,6 +12,7 @@ type CaptureHeaderProps = {
   rightIcon?: LucideIcon;
   onRightPress?: () => void;
   centered?: boolean;
+  titleColor?: string;
 };
 
 export function CaptureHeader({
@@ -22,6 +23,7 @@ export function CaptureHeader({
   rightIcon: RightIcon,
   onRightPress,
   centered = false,
+  titleColor,
 }: CaptureHeaderProps) {
   const colors = useBobbleColors();
 
@@ -42,14 +44,14 @@ export function CaptureHeader({
       {title ? (
         centered ? (
           <Text
-            style={[styles.titleCentered, { color: colors.text }]}
+            style={[styles.titleCentered, { color: titleColor ?? colors.text }]}
             numberOfLines={1}
             pointerEvents="none"
           >
             {title}
           </Text>
         ) : (
-          <Text style={[styles.title, { color: colors.text }]} numberOfLines={1}>
+          <Text style={[styles.title, { color: titleColor ?? colors.text }]} numberOfLines={1}>
             {title}
           </Text>
         )

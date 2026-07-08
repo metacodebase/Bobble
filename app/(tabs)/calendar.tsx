@@ -41,7 +41,7 @@ export default function CalendarScreen() {
       </ScrollView>
 
       <View style={[styles.footer, { paddingBottom: tabBarHeight, backgroundColor: colors.background }]}>
-        <PrimaryButton style={{width:'100%',alignSelf:'center'}} label="+ Add Event" onPress={() => {}} />
+        <PrimaryButton style={styles.addAction} label="+ Add Event" onPress={() => {}} />
       </View>
     </View>
   );
@@ -54,15 +54,21 @@ const styles = StyleSheet.create({
   },
   scroll: {
     paddingTop: 4,
+    width: '95%',
+    alignSelf: 'center',
   },
   agendaLabel: {
     ...Typography.formLabel,
     fontSize: 15,
     marginTop: 24,
     marginBottom: 12,
+    width: '95%',
+    alignSelf: 'center',
   },
   empty: {
     ...Typography.body,
+    width: '95%',
+    alignSelf: 'center',
   },
   footer: {
     position: 'absolute',
@@ -70,7 +76,9 @@ const styles = StyleSheet.create({
     right: 24,
     bottom: 0,
     paddingTop: 12,
-    width: '100%',
-    alignSelf:'center',
+  },
+  addAction: {
+    width: '95%',
+    alignSelf: 'center',
   },
 });
