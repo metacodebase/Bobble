@@ -1,5 +1,5 @@
 import { ChevronRight } from 'lucide-react-native';
-import { ActivityIndicator, Pressable, StyleSheet, Text, View, ViewStyle } from 'react-native';
+import { ActivityIndicator, Platform, Pressable, StyleSheet, Text, View, ViewStyle } from 'react-native';
 
 import { BobbleColors } from '@/src/theme/colors';
 import { Typography } from '@/src/theme/fonts';
@@ -74,8 +74,8 @@ const styles = StyleSheet.create({
   },
   label: {
     ...Typography.button,
-    fontSize: 18,
-    lineHeight: 21,
+    fontSize: Platform.OS === 'android' ? 18 : 16,
+    lineHeight: Platform.OS === 'android' ? 21 : 20,
     color: BobbleColors.textOnPrimary,
   },
   chevron: {

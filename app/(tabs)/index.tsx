@@ -1,5 +1,5 @@
 import { Href, router } from 'expo-router';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Dimensions, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { DEMO_BOBBLE } from '@/src/components/capture/summary-content';
@@ -44,7 +44,7 @@ export default function HomeScreen() {
         />
 
         <View style={styles.mascotWrap}>
-          <BobbleMascot variant="home" size={550} />
+          <BobbleMascot variant="home" size={ Math.round(Dimensions.get('window').width * (Platform.OS === 'android' ? 1.25 : 1.15))} />
         </View>
 
         <View style={styles.actions}>

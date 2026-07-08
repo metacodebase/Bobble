@@ -1,5 +1,5 @@
 import { LucideIcon } from 'lucide-react-native';
-import { Pressable, StyleSheet, Text, View, ViewStyle } from 'react-native';
+import { Platform, Pressable, StyleSheet, Text, View, ViewStyle } from 'react-native';
 
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { Typography } from '@/src/theme/fonts';
@@ -53,7 +53,7 @@ const styles = StyleSheet.create({
   },
   label: {
     ...Typography.button,
-    fontSize: 18,
+    fontSize: Platform.OS === 'android' ? 18 : 16,
     lineHeight: 21,
   },
 });

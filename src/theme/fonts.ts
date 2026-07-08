@@ -31,76 +31,76 @@ export const Typography = {
   /** Splash tagline — "Dream, believe." / "Bobble." / "Achieve." */
   splashTagline: {
     fontFamily: FontFamily.semiBold,
-    fontSize: 16,
+    fontSize: Platform.OS === 'android' ? 16 : 14,
   },
 
   /** Onboarding & auth headings */
   heading: {
     fontFamily: FontFamily.bold,
-    fontSize: 36,
+    fontSize: Platform.OS === 'android' ? 36 : 32,
     lineHeight: 44,
   },
 
   /** Auth sub-heading */
   subheading: {
     fontFamily: FontFamily.regular,
-    fontSize: 18,
+    fontSize: Platform.OS === 'android' ? 18 : 16,
     lineHeight: 26,
   },
 
   /** Purple accent lines under auth headings */
   accentSubtitle: {
     fontFamily: FontFamily.regular,
-    fontSize: 22,
+    fontSize: Platform.OS === 'android' ? 22 : 20,
     lineHeight: 28,
   },
 
   /** Body copy, feature list items */
   body: {
     fontFamily: FontFamily.regular,
-    fontSize: 18,
+    fontSize: Platform.OS === 'android' ? 18 : 16,
     lineHeight: 28,
   },
 
   /** Primary button label */
   button: {
     fontFamily: FontFamily.semiBold,
-    fontSize: 18,
+    fontSize: Platform.OS === 'android' ? 18 : 16,
     lineHeight: 24,
   },
 
   /** Social login button label */
   socialButton: {
     fontFamily: FontFamily.medium,
-    fontSize: 18,
-    lineHeight: 24,
+    fontSize: Platform.OS === 'android' ? 18 : 16,
+    lineHeight: Platform.OS === 'android' ? 24 : 22,
   },
 
   /** Footer links — "Sign up" */
   caption: {
     fontFamily: FontFamily.regular,
-    fontSize: 18,
+    fontSize: Platform.OS === 'android' ? 18 : 16,
     lineHeight: 24,
   },
 
   /** Divider "or" text */
   divider: {
     fontFamily: FontFamily.regular,
-    fontSize: 18,
+    fontSize: Platform.OS === 'android' ? 18 : 16,
     lineHeight: 24,
   },
 
   /** Form field label above inputs */
   formLabel: {
     fontFamily: FontFamily.medium,
-    fontSize: 18,
+    fontSize: Platform.OS === 'android' ? 18 : 16,
     lineHeight: 20,
   },
 
   /** Text input value */
   input: {
     fontFamily: FontFamily.regular,
-    fontSize: 18,
+    fontSize: Platform.OS === 'android' ? 18 : 16,
     lineHeight: 28,
   },
 } as const;
