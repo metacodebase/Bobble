@@ -3,6 +3,7 @@ import { useRef, useState } from 'react';
 import {
   NativeScrollEvent,
   NativeSyntheticEvent,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -12,7 +13,6 @@ import {
 
 import { BobbleMascot, getFeaturesMascotWidth, MascotVariant } from '@/src/components/onboarding/bobble-mascot';
 import {
-  ONBOARDING_MASCOT_SIZE,
   OnboardingHeroSlot,
   OnboardingScreenLayout,
 } from '@/src/components/onboarding/onboarding-screen-layout';
@@ -23,9 +23,8 @@ import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { useAppStore } from '@/src/store/app-store';
 import { Typography } from '@/src/theme/fonts';
 
-const FEATURES_MASCOT_MAX_HEIGHT = 280;
-const FEATURES_SLIDE_MASCOT_WIDTH = getFeaturesMascotWidth(FEATURES_MASCOT_MAX_HEIGHT);
 const FEATURE_CHECK_BG = '#C8F5D4';
+const ONBOARDING_TITLE_COLOR = '#2E2A87';
 
 const STEPS: {
   buttonLabel: string;
@@ -53,19 +52,33 @@ const STEPS: {
 
 function OnboardingHeading({ stepIndex }: { stepIndex: number }) {
   const colors = useBobbleColors();
+  const { width, height } = useWindowDimensions();
+  const referenceWidth = Platform.OS === 'android' ? 412 : 390;
+  const referenceHeight = Platform.OS === 'android' ? 915 : 844;
+  const scale = Math.min(width / referenceWidth, height / referenceHeight);
+  const headingFontSize = Math.round(28 * scale);
+  const headingLineHeight = headingFontSize + Math.round(5 * scale);
+  const headingSubtitleMarginTop = Math.round(10 * scale);
 
   if (stepIndex === 0) {
     return (
       <View style={styles.headingWrap}>
-        <Text style={[Typography.heading, styles.heading]}>
-          <Text style={{ color: colors.text }}>Your thoughts.{'\n'}</Text>
+        <Text style={[Typography.heading, styles.heading, { fontSize: headingFontSize, lineHeight: headingLineHeight }]}>
+          <Text style={{ color: ONBOARDING_TITLE_COLOR }}>Your thoughts.{'\n'}</Text>
           <Text style={{ color: colors.textAccent }}>Your space.</Text>
         </Text>
-        <Text style={[Typography.heading, styles.heading, styles.headingSubtitle]}>
-          <Text style={{ color: colors.text }}>Speak your mind and{'\n'}</Text>
-          <Text style={{ color: colors.text }}>let </Text>
+        <Text
+          style={[
+            Typography.heading,
+            styles.heading,
+            styles.headingSubtitle,
+            { fontSize: headingFontSize, lineHeight: headingLineHeight, marginTop: headingSubtitleMarginTop },
+          ]}
+        >
+          <Text style={{ color: ONBOARDING_TITLE_COLOR }}>Speak your mind and{'\n'}</Text>
+          <Text style={{ color: ONBOARDING_TITLE_COLOR }}>let </Text>
           <Text style={{ color: colors.textAccent }}>Bobble</Text>
-          <Text style={{ color: colors.text }}> give it grace.</Text>
+          <Text style={{ color: ONBOARDING_TITLE_COLOR }}> give it grace.</Text>
         </Text>
       </View>
     );
@@ -74,7 +87,7 @@ function OnboardingHeading({ stepIndex }: { stepIndex: number }) {
   if (stepIndex === 1) {
     return (
       <View style={styles.headingWrap}>
-        <Text style={[Typography.heading, styles.heading]}>
+        <Text style={[Typography.heading, styles.heading, { fontSize: headingFontSize, lineHeight: headingLineHeight }]}>
           <Text style={{ color: colors.text }}>Tell us what you need{'\n'}</Text>
           <Text style={{ color: colors.text }}>to say. </Text>
           <Text style={{ color: colors.textAccent }}>We&apos;ll handle{'\n'}</Text>
@@ -86,7 +99,7 @@ function OnboardingHeading({ stepIndex }: { stepIndex: number }) {
 
   return (
     <View style={styles.headingWrap}>
-      <Text style={[Typography.heading, styles.heading]}>
+      <Text style={[Typography.heading, styles.heading, { fontSize: headingFontSize, lineHeight: headingLineHeight }]}>
         <Text style={{ color: colors.text }}>You&apos;re not just{'\n'}</Text>
         <Text style={{ color: colors.textAccent }}>capturing thoughts,{'\n'}</Text>
         <Text style={{ color: colors.text }}>you&apos;re helping build{'\n'}</Text>
@@ -98,12 +111,20 @@ function OnboardingHeading({ stepIndex }: { stepIndex: number }) {
 
 export default function OnboardingScreen() {
   const scrollRef = useRef<ScrollView>(null);
-  const { width } = useWindowDimensions();
+  const { width, height } = useWindowDimensions();
   const colors = useBobbleColors();
   const [step, setStep] = useState(0);
   const setHasOnboarded = useAppStore((s) => s.setHasOnboarded);
   const current = STEPS[step];
   const isLast = step === STEPS.length - 1;
+  const referenceWidth = Platform.OS === 'android' ? 412 : 390;
+  const referenceHeight = Platform.OS === 'android' ? 915 : 844;
+  const scale = Math.min(width / referenceWidth, height / referenceHeight);
+  const headingTopSpacing = Math.round(16 * scale);
+  const heroMascotSize = Math.round(width * 0.62);
+  const featuresMascotMaxHeight = Math.min(320, Math.round(height * 0.33));
+  const featuresMascotWidth = getFeaturesMascotWidth(featuresMascotMaxHeight);
+  const heroPaddingTop = Math.round(16 * scale);
 
   // While a button-triggered animated scroll is running, `onScroll` fires with
   // the stale (pre-animation) offset first, which would round back to the old
@@ -169,10 +190,12 @@ export default function OnboardingScreen() {
         : step === 1 ? require('@/src/assets/images/background/three.png')
           : require('@/src/assets/images/background/four.png')}
       footer={
-        <>
+        <View style={styles.footerStack}>
           <PrimaryButton label={current.buttonLabel} onPress={handleNext} />
-          <PaginationDots total={STEPS.length} activeIndex={step} />
-        </>
+          <View style={styles.dotsOverlay}>
+            <PaginationDots total={STEPS.length} activeIndex={step} />
+          </View>
+        </View>
       }
     >
       <ScrollView
@@ -189,15 +212,17 @@ export default function OnboardingScreen() {
       >
         {STEPS.map((item, stepIndex) => (
           <View key={stepIndex} style={[styles.slide, { width }]}>
-            <OnboardingHeading stepIndex={stepIndex} />
+            <View style={[styles.headingContainer, { marginTop: headingTopSpacing }]}>
+              <OnboardingHeading stepIndex={stepIndex} />
+            </View>
 
             {item.features ? (
               <View style={styles.featuresSlide}>
                 {item.mascotVariant ? (
-                  <View style={styles.mascotSlot}>
+                  <View style={[styles.mascotSlot, { maxHeight: featuresMascotMaxHeight }]}>
                     <BobbleMascot
                       variant={item.mascotVariant}
-                      size={FEATURES_SLIDE_MASCOT_WIDTH}
+                      size={featuresMascotWidth}
                       playAnimation={shouldPlayMascotAnimation(step, stepIndex)}
                     />
                   </View>
@@ -214,10 +239,10 @@ export default function OnboardingScreen() {
                 </View>
               </View>
             ) : item.mascotVariant ? (
-              <OnboardingHeroSlot>
+              <OnboardingHeroSlot style={{ paddingTop: heroPaddingTop, minHeight: heroMascotSize }}>
                 <BobbleMascot
                   variant={item.mascotVariant}
-                  size={ONBOARDING_MASCOT_SIZE}
+                  size={heroMascotSize}
                   playAnimation={shouldPlayMascotAnimation(step, stepIndex)}
                 />
               </OnboardingHeroSlot>
@@ -236,17 +261,18 @@ const styles = StyleSheet.create({
   slide: {
     flex: 1,
   },
+  headingContainer: {
+    width: '100%',
+  },
   headingWrap: {
     width: '90%',
     alignSelf: 'center',
-    marginTop: 8,
     zIndex: 100,
   },
   heading: {
     textAlign: 'left',
   },
   headingSubtitle: {
-    marginTop: 16,
   },
   featuresSlide: {
     flex: 1,
@@ -259,7 +285,6 @@ const styles = StyleSheet.create({
   },
   mascotSlot: {
     width: '100%',
-    maxHeight: FEATURES_MASCOT_MAX_HEIGHT,
     alignItems: 'center',
     justifyContent: 'center',
     flexShrink: 1,
@@ -278,13 +303,26 @@ const styles = StyleSheet.create({
   },
   featureText: {
     ...Typography.body,
-    fontSize: 17,
+    fontSize: 16,
     flex: 1,
-    lineHeight: 24,
+    lineHeight: 22,
   },
   featureIcon: {
     borderRadius: 120,
     padding: 7,
     marginTop: 1,
+  },
+  footerStack: {
+    width: '100%',
+    position: 'relative',
+  },
+  dotsOverlay: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: '100%',
+    marginTop: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

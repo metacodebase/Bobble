@@ -53,7 +53,8 @@ const styles = StyleSheet.create({
   button: {
     backgroundColor: BobbleColors.primary,
     borderRadius: 32,
-    paddingVertical: 18,
+    paddingVertical: 14,
+    minHeight: 52,
     alignItems: 'center',
     justifyContent: 'center',
     width: '100%',
@@ -73,6 +74,8 @@ const styles = StyleSheet.create({
   },
   label: {
     ...Typography.button,
+    fontSize: 16,
+    lineHeight: 21,
     color: BobbleColors.textOnPrimary,
   },
   chevron: {

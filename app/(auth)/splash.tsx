@@ -2,7 +2,7 @@
 import { Href, router } from 'expo-router';
 import * as ExpoSplashScreen from 'expo-splash-screen';
 import { useCallback } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Platform, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 
 import { BobbleMascot } from '@/src/components/onboarding/bobble-mascot';
 import { OnboardingScreenLayout } from '@/src/components/onboarding/onboarding-screen-layout';
@@ -10,8 +10,21 @@ import { PrimaryButton } from '@/src/components/onboarding/primary-button';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { Typography } from '@/src/theme/fonts';
 
+const SPLASH_TITLE_COLOR = '#2E2A87';
+
 export default function AuthSplashScreen() {
+  const { width, height } = useWindowDimensions();
   const colors = useBobbleColors();
+  const referenceWidth = Platform.OS === 'android' ? 412 : 390;
+  const referenceHeight = Platform.OS === 'android' ? 915 : 844;
+  const scale = Math.min(width / referenceWidth, height / referenceHeight);
+  const mascotSize = Math.round(width * 0.61);
+  const titleFontSize = Math.round(58 * scale);
+  const subtitleFontSize = Math.max(14, Math.round(14 * scale));
+  const subtitleLineHeight = subtitleFontSize + 6;
+  const taglineFontSize = Math.max(13, Math.round(14 * scale));
+  const taglineLineHeight = taglineFontSize + 5;
+  const headerBottomSpacing = Math.round(18 * scale);
   const revealAppSplash = useCallback(() => {
     void ExpoSplashScreen.hideAsync();
   }, []);
@@ -29,15 +42,25 @@ export default function AuthSplashScreen() {
     >
    
         <View style={styles.splashBody} onLayout={revealAppSplash}>
-          <View style={styles.header}>
-            <Text style={[styles.title, { color: colors.text }]}>Bobble</Text>
-            <Text style={[styles.subtitle, { color: colors.text }]}>Unwind your messy mind</Text>
+          <View style={[styles.header, { marginBottom: headerBottomSpacing }]}>
+            <Text style={[styles.title, { color: SPLASH_TITLE_COLOR, fontSize: titleFontSize, lineHeight: titleFontSize + 4 }]}>
+              Bobble
+            </Text>
+            <Text style={[styles.subtitle, { color: colors.textAccent, fontSize: subtitleFontSize, lineHeight: subtitleLineHeight }]}>
+              Unwind your messy mind
+            </Text>
           </View>
-          <BobbleMascot variant="main" size={1000 * 0.4} />
+          <BobbleMascot variant="main" size={mascotSize} />
           <View style={styles.tagline}>
-            <Text style={[styles.taglineLine, { color: colors.text }]}>Dream. Believe.</Text>
-            <Text style={[styles.taglineLine, { color: colors.textAccent }]}>Bobble.</Text>
-            <Text style={[styles.taglineLine, { color: colors.text }]}>Achieve.</Text>
+            <Text style={[styles.taglineLine, { color: colors.text, fontSize: taglineFontSize, lineHeight: taglineLineHeight }]}>
+              Dream. Believe.
+            </Text>
+            <Text style={[styles.taglineLine, { color: colors.textAccent, fontSize: taglineFontSize, lineHeight: taglineLineHeight }]}>
+              Bobble.
+            </Text>
+            <Text style={[styles.taglineLine, { color: colors.text, fontSize: taglineFontSize, lineHeight: taglineLineHeight }]}>
+              Achieve.
+            </Text>
           </View>
         </View>
     </OnboardingScreenLayout>
@@ -57,30 +80,23 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    gap: 12,
+    gap: 6,
     width: '100%',
-    marginBottom: 8,
   },
   title: {
     ...Typography.splashTitle,
-    fontSize: 76,
-    lineHeight: 80,
-    marginBottom: -4,
   },
   subtitle: {
     ...Typography.accentSubtitle,
-    fontSize: 22,
     textAlign: 'center',
   },
   tagline: {
     alignItems: 'center',
     gap: 2,
-    marginTop: 4,
+    marginTop: 10,
   },
   taglineLine: {
     ...Typography.splashTagline,
-    fontSize: 24,
-    lineHeight: 30,
     textAlign: 'center',
   },
 });
