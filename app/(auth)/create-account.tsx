@@ -488,7 +488,7 @@ const styles = StyleSheet.create({
   footerGroup: {
     gap: 8,
     alignItems: 'center',
-    width: '90%',
+    width: '100%',
     alignSelf: 'center',
   },
   countryFlag: {

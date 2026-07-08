@@ -20,9 +20,9 @@ export default function AuthSplashScreen() {
   const scale = Math.min(width / referenceWidth, height / referenceHeight);
   const mascotSize = Math.round(width * 0.75);
   const titleFontSize = Math.round(78 * scale);
-  const subtitleFontSize = Math.max(20, Math.round(14 * scale));
+  const subtitleFontSize = Math.max(22, Math.round(14 * scale));
   const subtitleLineHeight = subtitleFontSize + 6;
-  const taglineFontSize = Math.max(22, Math.round(14 * scale));
+  const taglineFontSize = Math.max(24, Math.round(14 * scale));
   const taglineLineHeight = taglineFontSize + 7;
   const headerBottomSpacing = Math.round(18 * scale);
   const revealAppSplash = useCallback(() => {

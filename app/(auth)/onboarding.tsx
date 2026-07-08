@@ -223,7 +223,7 @@ export default function OnboardingScreen() {
                   <View style={[styles.mascotSlot, { maxHeight: featuresMascotMaxHeight }]}>
                     <BobbleMascot
                       variant={item.mascotVariant}
-                      size={heroMascotSize}
+                      size={ Math.round(width * 1.25)}
                       playAnimation={shouldPlayMascotAnimation(step, stepIndex)}
                     />
                   </View>
@@ -279,7 +279,7 @@ const styles = StyleSheet.create({
     width: '90%',
     alignSelf: 'center',
     alignItems: 'center',
-    justifyContent: 'flex-start',
+    justifyContent: 'center',
     paddingTop: 4,
     gap: 12,
   },
@@ -303,9 +303,9 @@ const styles = StyleSheet.create({
   },
   featureText: {
     ...Typography.body,
-    fontSize: 16,
+    fontSize: 22,
     flex: 1,
-    lineHeight: 22,
+    lineHeight: 30,
   },
   featureIcon: {
     borderRadius: 120,

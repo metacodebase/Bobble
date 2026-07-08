@@ -93,7 +93,7 @@ export const Typography = {
   /** Form field label above inputs */
   formLabel: {
     fontFamily: FontFamily.medium,
-    fontSize: 14,
+    fontSize: 18,
     lineHeight: 20,
   },
 
