@@ -74,12 +74,12 @@ const styles = StyleSheet.create({
   },
   label: {
     ...Typography.button,
-    fontSize: 16,
+    fontSize: 18,
     lineHeight: 21,
     color: BobbleColors.textOnPrimary,
   },
   chevron: {
     position: 'absolute',
-    right: 24,
+    right: 28,
   },
 });

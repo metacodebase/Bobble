@@ -18,12 +18,12 @@ export default function AuthSplashScreen() {
   const referenceWidth = Platform.OS === 'android' ? 412 : 390;
   const referenceHeight = Platform.OS === 'android' ? 915 : 844;
   const scale = Math.min(width / referenceWidth, height / referenceHeight);
-  const mascotSize = Math.round(width * 0.61);
-  const titleFontSize = Math.round(58 * scale);
-  const subtitleFontSize = Math.max(14, Math.round(14 * scale));
+  const mascotSize = Math.round(width * 0.75);
+  const titleFontSize = Math.round(78 * scale);
+  const subtitleFontSize = Math.max(20, Math.round(14 * scale));
   const subtitleLineHeight = subtitleFontSize + 6;
-  const taglineFontSize = Math.max(13, Math.round(14 * scale));
-  const taglineLineHeight = taglineFontSize + 5;
+  const taglineFontSize = Math.max(22, Math.round(14 * scale));
+  const taglineLineHeight = taglineFontSize + 7;
   const headerBottomSpacing = Math.round(18 * scale);
   const revealAppSplash = useCallback(() => {
     void ExpoSplashScreen.hideAsync();

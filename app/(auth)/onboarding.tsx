@@ -56,7 +56,7 @@ function OnboardingHeading({ stepIndex }: { stepIndex: number }) {
   const referenceWidth = Platform.OS === 'android' ? 412 : 390;
   const referenceHeight = Platform.OS === 'android' ? 915 : 844;
   const scale = Math.min(width / referenceWidth, height / referenceHeight);
-  const headingFontSize = Math.round(28 * scale);
+  const headingFontSize = Math.round(34 * scale);
   const headingLineHeight = headingFontSize + Math.round(5 * scale);
   const headingSubtitleMarginTop = Math.round(10 * scale);
 
@@ -67,6 +67,7 @@ function OnboardingHeading({ stepIndex }: { stepIndex: number }) {
           <Text style={{ color: ONBOARDING_TITLE_COLOR }}>Your thoughts.{'\n'}</Text>
           <Text style={{ color: colors.textAccent }}>Your space.</Text>
         </Text>
+        <View style={{ height:15 }}></View>
         <Text
           style={[
             Typography.heading,
@@ -121,7 +122,7 @@ export default function OnboardingScreen() {
   const referenceHeight = Platform.OS === 'android' ? 915 : 844;
   const scale = Math.min(width / referenceWidth, height / referenceHeight);
   const headingTopSpacing = Math.round(16 * scale);
-  const heroMascotSize = Math.round(width * 0.62);
+  const heroMascotSize = Math.round(width * 0.85);
   const featuresMascotMaxHeight = Math.min(320, Math.round(height * 0.33));
   const featuresMascotWidth = getFeaturesMascotWidth(featuresMascotMaxHeight);
   const heroPaddingTop = Math.round(16 * scale);
@@ -222,7 +223,7 @@ export default function OnboardingScreen() {
                   <View style={[styles.mascotSlot, { maxHeight: featuresMascotMaxHeight }]}>
                     <BobbleMascot
                       variant={item.mascotVariant}
-                      size={featuresMascotWidth}
+                      size={heroMascotSize}
                       playAnimation={shouldPlayMascotAnimation(step, stepIndex)}
                     />
                   </View>
@@ -239,7 +240,7 @@ export default function OnboardingScreen() {
                 </View>
               </View>
             ) : item.mascotVariant ? (
-              <OnboardingHeroSlot style={{ paddingTop: heroPaddingTop, minHeight: heroMascotSize }}>
+              <OnboardingHeroSlot style={{ alignSelf:"center",flex:1,justifyContent:"center",marginBottom:50}}>
                 <BobbleMascot
                   variant={item.mascotVariant}
                   size={heroMascotSize}
@@ -265,7 +266,6 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   headingWrap: {
-    width: '90%',
     alignSelf: 'center',
     zIndex: 100,
   },
