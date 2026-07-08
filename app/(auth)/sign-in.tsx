@@ -39,8 +39,9 @@ function AuthHeading({ mode }: { mode: AuthMode }) {
       <View style={styles.headingGroup}>
         <Text style={[styles.heading, { color: colors.text }]}>Welcome back.</Text>
         <Text style={[styles.headingAccent, { color: colors.textAccent }]}>
-          Let&apos;s start unwinding together.
+          Let&apos;s start unwinding
         </Text>
+        <Text style={[styles.heading, { color: colors.text }]}>together.</Text>
       </View>
     );
   }
@@ -109,9 +110,7 @@ export default function AuthScreen() {
         <Text style={[styles.dividerText, { color: colors.text }]}>or</Text>
 
         <SocialButton provider="email" label="Continue with Email" onPress={handleEmailAuth} />
-      </View>
-
-      <View style={styles.footer}>
+        <View style={styles.footer}>
         <Text style={[styles.footerText, { color: colors.text }]}>
           {copy.footerPrompt}{' '}
           <Text style={[styles.footerLink, { color: colors.textAccent }]} onPress={toggleMode}>
@@ -119,6 +118,9 @@ export default function AuthScreen() {
           </Text>
         </Text>
       </View>
+      </View>
+
+  
     </OnboardingScreenLayout>
   );
 }
@@ -134,7 +136,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   headingGroup: {
-    gap: 16,
+    gap: 8,
   },
   heading: {
     ...Typography.heading,
@@ -146,12 +148,15 @@ const styles = StyleSheet.create({
   },
   buttons: {
     width: '100%',
-    gap: 14,
+    gap: 18, 
+    height: '70%',
+    justifyContent:'flex-start',
+    alignItems:'center',
   },
   dividerText: {
     ...Typography.divider,
     textAlign: 'center',
-    marginVertical: 4,
+    // marginVertical: 4,
   },
   footer: {
     alignItems: 'center',

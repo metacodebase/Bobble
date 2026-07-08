@@ -22,13 +22,14 @@ export function AccentHeading({ children, style, textStyle }: AccentHeadingProps
 
 type AccentTextProps = {
   children: ReactNode;
+  textStyle?: TextStyle;
 };
 
-export function AccentText({ children }: AccentTextProps) {
+export function AccentText({ children, textStyle }: AccentTextProps) {
   const colors = useBobbleColors();
 
   return (
-    <Text style={[Typography.accentSubtitle, { color: colors.textAccent }]}>{children}</Text>
+    <Text style={[Typography.accentSubtitle, { color: colors.textAccent }, textStyle]}>{children}</Text>
   );
 }
 
@@ -99,7 +100,8 @@ export function WordAccentHeading({
 const styles = StyleSheet.create({
   container: {
     marginTop: 56,
-    width: '100%',
+    width: '90%',
+    alignSelf: 'center',
   },
   heading: {
     ...Typography.heading,

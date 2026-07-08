@@ -31,6 +31,8 @@ import { PROFILE_USER } from '@/src/data/demo-data';
 import { DEFAULT_TIME_ZONE, TIME_ZONES } from '@/src/data/timezones';
 import { useLogin, useRegister } from '@/src/hooks/api';
 import { useAppStore } from '@/src/store/app-store';
+import { BobbleColors } from '@/src/theme/colors';
+import { FontFamily } from '@/src/theme/fonts';
 import { toast } from '@/src/utils/toast';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -83,22 +85,13 @@ function StepHeading({ step }: { step: number }) {
     case 4:
       return (
         <CreateAccountHeader>
-          Connect your Calendars{'\n'}
-          <AccentText>Sync to never Miss What Matters</AccentText>
+          Connect your <Text style={{ fontFamily: FontFamily.bold,color:BobbleColors.primary }}>Calendars</Text>{'\n'}
+          <AccentText textStyle={{fontFamily: FontFamily.bold, color: BobbleColors.text }}>Sync to never Miss What Matters</AccentText>
         </CreateAccountHeader>
       );
     default:
       return null;
   }
-}
-
-function formatDate(date: Date | null): string {
-  if (!date) return '';
-  return date.toLocaleDateString('en-GB', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-  });
 }
 
 export default function CreateAccountScreen() {
@@ -478,16 +471,19 @@ const styles = StyleSheet.create({
   formGroup: {
     marginTop: 12,
     gap: 20,
-    width: '100%',
+    width: '90%',
+    alignSelf: 'center',
   },
   goalList: {
     marginTop: 28,
     gap: 14,
-    width: '100%',
+    width: '90%',
+    alignSelf: 'center',
   },
   calendarList: {
     marginTop: 28,
-    width: '100%',
+    width: '90%',
+    alignSelf: 'center',
   },
   footerGroup: {
     gap: 8,

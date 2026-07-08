@@ -37,8 +37,8 @@ export const Typography = {
   /** Onboarding & auth headings */
   heading: {
     fontFamily: FontFamily.bold,
-    fontSize: 32,
-    lineHeight: 40,
+    fontSize: 36,
+    lineHeight: 44,
   },
 
   /** Auth sub-heading */
@@ -72,22 +72,22 @@ export const Typography = {
   /** Social login button label */
   socialButton: {
     fontFamily: FontFamily.medium,
-    fontSize: 16,
-    lineHeight: 22,
+    fontSize: 18,
+    lineHeight: 24,
   },
 
   /** Footer links — "Sign up" */
   caption: {
     fontFamily: FontFamily.regular,
-    fontSize: 14,
-    lineHeight: 20,
+    fontSize: 18,
+    lineHeight: 24,
   },
 
   /** Divider "or" text */
   divider: {
     fontFamily: FontFamily.regular,
-    fontSize: 14,
-    lineHeight: 20,
+    fontSize: 18,
+    lineHeight: 24,
   },
 
   /** Form field label above inputs */
@@ -100,7 +100,7 @@ export const Typography = {
   /** Text input value */
   input: {
     fontFamily: FontFamily.regular,
-    fontSize: 16,
-    lineHeight: 24,
+    fontSize: 18,
+    lineHeight: 28,
   },
 } as const;
