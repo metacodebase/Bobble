@@ -56,7 +56,7 @@ function OnboardingHeading({ stepIndex }: { stepIndex: number }) {
   const referenceWidth = Platform.OS === 'android' ? 412 : 390;
   const referenceHeight = Platform.OS === 'android' ? 915 : 844;
   const scale = Math.min(width / referenceWidth, height / referenceHeight);
-  const headingFontSize = Math.round(34 * scale);
+  const headingFontSize = Math.round(32 * scale);
   const headingLineHeight = headingFontSize + Math.round(5 * scale);
   const headingSubtitleMarginTop = Math.round(10 * scale);
 
@@ -79,7 +79,7 @@ function OnboardingHeading({ stepIndex }: { stepIndex: number }) {
           <Text style={{ color: ONBOARDING_TITLE_COLOR }}>Speak your mind and{'\n'}</Text>
           <Text style={{ color: ONBOARDING_TITLE_COLOR }}>let </Text>
           <Text style={{ color: colors.textAccent }}>Bobble</Text>
-          <Text style={{ color: ONBOARDING_TITLE_COLOR }}> give it grace.</Text>
+          <Text style={{ color: ONBOARDING_TITLE_COLOR }}> Create.</Text>
         </Text>
       </View>
     );
@@ -220,10 +220,14 @@ export default function OnboardingScreen() {
             {item.features ? (
               <View style={styles.featuresSlide}>
                 {item.mascotVariant ? (
-                  <View style={[styles.mascotSlot, { maxHeight: featuresMascotMaxHeight }]}>
+                  <View style={[{ 
+                    maxHeight: featuresMascotMaxHeight ,
+                    flex:1,
+                    width:'100%',
+                  }]}>
                     <BobbleMascot
                       variant={item.mascotVariant}
-                      size={ Math.round(width * (Platform.OS === 'android' ? 1.25 : 1.1))}
+                      size={ Math.round(width * (1.1))}
                       playAnimation={shouldPlayMascotAnimation(step, stepIndex)}
                     />
                   </View>
@@ -268,6 +272,7 @@ const styles = StyleSheet.create({
   headingWrap: {
     alignSelf: 'center',
     zIndex: 100,
+    width: '90%',
   },
   heading: {
     textAlign: 'left',
@@ -279,16 +284,12 @@ const styles = StyleSheet.create({
     width: '90%',
     alignSelf: 'center',
     alignItems: 'center',
-    justifyContent: 'center',
-    paddingTop: 4,
-    gap: 12,
+    justifyContent: 'space-evenly',
   },
   mascotSlot: {
     width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
-    flexShrink: 1,
-    marginBottom:Platform.OS === 'android' ? 4 : 0,
   },
   featureList: {
     flexShrink: 0,
@@ -303,9 +304,9 @@ const styles = StyleSheet.create({
   },
   featureText: {
     ...Typography.body,
-    fontSize:Platform.OS === 'android' ? 22 : 18,
+    fontSize:Platform.OS === 'android' ? 20 : 18,
     flex: 1,
-    lineHeight:Platform.OS === 'android' ? 30 : 28,
+    lineHeight:Platform.OS === 'android' ? 26 : 26,
   },
   featureIcon: {
     borderRadius: 120,

@@ -137,6 +137,9 @@ const styles = StyleSheet.create({
   },
   headingGroup: {
     gap: 8,
+    marginBottom: 20,
+    width: '100%',
+    alignSelf: 'center',
   },
   heading: {
     ...Typography.heading,

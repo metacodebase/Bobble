@@ -37,8 +37,8 @@ export const Typography = {
   /** Onboarding & auth headings */
   heading: {
     fontFamily: FontFamily.bold,
-    fontSize: Platform.OS === 'android' ? 36 : 32,
-    lineHeight: 44,
+    fontSize: Platform.OS === 'android' ? 32 : 30,
+    lineHeight: Platform.OS === 'android' ? 40 : 40,
   },
 
   /** Auth sub-heading */
