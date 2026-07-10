@@ -4,7 +4,7 @@ import { BobbleColors, type BobbleThemeColors } from './colors';
 import { FontFamily } from './fonts';
 
 export { BobbleColors } from './colors';
-export { DEFAULT_APP_BACKGROUND, DEFAULT_APP_BACKGROUND_COLOR } from './backgrounds';
+export { DEFAULT_APP_BACKGROUND, DEFAULT_APP_BACKGROUND_COLOR, NIGHT_APP_BACKGROUND, NIGHT_APP_BACKGROUND_COLOR } from './backgrounds';
 export { FontFamily, Typography } from './fonts';
 export type { BobbleThemeColors } from './colors';
 

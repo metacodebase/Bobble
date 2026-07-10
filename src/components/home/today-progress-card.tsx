@@ -70,7 +70,7 @@ export function TodayProgressCard({
             ]}
           />
         </View>
-        <Text style={[styles.subtitle, { color: BobbleColors.textSecondary }]}>{subtitle}</Text>
+        <Text style={[styles.subtitle, { color: BobbleColors.textSecondary,fontSize:11.5}]}>{subtitle}</Text>
       </View>
     </LinearGradient>
   );
@@ -133,11 +133,10 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     height: '40%',
     paddingHorizontal: 14,
-    paddingBottom: 14,
     justifyContent: 'space-evenly',
   },
   track: {
-    height: 8,
+    height: 5,
     borderRadius: 999,
     overflow: 'hidden',
   },

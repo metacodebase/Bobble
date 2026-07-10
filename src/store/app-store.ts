@@ -13,6 +13,8 @@ interface AppState {
   hasOnboarded: boolean;
   hasHydrated: boolean;
   themeOverride: 'light' | 'dark' | null;
+  /** Test flag: swap tab background image only (day/night detection later). */
+  nightBackground: boolean;
 
   setSession: (session: AuthSession) => void;
   setAuthToken: (token: string | null) => void;
@@ -20,6 +22,7 @@ interface AppState {
   setHasOnboarded: (value: boolean) => void;
   setHasHydrated: (value: boolean) => void;
   setThemeOverride: (theme: 'light' | 'dark' | null) => void;
+  setNightBackground: (value: boolean) => void;
   clearSession: () => void;
 }
 
@@ -33,6 +36,7 @@ const createAppState: StateCreator<AppState> = (set) => ({
   hasOnboarded: false,
   hasHydrated: isDemoMode,
   themeOverride: 'light',
+  nightBackground: false,
 
   setSession: (session) =>
     set({
@@ -56,6 +60,8 @@ const createAppState: StateCreator<AppState> = (set) => ({
   setHasHydrated: (value) => set({ hasHydrated: value }),
 
   setThemeOverride: (theme) => set({ themeOverride: theme }),
+
+  setNightBackground: (value) => set({ nightBackground: value }),
 
   clearSession: () =>
     set({

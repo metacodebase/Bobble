@@ -1,7 +1,9 @@
+import { Moon, Sun } from 'lucide-react-native';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { ProfileAvatar } from '@/src/components/create-account/profile-avatar';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
+import { useAppStore } from '@/src/store/app-store';
 import { Typography } from '@/src/theme/fonts';
 
 type HomeHeaderProps = {
@@ -12,6 +14,8 @@ type HomeHeaderProps = {
 
 export function HomeHeader({ greeting, name, onProfilePress }: HomeHeaderProps) {
   const colors = useBobbleColors();
+  const nightBackground = useAppStore((s) => s.nightBackground);
+  const setNightBackground = useAppStore((s) => s.setNightBackground);
 
   return (
     <View style={styles.row}>
@@ -19,9 +23,26 @@ export function HomeHeader({ greeting, name, onProfilePress }: HomeHeaderProps) 
         <Text style={[styles.greeting, { color: colors.textSecondary }]}>{greeting},</Text>
         <Text style={[styles.name, { color: colors.text }]}>{name} 👋</Text>
       </View>
-      <Pressable onPress={onProfilePress} hitSlop={8}>
-        <ProfileAvatar size={48} showCamera={false} centered={false} />
-      </Pressable>
+
+      <View style={styles.actions}>
+        <Pressable
+          onPress={() => setNightBackground(!nightBackground)}
+          hitSlop={8}
+          accessibilityRole="button"
+          accessibilityLabel={nightBackground ? 'Use day background' : 'Use night background'}
+          style={styles.nightToggle}
+        >
+          {nightBackground ? (
+            <Sun size={22} color={colors.primary} strokeWidth={2.2} />
+          ) : (
+            <Moon size={22} color={colors.primary} strokeWidth={2.2} />
+          )}
+        </Pressable>
+
+        <Pressable onPress={onProfilePress} hitSlop={8}>
+          <ProfileAvatar size={48} showCamera={false} centered={false} />
+        </Pressable>
+      </View>
     </View>
   );
 }
@@ -45,5 +66,13 @@ const styles = StyleSheet.create({
     ...Typography.heading,
     fontSize: 30,
     lineHeight: 38,
+  },
+  actions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  nightToggle: {
+    padding: 6,
   },
 });

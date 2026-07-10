@@ -73,8 +73,6 @@ function NavigationThemeProvider({ children }: { children: ReactNode }) {
 function AppShell() {
   const hasHydrated = useAppStore((s) => s.hasHydrated);
   const isAuthenticated = useAppStore((s) => s.isAuthenticated);
-  const colorScheme = useColorScheme();
-  const colors = useBobbleColors();
   const router = useRouter();
   const segments = useSegments();
   const [fontsLoaded] = useFonts({
@@ -85,10 +83,8 @@ function AppShell() {
 
   useLayoutEffect(() => {
     if (!hasHydrated) return;
-    void SystemUI.setBackgroundColorAsync(
-      colorScheme === 'dark' ? colors.background : DEFAULT_APP_BACKGROUND_COLOR,
-    );
-  }, [hasHydrated, colorScheme, colors.background]);
+    void SystemUI.setBackgroundColorAsync(DEFAULT_APP_BACKGROUND_COLOR);
+  }, [hasHydrated]);
 
   useEffect(() => {
     if (!hasHydrated || !fontsLoaded || !isAuthenticated) return;
@@ -131,8 +127,7 @@ function AppShell() {
               headerShown: false,
               animation: 'slide_from_bottom',
               contentStyle: {
-                backgroundColor:
-                  colorScheme === 'dark' ? colors.background : DEFAULT_APP_BACKGROUND_COLOR,
+                backgroundColor: DEFAULT_APP_BACKGROUND_COLOR,
               },
             }}
           />
