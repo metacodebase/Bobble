@@ -8,6 +8,7 @@ import { BobbleMascot } from '@/src/components/onboarding/bobble-mascot';
 import { OnboardingScreenLayout } from '@/src/components/onboarding/onboarding-screen-layout';
 import { PrimaryButton } from '@/src/components/onboarding/primary-button';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
+import { DEFAULT_APP_BACKGROUND } from '@/src/theme/backgrounds';
 import { Typography } from '@/src/theme/fonts';
 
 const SPLASH_TITLE_COLOR = '#2E2A87';
@@ -31,7 +32,7 @@ export default function AuthSplashScreen() {
 
   return (
     <OnboardingScreenLayout
-      backgroundImage={require('@/src/assets/images/background/one.png')}
+      backgroundImage={DEFAULT_APP_BACKGROUND}
       contentStyle={styles.content}
       footer={
         <PrimaryButton

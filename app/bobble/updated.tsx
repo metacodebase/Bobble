@@ -19,7 +19,6 @@ export default function BobbleUpdatedScreen() {
         {
           paddingTop: insets.top + 40,
           paddingBottom: insets.bottom + 24,
-          backgroundColor: colors.background,
         },
       ]}
     >

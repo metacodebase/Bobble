@@ -49,7 +49,6 @@ export default function ProcessingScreen() {
         {
           paddingTop: insets.top + 8,
           paddingBottom: insets.bottom + 24,
-          backgroundColor: colors.background,
         },
       ]}
     >

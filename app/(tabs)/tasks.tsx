@@ -79,7 +79,7 @@ export default function TasksScreen() {
   };
 
   return (
-    <View style={[styles.root, { paddingTop: insets.top + 12, backgroundColor: colors.background }]}>
+    <View style={[styles.root, { paddingTop: insets.top + 12 }]}>
       <View style={styles.header}>
         <ScreenHeader title="Tasks" rightIcon={Settings} />
         <FilterChips options={TASK_FILTERS} active={filter} onChange={setFilter} />

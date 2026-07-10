@@ -29,7 +29,7 @@ export default function HomeScreen() {
   };
 
   return (
-    <View style={[styles.root, { paddingTop: insets.top + 8, backgroundColor: colors.background }]}>
+    <View style={[styles.root, { paddingTop: insets.top + 8 }]}>
       <ScrollView
         contentContainerStyle={[
           styles.scrollContent,

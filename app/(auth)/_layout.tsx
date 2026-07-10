@@ -4,7 +4,11 @@ export default function AuthLayout() {
   return (
     <Stack
       initialRouteName="splash"
-      screenOptions={{ headerShown: false, animation: 'slide_from_right' }}
+      screenOptions={{
+        headerShown: false,
+        animation: 'slide_from_right',
+        contentStyle: { backgroundColor: 'transparent' },
+      }}
     >
       <Stack.Screen name="splash" options={{ animation: 'none' }} />
       <Stack.Screen name="onboarding" />

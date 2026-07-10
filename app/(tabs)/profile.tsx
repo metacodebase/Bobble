@@ -40,7 +40,7 @@ export default function ProfileScreen() {
   const gamification = user?.gamification;
 
   return (
-    <View style={[styles.root, { paddingTop: insets.top + 12, backgroundColor: colors.background }]}>
+    <View style={[styles.root, { paddingTop: insets.top + 12 }]}>
       <View style={styles.header}>
         <ScreenHeader
           title="Profile"

@@ -26,7 +26,7 @@ export default function BobblesScreen() {
   const bobbles = filterBobbles(filter, query);
 
   return (
-    <View style={[styles.root, { paddingTop: insets.top + 12, backgroundColor: colors.background }]}>
+    <View style={[styles.root, { paddingTop: insets.top + 12 }]}>
       <View style={styles.header}>
         <ScreenHeader title="Bobbles" />
         <SearchBar

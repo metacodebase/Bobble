@@ -18,7 +18,7 @@ export default function CalendarScreen() {
   const dayEvents = DEMO_CALENDAR.events.filter((event) => event.day === selectedDay);
 
   return (
-    <View style={[styles.root, { paddingTop: insets.top + 12, backgroundColor: colors.background }]}>
+    <View style={[styles.root, { paddingTop: insets.top + 12 }]}>
       <ScrollView
         contentContainerStyle={[styles.scroll, { paddingBottom: tabBarHeight + 40 }]}
         showsVerticalScrollIndicator={false}
@@ -40,7 +40,7 @@ export default function CalendarScreen() {
         ) : null}
       </ScrollView>
 
-      <View style={[styles.footer, { paddingBottom: tabBarHeight, backgroundColor: colors.background }]}>
+      <View style={[styles.footer, { paddingBottom: tabBarHeight }]}>
         <PrimaryButton style={styles.addAction} label="+ Add Event" onPress={() => {}} />
       </View>
     </View>

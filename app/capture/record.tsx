@@ -57,7 +57,6 @@ export default function RecordScreen() {
         {
           paddingTop: insets.top + 8,
           paddingBottom: insets.bottom + 24,
-          backgroundColor: '#F5F2FB',
         },
       ]}
     >

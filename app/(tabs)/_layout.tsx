@@ -2,11 +2,8 @@ import { Tabs } from 'expo-router';
 import React from 'react';
 
 import { FloatingTabBar } from '@/src/components/ui/floating-tab-bar';
-import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 
 export default function TabLayout() {
-  const colors = useBobbleColors();
-
   return (
     <Tabs
       tabBar={(props) => <FloatingTabBar {...props} />}
@@ -19,7 +16,7 @@ export default function TabLayout() {
           elevation: 0,
         },
         sceneStyle: {
-          backgroundColor: colors.background,
+          backgroundColor: 'transparent',
         },
       }}
     >

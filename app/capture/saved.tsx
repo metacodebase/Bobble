@@ -19,7 +19,6 @@ export default function SavedScreen() {
         {
           paddingTop: insets.top + 24,
           paddingBottom: insets.bottom + 24,
-          backgroundColor: colors.background,
         },
       ]}
     >

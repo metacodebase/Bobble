@@ -20,7 +20,7 @@ export function SettingsScreenLayout({ title, children }: SettingsScreenLayoutPr
     <View
       style={[
         styles.root,
-        { backgroundColor: colors.background, paddingTop: insets.top + 8, paddingBottom: insets.bottom + 24 },
+        { paddingTop: insets.top + 8, paddingBottom: insets.bottom + 24 },
       ]}
     >
       <View style={styles.headerBlock}>

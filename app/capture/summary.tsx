@@ -76,7 +76,7 @@ export default function SummaryScreen() {
   }, []);
 
   return (
-    <View style={[styles.root, { paddingTop: insets.top + 8, backgroundColor: colors.background }]}>
+    <View style={[styles.root, { paddingTop: insets.top + 8 }]}>
       <View style={styles.headerBlock}>
         <CaptureHeader onBack={() => router.back()} rightIcon={Pencil} />
         <SegmentTabs active={tab} onChange={setTab} compact={tab === 'mindmap'} />
@@ -104,9 +104,7 @@ export default function SummaryScreen() {
         />
       </ScrollView>
 
-      <View
-        style={[styles.footer, { paddingBottom: insets.bottom + 16, backgroundColor: colors.background }]}
-      >
+      <View style={[styles.footer, { paddingBottom: insets.bottom + 16 }]}>
         <PrimaryButton
           label="Save Bobble"
           style={styles.saveAction}

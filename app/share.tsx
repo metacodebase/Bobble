@@ -23,7 +23,6 @@ export default function ShareScreen() {
         {
           paddingTop: insets.top + 12,
           paddingBottom: insets.bottom + 24,
-          backgroundColor: colors.background,
         },
       ]}
     >

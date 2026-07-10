@@ -7,7 +7,6 @@ import { useAppStore } from '@/src/store/app-store';
 
 export default function AccountScreen() {
   const insets = useSafeAreaInsets();
-  const background = useThemeColor({}, 'background');
   const text = useThemeColor({}, 'text');
   const textSecondary = useThemeColor({}, 'textSecondary');
   const primary = useThemeColor({}, 'primary');
@@ -15,7 +14,7 @@ export default function AccountScreen() {
   const logout = useLogout();
 
   return (
-    <View style={[styles.root, { backgroundColor: background, paddingTop: insets.top + 16 }]}>
+    <View style={[styles.root, { paddingTop: insets.top + 16 }]}>
       <Text style={[styles.title, { color: text }]}>Account</Text>
       <Text style={[styles.subtitle, { color: textSecondary }]}>
         {user ? `Signed in as ${user.email}` : 'Guest mode'}
