@@ -1,5 +1,5 @@
 import { Href, router } from 'expo-router';
-import { Brain, CircleCheck, Lightbulb, Mic, Star } from 'lucide-react-native';
+import { Mic } from 'lucide-react-native';
 import { Dimensions, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -20,30 +20,22 @@ const QUICK_ACTIONS = [
   {
     id: 'idea',
     label: 'Idea',
-    icon: Lightbulb,
-    iconColor: '#E879F9',
-    iconBackground: '#FCE7F3',
+    icon: require('@/src/assets/images/quick-action-idea.png'),
   },
   {
     id: 'task',
     label: 'Task',
-    icon: CircleCheck,
-    iconColor: '#22C55E',
-    iconBackground: '#DCFCE7',
+    icon: require('@/src/assets/images/quick-action-task.png'),
   },
   {
     id: 'brain-dump',
     label: 'Brain Dump',
-    icon: Brain,
-    iconColor: '#9F52F2',
-    iconBackground: '#F3E8FF',
+    icon: require('@/src/assets/images/quick-action-brain-dump.png'),
   },
   {
     id: 'reflection',
     label: 'Reflection',
-    icon: Star,
-    iconColor: '#F59E0B',
-    iconBackground: '#FEF3C7',
+    icon: require('@/src/assets/images/quick-action-reflection.png'),
   },
 ] as const;
 
@@ -102,8 +94,7 @@ export default function HomeScreen() {
               key={action.id}
               label={action.label}
               icon={action.icon}
-              iconColor={action.iconColor}
-              iconBackground={action.iconBackground}
+              iconSize={action.id === 'task' ? 34 : undefined}
               onPress={startCapture}
             />
           ))}
