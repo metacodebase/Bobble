@@ -25,8 +25,8 @@ export function TodayFocusCard({ message = 'Record your first Bobble.' }: TodayF
     >
       <Text style={[styles.title, { color: colors.primary }]}>Today's Focus</Text>
       <View style={styles.body}>
-        
-        <Text style={[styles.message, { color: colors.text }]}>
+
+        <Text style={[styles.message, { color: colors.textSecondary }]}>
           {message === 'Record your first Bobble.' ? (
             <>
               Record your first <Text style={{ color: colors.primary }}>Bobble</Text>.
@@ -35,7 +35,9 @@ export function TodayFocusCard({ message = 'Record your first Bobble.' }: TodayF
             message
           )}
         </Text>
-        <Image source={SLEEP_MASCOT} style={styles.mascot} contentFit="fill" />
+        <View style={{ width: "100%", height: "50%", alignItems:"center",justifyContent:"center" }}>
+          <Image source={SLEEP_MASCOT} style={styles.mascot} contentFit="contain" />
+        </View>
       </View>
     </View>
   );
@@ -44,7 +46,7 @@ export function TodayFocusCard({ message = 'Record your first Bobble.' }: TodayF
 const styles = StyleSheet.create({
   card: {
     height: '100%',
-    width:"49%",
+    width: "49%",
     borderRadius: 20,
     borderWidth: 1,
     padding: 14,
@@ -64,9 +66,9 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   mascot: {
-    width: '100%',
-    height: '72%',
-    marginLeft: 15,
+    height: 100,
+    width:150,
+    marginLeft:15,
   },
   message: {
     ...Typography.body,
