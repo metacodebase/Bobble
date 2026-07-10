@@ -15,10 +15,12 @@ import {
 } from '@/src/data/demo-data';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { useTabBarInsets } from '@/src/hooks/use-tab-bar-insets';
+import { useCaptureStore } from '@/src/store/capture-store';
 
 export default function BobblesScreen() {
   const insets = useSafeAreaInsets();
   const colors = useBobbleColors();
+  const setCaptureKind = useCaptureStore((state) => state.setCaptureKind);
   const { height: tabBarHeight } = useTabBarInsets();
   const fabBottom = tabBarHeight + 16;
   const [filter, setFilter] = useState<BobbleFilter>('All');
@@ -53,7 +55,10 @@ export default function BobblesScreen() {
 
       <FabButton
         bottom={fabBottom}
-        onPress={() => router.push('/capture/record' as Href)}
+        onPress={() => {
+          setCaptureKind('bobble');
+          router.push('/capture/record' as Href);
+        }}
       />
     </View>
   );

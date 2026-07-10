@@ -15,7 +15,7 @@ type TodayProgressCardProps = {
 export function TodayProgressCard({
   completed = 0,
   total = 3,
-  subtitle = 'Your day is just beginning, record your first Bobble.',
+  subtitle = 'Start with one small task, Bobble will celebrate the rest.',
 }: TodayProgressCardProps) {
   const progress = total > 0 ? Math.min(completed / total, 1) : 0;
 
@@ -54,7 +54,7 @@ export function TodayProgressCard({
               styles.fill,
               {
                 width: `${progress * 100}%`,
-                backgroundColor: BobbleColors.textOnPrimary,
+                backgroundColor: BobbleColors.primary,
               },
             ]}
           />

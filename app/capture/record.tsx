@@ -9,7 +9,7 @@ import { RecordingControls } from '@/src/components/capture/recording-controls';
 import { RecordingVisualizer } from '@/src/components/capture/recording-visualizer';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { useVoiceRecorder } from '@/src/hooks/use-voice-recorder';
-import { useCaptureStore } from '@/src/store/capture-store';
+import { CAPTURE_COPY, useCaptureStore } from '@/src/store/capture-store';
 import { Typography } from '@/src/theme/fonts';
 
 function formatElapsed(seconds: number) {
@@ -24,8 +24,10 @@ export default function RecordScreen() {
   const [elapsed, setElapsed] = useState(0);
   const [paused, setPaused] = useState(false);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const captureKind = useCaptureStore((state) => state.captureKind);
   const setRecording = useCaptureStore((state) => state.setRecording);
   const { metering, stopRecording } = useVoiceRecorder(paused);
+  const copy = CAPTURE_COPY[captureKind];
 
   useEffect(() => {
     if (paused) {
@@ -61,7 +63,7 @@ export default function RecordScreen() {
       ]}
     >
       <CaptureHeader
-        title="New Bobble"
+        title={copy.title}
         centered
         onBack={() => router.back()}
         titleColor="#17164B"
@@ -69,7 +71,7 @@ export default function RecordScreen() {
 
       <View style={styles.statusBlock}>
         <Text style={[styles.status, { color: colors.primary }]}>
-          {paused ? 'Paused' : 'Listening...'}
+          {paused ? 'Paused' : copy.listening}
         </Text>
         <Text style={[styles.timer, { color: '#17164B' }]}>{formatElapsed(elapsed)}</Text>
       </View>

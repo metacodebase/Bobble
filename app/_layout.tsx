@@ -125,7 +125,17 @@ function AppShell() {
           <Stack.Screen name="index" options={{ headerShown: false }} />
           <Stack.Screen name="(auth)" options={{ headerShown: false }} />
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="capture" options={{ headerShown: false, animation: 'slide_from_bottom' }} />
+          <Stack.Screen
+            name="capture"
+            options={{
+              headerShown: false,
+              animation: 'slide_from_bottom',
+              contentStyle: {
+                backgroundColor:
+                  colorScheme === 'dark' ? colors.background : DEFAULT_APP_BACKGROUND_COLOR,
+              },
+            }}
+          />
           <Stack.Screen name="bobble" options={{ headerShown: false }} />
           <Stack.Screen name="settings" options={{ headerShown: false }} />
           <Stack.Screen name="share" options={{ presentation: 'modal', headerShown: false }} />

@@ -13,6 +13,7 @@ import { BobblesTabIcon } from '@/src/components/ui/bobbles-tab-icon';
 import { TAB_ICON_SIZE } from '@/src/components/ui/tab-bar-icons';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { useColorScheme } from '@/src/hooks/use-color-scheme';
+import { useCaptureStore } from '@/src/store/capture-store';
 import { BobbleColors } from '@/src/theme/colors';
 import { FontFamily } from '@/src/theme/fonts';
 
@@ -75,6 +76,7 @@ export function FloatingTabBar({ state, navigation }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
   const scheme = useColorScheme();
   const colors = useBobbleColors();
+  const setCaptureKind = useCaptureStore((state) => state.setCaptureKind);
   const glassEnabled = useLiquidGlassTabBar();
   const bottom = Math.max(insets.bottom, 10);
 
@@ -145,7 +147,10 @@ export function FloatingTabBar({ state, navigation }: BottomTabBarProps) {
             return (
               <View key="mic" style={styles.micSlot}>
                 <Pressable
-                  onPress={() => router.push('/capture/record' as Href)}
+                  onPress={() => {
+                    setCaptureKind('bobble');
+                    router.push('/capture/record' as Href);
+                  }}
                   style={styles.micHitArea}
                 >
                   {({ pressed }) => (
