@@ -44,13 +44,13 @@ export function TaskRow({ task, onToggle, onPress, onDelete }: TaskRowProps) {
   );
 
   const content = (
-    <View style={[styles.row, { borderBottomColor: colors.border, backgroundColor: colors.background }]}>
+    <View style={[styles.row, { borderBottomColor: colors.border, backgroundColor: 'transparent' }]}>
       <Pressable
         onPress={onToggle}
         hitSlop={8}
         style={[
           styles.checkbox,
-          { borderColor: colors.border },
+          { borderColor: colors.textSecondary },
           task.done && { backgroundColor: colors.primary, borderColor: colors.primary },
         ]}
       >

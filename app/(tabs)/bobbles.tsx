@@ -9,8 +9,8 @@ import { FilterChips } from '@/src/components/ui/filter-chips';
 import { ScreenHeader } from '@/src/components/ui/screen-header';
 import { SearchBar } from '@/src/components/ui/search-bar';
 import {
-  BobbleFilter,
   BOBBLE_FILTERS,
+  BobbleFilter,
   filterBobbles,
 } from '@/src/data/demo-data';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
@@ -67,17 +67,17 @@ export default function BobblesScreen() {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    paddingHorizontal: 24,
+    paddingHorizontal: 16,
   },
   header: {
     gap: 12,
     marginBottom: 8,
-    width: '95%',
+    width: '100%',
     alignSelf: 'center',
   },
   list: {
     paddingTop: 4,
-    width: '95%',
+    width: '100%',
     alignSelf: 'center',
   },
 });

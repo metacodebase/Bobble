@@ -1,14 +1,14 @@
+import { Settings } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
 import { ActivityIndicator, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Settings } from 'lucide-react-native';
 
 import { TaskFormSheet, TaskFormValues } from '@/src/components/tasks/task-form-sheet';
 import { TaskSection } from '@/src/components/tasks/task-section';
 import { FAB_SIZE, FabButton } from '@/src/components/ui/fab-button';
 import { FilterChips } from '@/src/components/ui/filter-chips';
 import { ScreenHeader } from '@/src/components/ui/screen-header';
-import { TaskFilter, TASK_FILTERS } from '@/src/data/demo-data';
+import { TASK_FILTERS, TaskFilter } from '@/src/data/demo-data';
 import { buildTaskSections } from '@/src/features/tasks/adapter';
 import type { TaskFilterParam } from '@/src/features/tasks/types';
 import {
@@ -137,17 +137,17 @@ export default function TasksScreen() {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    paddingHorizontal: 24,
+    paddingHorizontal: 16,
   },
   header: {
     gap: 12,
     marginBottom: 8,
-    width: '95%',
+    width: '100%',
     alignSelf: 'center',
   },
   scroll: {
     paddingTop: 4,
-    width: '95%',
+    width: '100%',
     alignSelf: 'center',
   },
   state: {
@@ -156,7 +156,7 @@ const styles = StyleSheet.create({
   stateText: {
     textAlign: 'center',
     marginTop: 48,
-    width: '95%',
+    width: '100%',
     alignSelf: 'center',
   },
 });

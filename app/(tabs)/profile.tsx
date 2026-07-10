@@ -104,14 +104,14 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    paddingHorizontal: 24,
+    paddingHorizontal: 16,
     marginBottom: 4,
   },
   content: {
-    paddingHorizontal: 24,
+    paddingHorizontal: 16,
   },
   heroCard: {
-    width: '95%',
+    width: '100%',
     alignSelf: 'center',
     borderRadius: 24,
     paddingHorizontal: 16,
@@ -137,12 +137,12 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   badgeWrap: {
-    width: '95%',
+    width: '100%',
     alignSelf: 'center',
     marginBottom: 24,
   },
   menu: {
-    width: '95%',
+    width: '100%',
     alignSelf: 'center',
     borderRadius: 20,
     paddingHorizontal: 16,
