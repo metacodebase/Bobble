@@ -17,7 +17,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 
 import { ApiBootstrap } from '@/src/components/api-bootstrap';
-import { AppBackground } from '@/src/components/ui/app-background';
+import { AppBackground, useAppBackdrop } from '@/src/components/ui/app-background';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { useColorScheme } from '@/src/hooks/use-color-scheme';
 import { queryClient } from '@/src/services/query-client';
@@ -36,6 +36,7 @@ export const unstable_settings = {
 function NavigationThemeProvider({ children }: { children: ReactNode }) {
   const colorScheme = useColorScheme();
   const colors = useBobbleColors();
+  const { color: backdropColor } = useAppBackdrop();
 
   const navigationTheme =
     colorScheme === 'dark'
@@ -44,7 +45,7 @@ function NavigationThemeProvider({ children }: { children: ReactNode }) {
           colors: {
             ...DarkTheme.colors,
             primary: BobbleColors.primaryLight,
-            background: 'transparent',
+            background: backdropColor,
             card: colors.surface,
             text: colors.text,
             border: colors.border,
@@ -55,7 +56,7 @@ function NavigationThemeProvider({ children }: { children: ReactNode }) {
           colors: {
             ...DefaultTheme.colors,
             primary: BobbleColors.primary,
-            background: 'transparent',
+            background: backdropColor,
             card: colors.surface,
             text: colors.text,
             border: colors.border,
@@ -73,6 +74,7 @@ function NavigationThemeProvider({ children }: { children: ReactNode }) {
 function AppShell() {
   const hasHydrated = useAppStore((s) => s.hasHydrated);
   const isAuthenticated = useAppStore((s) => s.isAuthenticated);
+  const { color: backdropColor } = useAppBackdrop();
   const router = useRouter();
   const segments = useSegments();
   const [fontsLoaded] = useFonts({
@@ -83,8 +85,8 @@ function AppShell() {
 
   useLayoutEffect(() => {
     if (!hasHydrated) return;
-    void SystemUI.setBackgroundColorAsync(DEFAULT_APP_BACKGROUND_COLOR);
-  }, [hasHydrated]);
+    void SystemUI.setBackgroundColorAsync(backdropColor);
+  }, [hasHydrated, backdropColor]);
 
   useEffect(() => {
     if (!hasHydrated || !fontsLoaded || !isAuthenticated) return;
@@ -117,7 +119,10 @@ function AppShell() {
     <AppBackground>
       <ApiBootstrap />
       <NavigationThemeProvider>
-        <Stack screenOptions={{ contentStyle: { backgroundColor: 'transparent' } }}>
+        <Stack
+          screenLayout={({ children }) => <AppBackground>{children}</AppBackground>}
+          screenOptions={{ contentStyle: { backgroundColor: backdropColor } }}
+        >
           <Stack.Screen name="index" options={{ headerShown: false }} />
           <Stack.Screen name="(auth)" options={{ headerShown: false }} />
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />

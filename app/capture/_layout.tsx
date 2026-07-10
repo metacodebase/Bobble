@@ -13,10 +13,23 @@ export default function CaptureLayout() {
 
   const stack = (
     <Stack
+      screenLayout={({ children }) =>
+        colorScheme === 'dark' ? (
+          <View style={[styles.root, { backgroundColor }]}>{children}</View>
+        ) : (
+          <ImageBackground
+            source={DEFAULT_APP_BACKGROUND}
+            style={[styles.root, { backgroundColor }]}
+            resizeMode="cover"
+          >
+            {children}
+          </ImageBackground>
+        )
+      }
       screenOptions={{
         headerShown: false,
         animation: 'slide_from_right',
-        contentStyle: { backgroundColor: 'transparent' },
+        contentStyle: { backgroundColor },
       }}
     >
       <Stack.Screen name="record" />

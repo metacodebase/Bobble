@@ -1,22 +1,30 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
 
+import { AppBackground, useAppBackdrop } from '@/src/components/ui/app-background';
 import { FloatingTabBar } from '@/src/components/ui/floating-tab-bar';
 
 export default function TabLayout() {
+  const { color } = useAppBackdrop();
+
   return (
     <Tabs
       tabBar={(props) => <FloatingTabBar {...props} />}
+      screenLayout={({ children }) => <AppBackground>{children}</AppBackground>}
       screenOptions={{
         headerShown: false,
+        animation: 'none',
+        freezeOnBlur: true,
+        // Opaque scene prevents Android from flashing the previous tab through
+        // transparent navigator chrome during attach/detach.
+        sceneStyle: {
+          backgroundColor: color,
+        },
         tabBarStyle: {
           position: 'absolute',
           backgroundColor: 'transparent',
           borderTopWidth: 0,
           elevation: 0,
-        },
-        sceneStyle: {
-          backgroundColor: 'transparent',
         },
       }}
     >

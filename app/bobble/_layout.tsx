@@ -1,12 +1,17 @@
 import { Stack } from 'expo-router';
 
+import { AppBackground, useAppBackdrop } from '@/src/components/ui/app-background';
+
 export default function BobbleLayout() {
+  const { color } = useAppBackdrop();
+
   return (
     <Stack
+      screenLayout={({ children }) => <AppBackground>{children}</AppBackground>}
       screenOptions={{
         headerShown: false,
         animation: 'slide_from_right',
-        contentStyle: { backgroundColor: 'transparent' },
+        contentStyle: { backgroundColor: color },
       }}
     >
       <Stack.Screen name="[id]" />

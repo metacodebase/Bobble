@@ -13,21 +13,27 @@ type AppBackgroundProps = {
   children: ReactNode;
 };
 
+/** Day/night backdrop source + solid fallback color for opaque navigator scenes. */
+export function useAppBackdrop() {
+  const nightBackground = useAppStore((s) => s.nightBackground);
+
+  return {
+    nightBackground,
+    source: nightBackground ? NIGHT_APP_BACKGROUND : DEFAULT_APP_BACKGROUND,
+    color: nightBackground
+      ? NIGHT_APP_BACKGROUND_COLOR
+      : DEFAULT_APP_BACKGROUND_COLOR,
+  };
+}
+
 /** App-wide background. Swaps day/night image only — no theme color changes. */
 export function AppBackground({ children }: AppBackgroundProps) {
-  const nightBackground = useAppStore((s) => s.nightBackground);
+  const { source, color } = useAppBackdrop();
 
   return (
     <ImageBackground
-      source={nightBackground ? NIGHT_APP_BACKGROUND : DEFAULT_APP_BACKGROUND}
-      style={[
-        styles.root,
-        {
-          backgroundColor: nightBackground
-            ? NIGHT_APP_BACKGROUND_COLOR
-            : DEFAULT_APP_BACKGROUND_COLOR,
-        },
-      ]}
+      source={source}
+      style={[styles.root, { backgroundColor: color }]}
       resizeMode="cover"
     >
       {children}
