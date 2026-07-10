@@ -1,4 +1,4 @@
-import { ChevronRight } from 'lucide-react-native';
+import { ChevronRight, LucideIcon } from 'lucide-react-native';
 import { ActivityIndicator, Platform, Pressable, StyleSheet, Text, View, ViewStyle } from 'react-native';
 
 import { BobbleColors } from '@/src/theme/colors';
@@ -10,6 +10,8 @@ type PrimaryButtonProps = {
   style?: ViewStyle;
   disabled?: boolean;
   loading?: boolean;
+  icon?: LucideIcon;
+  showChevron?: boolean;
 };
 
 export function PrimaryButton({
@@ -18,6 +20,8 @@ export function PrimaryButton({
   style,
   disabled = false,
   loading = false,
+  icon: Icon,
+  showChevron = true,
 }: PrimaryButtonProps) {
   const isDisabled = disabled || loading;
 
@@ -36,13 +40,23 @@ export function PrimaryButton({
         <ActivityIndicator color={BobbleColors.textOnPrimary} />
       ) : (
         <View style={styles.content}>
+          {Icon ? (
+            <Icon
+              size={20}
+              color={BobbleColors.textOnPrimary}
+              strokeWidth={2.4}
+              style={styles.leadingIcon}
+            />
+          ) : null}
           <Text style={styles.label}>{label}</Text>
-          <ChevronRight
-            size={22}
-            color={BobbleColors.textOnPrimary}
-            strokeWidth={2.5}
-            style={styles.chevron}
-          />
+          {showChevron ? (
+            <ChevronRight
+              size={22}
+              color={BobbleColors.textOnPrimary}
+              strokeWidth={2.5}
+              style={styles.chevron}
+            />
+          ) : null}
         </View>
       )}
     </Pressable>
@@ -70,7 +84,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    gap: 10,
     width: '100%',
+  },
+  leadingIcon: {
+    marginTop: 1,
   },
   label: {
     ...Typography.button,
