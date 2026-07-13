@@ -6,6 +6,8 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { Typography } from '@/src/theme/fonts';
 
+const PROCESSING_TEXT = '#17164B';
+
 type RecordingPlaybackBarProps = {
   uri: string;
   durationSeconds?: number;
@@ -47,7 +49,7 @@ export function RecordingPlaybackBar({ uri, durationSeconds = 0 }: RecordingPlay
   };
 
   return (
-    <View style={[styles.root, { backgroundColor: colors.borderLight }]}>
+    <View style={styles.root}>
       <Pressable
         onPress={handleTogglePlayback}
         style={({ pressed }) => [
@@ -66,8 +68,8 @@ export function RecordingPlaybackBar({ uri, durationSeconds = 0 }: RecordingPlay
       </Pressable>
 
       <View style={styles.trackBlock}>
-        <Text style={[styles.label, { color: colors.text }]}>Your recording</Text>
-        <View style={[styles.track, { backgroundColor: colors.surface }]}>
+        <Text style={styles.label}>Your recording</Text>
+        <View style={[styles.track, { backgroundColor: `${colors.primary}22` }]}>
           <View
             style={[
               styles.fill,
@@ -79,10 +81,10 @@ export function RecordingPlaybackBar({ uri, durationSeconds = 0 }: RecordingPlay
           />
         </View>
         <View style={styles.timeRow}>
-          <Text style={[styles.time, { color: colors.textSecondary }]}>
+          <Text style={[styles.time, { color: colors.primaryMuted }]}>
             {formatTime(status.currentTime)}
           </Text>
-          <Text style={[styles.time, { color: colors.textSecondary }]}>
+          <Text style={[styles.time, { color: colors.primaryMuted }]}>
             {formatTime(totalDuration)}
           </Text>
         </View>
@@ -97,7 +99,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 14,
     borderRadius: 20,
-    padding: 14,
+    padding: 16,
+    backgroundColor: '#FFFFFF',
+    shadowColor: '#9F52F2',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 3,
   },
   playButton: {
     width: 44,
@@ -116,6 +124,8 @@ const styles = StyleSheet.create({
   label: {
     ...Typography.caption,
     fontFamily: Typography.button.fontFamily,
+    color: PROCESSING_TEXT,
+    fontSize: 14,
   },
   track: {
     height: 6,

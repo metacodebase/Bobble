@@ -36,7 +36,10 @@ export function CaptureHeader({
       <View style={[styles.side, leftLabel ? styles.sideWide : null]}>
         {leftLabel ? (
           <Pressable onPress={onLeftPress} hitSlop={12} style={styles.iconButton}>
-            <Text style={[styles.leftLabel, { color: mutedIconColor }]}>{leftLabel}</Text>
+            <View style={styles.leftLabelRow}>
+              <ChevronLeft size={22} color={mutedIconColor} strokeWidth={2} />
+              <Text style={[styles.leftLabel, { color: mutedIconColor }]}>{leftLabel}</Text>
+            </View>
           </Pressable>
         ) : onBack ? (
           <Pressable onPress={onBack} hitSlop={12} style={styles.iconButton}>
@@ -94,7 +97,11 @@ const styles = StyleSheet.create({
   },
   leftLabel: {
     ...Typography.button,
-    textDecorationLine: 'underline',
+  },
+  leftLabelRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 2,
   },
   sideRight: {
     alignItems: 'flex-end',

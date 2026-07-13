@@ -1,12 +1,17 @@
-import { Check } from 'lucide-react-native';
-import { Platform, StyleSheet, Text, View } from 'react-native';
+import { Image } from 'expo-image';
+import { Ear, Lightbulb, List } from 'lucide-react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { Typography } from '@/src/theme/fonts';
 
-type ProcessingStep = {
+const PROCESSING_TEXT = '#17164B';
+const BOBBLE_ICON = require('@/src/assets/images/bobble-tab-active.png');
+
+export type ProcessingStep = {
   id: string;
   label: string;
+  icon: 'ear' | 'list' | 'lightbulb' | 'bobble';
 };
 
 type ProcessingChecklistProps = {
@@ -14,30 +19,37 @@ type ProcessingChecklistProps = {
   completedCount: number;
 };
 
-const ICON_SIZE = 28;
+const ICON_BOX = 36;
 
-function StepIcon({ done, active }: { done: boolean; active: boolean }) {
+function StepIcon({
+  type,
+  highlighted,
+}: {
+  type: ProcessingStep['icon'];
+  highlighted: boolean;
+}) {
   const colors = useBobbleColors();
-
-  if (done) {
-    return (
-      <View style={[styles.icon, styles.iconDone, { backgroundColor: colors.primary }]}>
-        <Check size={14} color={colors.textOnPrimary} strokeWidth={3} />
-      </View>
-    );
-  }
+  const iconColor = highlighted ? colors.textOnPrimary : colors.primary;
 
   return (
     <View
       style={[
-        styles.icon,
+        styles.iconBox,
         {
-          borderWidth: 2,
-          borderColor: active ? colors.primary : colors.dotInactive,
-          backgroundColor: active ? colors.borderLight : 'transparent',
+          backgroundColor: colors.primary + '18',
         },
       ]}
-    />
+    >
+      {type === 'ear' ? (
+        <Ear size={18} color={colors.primaryLight} strokeWidth={2.2} />
+      ) : type === 'list' ? (
+        <List size={18} color={colors.primaryLight} strokeWidth={2.2} />
+      ) : type === 'lightbulb' ? (
+        <Lightbulb size={18} color={colors.primaryLight} strokeWidth={2.2} />
+      ) : (
+        <Image source={BOBBLE_ICON} style={styles.bobbleIcon} contentFit="contain" />
+      )}
+    </View>
   );
 }
 
@@ -45,20 +57,25 @@ export function ProcessingChecklist({ steps, completedCount }: ProcessingCheckli
   const colors = useBobbleColors();
 
   return (
-    <View style={styles.root}>
+    <View style={[styles.container, { backgroundColor: `${colors.primary}14` }]}>
       {steps.map((step, index) => {
         const done = index < completedCount;
         const active = index === completedCount;
+        const pending = index > completedCount;
+        const highlighted = done || active;
 
         return (
-          <View key={step.id} style={styles.row}>
-            <StepIcon done={done} active={active} />
+          <View
+            key={step.id}
+            style={[styles.card, pending && styles.cardPending]}
+          >
+            <StepIcon type={step.icon} highlighted={highlighted} />
             <Text
               style={[
                 styles.label,
-                { color: colors.textSecondary },
-                done && { color: colors.text },
-                active && { color: colors.primary, fontFamily: Typography.button.fontFamily },
+                { color: PROCESSING_TEXT },
+                pending && styles.labelPending,
+                (done || active) && styles.labelActive,
               ]}
             >
               {step.label}
@@ -71,34 +88,50 @@ export function ProcessingChecklist({ steps, completedCount }: ProcessingCheckli
 }
 
 const styles = StyleSheet.create({
-  root: {
-    gap: 18,
+  container: {
     width: '100%',
-    maxWidth: 300,
-    alignSelf: 'center',
+    borderRadius: 24,
+    padding: 10,
+    gap: 8,
   },
-  row: {
+  card: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 14,
+    gap: 12,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    paddingVertical: 14,
+    paddingHorizontal: 14,
+    shadowColor: '#9F52F2',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 2,
   },
-  icon: {
-    width: ICON_SIZE,
-    height: ICON_SIZE,
-    minWidth: ICON_SIZE,
-    minHeight: ICON_SIZE,
-    borderRadius: ICON_SIZE / 2,
-    overflow: 'hidden',
+  cardPending: {
+    opacity: 0.42,
+  },
+  iconBox: {
+    width: ICON_BOX,
+    height: ICON_BOX,
+    borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
-    alignSelf: 'center',
-    ...(Platform.OS === 'android' ? { elevation: 0 } : null),
   },
-  iconDone: {
-    borderWidth: 0,
+  bobbleIcon: {
+    width: 22,
+    height: 22,
   },
   label: {
     ...Typography.body,
     flex: 1,
+    fontSize: 15,
+    lineHeight: 21,
+  },
+  labelActive: {
+    fontFamily: Typography.button.fontFamily,
+  },
+  labelPending: {
+    opacity: 0.85,
   },
 });

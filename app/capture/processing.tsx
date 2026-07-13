@@ -1,39 +1,84 @@
+import { Image } from 'expo-image';
 import { Href, router } from 'expo-router';
-import { Settings } from 'lucide-react-native';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { CaptureHeader } from '@/src/components/capture/capture-header';
-import { MASCOT_THOUGHT_ANCHOR, ProcessingAtomBadge } from '@/src/components/capture/processing-atom-badge';
+import { buildWeeklyWorkoutPlanTasks } from '@/src/components/capture/generate-capture-tasks';
 import { ProcessingChecklist } from '@/src/components/capture/processing-checklist';
+import {
+  ProcessingPreview,
+  ProcessingPreviewPhase,
+} from '@/src/components/capture/processing-preview';
+import { ProcessingTasksReview, ReviewTask } from '@/src/components/capture/processing-tasks-review';
 import { RecordingPlaybackBar } from '@/src/components/capture/recording-playback-bar';
 import { DEMO_BOBBLE } from '@/src/components/capture/summary-content';
-import { SecondaryButton } from '@/src/components/home/secondary-button';
-import { BobbleMascot } from '@/src/components/onboarding/bobble-mascot';
 import { PrimaryButton } from '@/src/components/onboarding/primary-button';
-import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
+import { useCreateTasksBulk } from '@/src/hooks/tasks';
 import { useCaptureStore } from '@/src/store/capture-store';
 import { Typography } from '@/src/theme/fonts';
 
+const PROCESSING_TEXT = '#17164B';
+const PROCESSING_MASCOT = require('@/src/assets/images/bobble-dualSound.png');
+
+const PROCESSING_AUTO_ADVANCE = true;
+
 const STEPS = [
-  { id: 'transcribe', label: 'Transcribing your voice' },
-  { id: 'context', label: 'Understanding context' },
-  { id: 'extract', label: 'Extracting key points' },
-  { id: 'organize', label: 'Organizing ideas' },
+  { id: 'listen', label: 'Listening to your Bobble...', icon: 'ear' },
+  { id: 'points', label: 'Finding the key points...', icon: 'list' },
+  { id: 'connect', label: 'Connecting your ideas...', icon: 'lightbulb' },
+  { id: 'ready', label: 'Almost ready!', icon: 'bobble' },
 ] as const;
 
 export default function ProcessingScreen() {
-  const colors = useBobbleColors();
   const insets = useSafeAreaInsets();
   const [completedCount, setCompletedCount] = useState(0);
+  const [previewPhase, setPreviewPhase] = useState<ProcessingPreviewPhase>('found');
+  const [tasks, setTasks] = useState<ReviewTask[]>([]);
   const isComplete = completedCount >= STEPS.length;
+  const showIdeas = isComplete && previewPhase === 'ideas';
+  const showTasks = isComplete && previewPhase === 'tasks';
   const recordingUri = useCaptureStore((state) => state.recordingUri);
   const recordingDurationSeconds = useCaptureStore((state) => state.recordingDurationSeconds);
   const clearRecording = useCaptureStore((state) => state.clearRecording);
+  const createTasksBulk = useCreateTasksBulk();
+
+  const handleGenerateTasks = useCallback(() => {
+    const batchId = Date.now();
+    setTasks(
+      buildWeeklyWorkoutPlanTasks().map((template, index) => ({
+        ...template,
+        id: `${batchId}-${index}`,
+      })),
+    );
+    setPreviewPhase('tasks');
+  }, []);
+
+  const handleUpdateTask = useCallback((id: string, title: string) => {
+    setTasks((prev) => prev.map((task) => (task.id === id ? { ...task, title } : task)));
+  }, []);
+
+  const handleDeleteTask = useCallback((id: string) => {
+    setTasks((prev) => prev.filter((task) => task.id !== id));
+  }, []);
+
+  const handleSaveBobble = useCallback(() => {
+    const navigateToSaved = () => router.replace('/capture/saved' as Href);
+
+    if (tasks.length === 0) {
+      navigateToSaved();
+      return;
+    }
+
+    createTasksBulk.mutate(
+      { tasks: tasks.map((task) => ({ title: task.title })) },
+      { onSettled: navigateToSaved },
+    );
+  }, [createTasksBulk, tasks]);
 
   useEffect(() => {
-    if (isComplete) return;
+    if (!PROCESSING_AUTO_ADVANCE || isComplete) return;
 
     const timeout = setTimeout(() => {
       setCompletedCount((prev) => prev + 1);
@@ -53,7 +98,6 @@ export default function ProcessingScreen() {
       ]}
     >
       <CaptureHeader
-        rightIcon={Settings}
         leftLabel="Discard"
         onLeftPress={() => {
           clearRecording();
@@ -61,78 +105,64 @@ export default function ProcessingScreen() {
         }}
       />
 
-      <Text style={[styles.title, { color: colors.text }]}>Processing with Bobble</Text>
-
       <ScrollView
         style={styles.scroll}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {recordingUri ? (
-          <View style={styles.playbackWrap}>
-            <RecordingPlaybackBar uri={recordingUri} durationSeconds={recordingDurationSeconds} />
-          </View>
-        ) : null}
-
         {!isComplete ? (
           <>
-            <View style={styles.mascotWrap}>
-              <View style={styles.mascotContainer}>
-                <BobbleMascot variant="main" size={160} />
-                <View style={[styles.thinkingBadge, { backgroundColor: colors.background }]}>
-                  <ProcessingAtomBadge backgroundColor={colors.background} />
-                </View>
-              </View>
+            <View style={styles.hero}>
+              <Text style={styles.title}>Bobble is listening...</Text>
+              <Text style={styles.subtitle}>Sit tight while I work my magic</Text>
             </View>
+
+            <View style={styles.mascotWrap}>
+              <Image source={PROCESSING_MASCOT} style={styles.mascot} contentFit="contain" />
+            </View>
+
+            {recordingUri ? (
+              <View style={styles.playbackWrap}>
+                <RecordingPlaybackBar uri={recordingUri} durationSeconds={recordingDurationSeconds} />
+              </View>
+            ) : null}
 
             <ProcessingChecklist steps={STEPS} completedCount={completedCount} />
           </>
+        ) : showTasks ? (
+          <ProcessingTasksReview
+            tasks={tasks}
+            onUpdateTask={handleUpdateTask}
+            onDeleteTask={handleDeleteTask}
+          />
         ) : (
-          <View style={styles.previewSection}>
-            <Text style={[styles.previewIntro, { color: colors.textSecondary }]}>
-              {DEMO_BOBBLE.intro}
-            </Text>
-
-            <View style={[styles.previewCard, { backgroundColor: colors.borderLight }]}>
-              <Text style={[styles.previewTitle, { color: colors.text }]}>{DEMO_BOBBLE.title}</Text>
-              <View style={styles.previewList}>
-                {DEMO_BOBBLE.bullets.map((item) => (
-                  <View key={item.label} style={styles.previewRow}>
-                    <Text style={[styles.previewDot, { color: colors.primary }]}>•</Text>
-                    <Text style={[styles.previewText, { color: colors.text }]}>
-                      <Text style={styles.previewLabel}>{item.label}: </Text>
-                      {item.value}
-                    </Text>
-                  </View>
-                ))}
-              </View>
-            </View>
-
-            <Text style={[styles.previewHint, { color: colors.textSecondary }]}>
-              Review this preview before continuing to the full summary.
-            </Text>
-          </View>
+          <ProcessingPreview phase={previewPhase} bullets={DEMO_BOBBLE.bullets} />
         )}
       </ScrollView>
 
       {isComplete ? (
         <View style={styles.actions}>
           <PrimaryButton
-            label="Continue"
+            label={showTasks ? 'Save Bobble' : showIdeas ? 'Generate Tasks' : 'Continue'}
             style={styles.primaryAction}
-            onPress={() => router.replace('/capture/summary' as Href)}
-          />
-          <SecondaryButton
-            label="Record Again"
-            style={styles.secondaryAction}
+            loading={showTasks ? createTasksBulk.isPending : false}
             onPress={() => {
-              clearRecording();
-              router.replace('/capture/record' as Href);
+              if (showTasks) {
+                handleSaveBobble();
+                return;
+              }
+
+              if (showIdeas) {
+                handleGenerateTasks();
+                return;
+              }
+
+              setPreviewPhase('ideas');
             }}
           />
         </View>
       ) : (
-        <Text style={[styles.footer, { color: colors.textSecondary }]}>Almost there...</Text>
+        <Text style={styles.footer}>This usually takes 10–20 seconds</Text>
       )}
     </View>
   );
@@ -141,33 +171,37 @@ export default function ProcessingScreen() {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    paddingHorizontal: 28,
+    paddingHorizontal: 24,
+  },
+  hero: {
+    alignItems: 'center',
+    gap: 4,
+    marginTop: 4,
+    marginBottom: 8,
   },
   title: {
     ...Typography.heading,
     fontSize: 26,
     lineHeight: 34,
+    color: PROCESSING_TEXT,
     textAlign: 'center',
-    marginTop: 8,
-    marginBottom: 24,
+  },
+  subtitle: {
+    ...Typography.body,
+    fontSize: 16,
+    lineHeight: 24,
+    color: PROCESSING_TEXT,
+    textAlign: 'center',
+    opacity: 0.85,
   },
   mascotWrap: {
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 36,
   },
-  mascotContainer: {
-    position: 'relative',
-    width: 160,
-    height: 160,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  thinkingBadge: {
-    position: 'absolute',
-    top: MASCOT_THOUGHT_ANCHOR.top,
-    right: MASCOT_THOUGHT_ANCHOR.right,
-    zIndex: 100,
+  mascot: {
+    width: 300,
+    height: 224,
+    backgroundColor: 'transparent',
   },
   scroll: {
     flex: 1,
@@ -175,71 +209,24 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     paddingBottom: 16,
+    gap: 16,
   },
   playbackWrap: {
-    width: '95%',
-    alignSelf: 'center',
-    marginBottom: 20,
-  },
-  previewSection: {
-    gap: 16,
-    paddingTop: 8,
-  },
-  previewIntro: {
-    ...Typography.body,
-    textAlign: 'center',
-  },
-  previewCard: {
-    width: '95%',
-    alignSelf: 'center',
-    borderRadius: 20,
-    padding: 20,
-    gap: 14,
-  },
-  previewTitle: {
-    ...Typography.formLabel,
-    fontSize: 18,
-    lineHeight: 26,
-  },
-  previewList: {
-    gap: 10,
-  },
-  previewRow: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  previewDot: {
-    ...Typography.body,
-    lineHeight: 24,
-  },
-  previewText: {
-    ...Typography.body,
-    flex: 1,
-  },
-  previewLabel: {
-    fontFamily: Typography.button.fontFamily,
-  },
-  previewHint: {
-    ...Typography.caption,
-    textAlign: 'center',
-    paddingHorizontal: 8,
+    width: '100%',
   },
   actions: {
-    gap: 12,
     marginTop: 'auto',
     paddingTop: 12,
   },
   primaryAction: {
-    width: '95%',
-    alignSelf: 'center',
-  },
-  secondaryAction: {
-    width: '95%',
-    alignSelf: 'center',
+    width: '100%',
   },
   footer: {
     ...Typography.body,
+    fontFamily: Typography.button.fontFamily,
+    color: PROCESSING_TEXT,
     textAlign: 'center',
     marginTop: 'auto',
+    paddingTop: 12,
   },
 });
