@@ -35,6 +35,7 @@ export default function CaptureLayout() {
       <Stack.Screen name="record" />
       <Stack.Screen name="processing" />
       <Stack.Screen name="summary" />
+      <Stack.Screen name="saving" options={{ gestureEnabled: false }} />
       <Stack.Screen name="saved" options={{ gestureEnabled: false }} />
     </Stack>
   );

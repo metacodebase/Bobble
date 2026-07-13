@@ -17,15 +17,24 @@ interface CaptureState {
   captureKind: CaptureKind;
   recordingUri: string | null;
   recordingDurationSeconds: number;
+  pendingBobbleSave: {
+    title: string;
+    dateLabel: string;
+    durationMin: number;
+    tasks: { title: string }[];
+  } | null;
   setCaptureKind: (kind: CaptureKind) => void;
   setRecording: (uri: string, durationSeconds: number) => void;
   clearRecording: () => void;
+  setPendingBobbleSave: (save: CaptureState['pendingBobbleSave']) => void;
+  clearPendingBobbleSave: () => void;
 }
 
 export const useCaptureStore = create<CaptureState>((set) => ({
   captureKind: 'bobble',
   recordingUri: null,
   recordingDurationSeconds: 0,
+  pendingBobbleSave: null,
 
   setCaptureKind: (kind) => set({ captureKind: kind }),
 
@@ -33,4 +42,8 @@ export const useCaptureStore = create<CaptureState>((set) => ({
     set({ recordingUri: uri, recordingDurationSeconds: durationSeconds }),
 
   clearRecording: () => set({ recordingUri: null, recordingDurationSeconds: 0 }),
+
+  setPendingBobbleSave: (save) => set({ pendingBobbleSave: save }),
+
+  clearPendingBobbleSave: () => set({ pendingBobbleSave: null }),
 }));

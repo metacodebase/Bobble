@@ -15,7 +15,6 @@ import { ProcessingTasksReview, ReviewTask } from '@/src/components/capture/proc
 import { RecordingPlaybackBar } from '@/src/components/capture/recording-playback-bar';
 import { DEMO_BOBBLE } from '@/src/components/capture/summary-content';
 import { PrimaryButton } from '@/src/components/onboarding/primary-button';
-import { useCreateTasksBulk } from '@/src/hooks/tasks';
 import { useCaptureStore } from '@/src/store/capture-store';
 import { Typography } from '@/src/theme/fonts';
 
@@ -42,7 +41,6 @@ export default function ProcessingScreen() {
   const recordingUri = useCaptureStore((state) => state.recordingUri);
   const recordingDurationSeconds = useCaptureStore((state) => state.recordingDurationSeconds);
   const clearRecording = useCaptureStore((state) => state.clearRecording);
-  const createTasksBulk = useCreateTasksBulk();
 
   const handleGenerateTasks = useCallback(() => {
     const batchId = Date.now();
@@ -64,19 +62,18 @@ export default function ProcessingScreen() {
   }, []);
 
   const handleSaveBobble = useCallback(() => {
-    const navigateToBobble = () =>
-      router.replace({ pathname: '/bobble/[id]', params: { id: '1' } } as Href);
+    const durationMin =
+      recordingDurationSeconds > 0 ? Math.max(1, Math.round(recordingDurationSeconds / 60)) : 5;
 
-    if (tasks.length === 0) {
-      navigateToBobble();
-      return;
-    }
+    useCaptureStore.getState().setPendingBobbleSave({
+      title: DEMO_BOBBLE.title,
+      dateLabel: 'Today, 11:30 AM',
+      durationMin,
+      tasks: tasks.map((task) => ({ title: task.title })),
+    });
 
-    createTasksBulk.mutate(
-      { tasks: tasks.map((task) => ({ title: task.title })) },
-      { onSettled: navigateToBobble },
-    );
-  }, [createTasksBulk, tasks]);
+    router.replace('/capture/saving' as Href);
+  }, [recordingDurationSeconds, tasks]);
 
   useEffect(() => {
     if (!PROCESSING_AUTO_ADVANCE || isComplete) return;
@@ -146,7 +143,6 @@ export default function ProcessingScreen() {
           <PrimaryButton
             label={showTasks ? 'Save Bobble' : showIdeas ? 'Generate Tasks' : 'Continue'}
             style={styles.primaryAction}
-            loading={showTasks ? createTasksBulk.isPending : false}
             onPress={() => {
               if (showTasks) {
                 handleSaveBobble();

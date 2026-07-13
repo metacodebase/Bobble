@@ -1,85 +1,13 @@
-import { Href, router } from 'expo-router';
-import { StyleSheet, Text, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Href, Redirect } from 'expo-router';
 
-import { SecondaryButton } from '@/src/components/home/secondary-button';
-import { BobbleMascot } from '@/src/components/onboarding/bobble-mascot';
-import { PrimaryButton } from '@/src/components/onboarding/primary-button';
-import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
-import { Typography } from '@/src/theme/fonts';
+import { useCaptureStore } from '@/src/store/capture-store';
 
 export default function SavedScreen() {
-  const colors = useBobbleColors();
-  const insets = useSafeAreaInsets();
+  const pendingSave = useCaptureStore((state) => state.pendingBobbleSave);
 
-  return (
-    <View
-      style={[
-        styles.root,
-        {
-          paddingTop: insets.top + 24,
-          paddingBottom: insets.bottom + 24,
-        },
-      ]}
-    >
+  if (pendingSave) {
+    return <Redirect href={'/capture/saving' as Href} />;
+  }
 
-
-      <View style={styles.content}>
-        <BobbleMascot variant="greet" size={180} />
-        <Text style={[styles.title, { color: colors.text }]}>Bobble saved!</Text>
-        <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-          Your thoughts are organised and ready whenever you are. Don't Stress, Thats why we're here for you.
-        </Text>
-      </View>
-
-      <View style={styles.actions}>
-        <PrimaryButton
-          label="View Bobble"
-          style={styles.primaryAction}
-          onPress={() => router.replace({ pathname: '/bobble/[id]', params: { id: '1' } } as Href)}
-        />
-        <SecondaryButton
-          label="Back to Home"
-          style={styles.secondaryAction}
-          onPress={() => router.replace('/(tabs)' as Href)}
-        />
-      </View>
-    </View>
-  );
+  return <Redirect href={'/(tabs)' as Href} />;
 }
-
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    paddingHorizontal: 28,
-  },
-  content: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 12,
-    paddingHorizontal: 8,
-  },
-  title: {
-    ...Typography.heading,
-    textAlign: 'center',
-    marginTop: 8,
-    width: '95%',
-  },
-  subtitle: {
-    ...Typography.body,
-    textAlign: 'center',
-    width: '95%',
-  },
-  actions: {
-    gap: 12,
-  },
-  primaryAction: {
-    width: '95%',
-    alignSelf: 'center',
-  },
-  secondaryAction: {
-    width: '95%',
-    alignSelf: 'center',
-  },
-});
