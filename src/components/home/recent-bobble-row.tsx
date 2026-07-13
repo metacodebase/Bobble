@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { BobbleMascot } from '@/src/components/onboarding/bobble-mascot';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
+import { useNightForeground } from '@/src/hooks/use-night-foreground';
 import { Typography } from '@/src/theme/fonts';
 
 type RecentBobbleRowProps = {
@@ -14,6 +15,9 @@ type RecentBobbleRowProps = {
 
 export function RecentBobbleRow({ title, timestamp, onPress, onMenuPress }: RecentBobbleRowProps) {
   const colors = useBobbleColors();
+  const night = useNightForeground();
+  const cardBackground = night.isNight ? 'rgba(255, 255, 255, 0.18)' : colors.surface;
+  const cardBorder = night.isNight ? 'rgba(255, 255, 255, 0.24)' : colors.border;
 
   return (
     <Pressable
@@ -21,8 +25,8 @@ export function RecentBobbleRow({ title, timestamp, onPress, onMenuPress }: Rece
       style={({ pressed }) => [
         styles.card,
         {
-          backgroundColor: colors.surface,
-          borderColor: colors.border,
+          backgroundColor: cardBackground,
+          borderColor: cardBorder,
         },
         pressed && styles.pressed,
       ]}
@@ -31,10 +35,12 @@ export function RecentBobbleRow({ title, timestamp, onPress, onMenuPress }: Rece
         <BobbleMascot variant="main" size={36} style={{ borderRadius: 18 }} />
       </View>
       <View style={styles.content}>
-        <Text style={[styles.title, { color: colors.text }]} numberOfLines={1}>
+        <Text style={[styles.title, { color: night.text ?? colors.text }]} numberOfLines={1}>
           {title}
         </Text>
-        <Text style={[styles.timestamp, { color: colors.textSecondary }]}>{timestamp}</Text>
+        <Text style={[styles.timestamp, { color: night.textSecondary ?? colors.textSecondary }]}>
+          {timestamp}
+        </Text>
       </View>
       <Pressable onPress={onMenuPress} hitSlop={10} style={styles.menu}>
         <MoreHorizontal size={20} color={colors.textSecondary} strokeWidth={2} />

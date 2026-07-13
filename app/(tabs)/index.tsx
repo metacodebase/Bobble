@@ -13,6 +13,7 @@ import { isCompleteProgressState, isNerdyProgressState, TodayProgressCard } from
 import { BobbleMascot, type HomeVariant } from '@/src/components/onboarding/bobble-mascot';
 import { PrimaryButton } from '@/src/components/onboarding/primary-button';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
+import { useNightForeground } from '@/src/hooks/use-night-foreground';
 import { CaptureKind, useCaptureStore } from '@/src/store/capture-store';
 import { Typography } from '@/src/theme/fonts';
 
@@ -62,6 +63,7 @@ function getGreeting() {
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const colors = useBobbleColors();
+  const night = useNightForeground();
   const setCaptureKind = useCaptureStore((state) => state.setCaptureKind);
   const [completedIds, setCompletedIds] = useState<Set<string>>(() => new Set());
 
@@ -153,7 +155,7 @@ export default function HomeScreen() {
 
         <View style={styles.recentSection}>
           <View style={styles.recentHeader}>
-            <Text style={[styles.recentTitle, { color: colors.text }]}>Recent Bobbles</Text>
+            <Text style={[styles.recentTitle, { color: night.text ?? colors.text }]}>Recent Bobbles</Text>
             <Pressable onPress={() => router.push('/(tabs)/bobbles' as Href)} hitSlop={8}>
               <Text style={[styles.seeAll, { color: colors.primary }]}>See all</Text>
             </Pressable>

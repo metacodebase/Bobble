@@ -15,10 +15,12 @@ import { DEMO_BOBBLE, MindScoreCard, SummaryContent } from '@/src/components/cap
 import { PrimaryButton } from '@/src/components/onboarding/primary-button';
 import { useCreateTasksBulk } from '@/src/hooks/tasks';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
+import { useNightForeground } from '@/src/hooks/use-night-foreground';
 import { Typography } from '@/src/theme/fonts';
 
 export default function SummaryScreen() {
   const colors = useBobbleColors();
+  const night = useNightForeground();
   const insets = useSafeAreaInsets();
   const [tab, setTab] = useState<SummaryTab>('summary');
   const [tasks, setTasks] = useState<GeneratedTask[]>([]);
@@ -83,7 +85,7 @@ export default function SummaryScreen() {
         {tab === 'mindmap' ? (
           <MindScoreCard />
         ) : (
-          <Text style={[styles.title, { color: colors.text }]} numberOfLines={2}>
+          <Text style={[styles.title, { color: night.text ?? colors.text }]} numberOfLines={2}>
             {DEMO_BOBBLE.title}
           </Text>
         )}

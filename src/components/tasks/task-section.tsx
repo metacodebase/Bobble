@@ -3,6 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { TaskRow } from '@/src/components/tasks/task-row';
 import { TaskItem } from '@/src/data/demo-data';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
+import { useNightForeground } from '@/src/hooks/use-night-foreground';
 import { Typography } from '@/src/theme/fonts';
 
 type TaskSectionProps = {
@@ -15,11 +16,12 @@ type TaskSectionProps = {
 
 export function TaskSection({ label, tasks, onToggle, onPress, onDelete }: TaskSectionProps) {
   const colors = useBobbleColors();
+  const night = useNightForeground();
 
   return (
     <View style={styles.section}>
       <View style={styles.headerRow}>
-        <Text style={[styles.label, { color: '#1E1145' }]}>
+        <Text style={[styles.label, { color: night.text ?? '#1E1145' }]}>
           {label} ({tasks.length})
         </Text>
         <View style={[styles.line, { backgroundColor: colors.primaryMuted, opacity: 0.3 }]} />

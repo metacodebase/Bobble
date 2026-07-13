@@ -3,6 +3,7 @@ import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-nati
 
 import { GeneratedTask, GeneratedTaskRow } from '@/src/components/capture/generated-task-row';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
+import { useNightForeground } from '@/src/hooks/use-night-foreground';
 import { Typography } from '@/src/theme/fonts';
 
 export const DEMO_BOBBLE = {
@@ -75,11 +76,12 @@ export function SummaryContent({
   onDeleteTask,
 }: SummaryContentProps) {
   const colors = useBobbleColors();
+  const night = useNightForeground();
 
   if (tab === 'transcript') {
     return (
       <View style={styles.section}>
-        <Text style={[styles.body, { color: colors.text }]}>{DEMO_BOBBLE.transcript}</Text>
+        <Text style={[styles.body, { color: night.text ?? colors.text }]}>{DEMO_BOBBLE.transcript}</Text>
       </View>
     );
   }
@@ -87,8 +89,8 @@ export function SummaryContent({
   if (tab === 'mindmap') {
     return (
       <View style={styles.mindMapSection}>
-        <Text style={[styles.mindMapTitle, { color: colors.text }]}>How your ideas connect</Text>
-        <Text style={[styles.mindMapIntro, { color: colors.textSecondary }]}>
+        <Text style={[styles.mindMapTitle, { color: night.text ?? colors.text }]}>How your ideas connect</Text>
+        <Text style={[styles.mindMapIntro, { color: night.textSecondary ?? colors.textSecondary }]}>
           Each branch is a theme Bobble pulled from your recording.
         </Text>
 
@@ -112,12 +114,14 @@ export function SummaryContent({
 
   return (
     <View style={styles.section}>
-      <Text style={[styles.intro, { color: colors.textSecondary }]}>{DEMO_BOBBLE.intro}</Text>
+      <Text style={[styles.intro, { color: night.textSecondary ?? colors.textSecondary }]}>
+        {DEMO_BOBBLE.intro}
+      </Text>
       <View style={styles.list}>
         {DEMO_BOBBLE.bullets.map((item) => (
           <View key={item.label} style={styles.bulletRow}>
             <Text style={[styles.bulletDot, { color: colors.primary }]}>•</Text>
-            <Text style={[styles.bulletText, { color: colors.text }]}>
+            <Text style={[styles.bulletText, { color: night.text ?? colors.text }]}>
               <Text style={styles.bulletLabel}>{item.label}: </Text>
               {item.value}
             </Text>
@@ -125,8 +129,8 @@ export function SummaryContent({
         ))}
       </View>
 
-      <Text style={[styles.suggestionsTitle, { color: colors.text }]}>Suggestions</Text>
-      <Text style={[styles.suggestionsHint, { color: colors.textSecondary }]}>
+      <Text style={[styles.suggestionsTitle, { color: night.text ?? colors.text }]}>Suggestions</Text>
+      <Text style={[styles.suggestionsHint, { color: night.textSecondary ?? colors.textSecondary }]}>
         Tap generate to create tasks you can edit — Bobble does the work for you.
       </Text>
       {DEMO_BOBBLE.suggestions.map((suggestion) => {
@@ -139,8 +143,10 @@ export function SummaryContent({
             style={[styles.suggestionCard, { backgroundColor: colors.borderLight }]}
           >
             <View style={styles.suggestionCopy}>
-              <Text style={[styles.suggestionText, { color: colors.text }]}>{suggestion.title}</Text>
-              <Text style={[styles.suggestionDescription, { color: colors.textSecondary }]}>
+              <Text style={[styles.suggestionText, { color: night.text ?? colors.text }]}>
+                {suggestion.title}
+              </Text>
+              <Text style={[styles.suggestionDescription, { color: night.textSecondary ?? colors.textSecondary }]}>
                 {suggestion.description}
               </Text>
             </View>
@@ -173,7 +179,7 @@ export function SummaryContent({
 
       {tasks.length > 0 || isGeneratingTasks ? (
         <View style={styles.tasksSection}>
-          <Text style={[styles.tasksTitle, { color: colors.text }]}>Tasks</Text>
+          <Text style={[styles.tasksTitle, { color: night.text ?? colors.text }]}>Tasks</Text>
           <View style={styles.tasksList}>
             {tasks.map((task) => (
               <GeneratedTaskRow
@@ -186,7 +192,7 @@ export function SummaryContent({
             {isGeneratingTasks ? (
               <View style={styles.generatingRow}>
                 <ActivityIndicator size="small" color={colors.primary} />
-                <Text style={[styles.generatingText, { color: colors.textSecondary }]}>
+                <Text style={[styles.generatingText, { color: night.textSecondary ?? colors.textSecondary }]}>
                   Adding tasks...
                 </Text>
               </View>

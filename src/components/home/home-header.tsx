@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { ProfileAvatar } from '@/src/components/create-account/profile-avatar';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
+import { useNightForeground } from '@/src/hooks/use-night-foreground';
 import { useAppStore } from '@/src/store/app-store';
 import { Typography } from '@/src/theme/fonts';
 
@@ -14,17 +15,17 @@ type HomeHeaderProps = {
 
 export function HomeHeader({ greeting, name, onProfilePress }: HomeHeaderProps) {
   const colors = useBobbleColors();
+  const night = useNightForeground();
   const nightBackground = useAppStore((s) => s.nightBackground);
   const setNightBackground = useAppStore((s) => s.setNightBackground);
-  const headerForeground = nightBackground ? '#FFFFFF' : undefined;
 
   return (
     <View style={styles.row}>
       <View style={styles.textCol}>
-        <Text style={[styles.greeting, { color: headerForeground ?? colors.textSecondary }]}>
+        <Text style={[styles.greeting, { color: night.textSecondary ?? colors.textSecondary }]}>
           {greeting},
         </Text>
-        <Text style={[styles.name, { color: headerForeground ?? colors.text }]}>{name} 👋</Text>
+        <Text style={[styles.name, { color: night.text ?? colors.text }]}>{name} 👋</Text>
       </View>
 
       <View style={styles.actions}>

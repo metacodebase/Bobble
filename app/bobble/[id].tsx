@@ -13,11 +13,13 @@ import { PrimaryButton } from '@/src/components/onboarding/primary-button';
 import { ActionSheet } from '@/src/components/ui/action-sheet';
 import { DEMO_BOBBLE_DETAIL, getBobbleById } from '@/src/data/demo-data';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
+import { useNightForeground } from '@/src/hooks/use-night-foreground';
 import { Typography } from '@/src/theme/fonts';
 import { toast } from '@/src/utils/toast';
 
 export default function BobbleDetailScreen() {
   const colors = useBobbleColors();
+  const night = useNightForeground();
   const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams<{ id: string }>();
   const bobble = getBobbleById(id ?? '1');
@@ -68,7 +70,7 @@ export default function BobbleDetailScreen() {
         {tab === 'mindmap' ? (
           <MindScoreCard score={DEMO_BOBBLE_DETAIL.mindScore} />
         ) : (
-          <Text style={[styles.title, { color: colors.text }]} numberOfLines={2}>
+          <Text style={[styles.title, { color: night.text ?? colors.text }]} numberOfLines={2}>
             {title}
           </Text>
         )}

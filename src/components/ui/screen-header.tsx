@@ -2,6 +2,7 @@ import { LucideIcon } from 'lucide-react-native';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
+import { useNightForeground } from '@/src/hooks/use-night-foreground';
 import { Typography } from '@/src/theme/fonts';
 
 type ScreenHeaderProps = {
@@ -20,13 +21,14 @@ export function ScreenHeader({
   onRightPress,
 }: ScreenHeaderProps) {
   const colors = useBobbleColors();
+  const night = useNightForeground();
 
   return (
     <View style={[styles.root, compact && styles.compact]}>
-      <Text style={[styles.title, { color: titleColor ?? colors.text }]}>{title}</Text>
+      <Text style={[styles.title, { color: night.text ?? titleColor ?? colors.text }]}>{title}</Text>
       {RightIcon ? (
         <Pressable onPress={onRightPress} hitSlop={12} style={styles.iconButton}>
-          <RightIcon size={22} color={colors.textSecondary} strokeWidth={2} />
+          <RightIcon size={22} color={night.textSecondary ?? colors.textSecondary} strokeWidth={2} />
         </Pressable>
       ) : (
         <View style={styles.spacer} />

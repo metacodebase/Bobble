@@ -11,6 +11,7 @@ import { ScreenHeader } from '@/src/components/ui/screen-header';
 import { PROFILE_MENU, PROFILE_USER } from '@/src/data/demo-data';
 import { useLogout, useMe } from '@/src/hooks/api';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
+import { useNightForeground } from '@/src/hooks/use-night-foreground';
 import { useAppStore } from '@/src/store/app-store';
 import { Typography } from '@/src/theme/fonts';
 
@@ -30,6 +31,7 @@ const SETTINGS_ROUTES: Record<(typeof PROFILE_MENU)[number]['id'], Href> = {
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
   const colors = useBobbleColors();
+  const night = useNightForeground();
   const storedUser = useAppStore((s) => s.user);
   const { data: fetchedUser } = useMe();
   const user = fetchedUser ?? storedUser;
@@ -56,9 +58,9 @@ export default function ProfileScreen() {
         ]}
         showsVerticalScrollIndicator={false}
       >
-        <View style={[styles.heroCard, { backgroundColor: colors.borderLight }]}>
+        <View style={[styles.heroCard, { backgroundColor: night.isNight ? 'rgba(255, 255, 255, 0.18)' : colors.borderLight }]}>
           <ProfileAvatar size={140} style={styles.avatar} onPress={() => {}} />
-          <Text style={[styles.name, { color: colors.text }]}>{displayName}</Text>
+          <Text style={[styles.name, { color: night.text ?? colors.text }]}>{displayName}</Text>
 
           <View style={styles.statsRow}>
             <StatCard compact label="Streak" value={gamification?.streak ?? 0} />

@@ -1,6 +1,7 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
+import { useNightForeground } from '@/src/hooks/use-night-foreground';
 import { Typography } from '@/src/theme/fonts';
 
 export type SummaryTab = 'summary' | 'transcript' | 'mindmap';
@@ -20,6 +21,7 @@ const TABS: { id: SummaryTab; label: string }[] = [
 
 export function SegmentTabs({ active, onChange, compact = false }: SegmentTabsProps) {
   const colors = useBobbleColors();
+  const night = useNightForeground();
 
   return (
     <View
@@ -36,8 +38,8 @@ export function SegmentTabs({ active, onChange, compact = false }: SegmentTabsPr
             <Text
               style={[
                 styles.label,
-                { color: colors.textSecondary },
-                selected && { color: colors.primary },
+                { color: night.textSecondary ?? colors.textSecondary },
+                selected && { color: night.text ?? colors.primary },
               ]}
             >
               {tab.label}

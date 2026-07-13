@@ -2,6 +2,7 @@ import { ChevronLeft, LucideIcon } from 'lucide-react-native';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
+import { useNightForeground } from '@/src/hooks/use-night-foreground';
 import { Typography } from '@/src/theme/fonts';
 
 type CaptureHeaderProps = {
@@ -26,17 +27,20 @@ export function CaptureHeader({
   titleColor,
 }: CaptureHeaderProps) {
   const colors = useBobbleColors();
+  const night = useNightForeground();
+  const iconColor = night.text ?? colors.text;
+  const mutedIconColor = night.textSecondary ?? colors.textSecondary;
 
   return (
     <View style={styles.root}>
       <View style={[styles.side, leftLabel ? styles.sideWide : null]}>
         {leftLabel ? (
           <Pressable onPress={onLeftPress} hitSlop={12} style={styles.iconButton}>
-            <Text style={[styles.leftLabel, { color: colors.textSecondary }]}>{leftLabel}</Text>
+            <Text style={[styles.leftLabel, { color: mutedIconColor }]}>{leftLabel}</Text>
           </Pressable>
         ) : onBack ? (
           <Pressable onPress={onBack} hitSlop={12} style={styles.iconButton}>
-            <ChevronLeft size={28} color={colors.text} strokeWidth={2} />
+            <ChevronLeft size={28} color={iconColor} strokeWidth={2} />
           </Pressable>
         ) : null}
       </View>
@@ -44,14 +48,14 @@ export function CaptureHeader({
       {title ? (
         centered ? (
           <Text
-            style={[styles.titleCentered, { color: titleColor ?? colors.text }]}
+            style={[styles.titleCentered, { color: titleColor ?? night.text ?? colors.text }]}
             numberOfLines={1}
             pointerEvents="none"
           >
             {title}
           </Text>
         ) : (
-          <Text style={[styles.title, { color: titleColor ?? colors.text }]} numberOfLines={1}>
+          <Text style={[styles.title, { color: titleColor ?? night.text ?? colors.text }]} numberOfLines={1}>
             {title}
           </Text>
         )
@@ -62,7 +66,7 @@ export function CaptureHeader({
       <View style={[styles.side, styles.sideRight]}>
         {RightIcon ? (
           <Pressable onPress={onRightPress} hitSlop={12} style={styles.iconButton}>
-            <RightIcon size={22} color={colors.textSecondary} strokeWidth={2} />
+            <RightIcon size={22} color={mutedIconColor} strokeWidth={2} />
           </Pressable>
         ) : null}
       </View>

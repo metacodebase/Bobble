@@ -5,6 +5,7 @@ import { Swipeable } from 'react-native-gesture-handler';
 
 import { TaskItem } from '@/src/data/demo-data';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
+import { useNightForeground } from '@/src/hooks/use-night-foreground';
 import { Typography } from '@/src/theme/fonts';
 
 type TaskRowProps = {
@@ -16,7 +17,11 @@ type TaskRowProps = {
 
 export function TaskRow({ task, onToggle, onPress, onDelete }: TaskRowProps) {
   const colors = useBobbleColors();
+  const night = useNightForeground();
   const swipeableRef = useRef<Swipeable>(null);
+  const cardBackground = night.isNight ? 'rgba(255, 255, 255, 0.18)' : colors.surface;
+  const titleColor = night.text ?? '#1E1145';
+  const doneTitleColor = night.textSecondary ?? colors.textSecondary;
 
   const confirmDelete = () => {
     if (!onDelete) return;
@@ -45,7 +50,7 @@ export function TaskRow({ task, onToggle, onPress, onDelete }: TaskRowProps) {
 
   const content = (
     <View style={styles.cardContainer}>
-      <View style={[styles.row, { backgroundColor: colors.surface }]}>
+      <View style={[styles.row, { backgroundColor: cardBackground }]}>
         <Pressable
           onPress={onToggle}
           hitSlop={8}
@@ -61,8 +66,8 @@ export function TaskRow({ task, onToggle, onPress, onDelete }: TaskRowProps) {
           <Text
             style={[
               styles.title,
-              { color: '#1E1145' },
-              task.done && { textDecorationLine: 'line-through', color: colors.textSecondary },
+              { color: titleColor },
+              task.done && { textDecorationLine: 'line-through', color: doneTitleColor },
             ]}
             numberOfLines={1}
           >

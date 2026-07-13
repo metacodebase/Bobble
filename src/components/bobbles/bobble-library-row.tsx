@@ -4,6 +4,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { BOBBLE_CATEGORY_STYLES } from '@/src/components/bobbles/bobble-category-config';
 import type { BobbleCategory } from '@/src/data/demo-data';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
+import { useNightForeground } from '@/src/hooks/use-night-foreground';
 import { FontFamily, Typography } from '@/src/theme/fonts';
 
 type BobbleLibraryRowProps = {
@@ -22,14 +23,16 @@ export function BobbleLibraryRow({
   onMenuPress,
 }: BobbleLibraryRowProps) {
   const colors = useBobbleColors();
+  const night = useNightForeground();
   const categoryStyle = BOBBLE_CATEGORY_STYLES[category];
+  const cardBackground = night.isNight ? 'rgba(255, 255, 255, 0.18)' : colors.surface;
 
   return (
     <Pressable
       onPress={onPress}
       style={({ pressed }) => [
         styles.card,
-        { backgroundColor: colors.surface },
+        { backgroundColor: cardBackground },
         pressed && styles.pressed,
       ]}
     >
@@ -39,10 +42,12 @@ export function BobbleLibraryRow({
             {categoryStyle.label}
           </Text>
         </View>
-        <Text style={[styles.title, { color: '#1E1145' }]} numberOfLines={2}>
+        <Text style={[styles.title, { color: night.text ?? '#1E1145' }]} numberOfLines={2}>
           {title}
         </Text>
-        <Text style={[styles.timestamp, { color: colors.textSecondary }]}>{timestamp}</Text>
+        <Text style={[styles.timestamp, { color: night.textSecondary ?? colors.textSecondary }]}>
+          {timestamp}
+        </Text>
       </View>
       <Pressable onPress={onMenuPress} hitSlop={10} style={styles.menu}>
         <MoreHorizontal size={18} color={colors.primaryMuted} strokeWidth={2} />

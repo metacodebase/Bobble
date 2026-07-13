@@ -19,6 +19,7 @@ import {
   useUpdateTask,
 } from '@/src/hooks/tasks';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
+import { useNightForeground } from '@/src/hooks/use-night-foreground';
 import { useTabBarInsets } from '@/src/hooks/use-tab-bar-insets';
 
 const FILTER_PARAM: Record<TaskFilter, TaskFilterParam> = {
@@ -35,6 +36,7 @@ type SheetState =
 export default function TasksScreen() {
   const insets = useSafeAreaInsets();
   const colors = useBobbleColors();
+  const night = useNightForeground();
   const { height: tabBarHeight } = useTabBarInsets();
   const fabBottom = tabBarHeight + 16;
   const [filter, setFilter] = useState<TaskFilter>('All');
@@ -108,11 +110,11 @@ export default function TasksScreen() {
         {isLoading ? (
           <ActivityIndicator style={styles.state} color={colors.primary} />
         ) : isError ? (
-          <Text style={[styles.stateText, { color: colors.textSecondary }]}>
+          <Text style={[styles.stateText, { color: night.textSecondary ?? colors.textSecondary }]}>
             Could not load tasks. Pull to refresh.
           </Text>
         ) : sections.length === 0 ? (
-          <Text style={[styles.stateText, { color: colors.textSecondary }]}>
+          <Text style={[styles.stateText, { color: night.textSecondary ?? colors.textSecondary }]}>
             No tasks yet. Tap + to add one.
           </Text>
         ) : (
