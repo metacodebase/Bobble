@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     paddingHorizontal: 24,
     paddingTop: 12,
-    gap: 22,
+    gap: 0,
     justifyContent: 'space-evenly',
   },
   hero: {
