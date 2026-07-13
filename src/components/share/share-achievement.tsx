@@ -1,7 +1,7 @@
 import { Image } from 'expo-image';
 import { Download, Lock, X } from 'lucide-react-native';
 import { useMemo } from 'react';
-import { ImageBackground, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ImageBackground, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { PrimaryButton } from '@/src/components/onboarding/primary-button';
@@ -110,7 +110,7 @@ const styles = StyleSheet.create({
     width: '90%',
     alignSelf: 'center',
     paddingTop: 12,
-    gap: 0,
+    gap: Platform.OS === 'ios' ? 10 : 2,
     justifyContent: 'space-evenly',
   },
   hero: {
