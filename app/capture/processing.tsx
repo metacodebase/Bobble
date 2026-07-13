@@ -64,16 +64,17 @@ export default function ProcessingScreen() {
   }, []);
 
   const handleSaveBobble = useCallback(() => {
-    const navigateToSaved = () => router.replace('/capture/saved' as Href);
+    const navigateToBobble = () =>
+      router.replace({ pathname: '/bobble/[id]', params: { id: '1' } } as Href);
 
     if (tasks.length === 0) {
-      navigateToSaved();
+      navigateToBobble();
       return;
     }
 
     createTasksBulk.mutate(
       { tasks: tasks.map((task) => ({ title: task.title })) },
-      { onSettled: navigateToSaved },
+      { onSettled: navigateToBobble },
     );
   }, [createTasksBulk, tasks]);
 

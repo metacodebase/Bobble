@@ -1,71 +1,70 @@
 import { StyleSheet, Text, View } from 'react-native';
 
+import { BobbleSummaryCards } from '@/src/components/bobbles/bobble-summary-cards';
 import { DEMO_BOBBLE_DETAIL } from '@/src/data/demo-data';
-import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
-import { useNightForeground } from '@/src/hooks/use-night-foreground';
 import { Typography } from '@/src/theme/fonts';
 
+const SUMMARY_TEXT = '#17164B';
+
 type BobbleDetailSummaryProps = {
+  title?: string;
   dateLabel?: string;
   durationMin?: number;
+  bullets?: readonly { label: string; value: string }[];
 };
 
 export function BobbleDetailSummary({
+  title = DEMO_BOBBLE_DETAIL.title,
   dateLabel = DEMO_BOBBLE_DETAIL.dateLabel,
   durationMin = DEMO_BOBBLE_DETAIL.durationMin,
+  bullets = DEMO_BOBBLE_DETAIL.bullets,
 }: BobbleDetailSummaryProps) {
-  const colors = useBobbleColors();
-  const night = useNightForeground();
-
   return (
     <View style={styles.section}>
-      <Text style={[styles.sectionTitle, { color: night.text ?? colors.text }]}>This Bobble</Text>
-      <Text style={[styles.meta, { color: night.textSecondary ?? colors.textSecondary }]}>
-        {dateLabel} · {durationMin} min
-      </Text>
-      <View style={styles.list}>
-        {DEMO_BOBBLE_DETAIL.bullets.map((item) => (
-          <View key={item.label} style={styles.bulletRow}>
-            <Text style={[styles.bulletDot, { color: colors.primary }]}>•</Text>
-            <Text style={[styles.bulletText, { color: night.text ?? colors.text }]}>
-              <Text style={styles.bulletLabel}>{item.label}: </Text>
-              {item.value}
-            </Text>
-          </View>
-        ))}
+      <View style={styles.titleRow}>
+        <Text style={styles.title} numberOfLines={2}>
+          {title}
+        </Text>
+        <View style={styles.metaBadge}>
+          <Text style={styles.metaText}>
+            {dateLabel} · {durationMin} min
+          </Text>
+        </View>
       </View>
+
+      <BobbleSummaryCards items={bullets} />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   section: {
-    gap: 10,
+    gap: 20,
   },
-  sectionTitle: {
-    ...Typography.formLabel,
-    fontSize: 16,
-  },
-  meta: {
-    ...Typography.caption,
-  },
-  list: {
-    gap: 10,
-    marginTop: 4,
-  },
-  bulletRow: {
+  titleRow: {
     flexDirection: 'row',
-    gap: 8,
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    gap: 12,
   },
-  bulletDot: {
-    ...Typography.body,
-    lineHeight: 24,
-  },
-  bulletText: {
-    ...Typography.body,
+  title: {
+    ...Typography.heading,
     flex: 1,
+    fontSize: 22,
+    lineHeight: 28,
+    color: SUMMARY_TEXT,
   },
-  bulletLabel: {
-    fontFamily: Typography.button.fontFamily,
+  metaBadge: {
+    backgroundColor: 'rgba(107, 114, 128, 0.12)',
+    borderRadius: 20,
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    marginTop: 2,
+  },
+  metaText: {
+    ...Typography.caption,
+    fontSize: 11,
+    lineHeight: 14,
+    color: '#000000',
   },
 });

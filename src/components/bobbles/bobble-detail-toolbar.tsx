@@ -1,8 +1,6 @@
 import { ListTodo, MoreHorizontal, Pin, Share2 } from 'lucide-react-native';
 import { Pressable, StyleSheet, View } from 'react-native';
 
-import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
-
 type BobbleDetailToolbarProps = {
   onShare?: () => void;
   onAddTask?: () => void;
@@ -16,7 +14,6 @@ export function BobbleDetailToolbar({
   onPin,
   onMore,
 }: BobbleDetailToolbarProps) {
-  const colors = useBobbleColors();
   const actions = [
     { icon: Share2, onPress: onShare },
     { icon: ListTodo, onPress: onAddTask },
@@ -25,14 +22,14 @@ export function BobbleDetailToolbar({
   ];
 
   return (
-    <View style={[styles.root, { borderTopColor: colors.border }]}>
+    <View style={styles.root}>
       {actions.map(({ icon: Icon, onPress }, index) => (
         <Pressable
           key={index}
           onPress={onPress}
-          style={[styles.button, { backgroundColor: colors.borderLight }]}
+          style={({ pressed }) => [styles.button, pressed && styles.pressed]}
         >
-          <Icon size={20} color={colors.textSecondary} strokeWidth={2} />
+          <Icon size={20} color="#7C3AED" strokeWidth={2} />
         </Pressable>
       ))}
     </View>
@@ -43,16 +40,19 @@ const styles = StyleSheet.create({
   root: {
     flexDirection: 'row',
     justifyContent: 'center',
-    gap: 20,
-    paddingVertical: 16,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    marginTop: 8,
+    gap: 16,
+    paddingTop: 8,
+    paddingBottom: 4,
   },
   button: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: 'rgba(159, 82, 242, 0.14)',
+  },
+  pressed: {
+    opacity: 0.7,
   },
 });

@@ -75,17 +75,143 @@ export const DEMO_BOBBLE_DETAIL = {
   dateLabel: 'Today, 11:30 AM',
   durationMin: 5,
   mindScore: 41,
-  mindMapCenter: 'Fitness plan',
+  mindMapCenter: 'Fitness Plan',
   mindMapBranches: ['Strength', 'Nutrition', 'Reminders'],
   bullets: [
     { label: 'Goal', value: 'Build muscle & improve stamina' },
-    { label: 'Workout', value: '5 days a week (Focus on strength)' },
+    { label: 'Workout Plan', value: '5 days a week Focus on strength' },
     { label: 'Nutrition', value: 'High protein, balanced meals' },
-    { label: 'Reminder', value: 'Add reminders for workouts' },
+    { label: 'Reminder', value: 'Add workout reminders' },
   ],
   transcript:
     "I want to build muscle and improve my stamina. I'm planning to work out five days a week with a focus on strength training. For nutrition, I'll stick to high protein and balanced meals. Also, please add reminders for my workouts.",
+  recordingDurationSeconds: 34,
 } as const;
+
+export type TranscriptSegment = {
+  id: string;
+  timestampSeconds: number;
+  timestampLabel: string;
+  text: string;
+};
+
+export type MindMapNodePosition = 'top' | 'left' | 'right' | 'bottom-left' | 'bottom-right';
+
+export type MindMapNode = {
+  id: string;
+  title: string;
+  subtitle: string;
+  backgroundColor: string;
+  lineColor: string;
+  position: MindMapNodePosition;
+};
+
+export const DEMO_MIND_MAP = {
+  centerTitle: 'Fitness Plan',
+  nodes: [
+    {
+      id: 'goal',
+      title: 'Goal',
+      subtitle: 'Build muscle & improve stamina',
+      backgroundColor: '#EDE9FE',
+      lineColor: '#C4B5FD',
+      position: 'top',
+    },
+    {
+      id: 'nutrition',
+      title: 'Nutrition',
+      subtitle: 'High protein Balanced Meals',
+      backgroundColor: '#DCFCE7',
+      lineColor: '#86EFAC',
+      position: 'left',
+    },
+    {
+      id: 'workout',
+      title: 'Workout',
+      subtitle: '5 days/week Strength Focus',
+      backgroundColor: '#DBEAFE',
+      lineColor: '#93C5FD',
+      position: 'right',
+    },
+    {
+      id: 'reminders',
+      title: 'Reminders',
+      subtitle: 'Workout reminders',
+      backgroundColor: '#FEF9C3',
+      lineColor: '#FDE047',
+      position: 'bottom-left',
+    },
+    {
+      id: 'recovery',
+      title: 'Recovery',
+      subtitle: 'Active recovery 1-2 days',
+      backgroundColor: '#FCE7F3',
+      lineColor: '#F9A8D4',
+      position: 'bottom-right',
+    },
+  ] as MindMapNode[],
+};
+
+export type InsightIcon = 'smile' | 'chart' | 'star' | 'gauge';
+
+export type InsightItem = {
+  id: string;
+  icon: InsightIcon;
+  text?: string;
+  label?: string;
+  value?: string;
+  subtext?: string;
+};
+
+export const DEMO_INSIGHTS = {
+  title: "Bobble's insights 💜",
+  items: [
+    {
+      id: 'excited',
+      icon: 'smile',
+      text: 'You seem excited about achieving your fitness goal!',
+    },
+    {
+      id: 'consistency',
+      icon: 'chart',
+      text: 'You mentioned consistency 3 times.',
+    },
+    {
+      id: 'habits',
+      icon: 'star',
+      text: 'This sounds like something worth turning into habits.',
+    },
+    {
+      id: 'effort',
+      icon: 'gauge',
+      label: 'Estimated effort:',
+      value: 'Medium',
+      subtext: 'Great balance between challenge and consistency.',
+    },
+  ] as InsightItem[],
+  reminder: "Remember: Progress, not perfection. I'm here to help you stay on track.",
+};
+
+export const DEMO_TRANSCRIPT_SEGMENTS: TranscriptSegment[] = [
+  {
+    id: '1',
+    timestampSeconds: 2,
+    timestampLabel: '00:02',
+    text: 'I want to build muscle and improve my stamina',
+  },
+  {
+    id: '2',
+    timestampSeconds: 14,
+    timestampLabel: '00:14',
+    text: "I'm planning to work out five days a week with a focus on strength training.",
+  },
+  {
+    id: '3',
+    timestampSeconds: 26,
+    timestampLabel: '00:26',
+    text: "For nutrition, I'll stick to high protein meals and balanced food.",
+  },
+];
 
 export const TASK_FILTERS = ['All', 'Today', 'Upcoming', 'Done'] as const;
 export type TaskFilter = (typeof TASK_FILTERS)[number];

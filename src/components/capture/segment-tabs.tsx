@@ -1,10 +1,9 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
-import { useNightForeground } from '@/src/hooks/use-night-foreground';
 import { Typography } from '@/src/theme/fonts';
 
-export type SummaryTab = 'summary' | 'transcript' | 'mindmap';
+export type SummaryTab = 'summary' | 'transcript' | 'mindmap' | 'insights';
 
 type SegmentTabsProps = {
   active: SummaryTab;
@@ -17,11 +16,11 @@ const TABS: { id: SummaryTab; label: string }[] = [
   { id: 'summary', label: 'Summary' },
   { id: 'transcript', label: 'Transcript' },
   { id: 'mindmap', label: 'Mind Map' },
+  { id: 'insights', label: 'Insights' },
 ];
 
 export function SegmentTabs({ active, onChange, compact = false }: SegmentTabsProps) {
   const colors = useBobbleColors();
-  const night = useNightForeground();
 
   return (
     <View
@@ -38,8 +37,8 @@ export function SegmentTabs({ active, onChange, compact = false }: SegmentTabsPr
             <Text
               style={[
                 styles.label,
-                { color: night.textSecondary ?? colors.textSecondary },
-                selected && { color: night.text ?? colors.primary },
+                selected && styles.labelSelected,
+                selected && { color: colors.primary },
               ]}
             >
               {tab.label}
@@ -56,7 +55,7 @@ const styles = StyleSheet.create({
   root: {
     flexDirection: 'row',
     borderBottomWidth: StyleSheet.hairlineWidth,
-    marginBottom: 20,
+    marginBottom: 16,
   },
   rootCompact: {
     marginBottom: 12,
@@ -70,6 +69,14 @@ const styles = StyleSheet.create({
   label: {
     ...Typography.caption,
     fontFamily: Typography.button.fontFamily,
+    fontSize: 15,
+    lineHeight: 20,
+    color: '#000000',
+  },
+  labelSelected: {
+    fontFamily: Typography.button.fontFamily,
+    fontSize: 15,
+    lineHeight: 20,
   },
   indicator: {
     position: 'absolute',

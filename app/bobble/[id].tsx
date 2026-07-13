@@ -1,32 +1,36 @@
 import { Href, router, useLocalSearchParams } from 'expo-router';
 import { Copy, Download, Pencil, Trash2 } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { BobbleDetailSummary } from '@/src/components/bobbles/bobble-detail-summary';
 import { BobbleDetailToolbar } from '@/src/components/bobbles/bobble-detail-toolbar';
+import { BobbleInsights } from '@/src/components/bobbles/bobble-insights';
+import { BobbleMindMap } from '@/src/components/bobbles/bobble-mind-map';
+import { BobbleTranscript } from '@/src/components/bobbles/bobble-transcript';
 import { CaptureHeader } from '@/src/components/capture/capture-header';
 import { SegmentTabs, SummaryTab } from '@/src/components/capture/segment-tabs';
-import { MindScoreCard, SummaryContent } from '@/src/components/capture/summary-content';
-import { PrimaryButton } from '@/src/components/onboarding/primary-button';
+import { SummaryContent } from '@/src/components/capture/summary-content';
 import { ActionSheet } from '@/src/components/ui/action-sheet';
 import { DEMO_BOBBLE_DETAIL, getBobbleById } from '@/src/data/demo-data';
-import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
-import { useNightForeground } from '@/src/hooks/use-night-foreground';
-import { Typography } from '@/src/theme/fonts';
+import { useCaptureStore } from '@/src/store/capture-store';
 import { toast } from '@/src/utils/toast';
 
 export default function BobbleDetailScreen() {
-  const colors = useBobbleColors();
-  const night = useNightForeground();
   const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams<{ id: string }>();
   const bobble = getBobbleById(id ?? '1');
   const [tab, setTab] = useState<SummaryTab>('summary');
   const [moreVisible, setMoreVisible] = useState(false);
+  const recordingUri = useCaptureStore((state) => state.recordingUri);
+  const recordingDurationSeconds = useCaptureStore((state) => state.recordingDurationSeconds);
 
-  const title = bobble?.title ?? 'Bobble';
+  const title = bobble?.title ?? DEMO_BOBBLE_DETAIL.title;
+  const isTranscript = tab === 'transcript';
+  const isMindMap = tab === 'mindmap';
+  const isInsights = tab === 'insights';
+  const showToolbar = !isTranscript && !isMindMap;
 
   const moreOptions = useMemo(
     () => [
@@ -63,40 +67,53 @@ export default function BobbleDetailScreen() {
   );
 
   return (
-    <View style={[styles.root, { paddingTop: insets.top + 8 }]}>
+    <View style={[styles.root, { paddingTop: insets.top + 8, paddingBottom: insets.bottom + 16 }]}>
       <View style={styles.headerBlock}>
         <CaptureHeader onBack={() => router.back()} rightIcon={Pencil} />
-        <SegmentTabs active={tab} onChange={setTab} compact={tab === 'mindmap'} />
-        {tab === 'mindmap' ? (
-          <MindScoreCard score={DEMO_BOBBLE_DETAIL.mindScore} />
-        ) : (
-          <Text style={[styles.title, { color: night.text ?? colors.text }]} numberOfLines={2}>
-            {title}
-          </Text>
-        )}
+        <SegmentTabs active={tab} onChange={setTab} compact={isMindMap} />
       </View>
 
-      <ScrollView
-        style={styles.scroll}
-        contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 120 }]}
-        showsVerticalScrollIndicator={false}
-      >
-        {tab === 'summary' ? (
-          <BobbleDetailSummary
-            dateLabel={bobble?.dateLabel}
-            durationMin={bobble?.durationMin}
-          />
-        ) : (
-          <SummaryContent tab={tab} />
-        )}
+      {isTranscript ? (
+        <BobbleTranscript
+          recordingUri={recordingUri}
+          durationSeconds={
+            recordingDurationSeconds > 0
+              ? recordingDurationSeconds
+              : DEMO_BOBBLE_DETAIL.recordingDurationSeconds
+          }
+        />
+      ) : isMindMap ? (
+        <View style={styles.mindMapWrap}>
+          <BobbleMindMap centerTitle={DEMO_BOBBLE_DETAIL.mindMapCenter} />
+        </View>
+      ) : isInsights ? (
+        <BobbleInsights />
+      ) : (
+        <ScrollView
+          style={styles.scroll}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          {tab === 'summary' ? (
+            <BobbleDetailSummary
+              title={title}
+              dateLabel={bobble?.dateLabel}
+              durationMin={bobble?.durationMin}
+            />
+          ) : (
+            <SummaryContent tab={tab} />
+          )}
+        </ScrollView>
+      )}
 
+      {showToolbar ? (
         <BobbleDetailToolbar
           onShare={() => router.push({ pathname: '/share', params: { title } } as Href)}
           onAddTask={() => router.push('/(tabs)/tasks' as Href)}
           onPin={() => router.push('/(tabs)/bobbles' as Href)}
           onMore={() => setMoreVisible(true)}
         />
-      </ScrollView>
+      ) : null}
 
       <ActionSheet
         visible={moreVisible}
@@ -104,13 +121,6 @@ export default function BobbleDetailScreen() {
         options={moreOptions}
         onClose={() => setMoreVisible(false)}
       />
-
-      <View style={[styles.footer, { paddingBottom: insets.bottom + 16 }]}>
-        <PrimaryButton
-          label="Back to Home"
-          onPress={() => router.replace('/(tabs)' as Href)}
-        />
-      </View>
     </View>
   );
 }
@@ -124,22 +134,16 @@ const styles = StyleSheet.create({
     paddingBottom: 4,
     gap: 4,
   },
-  title: {
-    ...Typography.body,
-    fontFamily: Typography.button.fontFamily,
-    marginBottom: 8,
-  },
   scroll: {
     flex: 1,
   },
   scrollContent: {
     paddingTop: 4,
+    paddingBottom: 12,
   },
-  footer: {
-    position: 'absolute',
-    left: 24,
-    right: 24,
-    bottom: 0,
-    paddingTop: 12,
+  mindMapWrap: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

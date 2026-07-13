@@ -14,9 +14,9 @@ export const DEMO_BOBBLE = {
   mindMapBranches: ['Strength', 'Nutrition', 'Reminders'],
   bullets: [
     { label: 'Goal', value: 'Build muscle & improve stamina' },
-    { label: 'Workout', value: '5 days a week (Focus on strength)' },
+    { label: 'Workout Plan', value: '5 days a week Focus on strength' },
     { label: 'Nutrition', value: 'High protein, balanced meals' },
-    { label: 'Reminder', value: 'Add reminders for workouts' },
+    { label: 'Reminder', value: 'Add workout reminders' },
   ],
   transcript:
     "I want to build muscle and improve my stamina. I'm planning to work out five days a week with a focus on strength training. For nutrition, I'll stick to high protein and balanced meals. Also, please add reminders for my workouts.",
@@ -59,7 +59,7 @@ export function MindScoreCard({ score = DEMO_BOBBLE.mindScore }: MindScoreCardPr
 }
 
 type SummaryContentProps = {
-  tab: 'summary' | 'transcript' | 'mindmap';
+  tab: 'summary' | 'transcript' | 'mindmap' | 'insights';
   tasks?: GeneratedTask[];
   isGeneratingTasks?: boolean;
   onGenerateTasks?: () => void;
@@ -79,37 +79,15 @@ export function SummaryContent({
   const night = useNightForeground();
 
   if (tab === 'transcript') {
-    return (
-      <View style={styles.section}>
-        <Text style={[styles.body, { color: night.text ?? colors.text }]}>{DEMO_BOBBLE.transcript}</Text>
-      </View>
-    );
+    return null;
+  }
+
+  if (tab === 'insights') {
+    return null;
   }
 
   if (tab === 'mindmap') {
-    return (
-      <View style={styles.mindMapSection}>
-        <Text style={[styles.mindMapTitle, { color: night.text ?? colors.text }]}>How your ideas connect</Text>
-        <Text style={[styles.mindMapIntro, { color: night.textSecondary ?? colors.textSecondary }]}>
-          Each branch is a theme Bobble pulled from your recording.
-        </Text>
-
-        <View style={styles.mindMap}>
-          <View style={[styles.node, { backgroundColor: colors.primary }]}>
-            <Text style={[styles.nodeTextPrimary, { color: colors.textOnPrimary }]}>
-              {DEMO_BOBBLE.mindMapCenter}
-            </Text>
-          </View>
-          <View style={styles.branchRow}>
-            {DEMO_BOBBLE.mindMapBranches.map((label) => (
-              <View key={label} style={[styles.node, { backgroundColor: colors.borderLight }]}>
-                <Text style={[styles.nodeText, { color: colors.text }]}>{label}</Text>
-              </View>
-            ))}
-          </View>
-        </View>
-      </View>
-    );
+    return null;
   }
 
   return (
