@@ -3,8 +3,8 @@ import { useState } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { BOBBLE_FILTER_CHIP_STYLES } from '@/src/components/bobbles/bobble-category-config';
 import { BobbleLibraryRow } from '@/src/components/bobbles/bobble-library-row';
-import { FAB_SIZE, FabButton } from '@/src/components/ui/fab-button';
 import { FilterChips } from '@/src/components/ui/filter-chips';
 import { ScreenHeader } from '@/src/components/ui/screen-header';
 import { SearchBar } from '@/src/components/ui/search-bar';
@@ -13,16 +13,11 @@ import {
   BobbleFilter,
   filterBobbles,
 } from '@/src/data/demo-data';
-import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { useTabBarInsets } from '@/src/hooks/use-tab-bar-insets';
-import { useCaptureStore } from '@/src/store/capture-store';
 
 export default function BobblesScreen() {
   const insets = useSafeAreaInsets();
-  const colors = useBobbleColors();
-  const setCaptureKind = useCaptureStore((state) => state.setCaptureKind);
   const { height: tabBarHeight } = useTabBarInsets();
-  const fabBottom = tabBarHeight + 16;
   const [filter, setFilter] = useState<BobbleFilter>('All');
   const [query, setQuery] = useState('');
   const bobbles = filterBobbles(filter, query);
@@ -30,35 +25,35 @@ export default function BobblesScreen() {
   return (
     <View style={[styles.root, { paddingTop: insets.top + 12 }]}>
       <View style={styles.header}>
-        <ScreenHeader title="Bobbles" />
+        <ScreenHeader title="Bobbles" titleColor="#1E1145" compact />
         <SearchBar
           value={query}
           onChangeText={setQuery}
-          placeholder="Search bobbles..."
+          placeholder="Search Bobbles..."
         />
-        <FilterChips options={BOBBLE_FILTERS} active={filter} onChange={setFilter} />
+        <FilterChips
+          options={BOBBLE_FILTERS}
+          active={filter}
+          onChange={setFilter}
+          chipStyles={BOBBLE_FILTER_CHIP_STYLES}
+          compact
+        />
       </View>
 
       <FlatList
         data={bobbles}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={[styles.list, { paddingBottom: fabBottom + FAB_SIZE + 16 }]}
+        contentContainerStyle={[styles.list, { paddingBottom: tabBarHeight + 24 }]}
         showsVerticalScrollIndicator={false}
+        ItemSeparatorComponent={() => <View style={styles.separator} />}
         renderItem={({ item }) => (
           <BobbleLibraryRow
             title={item.title}
             timestamp={item.timestamp}
+            category={item.category}
             onPress={() => router.push({ pathname: '/bobble/[id]', params: { id: item.id } } as Href)}
           />
         )}
-      />
-
-      <FabButton
-        bottom={fabBottom}
-        onPress={() => {
-          setCaptureKind('bobble');
-          router.push('/capture/record' as Href);
-        }}
       />
     </View>
   );
@@ -70,7 +65,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   header: {
-    gap: 12,
+    gap: 8,
     marginBottom: 8,
     width: '100%',
     alignSelf: 'center',
@@ -79,5 +74,8 @@ const styles = StyleSheet.create({
     paddingTop: 4,
     width: '100%',
     alignSelf: 'center',
+  },
+  separator: {
+    height: 7,
   },
 });

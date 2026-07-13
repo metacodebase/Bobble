@@ -7,15 +7,22 @@ import { Typography } from '@/src/theme/fonts';
 type ScreenHeaderProps = {
   title: string;
   titleColor?: string;
+  compact?: boolean;
   rightIcon?: LucideIcon;
   onRightPress?: () => void;
 };
 
-export function ScreenHeader({ title, titleColor, rightIcon: RightIcon, onRightPress }: ScreenHeaderProps) {
+export function ScreenHeader({
+  title,
+  titleColor,
+  compact = false,
+  rightIcon: RightIcon,
+  onRightPress,
+}: ScreenHeaderProps) {
   const colors = useBobbleColors();
 
   return (
-    <View style={styles.root}>
+    <View style={[styles.root, compact && styles.compact]}>
       <Text style={[styles.title, { color: titleColor ?? colors.text }]}>{title}</Text>
       {RightIcon ? (
         <Pressable onPress={onRightPress} hitSlop={12} style={styles.iconButton}>
@@ -34,6 +41,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: 16,
+  },
+  compact: {
+    marginBottom: 4,
   },
   title: {
     ...Typography.heading,

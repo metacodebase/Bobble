@@ -20,7 +20,7 @@ export function SearchBar({
   const colors = useBobbleColors();
 
   return (
-    <View style={[styles.root, { backgroundColor: colors.borderLight }]}>
+    <View style={[styles.root, { backgroundColor: 'rgba(255, 255, 255, 0.65)' }]}>
       <Search size={18} color={colors.textSecondary} strokeWidth={2} />
       <TextInput
         value={value}
@@ -43,8 +43,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
-    borderRadius: 14,
-    paddingHorizontal: 14,
+    borderRadius: 28,
+    paddingHorizontal: 16,
     paddingVertical: 12,
   },
   input: {

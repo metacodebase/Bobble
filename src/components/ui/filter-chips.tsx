@@ -1,3 +1,4 @@
+import { LucideIcon } from 'lucide-react-native';
 import { Pressable, ScrollView, StyleSheet, Text } from 'react-native';
 
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
@@ -7,42 +8,63 @@ export type FilterChipsProps<T extends string> = {
   options: readonly T[];
   active: T;
   onChange: (value: T) => void;
-  icons?: Partial<Record<T, React.ElementType>>;
+  icons?: Record<string, LucideIcon>;
+  iconColors?: Record<string, string>;
+  chipStyles?: Record<string, { background: string; text: string }>;
+  compact?: boolean;
 };
 
-export function FilterChips<T extends string>({ options, active, onChange, icons }: FilterChipsProps<T>) {
+export function FilterChips<T extends string>({
+  options,
+  active,
+  onChange,
+  icons,
+  iconColors,
+  chipStyles,
+  compact = false,
+}: FilterChipsProps<T>) {
   const colors = useBobbleColors();
 
   return (
     <ScrollView
       horizontal
       showsHorizontalScrollIndicator={false}
-      contentContainerStyle={styles.row}
+      contentContainerStyle={[styles.row, compact && styles.rowCompact]}
     >
       {options.map((option) => {
         const selected = option === active;
         const Icon = icons?.[option];
+        const customStyle = chipStyles?.[option];
+        const iconColor = selected
+          ? colors.textOnPrimary
+          : (iconColors?.[option] ?? customStyle?.text ?? colors.primary);
+
         return (
           <Pressable
             key={option}
             onPress={() => onChange(option)}
             style={[
               styles.chip,
-              { backgroundColor: selected ? colors.primaryLight : colors.surface },
-              !selected && { shadowColor: colors.primary, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 4, elevation: 1 },
+              compact && styles.chipCompact,
+              {
+                backgroundColor: selected
+                  ? colors.primary
+                  : (customStyle?.background ?? colors.surface),
+                borderWidth: selected || customStyle ? 0 : 1,
+                borderColor: colors.border,
+              },
             ]}
           >
-            {Icon && (
-              <Icon 
-                size={16} 
-                color={selected ? colors.textOnPrimary : colors.primaryLight} 
-                style={styles.icon}
-              />
-            )}
+            {Icon ? <Icon size={16} color={iconColor} style={styles.icon} /> : null}
             <Text
               style={[
                 styles.label,
-                { color: selected ? colors.textOnPrimary : '#1E1145' },
+                compact && styles.labelCompact,
+                {
+                  color: selected
+                    ? colors.textOnPrimary
+                    : (customStyle?.text ?? '#1E1145'),
+                },
               ]}
             >
               {option}
@@ -59,19 +81,32 @@ const styles = StyleSheet.create({
     gap: 8,
     paddingVertical: 4,
   },
+  rowCompact: {
+    gap: 6,
+    paddingVertical: 0,
+  },
   chip: {
     paddingHorizontal: 16,
     paddingVertical: 8,
-    borderRadius: 20,
+    borderRadius: 200,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    // gap: 6
+  },
+  chipCompact: {
+    paddingHorizontal: 18,
+    paddingVertical: 7,
+    borderRadius: 200,
   },
   icon: {
     marginRight: -2,
   },
   label: {
     ...Typography.caption,
+    fontFamily: Typography.button.fontFamily,
+  },
+  labelCompact: {
+    fontSize: 13,
     fontFamily: Typography.button.fontFamily,
   },
 });

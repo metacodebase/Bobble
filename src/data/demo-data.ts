@@ -1,47 +1,70 @@
-export type BobbleCategory = 'ideas' | 'personal' | 'work' | 'health';
+export type BobbleCategory = 'ideas' | 'tasks' | 'brain-dump' | 'reflections';
+
+export type BobbleIconVariant = 'dumbbell' | 'leaf' | 'bell' | 'luggage' | 'lightbulb';
 
 export type BobbleItem = {
   id: string;
   title: string;
   timestamp: string;
   category: BobbleCategory;
+  iconVariant: BobbleIconVariant;
   durationMin: number;
   dateLabel: string;
 };
 
-export const BOBBLE_FILTERS = ['All', 'Ideas', 'Personal', 'Work', 'Health'] as const;
+export const BOBBLE_FILTERS = ['All', 'Ideas', 'Tasks', 'Brain Dump', 'Reflections'] as const;
 export type BobbleFilter = (typeof BOBBLE_FILTERS)[number];
+
+const FILTER_TO_CATEGORY: Record<Exclude<BobbleFilter, 'All'>, BobbleCategory> = {
+  Ideas: 'ideas',
+  Tasks: 'tasks',
+  'Brain Dump': 'brain-dump',
+  Reflections: 'reflections',
+};
 
 export const DEMO_BOBBLES: BobbleItem[] = [
   {
     id: '1',
     title: 'Gym routine & nutrition plan',
-    timestamp: 'Today, 11:37 AM',
-    category: 'health',
+    timestamp: 'Today, 11:30 AM',
+    category: 'tasks',
+    iconVariant: 'dumbbell',
     durationMin: 5,
     dateLabel: 'Today, 11:30 AM',
   },
   {
     id: '2',
-    title: 'Q3 product roadmap ideas',
-    timestamp: 'Yesterday, 4:15 PM',
-    category: 'work',
-    durationMin: 8,
-    dateLabel: 'Yesterday, 4:15 PM',
+    title: 'Nutritional Meal Planning',
+    timestamp: 'Today, 8:00 AM',
+    category: 'tasks',
+    iconVariant: 'leaf',
+    durationMin: 4,
+    dateLabel: 'Today, 8:00 AM',
   },
   {
     id: '3',
-    title: 'Weekend trip planning',
-    timestamp: 'Mon, 9:00 AM',
-    category: 'personal',
-    durationMin: 4,
-    dateLabel: 'Mon, 9:00 AM',
+    title: 'Gym routine & nutrition plan',
+    timestamp: 'Today, 11:30 AM',
+    category: 'brain-dump',
+    iconVariant: 'bell',
+    durationMin: 3,
+    dateLabel: 'Today, 11:30 AM',
   },
   {
     id: '4',
-    title: 'App feature brainstorm',
+    title: 'Weekend Trip Planning',
+    timestamp: 'Mon, 10:00 AM',
+    category: 'reflections',
+    iconVariant: 'luggage',
+    durationMin: 4,
+    dateLabel: 'Mon, 10:00 AM',
+  },
+  {
+    id: '5',
+    title: 'App Feature Brainstorm',
     timestamp: 'Sun, 2:30 PM',
     category: 'ideas',
+    iconVariant: 'lightbulb',
     durationMin: 6,
     dateLabel: 'Sun, 2:30 PM',
   },
@@ -152,10 +175,10 @@ export function getBobbleById(id: string): BobbleItem | undefined {
 
 export function filterBobbles(filter: BobbleFilter, query: string): BobbleItem[] {
   const normalized = query.trim().toLowerCase();
+  const category = filter === 'All' ? null : FILTER_TO_CATEGORY[filter];
+
   return DEMO_BOBBLES.filter((bobble) => {
-    const matchesFilter =
-      filter === 'All' ||
-      bobble.category === filter.toLowerCase();
+    const matchesFilter = category === null || bobble.category === category;
     const matchesQuery =
       !normalized || bobble.title.toLowerCase().includes(normalized);
     return matchesFilter && matchesQuery;
