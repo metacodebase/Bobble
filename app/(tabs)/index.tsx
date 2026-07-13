@@ -9,7 +9,7 @@ import { HomeHeader } from '@/src/components/home/home-header';
 import { QuickActionTile } from '@/src/components/home/quick-action-tile';
 import { RecentBobbleRow } from '@/src/components/home/recent-bobble-row';
 import { DUMMY_FOCUS_TASKS, TodayFocusCard } from '@/src/components/home/today-focus-card';
-import { TodayProgressCard } from '@/src/components/home/today-progress-card';
+import { isNerdyProgressState, TodayProgressCard } from '@/src/components/home/today-progress-card';
 import { BobbleMascot } from '@/src/components/onboarding/bobble-mascot';
 import { PrimaryButton } from '@/src/components/onboarding/primary-button';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
@@ -19,7 +19,7 @@ import { Typography } from '@/src/theme/fonts';
 function getProgressSubtitle(completed: number, total: number) {
   if (total === 0) return 'Your day is just beginning, record your first Bobble.';
   if (completed === 0) return 'Start with one small task, Bobble will celebrate the rest.';
-  if (completed >= total) return 'All done — Bobble is proud of you today.';
+  if (completed >= total) return 'Congratulations! you completed all your tasks.';
   return 'Nice progress — keep the momentum going.';
 }
 
@@ -75,6 +75,7 @@ export default function HomeScreen() {
   );
   const completedCount = completedIds.size;
   const totalCount = DUMMY_FOCUS_TASKS.length;
+  const isNerdyHome = isNerdyProgressState(completedCount, totalCount);
 
   const toggleFocusTask = (id: string) => {
     setCompletedIds((prev) => {
@@ -108,6 +109,7 @@ export default function HomeScreen() {
         <View style={styles.mascotWrap}>
           <BobbleMascot
             variant="home"
+            homeVariant={isNerdyHome ? 'nerdy' : 'default'}
             size={Math.round(
               Dimensions.get('window').width * (Platform.OS === 'android' ? 1.25 : 1.15),
             )}

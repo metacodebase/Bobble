@@ -65,8 +65,8 @@ export function TodayFocusCard({
                   styles.checkbox,
                   { borderColor: colors.primaryMuted },
                   task.done && {
-                    backgroundColor: colors.primary,
-                    borderColor: colors.primary,
+                    backgroundColor: colors.success,
+                    borderColor: 'transparent',
                   },
                 ]}
               >
@@ -123,7 +123,7 @@ const styles = StyleSheet.create({
   title: {
     ...Typography.caption,
     fontFamily: Typography.button.fontFamily,
-    fontSize: 13,
+    fontSize: 16,
   },
   list: {
     flex: 1,
@@ -136,8 +136,8 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   checkbox: {
-    width: 20,
-    height: 20,
+    width: 25,
+    height: 25,
     borderRadius: 999,
     borderWidth: 1.5,
     alignItems: 'center',

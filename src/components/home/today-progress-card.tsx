@@ -1,6 +1,6 @@
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
-import { ImageSourcePropType, StyleSheet, Text, View } from 'react-native';
+import { ImageSourcePropType, Platform, StyleSheet, Text, View } from 'react-native';
 
 import { BobbleColors } from '@/src/theme/colors';
 import { Typography } from '@/src/theme/fonts';
@@ -11,12 +11,29 @@ const HAMMER_MASCOT = require('@/src/assets/images/bobble-hammer.png');
 const NERD_MASCOT = require('@/src/assets/images/bobble-nerd.png');
 const GREET_MASCOT = require('@/src/assets/images/mascot/bobble-greet.png');
 
+export function isNerdyProgressState(completed: number, total: number): boolean {
+  return total > 0 && completed === total - 1;
+}
+
 function getProgressMascot(completed: number, total: number): ImageSourcePropType {
   if (total <= 0) return SOUND_MASCOT;
   if (completed >= total) return GREET_MASCOT;
-  if (completed === total - 1) return NERD_MASCOT;
+  if (isNerdyProgressState(completed, total)) return NERD_MASCOT;
   if (completed > 0) return HAMMER_MASCOT;
   return WRITING_MASCOT;
+}
+
+function renderSubtitle(subtitle: string) {
+  const parts = subtitle.split(/(Bobble)/g);
+  return parts.map((part, index) =>
+    part === 'Bobble' ? (
+      <Text key={index} style={{ color: BobbleColors.primary }}>
+        {part}
+      </Text>
+    ) : (
+      part
+    ),
+  );
 }
 
 type TodayProgressCardProps = {
@@ -43,34 +60,39 @@ export function TodayProgressCard({
       <View style={styles.top}>
         <Text style={[styles.title, { color: BobbleColors.textOnPrimary }]}>Today's Progress</Text>
         <View style={styles.body}>
-          <View style={styles.row}>
-            <View style={styles.countWrap}>
-              <Text style={[styles.count, { color: BobbleColors.textOnPrimary }]}>
-                {completed}/{total}
-              </Text>
-              <Text style={[styles.subtitle, { color: BobbleColors.textOnPrimary }]}>
-                Tasks done
-              </Text>
-            </View>
-            <View style={styles.mascotWrap}>
-              <Image source={mascot} style={styles.mascot} contentFit="contain" />
-            </View>
+          <View style={styles.countWrap}>
+            <Text style={[styles.count, { color: BobbleColors.textOnPrimary }]}>
+              {completed}/{total}
+            </Text>
+            <Text style={[styles.subtitle, { color: BobbleColors.textOnPrimary }]}>
+              Tasks done
+            </Text>
           </View>
         </View>
       </View>
       <View style={styles.footer}>
-        <View style={[styles.track, { backgroundColor: 'rgba(0, 0, 0, 0.1)' }]}>
+        <View style={[styles.track, { backgroundColor: '#EDE9F7' }]}>
           <View
             style={[
               styles.fill,
               {
                 width: `${progress * 100}%`,
-                backgroundColor: BobbleColors.primary,
+                backgroundColor: progress > 0.9 ? BobbleColors.success : BobbleColors.primary,
               },
             ]}
           />
         </View>
-        <Text style={[styles.subtitle, { color: BobbleColors.textSecondary,fontSize:11.5}]}>{subtitle}</Text>
+        <Text
+          style={[
+            styles.subtitle,
+            { color: BobbleColors.textSecondary, fontSize: Platform.OS === 'ios' ? 11.5 : 13 },
+          ]}
+        >
+          {renderSubtitle(subtitle)}
+        </Text>
+      </View>
+      <View style={styles.mascotWrap} pointerEvents="none">
+        <Image source={mascot} style={styles.mascot} contentFit="contain" />
       </View>
     </LinearGradient>
   );
@@ -93,26 +115,19 @@ const styles = StyleSheet.create({
   title: {
     ...Typography.caption,
     fontFamily: Typography.button.fontFamily,
-    fontSize: 13,
+    fontSize: 16,
   },
   body: {
     flex: 1,
-    justifyContent: 'flex-end',
-    gap: 10,
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    width: '100%',
-    flex: 1,
+    justifyContent: 'flex-start',
+    paddingTop: '10%',
   },
   countWrap: {
-    width: '40%',
+    maxWidth: '55%',
+    zIndex: 2,
   },
   count: {
     ...Typography.heading,
-    zIndex: 1,
   },
   subtitle: {
     ...Typography.caption,
@@ -120,10 +135,12 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
   mascotWrap: {
-    width: '60%',
-    height: '100%',
-    alignItems: 'center',
-    justifyContent: 'flex-end',
+    position: 'absolute',
+    right: 2,
+    bottom: '39%',
+    width: 112,
+    height: 112,
+    zIndex: 1,
   },
   mascot: {
     width: '100%',
@@ -133,10 +150,12 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     height: '40%',
     paddingHorizontal: 14,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
     justifyContent: 'space-evenly',
   },
   track: {
-    height: 5,
+    height: 10,
     borderRadius: 999,
     overflow: 'hidden',
   },

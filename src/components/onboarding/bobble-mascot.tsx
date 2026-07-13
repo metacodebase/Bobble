@@ -1,6 +1,12 @@
 import { Image, ImageSource, ImageStyle } from 'expo-image';
 import { useEffect, useRef, useState } from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import Animated, {
+  Easing,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
 
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { useColorScheme } from '@/src/hooks/use-color-scheme';
@@ -40,7 +46,9 @@ const ANIMATED_MASCOT_SOURCES: Partial<Record<MascotVariant, ImageSource>> = {
 };
 
 const HOME_ANIMATED_SOURCE = require('@/src/assets/images/bobble-home-tab-animated.webp');
+const HOME_NERDY_SOURCE = require('@/src/assets/images/bobble-nerdy-home.png');
 
+type HomeVariant = 'default' | 'nerdy';
 type AnimatedMascotVariant = keyof typeof ANIMATED_MASCOT_SOURCES;
 
 type BobbleMascotProps = {
@@ -50,6 +58,8 @@ type BobbleMascotProps = {
   backgroundColor?: string;
   /** When false, shows the static frame until set true (restarts the animation). */
   playAnimation?: boolean;
+  /** Home tab mascot style — switches to the nerdy pose when one task remains. */
+  homeVariant?: HomeVariant;
 };
 
 const HOME_ASPECT_RATIO = 492 / 738;
@@ -137,36 +147,75 @@ function AnimatedMascotImage({
   );
 }
 
+const HOME_NERDY_SCALE = 0.82;
+const HOME_TRANSITION_MS = 320;
+
 function HomeMascotImage({
   width,
   height,
   borderRadius,
   backgroundColor,
   style,
+  homeVariant = 'default',
 }: {
   width: number;
   height: number;
   borderRadius: number;
   backgroundColor: string;
   style?: ImageStyle;
-  }) {
-  const imageStyle = [
-    styles.image,
-    {
-      width,
-      height,
-      borderRadius,
-      backgroundColor,
-    },
-    style,
-  ];
+  homeVariant?: HomeVariant;
+}) {
+  const isNerdy = homeVariant === 'nerdy';
+  const scale = useSharedValue(isNerdy ? HOME_NERDY_SCALE : 1);
+  const nerdyOpacity = useSharedValue(isNerdy ? 1 : 0);
+
+  useEffect(() => {
+    const timing = {
+      duration: HOME_TRANSITION_MS,
+      easing: Easing.out(Easing.cubic),
+    };
+    scale.value = withTiming(isNerdy ? HOME_NERDY_SCALE : 1, timing);
+    nerdyOpacity.value = withTiming(isNerdy ? 1 : 0, timing);
+  }, [isNerdy, nerdyOpacity, scale]);
+
+  const scaledStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
+
+  const defaultImageStyle = useAnimatedStyle(() => ({
+    opacity: 1 - nerdyOpacity.value,
+  }));
+
+  const nerdyImageStyle = useAnimatedStyle(() => ({
+    opacity: nerdyOpacity.value,
+  }));
+
+  const imageBaseStyle = {
+    width,
+    height,
+    borderRadius,
+    backgroundColor,
+  };
 
   return (
-    <Image
-      source={ MASCOT_SOURCES.home.light}
-      style={imageStyle}
-      contentFit="contain"
-    />
+    <View style={[styles.homeContainer, { width, height }, style]}>
+      <Animated.View style={[styles.homeScaledWrap, scaledStyle]}>
+        <Animated.View style={[styles.homeImageLayer, defaultImageStyle]}>
+          <Image
+            source={MASCOT_SOURCES.home.light}
+            style={[styles.image, imageBaseStyle]}
+            contentFit="contain"
+          />
+        </Animated.View>
+        <Animated.View style={[styles.homeImageLayer, nerdyImageStyle]}>
+          <Image
+            source={HOME_NERDY_SOURCE}
+            style={[styles.image, imageBaseStyle]}
+            contentFit="contain"
+          />
+        </Animated.View>
+      </Animated.View>
+    </View>
   );
 }
 
@@ -176,6 +225,7 @@ export function BobbleMascot({
   style,
   backgroundColor: backgroundColorProp,
   playAnimation = true,
+  homeVariant = 'default',
 }: BobbleMascotProps) {
   const scheme = useColorScheme();
   const colors = useBobbleColors();
@@ -204,6 +254,7 @@ export function BobbleMascot({
         borderRadius={borderRadius}
         backgroundColor={backgroundColor}
         style={style}
+        homeVariant={homeVariant}
       />
     );
   }
@@ -243,5 +294,21 @@ export function BobbleMascot({
 const styles = StyleSheet.create({
   image: {
     alignSelf: 'center',
+  },
+  homeContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  homeScaledWrap: {
+    width: '100%',
+    height: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  homeImageLayer: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
