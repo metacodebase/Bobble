@@ -1,4 +1,5 @@
-import { Feather, FontAwesome, Octicons } from '@expo/vector-icons';
+import { Feather, Octicons } from '@expo/vector-icons';
+import { Image } from 'expo-image';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { BlurView } from 'expo-blur';
 import {
@@ -15,8 +16,9 @@ import { TAB_ICON_SIZE } from '@/src/components/ui/tab-bar-icons';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { useColorScheme } from '@/src/hooks/use-color-scheme';
 import { useCaptureStore } from '@/src/store/capture-store';
-import { BobbleColors } from '@/src/theme/colors';
 import { FontFamily } from '@/src/theme/fonts';
+
+const MIC_BUTTON = require('@/src/assets/images/mic-button.png');
 
 type TabConfig = {
   name: string;
@@ -108,7 +110,9 @@ export function FloatingTabBar({ state, navigation }: BottomTabBarProps) {
     {
       name: 'bobbles',
       label: 'Bobbles',
-      renderIcon: (focused) => <BobblesTabIcon focused={focused} size={TAB_ICON_SIZE} />,
+      renderIcon: (focused, color) => (
+        <BobblesTabIcon focused={focused} size={TAB_ICON_SIZE} color={color} />
+      ),
     },
     {
       name: 'tasks',
@@ -171,13 +175,11 @@ export function FloatingTabBar({ state, navigation }: BottomTabBarProps) {
                   style={styles.micHitArea}
                 >
                   {({ pressed }) => (
-                    <View style={[styles.micButton, pressed && styles.micPressed]}>
-                      <FontAwesome
-                        name="microphone"
-                        size={TAB_ICON_SIZE}
-                        color={BobbleColors.textOnPrimary}
-                      />
-                    </View>
+                    <Image
+                      source={MIC_BUTTON}
+                      style={[styles.micButton, pressed && styles.micPressed]}
+                      contentFit="contain"
+                    />
                   )}
                 </Pressable>
               </View>
@@ -186,7 +188,7 @@ export function FloatingTabBar({ state, navigation }: BottomTabBarProps) {
 
           const { tab } = slot;
           const isFocused = activeRoute === tab.name;
-          const color = isFocused ? colors.primary : colors.textSecondary;
+          const color = isFocused ? colors.primary : colors.text;
 
           return (
             <View key={tab.name} style={styles.slot}>
@@ -226,11 +228,11 @@ const styles = StyleSheet.create({
   },
   barBorderLight: {
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.72)',
+    borderColor: '#E5E7EB',
   },
   barBorderDark: {
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.14)',
+    borderColor: 'rgba(255, 255, 255, 0.22)',
   },
   barShadowLight: {
     shadowColor: '#000',
@@ -297,21 +299,15 @@ const styles = StyleSheet.create({
   },
   micHitArea: {
     position: 'absolute',
-    top: -28,
-    width: 60,
-    height: 60,
+    top: -38,
+    width: 88,
+    height: 88,
     alignItems: 'center',
     justifyContent: 'center',
-
   },
   micButton: {
-    width: 65,
-    height: 65,
-    borderRadius: 108,
-    backgroundColor: BobbleColors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-
+    width: 84,
+    height: 84,
   },
   micPressed: {
     opacity: 0.92,

@@ -9,15 +9,21 @@ const ASPECT = 49 / 52;
 type BobbleIconProps = {
   size?: number;
   variant?: 'active' | 'inactive';
+  inactiveColor?: string;
 };
 
-export function BobbleIcon({ size = 24, variant = 'active' }: BobbleIconProps) {
+export function BobbleIcon({
+  size = 24,
+  variant = 'active',
+  inactiveColor,
+}: BobbleIconProps) {
   return (
     <View style={[styles.wrapper, { width: size, height: size }]}>
       <Image
         source={variant === 'active' ? BOBBLE_ICON_ACTIVE : BOBBLE_ICON_INACTIVE}
         style={[styles.icon, { width: size, height: size * ASPECT }]}
         contentFit="contain"
+        tintColor={variant === 'inactive' ? inactiveColor : undefined}
       />
     </View>
   );
