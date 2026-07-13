@@ -15,6 +15,10 @@ export function isNerdyProgressState(completed: number, total: number): boolean 
   return total > 0 && completed === total - 1;
 }
 
+export function isCompleteProgressState(completed: number, total: number): boolean {
+  return total > 0 && completed >= total;
+}
+
 function getProgressMascot(completed: number, total: number): ImageSourcePropType {
   if (total <= 0) return SOUND_MASCOT;
   if (completed >= total) return GREET_MASCOT;

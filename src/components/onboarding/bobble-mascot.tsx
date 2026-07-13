@@ -47,8 +47,9 @@ const ANIMATED_MASCOT_SOURCES: Partial<Record<MascotVariant, ImageSource>> = {
 
 const HOME_ANIMATED_SOURCE = require('@/src/assets/images/bobble-home-tab-animated.webp');
 const HOME_NERDY_SOURCE = require('@/src/assets/images/bobble-nerdy-home.png');
+const HOME_COMPLETE_SOURCE = require('@/src/assets/images/bobble-cloud-home.png');
 
-type HomeVariant = 'default' | 'nerdy';
+export type HomeVariant = 'default' | 'nerdy' | 'complete';
 type AnimatedMascotVariant = keyof typeof ANIMATED_MASCOT_SOURCES;
 
 type BobbleMascotProps = {
@@ -58,7 +59,7 @@ type BobbleMascotProps = {
   backgroundColor?: string;
   /** When false, shows the static frame until set true (restarts the animation). */
   playAnimation?: boolean;
-  /** Home tab mascot style — switches to the nerdy pose when one task remains. */
+  /** Home tab mascot style — reacts to today's task progress. */
   homeVariant?: HomeVariant;
 };
 
@@ -150,6 +151,12 @@ function AnimatedMascotImage({
 const HOME_NERDY_SCALE = 0.82;
 const HOME_TRANSITION_MS = 320;
 
+const HOME_VARIANT_SCALE: Record<HomeVariant, number> = {
+  default: 1,
+  nerdy: HOME_NERDY_SCALE,
+  complete: 1,
+};
+
 function HomeMascotImage({
   width,
   height,
@@ -165,29 +172,36 @@ function HomeMascotImage({
   style?: ImageStyle;
   homeVariant?: HomeVariant;
 }) {
-  const isNerdy = homeVariant === 'nerdy';
-  const scale = useSharedValue(isNerdy ? HOME_NERDY_SCALE : 1);
-  const nerdyOpacity = useSharedValue(isNerdy ? 1 : 0);
+  const scale = useSharedValue(HOME_VARIANT_SCALE[homeVariant]);
+  const defaultOpacity = useSharedValue(homeVariant === 'default' ? 1 : 0);
+  const nerdyOpacity = useSharedValue(homeVariant === 'nerdy' ? 1 : 0);
+  const completeOpacity = useSharedValue(homeVariant === 'complete' ? 1 : 0);
 
   useEffect(() => {
     const timing = {
       duration: HOME_TRANSITION_MS,
       easing: Easing.out(Easing.cubic),
     };
-    scale.value = withTiming(isNerdy ? HOME_NERDY_SCALE : 1, timing);
-    nerdyOpacity.value = withTiming(isNerdy ? 1 : 0, timing);
-  }, [isNerdy, nerdyOpacity, scale]);
+    scale.value = withTiming(HOME_VARIANT_SCALE[homeVariant], timing);
+    defaultOpacity.value = withTiming(homeVariant === 'default' ? 1 : 0, timing);
+    nerdyOpacity.value = withTiming(homeVariant === 'nerdy' ? 1 : 0, timing);
+    completeOpacity.value = withTiming(homeVariant === 'complete' ? 1 : 0, timing);
+  }, [completeOpacity, defaultOpacity, homeVariant, nerdyOpacity, scale]);
 
   const scaledStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
   }));
 
   const defaultImageStyle = useAnimatedStyle(() => ({
-    opacity: 1 - nerdyOpacity.value,
+    opacity: defaultOpacity.value,
   }));
 
   const nerdyImageStyle = useAnimatedStyle(() => ({
     opacity: nerdyOpacity.value,
+  }));
+
+  const completeImageStyle = useAnimatedStyle(() => ({
+    opacity: completeOpacity.value,
   }));
 
   const imageBaseStyle = {
@@ -210,6 +224,13 @@ function HomeMascotImage({
         <Animated.View style={[styles.homeImageLayer, nerdyImageStyle]}>
           <Image
             source={HOME_NERDY_SOURCE}
+            style={[styles.image, imageBaseStyle]}
+            contentFit="contain"
+          />
+        </Animated.View>
+        <Animated.View style={[styles.homeImageLayer, completeImageStyle]}>
+          <Image
+            source={HOME_COMPLETE_SOURCE}
             style={[styles.image, imageBaseStyle]}
             contentFit="contain"
           />
