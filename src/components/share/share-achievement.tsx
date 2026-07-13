@@ -12,6 +12,7 @@ import { Typography } from '@/src/theme/fonts';
 import { toast } from '@/src/utils/toast';
 
 const SHARE_BACKGROUND = require('@/src/assets/images/background/four.png');
+const BOBBLE_CARD_ASPECT_RATIO = 4096 / 5300;
 
 type ShareAchievementProps = {
   cardId?: string;
@@ -59,7 +60,9 @@ export function ShareAchievement({ cardId, onClose }: ShareAchievementProps) {
           </Text>
         </View>
 
-        <Image source={card.image} style={styles.cardImage} contentFit='contain' />
+        <View style={styles.cardWrapper}>
+          <Image source={card.image} style={styles.cardImage} contentFit="cover" />
+        </View>
 
         <View style={styles.actionsBlock}>
           <ShareAchievementBar
@@ -104,7 +107,8 @@ const styles = StyleSheet.create({
   },
   content: {
     flexGrow: 1,
-    paddingHorizontal: 24,
+    width: '90%',
+    alignSelf: 'center',
     paddingTop: 12,
     gap: 0,
     justifyContent: 'space-evenly',
@@ -129,14 +133,20 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
 
+  cardWrapper: {
+    width: '100%',
+    aspectRatio: BOBBLE_CARD_ASPECT_RATIO,
+    borderRadius: 20,
+    borderWidth: 2,
+    borderColor: '#FFFFFF',
+    overflow: 'hidden',
+  },
   cardImage: {
     width: '100%',
-    height: 450,
-    alignSelf: 'center',
+    height: '100%',
   },
   actionsBlock: {
-    width: '90%',
-    alignSelf: 'center',
+    width: '100%',
     gap: 22,
   },
   footer: {
@@ -146,8 +156,7 @@ const styles = StyleSheet.create({
     gap: 8,
     padding: 10,
     backgroundColor: 'rgba(0,0,0, 0.1)',
-    width: '90%',
-    alignSelf: 'center',
+    width: '100%',
     borderRadius: 10,
   },
   footerText: {
