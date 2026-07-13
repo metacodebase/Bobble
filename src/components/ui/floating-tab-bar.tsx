@@ -1,5 +1,6 @@
 import { Feather, FontAwesome, Octicons } from '@expo/vector-icons';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
+import { BlurView } from 'expo-blur';
 import {
   GlassView,
   isGlassEffectAPIAvailable,
@@ -24,6 +25,9 @@ type TabConfig = {
 };
 
 function useLiquidGlassTabBar() {
+  if (Platform.OS === 'android') {
+    return true;
+  }
   return (
     Platform.OS === 'ios' &&
     isGlassEffectAPIAvailable() &&
@@ -47,16 +51,29 @@ function TabBarSurface({
   return (
     <View style={[styles.bar, isDark ? styles.barBorderDark : styles.barBorderLight]}>
       {glassEnabled ? (
-        <GlassView
-          style={[
-            styles.barGlass,
-            isDark ? styles.barShadowDark : styles.barShadowLight,
-          ]}
-          glassEffectStyle="regular"
-          isInteractive
-          colorScheme={colorScheme}
-          pointerEvents="none"
-        />
+        Platform.OS === 'ios' ? (
+          <GlassView
+            style={[
+              styles.barGlass,
+              isDark ? styles.barShadowDark : styles.barShadowLight,
+            ]}
+            glassEffectStyle="regular"
+            isInteractive
+            colorScheme={colorScheme}
+            pointerEvents="none"
+          />
+        ) : (
+          <BlurView
+            style={[
+              styles.barGlass,
+              isDark ? styles.barShadowDark : styles.barShadowLight,
+              { backgroundColor: isDark ? 'rgba(0,0,0,0.3)' : 'rgba(255,255,255,0.3)' }
+            ]}
+            tint={colorScheme}
+            intensity={0}
+            pointerEvents="none"
+          />
+        )
       ) : (
         <View
           style={[
@@ -218,20 +235,21 @@ const styles = StyleSheet.create({
   barShadowLight: {
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.18,
+    shadowOpacity: 0,
     shadowRadius: 24,
     elevation: 14,
   },
   barShadowDark: {
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.55,
+    shadowOpacity: 0,
     shadowRadius: 24,
     elevation: 14,
   },
   barGlass: {
     ...StyleSheet.absoluteFillObject,
     borderRadius: 32,
+    overflow: 'hidden',
   },
   barContent: {
     flexDirection: 'row',
@@ -253,7 +271,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'flex-end',
-    height: 48,
+    height: 40,
     overflow: 'visible',
     zIndex: 10,
   },
@@ -280,23 +298,20 @@ const styles = StyleSheet.create({
   micHitArea: {
     position: 'absolute',
     top: -28,
-    width: 56,
-    height: 56,
+    width: 60,
+    height: 60,
     alignItems: 'center',
     justifyContent: 'center',
+
   },
   micButton: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+    width: 65,
+    height: 65,
+    borderRadius: 108,
     backgroundColor: BobbleColors.primary,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: BobbleColors.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.35,
-    shadowRadius: 8,
-    elevation: 8,
+
   },
   micPressed: {
     opacity: 0.92,
