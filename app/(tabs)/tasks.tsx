@@ -1,4 +1,4 @@
-import { Calendar, CheckCircle, Clock, Settings } from 'lucide-react-native';
+import { Calendar, CheckCircle, Clock } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
 import { ActivityIndicator, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -88,6 +88,7 @@ export default function TasksScreen() {
           options={TASK_FILTERS} 
           active={filter} 
           onChange={setFilter}
+          compact
           icons={{
             Today: Calendar,
             Upcoming: Clock,

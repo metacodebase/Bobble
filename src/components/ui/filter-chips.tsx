@@ -60,6 +60,7 @@ export function FilterChips<T extends string>({
               style={[
                 styles.label,
                 compact && styles.labelCompact,
+
                 {
                   color: selected
                     ? colors.textOnPrimary
@@ -104,6 +105,7 @@ const styles = StyleSheet.create({
   label: {
     ...Typography.caption,
     fontFamily: Typography.button.fontFamily,
+    marginLeft: 5,
   },
   labelCompact: {
     fontSize: 13,

@@ -80,7 +80,7 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    gap: 18,
+    gap: 10,
     paddingTop: 16,
     paddingHorizontal: 24,
     justifyContent: 'space-evenly',
