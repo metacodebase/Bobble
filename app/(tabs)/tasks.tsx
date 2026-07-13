@@ -1,4 +1,4 @@
-import { Settings } from 'lucide-react-native';
+import { Calendar, CheckCircle, Clock, Settings } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
 import { ActivityIndicator, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -81,8 +81,17 @@ export default function TasksScreen() {
   return (
     <View style={[styles.root, { paddingTop: insets.top + 12 }]}>
       <View style={styles.header}>
-        <ScreenHeader title="Tasks" rightIcon={Settings} />
-        <FilterChips options={TASK_FILTERS} active={filter} onChange={setFilter} />
+        <ScreenHeader title="Tasks" titleColor="#1E1145" />
+        <FilterChips 
+          options={TASK_FILTERS} 
+          active={filter} 
+          onChange={setFilter}
+          icons={{
+            Today: Calendar,
+            Upcoming: Clock,
+            Done: CheckCircle,
+          }}
+        />
       </View>
 
       <ScrollView

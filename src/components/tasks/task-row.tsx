@@ -1,4 +1,4 @@
-import { Check, Trash2 } from 'lucide-react-native';
+import { Check, Clock, MoreHorizontal, Trash2 } from 'lucide-react-native';
 import { useRef } from 'react';
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Swipeable } from 'react-native-gesture-handler';
@@ -44,38 +44,41 @@ export function TaskRow({ task, onToggle, onPress, onDelete }: TaskRowProps) {
   );
 
   const content = (
-    <View style={[styles.row, { borderBottomColor: colors.border, backgroundColor: 'transparent' }]}>
-      <Pressable
-        onPress={onToggle}
-        hitSlop={8}
-        style={[
-          styles.checkbox,
-          { borderColor: colors.textSecondary },
-          task.done && { backgroundColor: colors.primary, borderColor: colors.primary },
-        ]}
-      >
-        {task.done ? <Check size={14} color={colors.textOnPrimary} strokeWidth={3} /> : null}
-      </Pressable>
-      <Pressable style={styles.content} onPress={onPress} disabled={!onPress}>
-        <Text
+    <View style={styles.cardContainer}>
+      <View style={[styles.row, { backgroundColor: colors.surface }]}>
+        <Pressable
+          onPress={onToggle}
+          hitSlop={8}
           style={[
-            styles.title,
-            { color: colors.text },
-            task.done && { textDecorationLine: 'line-through', color: colors.textSecondary },
+            styles.checkbox,
+            { borderColor: colors.primaryLight },
+            task.done && { backgroundColor: colors.primaryLight, borderColor: colors.primaryLight },
           ]}
-          numberOfLines={1}
         >
-          {task.title}
-        </Text>
-        {task.notes ? (
-          <Text style={[styles.notes, { color: colors.textSecondary }]} numberOfLines={1}>
-            {task.notes}
+          {task.done ? <Check size={16} color={colors.textOnPrimary} strokeWidth={3} /> : null}
+        </Pressable>
+        <Pressable style={styles.content} onPress={onPress} disabled={!onPress}>
+          <Text
+            style={[
+              styles.title,
+              { color: '#1E1145' },
+              task.done && { textDecorationLine: 'line-through', color: colors.textSecondary },
+            ]}
+            numberOfLines={1}
+          >
+            {task.title}
           </Text>
-        ) : null}
-        {task.time ? (
-          <Text style={[styles.time, { color: colors.textSecondary }]}>{task.time}</Text>
-        ) : null}
-      </Pressable>
+          {task.time ? (
+            <View style={styles.timeRow}>
+              <Clock size={12} color={colors.primaryLight} />
+              <Text style={[styles.time, { color: colors.primaryLight }]}>{task.time}</Text>
+            </View>
+          ) : null}
+        </Pressable>
+        <Pressable onPress={onPress} hitSlop={8}>
+          <MoreHorizontal size={20} color={colors.primaryLight} />
+        </Pressable>
+      </View>
     </View>
   );
 
@@ -94,31 +97,42 @@ export function TaskRow({ task, onToggle, onPress, onDelete }: TaskRowProps) {
 }
 
 const styles = StyleSheet.create({
+  cardContainer: {
+    shadowColor: '#9F52F2',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.06,
+    shadowRadius: 12,
+    elevation: 2,
+    backgroundColor: 'transparent',
+  },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
-    paddingVertical: 12,
-    borderBottomWidth: StyleSheet.hairlineWidth,
+    gap: 16,
+    padding: 16,
+    borderRadius: 16,
   },
   checkbox: {
-    width: 24,
-    height: 24,
+    width: 28,
+    height: 28,
     borderRadius: 8,
-    borderWidth: 2,
+    borderWidth: 1.5,
     alignItems: 'center',
     justifyContent: 'center',
   },
   content: {
     flex: 1,
-    gap: 2,
+    gap: 4,
   },
   title: {
     ...Typography.body,
+    fontSize: 16,
     fontFamily: Typography.button.fontFamily,
   },
-  notes: {
-    ...Typography.caption,
+  timeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
   },
   time: {
     ...Typography.caption,
@@ -128,6 +142,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: 88,
     gap: 4,
+    borderRadius: 16,
+    marginVertical: 1,
   },
   deleteText: {
     ...Typography.caption,

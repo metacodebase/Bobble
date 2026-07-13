@@ -6,16 +6,17 @@ import { Typography } from '@/src/theme/fonts';
 
 type ScreenHeaderProps = {
   title: string;
+  titleColor?: string;
   rightIcon?: LucideIcon;
   onRightPress?: () => void;
 };
 
-export function ScreenHeader({ title, rightIcon: RightIcon, onRightPress }: ScreenHeaderProps) {
+export function ScreenHeader({ title, titleColor, rightIcon: RightIcon, onRightPress }: ScreenHeaderProps) {
   const colors = useBobbleColors();
 
   return (
     <View style={styles.root}>
-      <Text style={[styles.title, { color: colors.text }]}>{title}</Text>
+      <Text style={[styles.title, { color: titleColor ?? colors.text }]}>{title}</Text>
       {RightIcon ? (
         <Pressable onPress={onRightPress} hitSlop={12} style={styles.iconButton}>
           <RightIcon size={22} color={colors.textSecondary} strokeWidth={2} />

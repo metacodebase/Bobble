@@ -16,12 +16,15 @@ export function HomeHeader({ greeting, name, onProfilePress }: HomeHeaderProps) 
   const colors = useBobbleColors();
   const nightBackground = useAppStore((s) => s.nightBackground);
   const setNightBackground = useAppStore((s) => s.setNightBackground);
+  const headerForeground = nightBackground ? '#FFFFFF' : undefined;
 
   return (
     <View style={styles.row}>
       <View style={styles.textCol}>
-        <Text style={[styles.greeting, { color: colors.textSecondary }]}>{greeting},</Text>
-        <Text style={[styles.name, { color: colors.text }]}>{name} 👋</Text>
+        <Text style={[styles.greeting, { color: headerForeground ?? colors.textSecondary }]}>
+          {greeting},
+        </Text>
+        <Text style={[styles.name, { color: headerForeground ?? colors.text }]}>{name} 👋</Text>
       </View>
 
       <View style={styles.actions}>
@@ -33,7 +36,7 @@ export function HomeHeader({ greeting, name, onProfilePress }: HomeHeaderProps) 
           style={styles.nightToggle}
         >
           {nightBackground ? (
-            <Sun size={22} color={colors.primary} strokeWidth={2.2} />
+            <Sun size={22} color="#FFFFFF" strokeWidth={2.2} />
           ) : (
             <Moon size={22} color={colors.primary} strokeWidth={2.2} />
           )}

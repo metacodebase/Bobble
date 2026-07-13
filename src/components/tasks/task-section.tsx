@@ -18,9 +18,12 @@ export function TaskSection({ label, tasks, onToggle, onPress, onDelete }: TaskS
 
   return (
     <View style={styles.section}>
-      <Text style={[styles.label, { color: colors.textSecondary }]}>
-        {label} ({tasks.length})
-      </Text>
+      <View style={styles.headerRow}>
+        <Text style={[styles.label, { color: '#1E1145' }]}>
+          {label} ({tasks.length})
+        </Text>
+        <View style={[styles.line, { backgroundColor: colors.primaryMuted, opacity: 0.3 }]} />
+      </View>
       <View style={styles.list}>
         {tasks.map((task) => (
           <TaskRow
@@ -40,12 +43,21 @@ const styles = StyleSheet.create({
   section: {
     marginBottom: 24,
   },
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+    gap: 12,
+  },
   label: {
     ...Typography.formLabel,
     fontSize: 15,
-    marginBottom: 8,
+  },
+  line: {
+    flex: 1,
+    height: 1,
   },
   list: {
-    gap: 4,
+    gap: 12,
   },
 });
