@@ -4,7 +4,6 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { BOBBLE_CATEGORY_STYLES } from '@/src/components/bobbles/bobble-category-config';
 import type { BobbleCategory } from '@/src/data/demo-data';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
-import { useNightForeground } from '@/src/hooks/use-night-foreground';
 import { FontFamily, Typography } from '@/src/theme/fonts';
 
 type BobbleLibraryRowProps = {
@@ -23,52 +22,54 @@ export function BobbleLibraryRow({
   onMenuPress,
 }: BobbleLibraryRowProps) {
   const colors = useBobbleColors();
-  const night = useNightForeground();
   const categoryStyle = BOBBLE_CATEGORY_STYLES[category];
-  const cardBackground = night.isNight ? 'rgba(255, 255, 255, 0.18)' : colors.surface;
 
   return (
-    <Pressable
-      onPress={onPress}
-      style={({ pressed }) => [
-        styles.card,
-        { backgroundColor: cardBackground },
-        pressed && styles.pressed,
-      ]}
-    >
-      <View style={styles.content}>
-        <View style={[styles.tag, { backgroundColor: categoryStyle.tagBackground }]}>
-          <Text style={[styles.tagText, { color: categoryStyle.tagColor }]}>
-            {categoryStyle.label}
+    <View style={styles.cardContainer}>
+      <Pressable
+        onPress={onPress}
+        style={({ pressed }) => [
+          styles.card,
+          { backgroundColor: colors.surface },
+          pressed && styles.pressed,
+        ]}
+      >
+        <View style={styles.content}>
+          <View style={[styles.tag, { backgroundColor: categoryStyle.tagBackground }]}>
+            <Text style={[styles.tagText, { color: categoryStyle.tagColor }]}>
+              {categoryStyle.label}
+            </Text>
+          </View>
+          <Text style={[styles.title, { color: '#1E1145' }]} numberOfLines={2}>
+            {title}
+          </Text>
+          <Text style={[styles.timestamp, { color: colors.textSecondary }]}>
+            {timestamp}
           </Text>
         </View>
-        <Text style={[styles.title, { color: night.text ?? '#1E1145' }]} numberOfLines={2}>
-          {title}
-        </Text>
-        <Text style={[styles.timestamp, { color: night.textSecondary ?? colors.textSecondary }]}>
-          {timestamp}
-        </Text>
-      </View>
-      <Pressable onPress={onMenuPress} hitSlop={10} style={styles.menu}>
-        <MoreHorizontal size={18} color={colors.primaryMuted} strokeWidth={2} />
+        <Pressable onPress={onMenuPress} hitSlop={10} style={styles.menu}>
+          <MoreHorizontal size={20} color={colors.primaryLight} strokeWidth={2} />
+        </Pressable>
       </Pressable>
-    </Pressable>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  cardContainer: {
+    shadowColor: '#9F52F2',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.06,
+    shadowRadius: 12,
+    elevation: 2,
+    backgroundColor: 'transparent',
+  },
   card: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    paddingVertical: 11,
-    paddingHorizontal: 12,
-    borderRadius: 18,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    elevation: 2,
+    gap: 16,
+    padding: 16,
+    borderRadius: 16,
   },
   pressed: {
     opacity: 0.92,

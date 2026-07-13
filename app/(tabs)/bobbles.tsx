@@ -76,6 +76,6 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   separator: {
-    height: 7,
+    height: 12,
   },
 });
