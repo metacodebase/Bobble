@@ -1,4 +1,3 @@
-import { Feather, Octicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { BlurView } from 'expo-blur';
@@ -19,12 +18,36 @@ import { useCaptureStore } from '@/src/store/capture-store';
 import { FontFamily } from '@/src/theme/fonts';
 
 const MIC_BUTTON = require('@/src/assets/images/mic-button.png');
+const HOME_ACTIVE = require('@/src/assets/images/tab-icons/home-active.png');
+const HOME_INACTIVE = require('@/src/assets/images/tab-icons/home-inactive.png');
+const TASKS_ACTIVE = require('@/src/assets/images/tab-icons/tasks-active.png');
+const TASKS_INACTIVE = require('@/src/assets/images/tab-icons/tasks-inactive.png');
+const PROFILE_ACTIVE = require('@/src/assets/images/tab-icons/profile-active.png');
+const PROFILE_INACTIVE = require('@/src/assets/images/tab-icons/profile-inactive.png');
 
 type TabConfig = {
   name: string;
   label: string;
-  renderIcon: (focused: boolean, color: string) => React.ReactNode;
+  renderIcon: (focused: boolean) => React.ReactNode;
 };
+
+function TabBarImageIcon({
+  focused,
+  activeSource,
+  inactiveSource,
+}: {
+  focused: boolean;
+  activeSource: number;
+  inactiveSource: number;
+}) {
+  return (
+    <Image
+      source={focused ? activeSource : inactiveSource}
+      style={styles.tabIcon}
+      contentFit="contain"
+    />
+  );
+}
 
 function useLiquidGlassTabBar() {
   if (Platform.OS === 'android') {
@@ -103,29 +126,41 @@ export function FloatingTabBar({ state, navigation }: BottomTabBarProps) {
     {
       name: 'index',
       label: 'Home',
-      renderIcon: (_focused, color) => (
-        <Feather name="home" size={TAB_ICON_SIZE} color={color} />
+      renderIcon: (focused) => (
+        <TabBarImageIcon
+          focused={focused}
+          activeSource={HOME_ACTIVE}
+          inactiveSource={HOME_INACTIVE}
+        />
       ),
     },
     {
       name: 'bobbles',
       label: 'Bobbles',
-      renderIcon: (focused, color) => (
-        <BobblesTabIcon focused={focused} size={TAB_ICON_SIZE} color={color} />
+      renderIcon: (focused) => (
+        <BobblesTabIcon focused={focused} size={TAB_ICON_SIZE} />
       ),
     },
     {
       name: 'tasks',
       label: 'Tasks',
-      renderIcon: (_focused, color) => (
-        <Feather name="check-circle" size={TAB_ICON_SIZE} color={color} />
+      renderIcon: (focused) => (
+        <TabBarImageIcon
+          focused={focused}
+          activeSource={TASKS_ACTIVE}
+          inactiveSource={TASKS_INACTIVE}
+        />
       ),
     },
     {
       name: 'profile',
       label: 'Profile',
-      renderIcon: (_focused, color) => (
-        <Octicons name="person" size={TAB_ICON_SIZE} color={color} />
+      renderIcon: (focused) => (
+        <TabBarImageIcon
+          focused={focused}
+          activeSource={PROFILE_ACTIVE}
+          inactiveSource={PROFILE_INACTIVE}
+        />
       ),
     },
   ];
@@ -200,7 +235,7 @@ export function FloatingTabBar({ state, navigation }: BottomTabBarProps) {
               >
                 {({ pressed }) => (
                   <View style={[styles.tab, pressed && styles.tabPressed]}>
-                    {tab.renderIcon(isFocused, color)}
+                    {tab.renderIcon(isFocused)}
                     <Text style={[styles.label, { color }]}>{tab.label}</Text>
                   </View>
                 )}
@@ -292,6 +327,10 @@ const styles = StyleSheet.create({
   tabPressed: {
     opacity: 0.75,
     transform: [{ scale: 0.92 }],
+  },
+  tabIcon: {
+    width: TAB_ICON_SIZE,
+    height: TAB_ICON_SIZE,
   },
   label: {
     fontFamily: FontFamily.regular,

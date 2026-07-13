@@ -141,7 +141,7 @@ const styles = StyleSheet.create({
   mascotWrap: {
     position: 'absolute',
     right: 2,
-    bottom: '39%',
+    bottom: '30%',
     width: 112,
     height: 112,
     zIndex: 1,
