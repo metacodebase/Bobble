@@ -1,5 +1,5 @@
 import { Search, SlidersHorizontal } from 'lucide-react-native';
-import { Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
 
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { Typography } from '@/src/theme/fonts';
@@ -30,7 +30,7 @@ export function SearchBar({
         style={[styles.input, { color: colors.text }]}
       />
       {onFilterPress ? (
-        <Pressable onPress={onFilterPress} hitSlop={8}>
+        <Pressable onPress={onFilterPress} hitSlop={8} style={styles.filterButton}>
           <SlidersHorizontal size={18} color={colors.textSecondary} strokeWidth={2} />
         </Pressable>
       ) : null}
@@ -43,13 +43,23 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
+    height: 48,
     borderRadius: 28,
     paddingHorizontal: 16,
-    paddingVertical: 12,
   },
   input: {
     flex: 1,
     ...Typography.input,
+    fontSize: Platform.OS === 'android' ? 18 : 16,
+    lineHeight: Platform.OS === 'android' ? 22 : 20,
     padding: 0,
+    margin: 0,
+    height: '100%',
+    textAlignVertical: 'center',
+    ...(Platform.OS === 'android' ? { includeFontPadding: false } : null),
+  },
+  filterButton: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

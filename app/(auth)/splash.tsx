@@ -44,7 +44,7 @@ export default function AuthSplashScreen() {
    
         <View style={styles.splashBody} onLayout={revealAppSplash}>
           <View style={[styles.header, { marginBottom: headerBottomSpacing }]}>
-            <Text style={[styles.title, { color: SPLASH_TITLE_COLOR, fontSize: titleFontSize, lineHeight: titleFontSize + 4 }]}>
+            <Text style={[styles.title, { color: '#0B0944', fontSize: titleFontSize, lineHeight: titleFontSize + 4 }]}>
               Bobble
             </Text>
             <Text style={[styles.subtitle, { color: colors.textAccent, fontSize: subtitleFontSize, lineHeight: subtitleLineHeight }]}>
