@@ -1,21 +1,16 @@
 import { Href, router } from 'expo-router';
 import { Mic } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
-import { Dimensions, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Dimensions, Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { DEMO_BOBBLE } from '@/src/components/capture/summary-content';
 import { HomeHeader } from '@/src/components/home/home-header';
 import { QuickActionTile } from '@/src/components/home/quick-action-tile';
-import { RecentBobbleRow } from '@/src/components/home/recent-bobble-row';
 import { DUMMY_FOCUS_TASKS, TodayFocusCard } from '@/src/components/home/today-focus-card';
 import { isCompleteProgressState, isNerdyProgressState, TodayProgressCard } from '@/src/components/home/today-progress-card';
 import { BobbleMascot, type HomeVariant } from '@/src/components/onboarding/bobble-mascot';
 import { PrimaryButton } from '@/src/components/onboarding/primary-button';
-import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
-import { useNightForeground } from '@/src/hooks/use-night-foreground';
 import { CaptureKind, useCaptureStore } from '@/src/store/capture-store';
-import { Typography } from '@/src/theme/fonts';
 
 function getProgressSubtitle(completed: number, total: number) {
   if (total === 0) return 'Your day is just beginning, record your first Bobble.';
@@ -62,8 +57,6 @@ function getGreeting() {
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
-  const colors = useBobbleColors();
-  const night = useNightForeground();
   const setCaptureKind = useCaptureStore((state) => state.setCaptureKind);
   const [completedIds, setCompletedIds] = useState<Set<string>>(() => new Set());
 
@@ -98,7 +91,7 @@ export default function HomeScreen() {
   };
 
   return (
-    <View style={[styles.root, { paddingTop: insets.top + 8 }]}>
+    <View style={[styles.root, { paddingTop: insets.top + 20 }]}>
       <ScrollView
         contentContainerStyle={[
           styles.scrollContent,
@@ -106,11 +99,13 @@ export default function HomeScreen() {
         ]}
         showsVerticalScrollIndicator={false}
       >
-        <HomeHeader
-          greeting={getGreeting()}
-          name="Steven"
-          onProfilePress={() => router.push('/(tabs)/profile' as Href)}
-        />
+        <View style={styles.headerSection}>
+          <HomeHeader
+            greeting={getGreeting()}
+            name="Steven"
+            onProfilePress={() => router.push('/(tabs)/profile' as Href)}
+          />
+        </View>
 
         <View style={styles.mascotWrap}>
           <BobbleMascot
@@ -152,20 +147,6 @@ export default function HomeScreen() {
             subtitle={getProgressSubtitle(completedCount, totalCount)}
           />
         </View>
-
-        <View style={styles.recentSection}>
-          <View style={styles.recentHeader}>
-            <Text style={[styles.recentTitle, { color: night.text ?? colors.text }]}>Recent Bobbles</Text>
-            <Pressable onPress={() => router.push('/(tabs)/bobbles' as Href)} hitSlop={8}>
-              <Text style={[styles.seeAll, { color: colors.primary }]}>See all</Text>
-            </Pressable>
-          </View>
-          <RecentBobbleRow
-            title={DEMO_BOBBLE.title}
-            timestamp="Today 8:30 AM"
-            onPress={() => router.push({ pathname: '/bobble/[id]', params: { id: '1' } } as Href)}
-          />
-        </View>
       </ScrollView>
     </View>
   );
@@ -177,6 +158,11 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: 10,
+  },
+  headerSection: {
+    width: '95%',
+    alignSelf: 'center',
+    marginBottom: 4,
   },
   mascotWrap: {
     alignItems: 'center',
@@ -205,24 +191,5 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     marginBottom: 24,
     maxHeight: '25%'
-  },
-  recentSection: {
-    gap: 12,
-    width: '95%',
-    alignSelf: 'center',
-  },
-  recentHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  recentTitle: {
-    ...Typography.formLabel,
-    fontSize: 16,
-    fontFamily: Typography.button.fontFamily,
-  },
-  seeAll: {
-    ...Typography.caption,
-    fontFamily: Typography.button.fontFamily,
   },
 });
