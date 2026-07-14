@@ -13,7 +13,7 @@ interface AppState {
   hasOnboarded: boolean;
   hasHydrated: boolean;
   themeOverride: 'light' | 'dark' | null;
-  /** Test flag: swap tab background image only (day/night detection later). */
+  /** Night sky backdrop — auto-on in evening (5pm–12am); header Moon/Sun can override. */
   nightBackground: boolean;
 
   setSession: (session: AuthSession) => void;

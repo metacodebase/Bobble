@@ -1,11 +1,18 @@
 import { Tabs } from 'expo-router';
-import React from 'react';
+import React, { useEffect } from 'react';
 
 import { AppBackground, useAppBackdrop } from '@/src/components/ui/app-background';
 import { FloatingTabBar } from '@/src/components/ui/floating-tab-bar';
+import { useAppStore } from '@/src/store/app-store';
+import { getDayPeriod } from '@/src/utils/day-period';
 
 export default function TabLayout() {
   const { color } = useAppBackdrop();
+  const setNightBackground = useAppStore((s) => s.setNightBackground);
+
+  useEffect(() => {
+    setNightBackground(getDayPeriod() === 'evening');
+  }, [setNightBackground]);
 
   return (
     <Tabs

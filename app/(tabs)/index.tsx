@@ -7,16 +7,29 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { HomeHeader } from '@/src/components/home/home-header';
 import { QuickActionTile } from '@/src/components/home/quick-action-tile';
 import { DUMMY_FOCUS_TASKS, TodayFocusCard } from '@/src/components/home/today-focus-card';
-import { isCompleteProgressState, isNerdyProgressState, TodayProgressCard } from '@/src/components/home/today-progress-card';
+import { TodayProgressCard } from '@/src/components/home/today-progress-card';
 import { BobbleMascot, type HomeVariant } from '@/src/components/onboarding/bobble-mascot';
 import { PrimaryButton } from '@/src/components/onboarding/primary-button';
 import { CaptureKind, useCaptureStore } from '@/src/store/capture-store';
+import { getDayPeriod, getGreeting } from '@/src/utils/day-period';
 
 function getProgressSubtitle(completed: number, total: number) {
   if (total === 0) return 'Your day is just beginning, record your first Bobble.';
   if (completed === 0) return 'Start with one small task, Bobble will celebrate the rest.';
   if (completed >= total) return 'Congratulations! you completed all your tasks.';
   return 'Nice progress — keep the momentum going.';
+}
+
+/** Large dashboard Bobble: morning coffee, afternoon task list, evening cloud. */
+function getHomeMascotVariant(): HomeVariant {
+  switch (getDayPeriod()) {
+    case 'morning':
+      return 'default';
+    case 'afternoon':
+      return 'nerdy';
+    case 'evening':
+      return 'complete';
+  }
 }
 
 const TAB_BAR_CLEARANCE = 100;
@@ -48,13 +61,6 @@ const QUICK_ACTIONS = [
   icon: number;
 }>;
 
-function getGreeting() {
-  const hour = new Date().getHours();
-  if (hour < 12) return 'Good morning';
-  if (hour < 17) return 'Good afternoon';
-  return 'Good evening';
-}
-
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const setCaptureKind = useCaptureStore((state) => state.setCaptureKind);
@@ -70,11 +76,7 @@ export default function HomeScreen() {
   );
   const completedCount = completedIds.size;
   const totalCount = DUMMY_FOCUS_TASKS.length;
-  const homeMascotVariant: HomeVariant = isCompleteProgressState(completedCount, totalCount)
-    ? 'complete'
-    : isNerdyProgressState(completedCount, totalCount)
-      ? 'nerdy'
-      : 'default';
+  const homeMascotVariant = getHomeMascotVariant();
 
   const toggleFocusTask = (id: string) => {
     setCompletedIds((prev) => {

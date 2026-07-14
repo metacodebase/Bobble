@@ -59,7 +59,7 @@ type BobbleMascotProps = {
   backgroundColor?: string;
   /** When false, shows the static frame until set true (restarts the animation). */
   playAnimation?: boolean;
-  /** Home tab mascot style — reacts to today's task progress. */
+  /** Home tab mascot style — driven by time of day (coffee / task list / cloud). */
   homeVariant?: HomeVariant;
 };
 
