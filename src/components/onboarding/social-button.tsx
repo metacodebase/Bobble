@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import {
   AppleIcon,
@@ -17,6 +17,8 @@ type SocialButtonProps = {
   provider: SocialProvider;
   label: string;
   onPress: () => void;
+  loading?: boolean;
+  disabled?: boolean;
 };
 
 const ICON_SIZE = 22;
@@ -36,29 +38,40 @@ function renderSocialIcon(provider: Exclude<SocialProvider, 'email'>, color: str
   }
 }
 
-export function SocialButton({ provider, label, onPress }: SocialButtonProps) {
+export function SocialButton({
+  provider,
+  label,
+  onPress,
+  loading = false,
+  disabled = false,
+}: SocialButtonProps) {
   const colors = useBobbleColors();
+  const isDisabled = disabled || loading;
 
   return (
     <Pressable
       onPress={onPress}
+      disabled={isDisabled}
       style={({ pressed }) => [
         styles.button,
         {
-          backgroundColor: pressed ? colors.borderLight : colors.surface,
+          backgroundColor: pressed && !isDisabled ? colors.borderLight : colors.surface,
           borderColor: colors.border,
         },
-        pressed && styles.pressed,
+        pressed && !isDisabled && styles.pressed,
+        isDisabled && styles.disabled,
       ]}
     >
       <View style={styles.icon}>
-        {provider === 'email' ? (
+        {loading ? (
+          <ActivityIndicator size="small" color={colors.textAccent} />
+        ) : provider === 'email' ? (
           <Ionicons name="mail-outline" size={ICON_SIZE} color={colors.text} />
         ) : (
           renderSocialIcon(provider, colors.text)
         )}
       </View>
-      <Text style={[styles.label, { color: colors.text ,paddingLeft:10}]}>{label}</Text>
+      <Text style={[styles.label, { color: colors.text, paddingLeft: 10 }]}>{label}</Text>
     </Pressable>
   );
 }
@@ -77,15 +90,17 @@ const styles = StyleSheet.create({
   pressed: {
     opacity: 0.9,
   },
+  disabled: {
+    opacity: 0.6,
+  },
   icon: {
     position: 'absolute',
     left: 24,
   },
   label: {
     ...Typography.socialButton,
-    textAlign:'left',
-    width:'80%',
-
+    textAlign: 'left',
+    width: '80%',
   },
   chevron: {
     position: 'absolute',

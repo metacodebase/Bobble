@@ -28,9 +28,12 @@ function configureGoogle() {
   googleConfigured = true;
 }
 
+type SocialPendingProvider = 'google' | 'apple';
+
 export function useSocialAuth() {
   const socialLogin = useSocialLogin();
   const [appleAvailable, setAppleAvailable] = useState(false);
+  const [oauthProvider, setOauthProvider] = useState<SocialPendingProvider | null>(null);
 
   useEffect(() => {
     configureGoogle();
@@ -51,6 +54,12 @@ export function useSocialAuth() {
     };
   }, []);
 
+  // Drop the OAuth-phase spinner once the API mutation reports pending (or finishes).
+  useEffect(() => {
+    if (!socialLogin.isPending) return;
+    setOauthProvider(null);
+  }, [socialLogin.isPending]);
+
   const signInWithGoogle = useCallback(async () => {
     if (isDemoMode) {
       socialLogin.mutate({ provider: 'google', idToken: 'offline-demo' });
@@ -60,6 +69,8 @@ export function useSocialAuth() {
       toast.error('Google sign-in is not configured');
       return;
     }
+    setOauthProvider('google');
+    let submitted = false;
     try {
       configureGoogle();
       await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
@@ -81,6 +92,7 @@ export function useSocialAuth() {
         idToken,
         name: user.name ?? undefined,
       });
+      submitted = true;
     } catch (error) {
       if (isErrorWithCode(error) && error.code === statusCodes.SIGN_IN_CANCELLED) {
         return;
@@ -89,6 +101,8 @@ export function useSocialAuth() {
         return;
       }
       toast.error('Google sign-in failed, please try again');
+    } finally {
+      if (!submitted) setOauthProvider(null);
     }
   }, [socialLogin]);
 
@@ -97,6 +111,8 @@ export function useSocialAuth() {
       socialLogin.mutate({ provider: 'apple', idToken: 'offline-demo' });
       return;
     }
+    setOauthProvider('apple');
+    let submitted = false;
     try {
       const credential = await AppleAuthentication.signInAsync({
         requestedScopes: [
@@ -120,6 +136,7 @@ export function useSocialAuth() {
         idToken: credential.identityToken,
         name: fullName || undefined,
       });
+      submitted = true;
     } catch (error) {
       if (
         error instanceof Error &&
@@ -129,14 +146,22 @@ export function useSocialAuth() {
         return;
       }
       toast.error('Apple sign-in failed, please try again');
+    } finally {
+      if (!submitted) setOauthProvider(null);
     }
   }, [socialLogin]);
+
+  const pendingProvider: SocialPendingProvider | null = oauthProvider
+    ?? (socialLogin.isPending
+      ? ((socialLogin.variables?.provider as SocialPendingProvider | undefined) ?? null)
+      : null);
 
   return {
     signInWithGoogle,
     signInWithApple,
     signInDemo: () => socialLogin.mutate({ provider: 'google', idToken: 'offline-demo' }),
     appleAvailable,
-    isPending: socialLogin.isPending,
+    pendingProvider,
+    isPending: pendingProvider !== null,
   };
 }

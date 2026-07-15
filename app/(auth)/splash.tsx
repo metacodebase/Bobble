@@ -41,7 +41,10 @@ export default function AuthSplashScreen() {
           <View style={styles.footer}>
             <Text style={[styles.footerText, { color: colors.text }]}>
               Don't have an account?{' '}
-              <Text style={[styles.footerLink, { color: colors.textAccent }]} onPress={()=>{}}>
+              <Text
+                style={[styles.footerLink, { color: colors.textAccent }]}
+                onPress={() => router.push('/(auth)/sign-in' as Href)}
+              >
                 Login
               </Text>
             </Text>

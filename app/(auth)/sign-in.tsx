@@ -57,9 +57,17 @@ export default function AuthScreen() {
   const colors = useBobbleColors();
   const [mode, setMode] = useState<AuthMode>('sign-in');
   const copy = AUTH_COPY[mode];
-  const { signInWithGoogle, signInWithApple, signInDemo, appleAvailable, isPending } = useSocialAuth();
+  const {
+    signInWithGoogle,
+    signInWithApple,
+    signInDemo,
+    appleAvailable,
+    isPending,
+    pendingProvider,
+  } = useSocialAuth();
 
   const handleEmailAuth = () => {
+    if (isPending) return;
     router.push('/(auth)/create-account' as Href);
   };
 
@@ -104,12 +112,19 @@ export default function AuthScreen() {
             provider={item.provider}
             label={item.label}
             onPress={() => handleSocialPress(item.provider)}
+            loading={pendingProvider === item.provider}
+            disabled={isPending}
           />
         ))}
 
         <Text style={[styles.dividerText, { color: colors.text }]}>or</Text>
 
-        <SocialButton provider="email" label="Continue with Email" onPress={handleEmailAuth} />
+        <SocialButton
+          provider="email"
+          label="Continue with Email"
+          onPress={handleEmailAuth}
+          disabled={isPending}
+        />
         <View style={styles.footer}>
         <Text style={[styles.footerText, { color: colors.text }]}>
           {copy.footerPrompt}{' '}
