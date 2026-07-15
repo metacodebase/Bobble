@@ -7,7 +7,7 @@ import type {
   SocialAuthBody,
 } from '@/src/features/auth/types';
 import type { AuthUser } from '@/src/features/auth/types';
-import { api, unwrap } from '@/src/services/api';
+import { api, getApiBaseUrl, unwrap } from '@/src/services/api';
 import { offlineAuth } from '@/src/services/offline';
 
 export async function login(body: LoginBody): Promise<AuthSession> {
@@ -16,9 +16,28 @@ export async function login(body: LoginBody): Promise<AuthSession> {
   return unwrap(res);
 }
 
+/**
+ * Social sign-in — must be POST /api/auth/social (GET returns 404).
+ * Body: { provider: 'google' | 'apple', idToken: string, name?: string }
+ */
 export async function social(body: SocialAuthBody): Promise<AuthSession> {
   if (!BACKEND_ALLOWED) return offlineAuth.social(body);
-  const res = await api.post<AuthSession>(API.auth.social, body, { skipAuth: true });
+
+  const payload: SocialAuthBody = {
+    provider: body.provider,
+    idToken: body.idToken,
+    ...(body.name ? { name: body.name } : {}),
+  };
+
+  if (__DEV__) {
+    console.log('[AuthAPI] POST', `${getApiBaseUrl()}${API.auth.social}`, {
+      provider: payload.provider,
+      idTokenLength: payload.idToken.length,
+      name: payload.name,
+    });
+  }
+
+  const res = await api.post<AuthSession>(API.auth.social, payload, { skipAuth: true });
   return unwrap(res);
 }
 

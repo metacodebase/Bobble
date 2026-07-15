@@ -37,6 +37,10 @@ import { toast } from '@/src/utils/toast';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+function formatDate(date: Date): string {
+  return date.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
 const GOALS: { id: GoalIconId; label: string }[] = [
   { id: 'productive', label: 'Be more productive' },
   { id: 'stress', label: 'Reduce stress' },

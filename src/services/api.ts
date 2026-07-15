@@ -8,10 +8,9 @@ import type {
 import { getConfiguredApiUrl } from '@/src/config/api';
 import { BACKEND_ALLOWED } from '@/src/config/backend';
 
-const BASE_URL = getConfiguredApiUrl();
-
+/** Resolve on each call so URL flips (e.g. remove :8000) take effect without a full Metro restart. */
 export function getApiBaseUrl(): string {
-  return BASE_URL;
+  return getConfiguredApiUrl();
 }
 
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
@@ -31,7 +30,7 @@ async function refreshAccessToken(): Promise<string | null> {
   if (!refreshToken) return null;
 
   if (!refreshInFlight) {
-    refreshInFlight = fetch(`${BASE_URL}/api/auth/refresh`, {
+    refreshInFlight = fetch(`${getApiBaseUrl()}/api/auth/refresh`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ refreshToken }),
@@ -69,16 +68,26 @@ async function request<TResponse, TBody = unknown>(
 
   const { method = 'GET', body, headers = {}, skipAuth = false, _retried = false } = options;
   const token = useAppStore.getState().authToken;
+  const url = `${getApiBaseUrl()}${path}`;
 
-  const res = await fetch(`${BASE_URL}${path}`, {
-    method,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(!skipAuth && token ? { Authorization: `Bearer ${token}` } : {}),
-      ...headers,
-    },
-    ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
-  });
+  let res: Response;
+  try {
+    res = await fetch(url, {
+      method,
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        ...(!skipAuth && token ? { Authorization: `Bearer ${token}` } : {}),
+        ...headers,
+      },
+      ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
+    });
+  } catch (error) {
+    if (__DEV__) {
+      console.warn('[API] Network request failed', { method, url, error });
+    }
+    throw error;
+  }
 
   let json: unknown;
   try {
