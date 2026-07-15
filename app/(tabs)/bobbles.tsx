@@ -25,7 +25,7 @@ export default function BobblesScreen() {
   return (
     <View style={[styles.root, { paddingTop: insets.top + 12 }]}>
       <View style={styles.header}>
-        <ScreenHeader title="Bobbles" titleColor="#1E1145" compact />
+        <ScreenHeader title="Bobbles" compact />
         <SearchBar
           value={query}
           onChangeText={setQuery}

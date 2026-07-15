@@ -132,7 +132,7 @@ function AppShell() {
               headerShown: false,
               animation: 'slide_from_bottom',
               contentStyle: {
-                backgroundColor: DEFAULT_APP_BACKGROUND_COLOR,
+                backgroundColor: backdropColor,
               },
             }}
           />

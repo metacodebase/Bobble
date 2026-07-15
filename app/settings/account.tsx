@@ -10,11 +10,13 @@ import {
 import { PROFILE_USER } from '@/src/data/demo-data';
 import { useDeleteAccount, useLogout, useMe } from '@/src/hooks/api';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
+import { useNightForeground } from '@/src/hooks/use-night-foreground';
 import { useAppStore } from '@/src/store/app-store';
 import { Typography } from '@/src/theme/fonts';
 
 export default function SettingsAccountScreen() {
   const colors = useBobbleColors();
+  const night = useNightForeground();
   const storedUser = useAppStore((s) => s.user);
   const { data: fetchedUser } = useMe();
   const user = fetchedUser ?? storedUser;
@@ -43,8 +45,10 @@ export default function SettingsAccountScreen() {
     <SettingsScreenLayout title="Account">
       <View style={styles.avatarWrap}>
         <ProfileAvatar centered={false} showCamera={false} size={100} />
-        <Text style={[styles.name, { color: colors.text }]}>{displayName}</Text>
-        <Text style={[styles.email, { color: colors.textSecondary }]}>{displayEmail}</Text>
+        <Text style={[styles.name, { color: night.text ?? colors.text }]}>{displayName}</Text>
+        <Text style={[styles.email, { color: night.textSecondary ?? colors.textSecondary }]}>
+          {displayEmail}
+        </Text>
       </View>
 
       <SettingsSection title="Profile">

@@ -40,7 +40,7 @@ export function BobbleLibraryRow({
               {categoryStyle.label}
             </Text>
           </View>
-          <Text style={[styles.title, { color: '#1E1145' }]} numberOfLines={2}>
+          <Text style={[styles.title, { color: colors.text }]} numberOfLines={2}>
             {title}
           </Text>
           <Text style={[styles.timestamp, { color: colors.textSecondary }]}>

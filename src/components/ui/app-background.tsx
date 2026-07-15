@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
 import { ImageBackground, StyleSheet } from 'react-native';
 
-import { useAppStore } from '@/src/store/app-store';
+import { useColorScheme } from '@/src/hooks/use-color-scheme';
 import {
   DEFAULT_APP_BACKGROUND,
   DEFAULT_APP_BACKGROUND_COLOR,
@@ -15,18 +15,16 @@ type AppBackgroundProps = {
 
 /** Day/night backdrop source + solid fallback color for opaque navigator scenes. */
 export function useAppBackdrop() {
-  const nightBackground = useAppStore((s) => s.nightBackground);
+  const isNight = useColorScheme() === 'dark';
 
   return {
-    nightBackground,
-    source: nightBackground ? NIGHT_APP_BACKGROUND : DEFAULT_APP_BACKGROUND,
-    color: nightBackground
-      ? NIGHT_APP_BACKGROUND_COLOR
-      : DEFAULT_APP_BACKGROUND_COLOR,
+    nightBackground: isNight,
+    source: isNight ? NIGHT_APP_BACKGROUND : DEFAULT_APP_BACKGROUND,
+    color: isNight ? NIGHT_APP_BACKGROUND_COLOR : DEFAULT_APP_BACKGROUND_COLOR,
   };
 }
 
-/** App-wide background. Swaps day/night image only — no theme color changes. */
+/** App-wide background. Swaps day/night image with the resolved light/dark scheme. */
 export function AppBackground({ children }: AppBackgroundProps) {
   const { source, color } = useAppBackdrop();
 

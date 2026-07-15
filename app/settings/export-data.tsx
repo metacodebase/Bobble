@@ -1,22 +1,21 @@
 import { FileSpreadsheet, FileText } from 'lucide-react-native';
-import { StyleSheet, Text } from 'react-native';
 
 import { SettingsLinkItemRow } from '@/src/components/settings/settings-item-row';
 import {
+  SettingsDescription,
   SettingsScreenLayout,
   SettingsSection,
 } from '@/src/components/settings/settings-screen-layout';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
-import { Typography } from '@/src/theme/fonts';
 
 export default function ExportDataScreen() {
   const colors = useBobbleColors();
 
   return (
     <SettingsScreenLayout title="Export Data">
-      <Text style={[styles.description, { color: colors.textSecondary }]}>
+      <SettingsDescription>
         Download your Bobbles, tasks, and profile data.
-      </Text>
+      </SettingsDescription>
 
       <SettingsSection>
         <SettingsLinkItemRow
@@ -34,10 +33,3 @@ export default function ExportDataScreen() {
     </SettingsScreenLayout>
   );
 }
-
-const styles = StyleSheet.create({
-  description: {
-    ...Typography.body,
-    lineHeight: 22,
-  },
-});

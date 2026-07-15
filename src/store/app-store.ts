@@ -12,9 +12,8 @@ interface AppState {
   isAuthenticated: boolean;
   hasOnboarded: boolean;
   hasHydrated: boolean;
+  /** Explicit appearance; `null` follows the device light/dark setting. */
   themeOverride: 'light' | 'dark' | null;
-  /** Night sky backdrop — auto-on in evening (5pm–12am); header Moon/Sun can override. */
-  nightBackground: boolean;
 
   setSession: (session: AuthSession) => void;
   setAuthToken: (token: string | null) => void;
@@ -22,7 +21,6 @@ interface AppState {
   setHasOnboarded: (value: boolean) => void;
   setHasHydrated: (value: boolean) => void;
   setThemeOverride: (theme: 'light' | 'dark' | null) => void;
-  setNightBackground: (value: boolean) => void;
   clearSession: () => void;
 }
 
@@ -35,8 +33,7 @@ const createAppState: StateCreator<AppState> = (set) => ({
   isAuthenticated: false,
   hasOnboarded: false,
   hasHydrated: isDemoMode,
-  themeOverride: 'light',
-  nightBackground: false,
+  themeOverride: null,
 
   setSession: (session) =>
     set({
@@ -61,8 +58,6 @@ const createAppState: StateCreator<AppState> = (set) => ({
 
   setThemeOverride: (theme) => set({ themeOverride: theme }),
 
-  setNightBackground: (value) => set({ nightBackground: value }),
-
   clearSession: () =>
     set({
       authToken: null,
@@ -82,17 +77,23 @@ export const useAppStore = isDemoMode
   : create<AppState>()(
       persist(createAppState, {
         name: APP_STORE_KEY,
-        version: 2,
+        version: 3,
         storage: createJSONStorage(() => secureStorage),
         migrate: (persistedState, version) => {
-          const state = persistedState as AppState;
+          const state = persistedState as Partial<AppState> & Record<string, unknown>;
+          let next = { ...state };
           if (version < 2) {
-            return {
-              ...state,
-              hasOnboarded: false,
+            next = { ...next, hasOnboarded: false };
+          }
+          if (version < 3) {
+            // Previous default forced light; only keep an explicit dark choice.
+            const { nightBackground: _night, ...rest } = next;
+            next = {
+              ...rest,
+              themeOverride: state.themeOverride === 'dark' ? 'dark' : null,
             };
           }
-          return state;
+          return next as AppState;
         },
         onRehydrateStorage: () => () => {
           useAppStore.setState({ hasHydrated: true });

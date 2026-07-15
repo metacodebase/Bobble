@@ -21,7 +21,7 @@ export function TaskSection({ label, tasks, onToggle, onPress, onDelete }: TaskS
   return (
     <View style={styles.section}>
       <View style={styles.headerRow}>
-        <Text style={[styles.label, { color: night.text ?? '#1E1145' }]}>
+        <Text style={[styles.label, { color: night.text ?? colors.text }]}>
           {label} ({tasks.length})
         </Text>
         <View style={[styles.line, { backgroundColor: colors.primaryMuted, opacity: 0.3 }]} />

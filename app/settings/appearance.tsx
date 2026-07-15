@@ -27,8 +27,8 @@ const THEME_OPTIONS: { value: ThemePreference; label: string; description: strin
   },
   {
     value: 'dark',
-    label: 'Dark Mode',
-    description: 'Dark backgrounds and light text',
+    label: 'Night Mode',
+    description: 'Night sky backdrop with light text',
   },
 ];
 
@@ -37,7 +37,7 @@ export default function AppearanceScreen() {
   const activeScheme = useColorScheme();
   const themeOverride = useAppStore((s) => s.themeOverride);
   const setThemeOverride = useAppStore((s) => s.setThemeOverride);
-  const selected: ThemePreference = themeOverride ?? 'light';
+  const selected: ThemePreference = themeOverride ?? 'system';
 
   const handleSelect = (value: ThemePreference) => {
     setThemeOverride(value === 'system' ? null : value);
@@ -48,10 +48,10 @@ export default function AppearanceScreen() {
       <View style={[styles.preview, { backgroundColor: colors.borderLight, borderColor: colors.border }]}>
         <BobbleMascot variant="main" size={72} />
         <Text style={[styles.previewTitle, { color: colors.text }]}>
-          {activeScheme === 'dark' ? 'Dark mode active' : 'Light mode active'}
+          {activeScheme === 'dark' ? 'Night mode active' : 'Light mode active'}
         </Text>
         <Text style={[styles.previewBody, { color: colors.textSecondary }]}>
-          Bobble adapts buttons, backgrounds, and text across the app.
+          Bobble adapts the backdrop, buttons, and text across the app.
         </Text>
       </View>
 

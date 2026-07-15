@@ -4,7 +4,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { ProfileAvatar } from '@/src/components/create-account/profile-avatar';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { useNightForeground } from '@/src/hooks/use-night-foreground';
-import { useAppStore } from '@/src/store/app-store';
+import { useThemeToggle } from '@/src/hooks/use-theme-toggle';
 import { Typography } from '@/src/theme/fonts';
 
 type HomeHeaderProps = {
@@ -16,8 +16,7 @@ type HomeHeaderProps = {
 export function HomeHeader({ greeting, name, onProfilePress }: HomeHeaderProps) {
   const colors = useBobbleColors();
   const night = useNightForeground();
-  const nightBackground = useAppStore((s) => s.nightBackground);
-  const setNightBackground = useAppStore((s) => s.setNightBackground);
+  const { isDark, toggle } = useThemeToggle();
 
   return (
     <View style={styles.row}>
@@ -30,13 +29,13 @@ export function HomeHeader({ greeting, name, onProfilePress }: HomeHeaderProps) 
 
       <View style={styles.actions}>
         <Pressable
-          onPress={() => setNightBackground(!nightBackground)}
+          onPress={toggle}
           hitSlop={8}
           accessibilityRole="button"
-          accessibilityLabel={nightBackground ? 'Use day background' : 'Use night background'}
+          accessibilityLabel={isDark ? 'Switch to light mode' : 'Switch to night mode'}
           style={styles.nightToggle}
         >
-          {nightBackground ? (
+          {isDark ? (
             <Sun size={22} color="#FFFFFF" strokeWidth={2.2} />
           ) : (
             <Moon size={22} color={colors.primary} strokeWidth={2.2} />

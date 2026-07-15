@@ -12,6 +12,7 @@ import {
   HelpCircle,
   Mail,
   Mic,
+  Moon,
   Shield,
   User,
   Zap,
@@ -22,19 +23,28 @@ import {
   SettingsLinkItemRow,
   SettingsToggleItemRow,
 } from '@/src/components/settings/settings-item-row';
-import { ThemeToggleRow } from '@/src/components/settings/theme-toggle-row';
 import {
   SettingsScreenLayout,
   SettingsSection,
 } from '@/src/components/settings/settings-screen-layout';
 import { useLogout } from '@/src/hooks/api';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
+import { useNightForeground } from '@/src/hooks/use-night-foreground';
 import { useAppStore } from '@/src/store/app-store';
 import { Typography } from '@/src/theme/fonts';
 
+function themePreferenceLabel(themeOverride: 'light' | 'dark' | null) {
+  if (themeOverride === 'dark') return 'Night';
+  if (themeOverride === 'light') return 'Light';
+  return 'System';
+}
+
 export default function SettingsScreen() {
   const colors = useBobbleColors();
+  const night = useNightForeground();
   const user = useAppStore((s) => s.user);
+  const themeOverride = useAppStore((s) => s.themeOverride);
+  const themeLabel = themePreferenceLabel(themeOverride);
   const logout = useLogout();
   const version = Constants.expoConfig?.version ?? '2.4.0';
   const buildNumber =
@@ -55,7 +65,13 @@ export default function SettingsScreen() {
   return (
     <SettingsScreenLayout title="Settings">
       <SettingsSection title="Appearance">
-        <ThemeToggleRow isLast />
+        <SettingsLinkItemRow
+          label="Theme"
+          icon={<Moon size={22} color={colors.primary} strokeWidth={2} />}
+          value={themeLabel}
+          onPress={() => router.push('/settings/appearance')}
+          isLast
+        />
       </SettingsSection>
 
       <SettingsSection title="Calendar Sync">
@@ -183,7 +199,7 @@ export default function SettingsScreen() {
         <Text style={[styles.logoutText, { color: colors.error }]}>Log Out</Text>
       </Pressable>
 
-      <Text style={[styles.version, { color: colors.textSecondary }]}>
+      <Text style={[styles.version, { color: night.textSecondary ?? colors.textSecondary }]}>
         Bobble v{version} (Build {buildNumber})
       </Text>
     </SettingsScreenLayout>

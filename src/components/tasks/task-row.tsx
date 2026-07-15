@@ -61,7 +61,7 @@ export function TaskRow({ task, onToggle, onPress, onDelete }: TaskRowProps) {
           <Text
             style={[
               styles.title,
-              { color: '#1E1145' },
+              { color: colors.text },
               task.done && { textDecorationLine: 'line-through', color: colors.textSecondary },
             ]}
             numberOfLines={1}

@@ -1,10 +1,12 @@
 export type DayPeriod = 'morning' | 'afternoon' | 'evening';
 
 /**
- * Time-of-day windows for home greeting, large Bobble, and night mode:
+ * Time-of-day windows for home greeting and large Bobble:
  * - Morning: 12:00 AM – 12:00 PM
  * - Afternoon: 12:00 PM – 5:00 PM
  * - Evening: 5:00 PM – 11:59 PM
+ *
+ * Night/light appearance follows Settings / device scheme (see useColorScheme).
  */
 export function getDayPeriod(date = new Date()): DayPeriod {
   const hour = date.getHours();

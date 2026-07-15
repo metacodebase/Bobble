@@ -1,21 +1,16 @@
-import { StyleSheet, Text } from 'react-native';
-
 import { SettingsLinkRow } from '@/src/components/settings/settings-link-row';
 import {
+  SettingsDescription,
   SettingsScreenLayout,
   SettingsSection,
 } from '@/src/components/settings/settings-screen-layout';
-import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
-import { Typography } from '@/src/theme/fonts';
 
 export default function HelpScreen() {
-  const colors = useBobbleColors();
-
   return (
     <SettingsScreenLayout title="Help & Support">
-      <Text style={[styles.description, { color: colors.textSecondary }]}>
+      <SettingsDescription>
         Get answers, report issues, or reach our team.
-      </Text>
+      </SettingsDescription>
 
       <SettingsSection title="Support">
         <SettingsLinkRow label="FAQ" />
@@ -30,10 +25,3 @@ export default function HelpScreen() {
     </SettingsScreenLayout>
   );
 }
-
-const styles = StyleSheet.create({
-  description: {
-    ...Typography.body,
-    lineHeight: 22,
-  },
-});

@@ -8,6 +8,7 @@ import { CaptureHeader } from '@/src/components/capture/capture-header';
 import { RecordingControls } from '@/src/components/capture/recording-controls';
 import { RecordingVisualizer } from '@/src/components/capture/recording-visualizer';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
+import { useNightForeground } from '@/src/hooks/use-night-foreground';
 import { useVoiceRecorder } from '@/src/hooks/use-voice-recorder';
 import { CAPTURE_COPY, useCaptureStore } from '@/src/store/capture-store';
 import { Typography } from '@/src/theme/fonts';
@@ -20,6 +21,7 @@ function formatElapsed(seconds: number) {
 
 export default function RecordScreen() {
   const colors = useBobbleColors();
+  const night = useNightForeground();
   const insets = useSafeAreaInsets();
   const [elapsed, setElapsed] = useState(0);
   const [paused, setPaused] = useState(false);
@@ -66,14 +68,13 @@ export default function RecordScreen() {
         title={copy.title}
         centered
         onBack={() => router.back()}
-        titleColor="#17164B"
       />
 
       <View style={styles.statusBlock}>
         <Text style={[styles.status, { color: colors.primary }]}>
           {paused ? 'Paused' : copy.listening}
         </Text>
-        <Text style={[styles.timer, { color: '#17164B' }]}>{formatElapsed(elapsed)}</Text>
+        <Text style={[styles.timer, { color: night.text ?? colors.text }]}>{formatElapsed(elapsed)}</Text>
       </View>
 
       <View style={styles.visualBlock}>

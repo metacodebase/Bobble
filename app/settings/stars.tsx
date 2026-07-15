@@ -6,6 +6,7 @@ import { STAR_CATALOG } from '@/src/data/stars';
 import type { BadgeTone } from '@/src/features/auth/types';
 import { useMe } from '@/src/hooks/api';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
+import { useNightForeground } from '@/src/hooks/use-night-foreground';
 import { useAppStore } from '@/src/store/app-store';
 import { Typography } from '@/src/theme/fonts';
 
@@ -19,6 +20,7 @@ const TONES: Record<BadgeTone, { background: string; foreground: string }> = {
 
 export default function StarsScreen() {
   const colors = useBobbleColors();
+  const night = useNightForeground();
   const storedUser = useAppStore((s) => s.user);
   const { data: fetchedUser } = useMe();
   const user = fetchedUser ?? storedUser;
@@ -30,7 +32,7 @@ export default function StarsScreen() {
 
   return (
     <SettingsScreenLayout title="Your Stars">
-      <Text style={[styles.description, { color: colors.textSecondary }]}>
+      <Text style={[styles.description, { color: night.textSecondary ?? colors.textSecondary }]}>
         You&apos;ve earned {earnedCount} of {STAR_CATALOG.length} stars. Complete the goals below
         to unlock the rest.
       </Text>

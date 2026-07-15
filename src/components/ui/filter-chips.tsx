@@ -64,7 +64,7 @@ export function FilterChips<T extends string>({
                 {
                   color: selected
                     ? colors.textOnPrimary
-                    : (customStyle?.text ?? '#1E1145'),
+                    : (customStyle?.text ?? colors.text),
                 },
               ]}
             >

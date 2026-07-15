@@ -8,19 +8,23 @@ import {
   SettingsSection,
 } from '@/src/components/settings/settings-screen-layout';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
+import { useNightForeground } from '@/src/hooks/use-night-foreground';
 import { Typography } from '@/src/theme/fonts';
 
 export default function AboutScreen() {
   const colors = useBobbleColors();
+  const night = useNightForeground();
   const version = Constants.expoConfig?.version ?? '1.0.0';
 
   return (
     <SettingsScreenLayout title="About Bobble">
       <View style={styles.hero}>
         <BobbleMascot variant="main" size={100} />
-        <Text style={[styles.appName, { color: colors.text }]}>Bobble</Text>
-        <Text style={[styles.version, { color: colors.textSecondary }]}>Version {version}</Text>
-        <Text style={[styles.tagline, { color: colors.textSecondary }]}>
+        <Text style={[styles.appName, { color: night.text ?? colors.text }]}>Bobble</Text>
+        <Text style={[styles.version, { color: night.textSecondary ?? colors.textSecondary }]}>
+          Version {version}
+        </Text>
+        <Text style={[styles.tagline, { color: night.textSecondary ?? colors.textSecondary }]}>
           Capture thoughts, turn them into action.
         </Text>
       </View>

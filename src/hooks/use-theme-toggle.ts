@@ -9,5 +9,9 @@ export function useThemeToggle() {
     setThemeOverride(value ? 'dark' : 'light');
   };
 
-  return { isDark, setIsDark };
+  const toggle = () => {
+    setThemeOverride(isDark ? 'light' : 'dark');
+  };
+
+  return { isDark, setIsDark, toggle };
 }

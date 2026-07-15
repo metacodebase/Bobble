@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { CaptureHeader } from '@/src/components/capture/capture-header';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
+import { useNightForeground } from '@/src/hooks/use-night-foreground';
 import { Typography } from '@/src/theme/fonts';
 
 type SettingsScreenLayoutProps = {
@@ -14,7 +15,6 @@ type SettingsScreenLayoutProps = {
 
 export function SettingsScreenLayout({ title, children }: SettingsScreenLayoutProps) {
   const insets = useSafeAreaInsets();
-  const colors = useBobbleColors();
 
   return (
     <View
@@ -36,6 +36,18 @@ export function SettingsScreenLayout({ title, children }: SettingsScreenLayoutPr
   );
 }
 
+/** Intro / helper copy that sits on the app backdrop (white in night mode). */
+export function SettingsDescription({ children }: { children: ReactNode }) {
+  const colors = useBobbleColors();
+  const night = useNightForeground();
+
+  return (
+    <Text style={[styles.description, { color: night.textSecondary ?? colors.textSecondary }]}>
+      {children}
+    </Text>
+  );
+}
+
 type SettingsSectionProps = {
   title?: string;
   children: ReactNode;
@@ -43,11 +55,14 @@ type SettingsSectionProps = {
 
 export function SettingsSection({ title, children }: SettingsSectionProps) {
   const colors = useBobbleColors();
+  const night = useNightForeground();
 
   return (
     <View style={styles.section}>
       {title ? (
-        <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>{title}</Text>
+        <Text style={[styles.sectionTitle, { color: night.text ?? colors.textSecondary }]}>
+          {title}
+        </Text>
       ) : null}
       <View style={[styles.sectionCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
         {children}
@@ -68,14 +83,17 @@ const styles = StyleSheet.create({
     paddingBottom: 24,
     gap: 24,
   },
+  description: {
+    ...Typography.body,
+    lineHeight: 22,
+  },
   section: {
     gap: 8,
   },
   sectionTitle: {
-    ...Typography.caption,
-    fontFamily: Typography.button.fontFamily,
+    ...Typography.formLabel,
+
     textTransform: 'uppercase',
-    letterSpacing: 0.6,
     marginLeft: 4,
   },
   sectionCard: {

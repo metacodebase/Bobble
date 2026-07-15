@@ -1,16 +1,13 @@
 import { useState } from 'react';
-import { StyleSheet, Text } from 'react-native';
 
 import {
+  SettingsDescription,
   SettingsScreenLayout,
   SettingsSection,
 } from '@/src/components/settings/settings-screen-layout';
 import { SettingsToggleRow } from '@/src/components/settings/settings-toggle-row';
-import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
-import { Typography } from '@/src/theme/fonts';
 
 export default function NotificationsScreen() {
-  const colors = useBobbleColors();
   const [pushEnabled, setPushEnabled] = useState(true);
   const [emailEnabled, setEmailEnabled] = useState(false);
   const [remindersEnabled, setRemindersEnabled] = useState(true);
@@ -18,9 +15,9 @@ export default function NotificationsScreen() {
 
   return (
     <SettingsScreenLayout title="Notifications">
-      <Text style={[styles.description, { color: colors.textSecondary }]}>
+      <SettingsDescription>
         Choose how Bobble keeps you updated on tasks, streaks, and new insights.
-      </Text>
+      </SettingsDescription>
 
       <SettingsSection title="Alerts">
         <SettingsToggleRow
@@ -56,10 +53,3 @@ export default function NotificationsScreen() {
     </SettingsScreenLayout>
   );
 }
-
-const styles = StyleSheet.create({
-  description: {
-    ...Typography.body,
-    lineHeight: 22,
-  },
-});

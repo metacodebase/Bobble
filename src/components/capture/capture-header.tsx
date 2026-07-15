@@ -51,14 +51,14 @@ export function CaptureHeader({
       {title ? (
         centered ? (
           <Text
-            style={[styles.titleCentered, { color: titleColor ?? night.text ?? colors.text }]}
+            style={[styles.titleCentered, { color: night.text ?? titleColor ?? colors.text }]}
             numberOfLines={1}
             pointerEvents="none"
           >
             {title}
           </Text>
         ) : (
-          <Text style={[styles.title, { color: titleColor ?? night.text ?? colors.text }]} numberOfLines={1}>
+          <Text style={[styles.title, { color: night.text ?? titleColor ?? colors.text }]} numberOfLines={1}>
             {title}
           </Text>
         )
@@ -96,7 +96,7 @@ const styles = StyleSheet.create({
     width: 'auto',
   },
   leftLabel: {
-    ...Typography.button,
+    ...Typography.formLabel,
   },
   leftLabelRow: {
     flexDirection: 'row',
@@ -119,8 +119,8 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 0,
     right: 0,
-    ...Typography.body,
-    fontFamily: Typography.button.fontFamily,
+    ...Typography.heading,
+    fontSize: 20,
     textAlign: 'center',
   },
   titleSpacer: {

@@ -1,12 +1,11 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { CalendarProviderIcon } from '@/src/components/create-account/calendar-brand-icons';
 import { CalendarRow } from '@/src/components/create-account/calendar-row';
 import {
-  SettingsScreenLayout
+  SettingsDescription,
+  SettingsScreenLayout,
 } from '@/src/components/settings/settings-screen-layout';
-import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
-import { Typography } from '@/src/theme/fonts';
 
 const CALENDARS = [
   { id: 'google', name: 'Google Calendar', provider: 'google' as const },
@@ -15,34 +14,27 @@ const CALENDARS = [
 ] as const;
 
 export default function CalendarSyncScreen() {
-  const colors = useBobbleColors();
-
   return (
     <SettingsScreenLayout title="Calendar Sync">
-      <Text style={[styles.description, { color: colors.textSecondary }]}>
+      <SettingsDescription>
         Connect calendars to sync tasks and events from your Bobbles.
-      </Text>
+      </SettingsDescription>
 
-    
-        <View style={styles.list}>
-          {CALENDARS.map((calendar) => (
-            <CalendarRow
-              key={calendar.id}
-              name={calendar.name}
-              icon={<CalendarProviderIcon provider={calendar.provider} />}
-            />
-          ))}
-        </View>
+      <View style={styles.list}>
+        {CALENDARS.map((calendar) => (
+          <CalendarRow
+            key={calendar.id}
+            name={calendar.name}
+            icon={<CalendarProviderIcon provider={calendar.provider} />}
+          />
+        ))}
+      </View>
     </SettingsScreenLayout>
   );
 }
 
 const styles = StyleSheet.create({
-  description: {
-    ...Typography.body,
-    lineHeight: 22,
-  },
   list: {
-    // paddingHorizontal: 16,
+    gap: 12,
   },
 });
