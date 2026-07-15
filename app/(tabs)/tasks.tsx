@@ -109,7 +109,12 @@ export default function TasksScreen() {
         }
       >
         {isLoading ? (
-          <ActivityIndicator style={styles.state} color={colors.primary} />
+          <View style={styles.state}>
+            <ActivityIndicator color={colors.primary} />
+            <Text style={[styles.stateText, { color: night.textSecondary ?? colors.textSecondary, marginTop: 0 }]}>
+              Loading tasks…
+            </Text>
+          </View>
         ) : isError ? (
           <Text style={[styles.stateText, { color: night.textSecondary ?? colors.textSecondary }]}>
             Could not load tasks. Pull to refresh.
@@ -164,6 +169,8 @@ const styles = StyleSheet.create({
   },
   state: {
     marginTop: 48,
+    alignItems: 'center',
+    gap: 12,
   },
   stateText: {
     textAlign: 'center',

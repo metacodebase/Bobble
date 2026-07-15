@@ -15,20 +15,28 @@ export const CAPTURE_COPY: Record<
   reflection: { title: 'New Reflection', listening: 'Listening to your reflection' },
 };
 
+export type PendingBobbleSave = {
+  title: string;
+  dateLabel: string;
+  durationMin: number;
+  durationSec: number;
+  category: BobbleCategory;
+  tasks: { title: string }[];
+  /** Set after create/process succeeds so later screens can navigate / create tasks. */
+  createdBobbleId?: string;
+  /** AI-suggested task titles from OpenAI enrichment (not yet persisted as Task docs). */
+  suggestedTasks?: string[];
+  /** Optional summary intro from enrichment for the suggestions screen. */
+  summaryIntro?: string;
+  /** Whether the user already ran Generate Tasks on the suggestions screen. */
+  tasksGenerated?: boolean;
+};
+
 interface CaptureState {
   captureKind: CaptureKind;
   recordingUri: string | null;
   recordingDurationSeconds: number;
-  pendingBobbleSave: {
-    title: string;
-    dateLabel: string;
-    durationMin: number;
-    durationSec: number;
-    category: BobbleCategory;
-    tasks: { title: string }[];
-    /** Set after the API create succeeds so the success screen can navigate to the real id. */
-    createdBobbleId?: string;
-  } | null;
+  pendingBobbleSave: PendingBobbleSave | null;
   setCaptureKind: (kind: CaptureKind) => void;
   setRecording: (uri: string, durationSeconds: number) => void;
   clearRecording: () => void;

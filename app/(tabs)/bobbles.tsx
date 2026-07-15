@@ -1,12 +1,13 @@
 import { Href, router } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-native';
+import { FlatList, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { BOBBLE_FILTER_CHIP_STYLES } from '@/src/components/bobbles/bobble-category-config';
 import { BobbleLibraryRow } from '@/src/components/bobbles/bobble-library-row';
 import { FilterChips } from '@/src/components/ui/filter-chips';
 import { ScreenHeader } from '@/src/components/ui/screen-header';
+import { ScreenLoading } from '@/src/components/ui/screen-loading';
 import { SearchBar } from '@/src/components/ui/search-bar';
 import {
   BOBBLE_FILTERS,
@@ -14,12 +15,15 @@ import {
   filterCategoryFromChip,
   formatBobbleDateLabel,
 } from '@/src/features/bobbles/format';
-import { useBobbles } from '@/src/hooks/bobbles';
+import { useBobbles, useDeleteBobble } from '@/src/hooks/bobbles';
+import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { useTabBarInsets } from '@/src/hooks/use-tab-bar-insets';
 import { Typography } from '@/src/theme/fonts';
+import { toast } from '@/src/utils/toast';
 
 export default function BobblesScreen() {
   const insets = useSafeAreaInsets();
+  const colors = useBobbleColors();
   const { height: tabBarHeight } = useTabBarInsets();
   const [filter, setFilter] = useState<BobbleFilter>('All');
   const [query, setQuery] = useState('');
@@ -30,6 +34,7 @@ export default function BobblesScreen() {
     search: query.trim() || undefined,
     limit: 50,
   });
+  const deleteBobble = useDeleteBobble();
 
   const bobbles = useMemo(() => data ?? [], [data]);
 
@@ -52,13 +57,13 @@ export default function BobblesScreen() {
       </View>
 
       {isLoading ? (
-        <View style={styles.centered}>
-          <ActivityIndicator />
-        </View>
+        <ScreenLoading label="Loading bobbles…" />
       ) : isError ? (
         <View style={styles.centered}>
-          <Text style={styles.emptyText}>Couldn’t load bobbles.</Text>
-          <Text style={styles.retry} onPress={() => refetch()}>
+          <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
+            Couldn’t load bobbles.
+          </Text>
+          <Text style={[styles.retry, { color: colors.primary }]} onPress={() => refetch()}>
             Tap to retry
           </Text>
         </View>
@@ -72,7 +77,9 @@ export default function BobblesScreen() {
           showsVerticalScrollIndicator={false}
           ItemSeparatorComponent={() => <View style={styles.separator} />}
           ListEmptyComponent={
-            <Text style={styles.emptyText}>No bobbles yet — capture one to get started.</Text>
+            <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
+              No bobbles yet — capture one to get started.
+            </Text>
           }
           renderItem={({ item }) => (
             <BobbleLibraryRow
@@ -82,6 +89,12 @@ export default function BobblesScreen() {
               onPress={() =>
                 router.push({ pathname: '/bobble/[id]', params: { id: item._id } } as Href)
               }
+              onDelete={() => {
+                if (deleteBobble.isPending) return;
+                deleteBobble.mutate(item._id, {
+                  onSuccess: () => toast.success('Bobble deleted'),
+                });
+              }}
             />
           )}
         />
@@ -118,11 +131,9 @@ const styles = StyleSheet.create({
   emptyText: {
     ...Typography.body,
     textAlign: 'center',
-    color: '#6B7280',
     paddingVertical: 24,
   },
   retry: {
     ...Typography.formLabel,
-    color: '#7C3AED',
   },
 });

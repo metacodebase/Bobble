@@ -111,6 +111,15 @@ async function request<TResponse, TBody = unknown>(
       code: payload?.code,
       errors: payload?.errors,
     };
+    console.error('[API] request failed', {
+      method,
+      url,
+      status: res.status,
+      message: error.message,
+      code: error.code,
+      errors: error.errors,
+      body,
+    });
     throw error;
   }
 

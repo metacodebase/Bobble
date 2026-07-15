@@ -112,19 +112,23 @@ export interface UploadAudioBody {
   process?: boolean;
 }
 
-/** Maps capture kinds from the recorder UI onto API categories. */
+export const DEFAULT_BOBBLE_CATEGORY: BobbleCategory = 'tasks';
+
+/** Maps capture kinds from the recorder UI onto API categories. Defaults to `tasks`. */
 export function categoryFromCaptureKind(
-  kind: 'bobble' | 'idea' | 'task' | 'brain-dump' | 'reflection'
+  kind?: 'bobble' | 'idea' | 'task' | 'brain-dump' | 'reflection' | null
 ): BobbleCategory {
   switch (kind) {
     case 'idea':
       return 'ideas';
     case 'task':
-    case 'bobble':
       return 'tasks';
     case 'brain-dump':
       return 'brain-dump';
     case 'reflection':
       return 'reflections';
+    case 'bobble':
+    default:
+      return DEFAULT_BOBBLE_CATEGORY;
   }
 }

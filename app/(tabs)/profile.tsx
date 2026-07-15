@@ -84,11 +84,11 @@ export default function ProfileScreen() {
             />
           ))}
           <ProfileMenuRow
-            label="Log Out"
+            label={logout.isPending ? 'Signing out…' : 'Log Out'}
             icon="user"
             destructive
             onPress={() => {
-              if (user) {
+              if (user && !logout.isPending) {
                 logout.mutate();
               }
             }}

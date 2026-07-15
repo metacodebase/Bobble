@@ -10,7 +10,7 @@ import {
 } from 'lucide-react-native';
 import { useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import {
+import Animated, {
   Easing,
   useAnimatedStyle,
   useSharedValue,
@@ -18,10 +18,10 @@ import {
   withTiming,
 } from 'react-native-reanimated';
 
-import { BobbleColors } from '@/src/theme';
+import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
+import { useNightForeground } from '@/src/hooks/use-night-foreground';
 import { Typography } from '@/src/theme/fonts';
 
-const SAVE_TEXT = '#17164B';
 const SAVING_MASCOT = require('@/src/assets/images/bobble-saving.png');
 const MIN_PROGRESS = 0.08;
 
@@ -45,6 +45,8 @@ const ORBIT_RADIUS = 118;
 
 type BobbleSaveLoadingProps = {
   progress: number;
+  /** Current pipeline step shown under the title. */
+  stageLabel?: string;
 };
 
 function OrbitIcon({ item }: { item: OrbitItem }) {
@@ -68,8 +70,15 @@ function OrbitIcon({ item }: { item: OrbitItem }) {
   );
 }
 
-export function BobbleSaveLoading({ progress }: BobbleSaveLoadingProps) {
+export function BobbleSaveLoading({
+  progress,
+  stageLabel = 'Organising your thoughts…',
+}: BobbleSaveLoadingProps) {
+  const colors = useBobbleColors();
+  const night = useNightForeground();
   const rotation = useSharedValue(0);
+  const textColor = night.text ?? colors.text;
+  const secondaryColor = night.textSecondary ?? colors.textSecondary;
 
   useEffect(() => {
     rotation.value = withRepeat(
@@ -88,17 +97,23 @@ export function BobbleSaveLoading({ progress }: BobbleSaveLoadingProps) {
   return (
     <View style={styles.root}>
       <View style={styles.hero}>
-        <Text style={styles.title}>Saving your Bobble...</Text>
-        <Text style={styles.subtitle}>Organising your thoughts beautifully ✨</Text>
+        <Text style={[styles.title, { color: textColor }]}>Saving your Bobble…</Text>
+        <Text style={[styles.subtitle, { color: secondaryColor }]}>{stageLabel}</Text>
       </View>
 
       <View style={styles.visual}>
+        <Animated.View style={[styles.orbitLayer, orbitStyle]} pointerEvents="none">
+          {ORBIT_ITEMS.map((item) => (
+            <OrbitIcon key={item.angle} item={item} />
+          ))}
+        </Animated.View>
         <Image source={SAVING_MASCOT} style={styles.mascot} contentFit="contain" />
       </View>
 
       <View style={styles.footer}>
-        <Text style={styles.footerText}>Almost done...</Text>
-
+        <Text style={[styles.footerText, { color: textColor }]}>
+          {clampedProgress >= 0.9 ? 'Almost done…' : 'This can take up to a minute'}
+        </Text>
       </View>
       <View style={styles.track}>
         <View style={[styles.fill, { width: `${clampedProgress * 100}%` }]} />
@@ -113,7 +128,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-evenly',
     paddingTop: 24,
     paddingBottom: 8,
-    gap: 20
+    gap: 20,
   },
   hero: {
     alignItems: 'center',
@@ -124,28 +139,18 @@ const styles = StyleSheet.create({
     ...Typography.heading,
     fontSize: 28,
     lineHeight: 36,
-    color: SAVE_TEXT,
     textAlign: 'center',
   },
   subtitle: {
     ...Typography.body,
     fontSize: 16,
     lineHeight: 24,
-    color: BobbleColors.textSecondary,
     textAlign: 'center',
   },
   visual: {
     alignItems: 'center',
     justifyContent: 'center',
     minHeight: 380,
-  },
-  orbitRing: {
-    position: 'absolute',
-    width: ORBIT_RADIUS * 2 + 56,
-    height: ORBIT_RADIUS * 2 + 56,
-    borderRadius: ORBIT_RADIUS + 28,
-    borderWidth: 1,
-    borderColor: 'rgba(159, 82, 242, 0.12)',
   },
   orbitLayer: {
     position: 'absolute',
@@ -180,7 +185,6 @@ const styles = StyleSheet.create({
     ...Typography.body,
     lineHeight: 22,
     textAlign: 'center',
-    color: BobbleColors.text
   },
   track: {
     height: 8,

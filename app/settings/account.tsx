@@ -60,15 +60,23 @@ export default function SettingsAccountScreen() {
       <SettingsSection title="Data">
         <SettingsLinkRow label="Export my data" />
         <SettingsLinkRow
-          label="Delete account"
+          label={deleteAccount.isPending ? 'Deleting account…' : 'Delete account'}
           destructive
           isLast
-          onPress={deleteAccount.isPending ? undefined : confirmDeleteAccount}
+          onPress={
+            deleteAccount.isPending || logout.isPending ? undefined : confirmDeleteAccount
+          }
         />
       </SettingsSection>
 
       {user ? (
-        <PrimaryButton label="Sign out" onPress={() => logout.mutate()} style={styles.signOut} />
+        <PrimaryButton
+          label="Sign out"
+          loading={logout.isPending}
+          disabled={logout.isPending || deleteAccount.isPending}
+          onPress={() => logout.mutate()}
+          style={styles.signOut}
+        />
       ) : null}
     </SettingsScreenLayout>
   );

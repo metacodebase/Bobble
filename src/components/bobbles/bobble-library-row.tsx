@@ -1,7 +1,9 @@
-import { MoreHorizontal } from 'lucide-react-native';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { MoreHorizontal, Trash2 } from 'lucide-react-native';
+import { useRef } from 'react';
+import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Swipeable } from 'react-native-gesture-handler';
 
-import { BOBBLE_CATEGORY_STYLES } from '@/src/components/bobbles/bobble-category-config';
+import { getBobbleCategoryStyle } from '@/src/components/bobbles/bobble-category-config';
 import type { BobbleCategory } from '@/src/features/bobbles/types';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { FontFamily, Typography } from '@/src/theme/fonts';
@@ -9,9 +11,10 @@ import { FontFamily, Typography } from '@/src/theme/fonts';
 type BobbleLibraryRowProps = {
   title: string;
   timestamp: string;
-  category: BobbleCategory;
+  category?: BobbleCategory | string | null;
   onPress?: () => void;
   onMenuPress?: () => void;
+  onDelete?: () => void;
 };
 
 export function BobbleLibraryRow({
@@ -20,11 +23,38 @@ export function BobbleLibraryRow({
   category,
   onPress,
   onMenuPress,
+  onDelete,
 }: BobbleLibraryRowProps) {
   const colors = useBobbleColors();
-  const categoryStyle = BOBBLE_CATEGORY_STYLES[category];
+  const categoryStyle = getBobbleCategoryStyle(category);
+  const swipeableRef = useRef<Swipeable>(null);
 
-  return (
+  const confirmDelete = () => {
+    if (!onDelete) return;
+    Alert.alert('Delete bobble', `Delete "${title}"?`, [
+      { text: 'Cancel', style: 'cancel', onPress: () => swipeableRef.current?.close() },
+      {
+        text: 'Delete',
+        style: 'destructive',
+        onPress: () => {
+          swipeableRef.current?.close();
+          onDelete();
+        },
+      },
+    ]);
+  };
+
+  const renderRightActions = () => (
+    <Pressable
+      onPress={confirmDelete}
+      style={[styles.deleteAction, { backgroundColor: colors.error }]}
+    >
+      <Trash2 size={20} color={colors.textOnPrimary} strokeWidth={2} />
+      <Text style={[styles.deleteText, { color: colors.textOnPrimary }]}>Delete</Text>
+    </Pressable>
+  );
+
+  const content = (
     <View style={styles.cardContainer}>
       <Pressable
         onPress={onPress}
@@ -52,6 +82,19 @@ export function BobbleLibraryRow({
         </Pressable>
       </Pressable>
     </View>
+  );
+
+  if (!onDelete) return content;
+
+  return (
+    <Swipeable
+      ref={swipeableRef}
+      renderRightActions={renderRightActions}
+      overshootRight={false}
+      friction={2}
+    >
+      {content}
+    </Swipeable>
   );
 }
 
@@ -102,5 +145,16 @@ const styles = StyleSheet.create({
   menu: {
     alignSelf: 'center',
     padding: 4,
+  },
+  deleteAction: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 88,
+    gap: 4,
+    borderRadius: 16,
+    marginVertical: 1,
+  },
+  deleteText: {
+    ...Typography.caption,
   },
 });

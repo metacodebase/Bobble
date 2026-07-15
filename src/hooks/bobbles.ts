@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { bobblesApi } from '@/src/api';
 import type {
+  Bobble,
   CreateBobbleBody,
   ListBobblesParams,
   UpdateBobbleBody,
@@ -11,6 +12,8 @@ import { queryKeys } from '@/src/services/query-keys';
 import { useAppStore } from '@/src/store/app-store';
 import { getApiErrorMessage } from '@/src/utils/api-error';
 import { toast } from '@/src/utils/toast';
+
+type BobblesSnapshot = [readonly unknown[], Bobble[] | undefined][];
 
 function listKey(params: ListBobblesParams = {}) {
   return queryKeys.bobbles.list(JSON.stringify(params));
@@ -66,11 +69,24 @@ export function useDeleteBobble() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => bobblesApi.deleteBobble(id),
-    onSuccess: (_data, id) => {
+    onMutate: async (id: string) => {
+      await qc.cancelQueries({ queryKey: queryKeys.bobbles.all });
+      const snapshot = qc.getQueriesData<Bobble[]>({ queryKey: ['bobbles', 'list'] });
+      qc.setQueriesData<Bobble[]>({ queryKey: ['bobbles', 'list'] }, (prev) =>
+        prev?.filter((bobble) => bobble._id !== id),
+      );
       qc.removeQueries({ queryKey: queryKeys.bobbles.detail(id) });
-      qc.invalidateQueries({ queryKey: queryKeys.bobbles.all });
+      return { snapshot } as { snapshot: BobblesSnapshot };
     },
-    onError: (e) => toast.error(getApiErrorMessage(e, 'Could not delete bobble')),
+    onError: (e, _id, context) => {
+      context?.snapshot.forEach(([key, data]) => qc.setQueryData(key, data));
+      toast.error(getApiErrorMessage(e, 'Could not delete bobble'));
+    },
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.bobbles.all });
+      qc.invalidateQueries({ queryKey: queryKeys.auth.me });
+      qc.invalidateQueries({ queryKey: queryKeys.profile.all });
+    },
   });
 }
 

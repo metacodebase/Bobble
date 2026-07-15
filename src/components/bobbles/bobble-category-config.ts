@@ -7,7 +7,11 @@ import {
   type LucideIcon,
 } from 'lucide-react-native';
 
-import type { BobbleCategory, BobbleIconVariant } from '@/src/features/bobbles/types';
+import {
+  DEFAULT_BOBBLE_CATEGORY,
+  type BobbleCategory,
+  type BobbleIconVariant,
+} from '@/src/features/bobbles/types';
 
 export type BobbleCategoryStyle = {
   label: string;
@@ -37,6 +41,16 @@ export const BOBBLE_CATEGORY_STYLES: Record<BobbleCategory, BobbleCategoryStyle>
     tagColor: '#EA580C',
   },
 };
+
+/** Resolves styles for known categories; unknown/missing values fall back to default. */
+export function getBobbleCategoryStyle(
+  category?: string | null
+): BobbleCategoryStyle {
+  if (category && category in BOBBLE_CATEGORY_STYLES) {
+    return BOBBLE_CATEGORY_STYLES[category as BobbleCategory];
+  }
+  return BOBBLE_CATEGORY_STYLES[DEFAULT_BOBBLE_CATEGORY];
+}
 
 export const BOBBLE_ICON_VARIANTS: Record<
   BobbleIconVariant,

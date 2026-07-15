@@ -1,7 +1,7 @@
 import { Href, router, useLocalSearchParams } from 'expo-router';
 import { Copy, Download, Pencil, Trash2 } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { BobbleDetailSummary } from '@/src/components/bobbles/bobble-detail-summary';
@@ -11,6 +11,8 @@ import { BobbleMindMap } from '@/src/components/bobbles/bobble-mind-map';
 import { BobbleTranscript } from '@/src/components/bobbles/bobble-transcript';
 import { CaptureHeader } from '@/src/components/capture/capture-header';
 import { SegmentTabs, SummaryTab } from '@/src/components/capture/segment-tabs';
+import { ActionSheet } from '@/src/components/ui/action-sheet';
+import { ScreenLoading } from '@/src/components/ui/screen-loading';
 import {
   bobbleDurationMin,
   formatBobbleDateLabel,
@@ -20,7 +22,6 @@ import { useBobble, useDeleteBobble } from '@/src/hooks/bobbles';
 import { useCaptureStore } from '@/src/store/capture-store';
 import { Typography } from '@/src/theme/fonts';
 import { toast } from '@/src/utils/toast';
-import { ActionSheet } from '@/src/components/ui/action-sheet';
 
 export default function BobbleDetailScreen() {
   const insets = useSafeAreaInsets();
@@ -84,7 +85,7 @@ export default function BobbleDetailScreen() {
         icon: Trash2,
         destructive: true,
         onPress: () => {
-          if (!id) return;
+          if (!id || deleteBobble.isPending) return;
           deleteBobble.mutate(id, {
             onSuccess: () => {
               toast.success('Bobble deleted');
@@ -99,8 +100,18 @@ export default function BobbleDetailScreen() {
 
   if (isLoading) {
     return (
-      <View style={[styles.root, styles.centered, { paddingTop: insets.top + 8 }]}>
-        <ActivityIndicator />
+      <View style={[styles.root, { paddingTop: insets.top + 8 }]}>
+        <CaptureHeader onBack={() => router.back()} />
+        <ScreenLoading label="Loading bobble…" />
+      </View>
+    );
+  }
+
+  if (deleteBobble.isPending) {
+    return (
+      <View style={[styles.root, { paddingTop: insets.top + 8 }]}>
+        <CaptureHeader onBack={() => router.back()} />
+        <ScreenLoading label="Deleting bobble…" />
       </View>
     );
   }

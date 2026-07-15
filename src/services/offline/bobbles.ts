@@ -95,7 +95,7 @@ export async function createBobble(body: CreateBobbleBody): Promise<Bobble> {
     _id: newId(),
     user: OFFLINE_USER_ID,
     title: body.title,
-    category: body.category ?? 'ideas',
+    category: body.category ?? 'tasks',
     status: 'ready',
     durationSec: body.durationSec ?? 0,
     transcript: body.transcript ?? DEMO_BOBBLE_DETAIL.transcript,

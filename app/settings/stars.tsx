@@ -2,6 +2,7 @@ import { Lock } from 'lucide-react-native';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { SettingsScreenLayout } from '@/src/components/settings/settings-screen-layout';
+import { ScreenLoading } from '@/src/components/ui/screen-loading';
 import { STAR_CATALOG } from '@/src/data/stars';
 import type { BadgeTone } from '@/src/features/auth/types';
 import { useMe } from '@/src/hooks/api';
@@ -22,13 +23,21 @@ export default function StarsScreen() {
   const colors = useBobbleColors();
   const night = useNightForeground();
   const storedUser = useAppStore((s) => s.user);
-  const { data: fetchedUser } = useMe();
+  const { data: fetchedUser, isLoading } = useMe();
   const user = fetchedUser ?? storedUser;
 
   const earnedLabels = new Set(
     (user?.gamification?.badges ?? []).map((badge) => badge.label)
   );
   const earnedCount = STAR_CATALOG.filter((star) => earnedLabels.has(star.label)).length;
+
+  if (isLoading && !user) {
+    return (
+      <SettingsScreenLayout title="Your Stars">
+        <ScreenLoading compact label="Loading stars…" />
+      </SettingsScreenLayout>
+    );
+  }
 
   return (
     <SettingsScreenLayout title="Your Stars">
