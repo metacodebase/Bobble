@@ -16,7 +16,12 @@ React Native mobile app built with [Expo](https://expo.dev) and [Expo Router](ht
    cp .env.example .env
    ```
 
-3. Start the app
+3. Set the API host in `src/config/urls.js`
+
+   - `USE_PROD = true` → AWS (`http://34.204.180.53:8000`)
+   - `USE_PROD = false` → local backend (`http://localhost:8000`)
+
+4. Start the app
 
    ```bash
    yarn start

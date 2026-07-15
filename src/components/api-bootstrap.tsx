@@ -24,7 +24,7 @@ export function ApiBootstrap() {
     if (!BACKEND_ALLOWED || !health.isError || !__DEV__) return;
     const base = getApiBaseUrl() || '(not set)';
     console.warn(
-      `[API] Health check failed for ${base}/api/health — set EXPO_PUBLIC_API_URL in .env`
+      `[API] Health check failed for ${base}/api/health — check src/config/urls.js (USE_PROD / URLS) or EXPO_PUBLIC_API_URL`
     );
   }, [health.isError]);
 
