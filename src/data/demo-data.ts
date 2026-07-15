@@ -1,6 +1,6 @@
-export type BobbleCategory = 'ideas' | 'tasks' | 'brain-dump' | 'reflections';
+export type BobbleCategory = import('@/src/features/bobbles/types').BobbleCategory;
 
-export type BobbleIconVariant = 'dumbbell' | 'leaf' | 'bell' | 'luggage' | 'lightbulb';
+export type BobbleIconVariant = import('@/src/features/bobbles/types').BobbleIconVariant;
 
 export type BobbleItem = {
   id: string;

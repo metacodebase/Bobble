@@ -1,5 +1,7 @@
 import { create } from 'zustand';
 
+import type { BobbleCategory } from '@/src/features/bobbles/types';
+
 export type CaptureKind = 'bobble' | 'idea' | 'task' | 'brain-dump' | 'reflection';
 
 export const CAPTURE_COPY: Record<
@@ -21,7 +23,11 @@ interface CaptureState {
     title: string;
     dateLabel: string;
     durationMin: number;
+    durationSec: number;
+    category: BobbleCategory;
     tasks: { title: string }[];
+    /** Set after the API create succeeds so the success screen can navigate to the real id. */
+    createdBobbleId?: string;
   } | null;
   setCaptureKind: (kind: CaptureKind) => void;
   setRecording: (uri: string, durationSeconds: number) => void;

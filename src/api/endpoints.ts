@@ -14,4 +14,13 @@ export const API = {
     byId: (id: string) => `/api/tasks/${id}`,
     toggle: (id: string) => `/api/tasks/${id}/toggle`,
   },
+  bobbles: {
+    root: '/api/bobbles',
+    byId: (id: string) => `/api/bobbles/${id}`,
+    process: (id: string) => `/api/bobbles/${id}/process`,
+    audio: (id: string) => `/api/bobbles/${id}/audio`,
+  },
+  profile: {
+    root: '/api/profile',
+  },
 } as const;

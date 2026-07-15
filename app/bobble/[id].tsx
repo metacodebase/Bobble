@@ -1,7 +1,7 @@
 import { Href, router, useLocalSearchParams } from 'expo-router';
 import { Copy, Download, Pencil, Trash2 } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { BobbleDetailSummary } from '@/src/components/bobbles/bobble-detail-summary';
@@ -11,26 +11,52 @@ import { BobbleMindMap } from '@/src/components/bobbles/bobble-mind-map';
 import { BobbleTranscript } from '@/src/components/bobbles/bobble-transcript';
 import { CaptureHeader } from '@/src/components/capture/capture-header';
 import { SegmentTabs, SummaryTab } from '@/src/components/capture/segment-tabs';
-import { SummaryContent } from '@/src/components/capture/summary-content';
-import { ActionSheet } from '@/src/components/ui/action-sheet';
-import { DEMO_BOBBLE_DETAIL, getBobbleById } from '@/src/data/demo-data';
+import {
+  bobbleDurationMin,
+  formatBobbleDateLabel,
+  formatTimestampLabel,
+} from '@/src/features/bobbles/format';
+import { useBobble, useDeleteBobble } from '@/src/hooks/bobbles';
 import { useCaptureStore } from '@/src/store/capture-store';
+import { Typography } from '@/src/theme/fonts';
 import { toast } from '@/src/utils/toast';
+import { ActionSheet } from '@/src/components/ui/action-sheet';
 
 export default function BobbleDetailScreen() {
   const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const bobble = getBobbleById(id ?? '1');
+  const { data: bobble, isLoading, isError } = useBobble(id);
+  const deleteBobble = useDeleteBobble();
   const [tab, setTab] = useState<SummaryTab>('summary');
   const [moreVisible, setMoreVisible] = useState(false);
   const recordingUri = useCaptureStore((state) => state.recordingUri);
   const recordingDurationSeconds = useCaptureStore((state) => state.recordingDurationSeconds);
 
-  const title = bobble?.title ?? DEMO_BOBBLE_DETAIL.title;
+  const title = bobble?.title ?? 'Bobble';
   const isTranscript = tab === 'transcript';
   const isMindMap = tab === 'mindmap';
   const isInsights = tab === 'insights';
   const showToolbar = !isTranscript && !isMindMap;
+
+  const transcriptSegments = useMemo(() => {
+    return (bobble?.transcriptSegments ?? []).map((segment) => ({
+      id: segment.id,
+      timestampSeconds: segment.timestampSeconds,
+      timestampLabel: formatTimestampLabel(segment.timestampSeconds),
+      text: segment.text,
+    }));
+  }, [bobble?.transcriptSegments]);
+
+  const mindMapNodes = useMemo(() => {
+    return (bobble?.mindMap?.nodes ?? []).map((node) => ({
+      id: node.id,
+      title: node.title,
+      subtitle: node.subtitle,
+      backgroundColor: node.backgroundColor ?? '#EDE9FE',
+      lineColor: node.lineColor ?? '#C4B5FD',
+      position: node.position,
+    }));
+  }, [bobble?.mindMap?.nodes]);
 
   const moreOptions = useMemo(
     () => [
@@ -58,13 +84,35 @@ export default function BobbleDetailScreen() {
         icon: Trash2,
         destructive: true,
         onPress: () => {
-          toast.success('Bobble deleted');
-          router.back();
+          if (!id) return;
+          deleteBobble.mutate(id, {
+            onSuccess: () => {
+              toast.success('Bobble deleted');
+              router.back();
+            },
+          });
         },
       },
     ],
-    [],
+    [deleteBobble, id],
   );
+
+  if (isLoading) {
+    return (
+      <View style={[styles.root, styles.centered, { paddingTop: insets.top + 8 }]}>
+        <ActivityIndicator />
+      </View>
+    );
+  }
+
+  if (isError || !bobble) {
+    return (
+      <View style={[styles.root, styles.centered, { paddingTop: insets.top + 8 }]}>
+        <CaptureHeader onBack={() => router.back()} />
+        <Text style={styles.errorText}>Bobble not found</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={[styles.root, { paddingTop: insets.top + 8, paddingBottom: insets.bottom + 16 }]}>
@@ -75,34 +123,37 @@ export default function BobbleDetailScreen() {
 
       {isTranscript ? (
         <BobbleTranscript
-          recordingUri={recordingUri}
+          segments={transcriptSegments}
+          recordingUri={recordingUri ?? bobble.audioUrl}
           durationSeconds={
-            recordingDurationSeconds > 0
-              ? recordingDurationSeconds
-              : DEMO_BOBBLE_DETAIL.recordingDurationSeconds
+            recordingDurationSeconds > 0 ? recordingDurationSeconds : bobble.durationSec
           }
         />
       ) : isMindMap ? (
         <View style={styles.mindMapWrap}>
-          <BobbleMindMap centerTitle={DEMO_BOBBLE_DETAIL.mindMapCenter} />
+          <BobbleMindMap
+            centerTitle={bobble.mindMap?.centerTitle ?? bobble.title}
+            nodes={mindMapNodes.length > 0 ? mindMapNodes : undefined}
+          />
         </View>
       ) : isInsights ? (
-        <BobbleInsights />
+        <BobbleInsights
+          title={bobble.insights?.title}
+          items={bobble.insights?.items}
+          reminder={bobble.insights?.reminder}
+        />
       ) : (
         <ScrollView
           style={styles.scroll}
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
-          {tab === 'summary' ? (
-            <BobbleDetailSummary
-              title={title}
-              dateLabel={bobble?.dateLabel}
-              durationMin={bobble?.durationMin}
-            />
-          ) : (
-            <SummaryContent tab={tab} />
-          )}
+          <BobbleDetailSummary
+            title={title}
+            dateLabel={formatBobbleDateLabel(bobble.createdAt)}
+            durationMin={bobbleDurationMin(bobble)}
+            bullets={bobble.summary?.bullets}
+          />
         </ScrollView>
       )}
 
@@ -130,6 +181,11 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 24,
   },
+  centered: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 12,
+  },
   headerBlock: {
     paddingBottom: 4,
     gap: 4,
@@ -145,5 +201,9 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  errorText: {
+    ...Typography.body,
+    color: '#6B7280',
   },
 });

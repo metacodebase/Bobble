@@ -2,7 +2,7 @@ import { Dumbbell } from 'lucide-react-native';
 import { StyleSheet, Text, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 
-import type { MindMapNode } from '@/src/data/demo-data';
+import type { MindMapNode } from '@/src/features/bobbles/types';
 import { DEMO_MIND_MAP } from '@/src/data/demo-data';
 import { Typography } from '@/src/theme/fonts';
 
@@ -92,7 +92,7 @@ function MindMapNodeCard({ node }: MindMapNodeCardProps) {
           left: layout.x,
           top: layout.y,
           width: layout.width,
-          backgroundColor: node.backgroundColor,
+          backgroundColor: node.backgroundColor ?? '#EDE9FE',
         },
       ]}
     >
@@ -136,7 +136,7 @@ export function BobbleMindMap({
               <Path
                 key={node.id}
                 d={curvedPath(start, target)}
-                stroke={node.lineColor}
+                stroke={node.lineColor ?? '#C4B5FD'}
                 strokeWidth={2.5}
                 fill="none"
                 strokeLinecap="round"

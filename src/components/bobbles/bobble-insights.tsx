@@ -1,7 +1,7 @@
 import { Gauge, Heart, LineChart, LucideIcon, Smile, Star } from 'lucide-react-native';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import type { InsightItem } from '@/src/data/demo-data';
+import type { InsightItem } from '@/src/features/bobbles/types';
 import { DEMO_INSIGHTS } from '@/src/data/demo-data';
 import { Typography } from '@/src/theme/fonts';
 

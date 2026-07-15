@@ -8,4 +8,13 @@ export const queryKeys = {
     all: ['tasks'] as const,
     list: (filter: string) => ['tasks', 'list', filter] as const,
   },
+  bobbles: {
+    all: ['bobbles'] as const,
+    list: (params: string) => ['bobbles', 'list', params] as const,
+    detail: (id: string) => ['bobbles', 'detail', id] as const,
+  },
+  profile: {
+    all: ['profile'] as const,
+    me: ['profile', 'me'] as const,
+  },
 };

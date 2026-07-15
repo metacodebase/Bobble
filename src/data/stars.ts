@@ -8,8 +8,7 @@ import {
   Sunrise,
   Target,
   Trophy,
-  Zap,
-  type LucideIcon,
+  type LucideIcon
 } from 'lucide-react-native';
 
 import type { BadgeTone } from '@/src/features/auth/types';
@@ -87,14 +86,7 @@ export const STAR_CATALOG: StarDefinition[] = [
     summary: 'Finish what you start.',
     howToEarn: 'Complete 50 tasks in total.',
   },
-  {
-    id: 'xp-collector',
-    label: 'XP Collector',
-    tone: 'green',
-    icon: Zap,
-    summary: 'Level up steadily.',
-    howToEarn: 'Reach 1,000 XP.',
-  },
+
   {
     id: 'centurion',
     label: 'Centurion',

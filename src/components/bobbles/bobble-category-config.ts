@@ -7,7 +7,7 @@ import {
   type LucideIcon,
 } from 'lucide-react-native';
 
-import type { BobbleCategory, BobbleIconVariant } from '@/src/data/demo-data';
+import type { BobbleCategory, BobbleIconVariant } from '@/src/features/bobbles/types';
 
 export type BobbleCategoryStyle = {
   label: string;

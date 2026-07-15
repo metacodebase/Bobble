@@ -15,6 +15,8 @@ import { ProcessingTasksReview, ReviewTask } from '@/src/components/capture/proc
 import { RecordingPlaybackBar } from '@/src/components/capture/recording-playback-bar';
 import { DEMO_BOBBLE } from '@/src/components/capture/summary-content';
 import { PrimaryButton } from '@/src/components/onboarding/primary-button';
+import { formatBobbleDateLabel } from '@/src/features/bobbles/format';
+import { categoryFromCaptureKind } from '@/src/features/bobbles/types';
 import { useCaptureStore } from '@/src/store/capture-store';
 import { Typography } from '@/src/theme/fonts';
 
@@ -62,13 +64,16 @@ export default function ProcessingScreen() {
   }, []);
 
   const handleSaveBobble = useCallback(() => {
-    const durationMin =
-      recordingDurationSeconds > 0 ? Math.max(1, Math.round(recordingDurationSeconds / 60)) : 5;
+    const durationSec = recordingDurationSeconds > 0 ? recordingDurationSeconds : 60;
+    const durationMin = Math.max(1, Math.round(durationSec / 60));
+    const captureKind = useCaptureStore.getState().captureKind;
 
     useCaptureStore.getState().setPendingBobbleSave({
       title: DEMO_BOBBLE.title,
-      dateLabel: 'Today, 11:30 AM',
+      dateLabel: formatBobbleDateLabel(new Date().toISOString()),
       durationMin,
+      durationSec,
+      category: categoryFromCaptureKind(captureKind),
       tasks: tasks.map((task) => ({ title: task.title })),
     });
 

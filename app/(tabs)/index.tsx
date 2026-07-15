@@ -11,6 +11,8 @@ import { TodayProgressCard } from '@/src/components/home/today-progress-card';
 import { BobbleMascot, type HomeVariant } from '@/src/components/onboarding/bobble-mascot';
 import { PrimaryButton } from '@/src/components/onboarding/primary-button';
 import { CaptureKind, useCaptureStore } from '@/src/store/capture-store';
+import { useAppStore } from '@/src/store/app-store';
+import { useProfile } from '@/src/hooks/profile';
 import { getDayPeriod, getGreeting } from '@/src/utils/day-period';
 
 function getProgressSubtitle(completed: number, total: number) {
@@ -64,6 +66,10 @@ const QUICK_ACTIONS = [
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const setCaptureKind = useCaptureStore((state) => state.setCaptureKind);
+  const storeUser = useAppStore((s) => s.user);
+  const { data: profile } = useProfile();
+  const displayName =
+    profile?.user.name?.split(' ')[0] ?? storeUser?.name?.split(' ')[0] ?? 'there';
   const [completedIds, setCompletedIds] = useState<Set<string>>(() => new Set());
 
   const focusTasks = useMemo(
@@ -104,7 +110,7 @@ export default function HomeScreen() {
         <View style={styles.headerSection}>
           <HomeHeader
             greeting={getGreeting()}
-            name="Steven"
+            name={displayName}
             onProfilePress={() => router.push('/(tabs)/profile' as Href)}
           />
         </View>

@@ -13,9 +13,11 @@ import { GeneratedTask } from '@/src/components/capture/generated-task-row';
 import { SegmentTabs, SummaryTab } from '@/src/components/capture/segment-tabs';
 import { DEMO_BOBBLE, MindScoreCard, SummaryContent } from '@/src/components/capture/summary-content';
 import { PrimaryButton } from '@/src/components/onboarding/primary-button';
-import { useCreateTasksBulk } from '@/src/hooks/tasks';
+import { formatBobbleDateLabel } from '@/src/features/bobbles/format';
+import { categoryFromCaptureKind } from '@/src/features/bobbles/types';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { useNightForeground } from '@/src/hooks/use-night-foreground';
+import { useCaptureStore } from '@/src/store/capture-store';
 import { Typography } from '@/src/theme/fonts';
 
 export default function SummaryScreen() {
@@ -26,21 +28,24 @@ export default function SummaryScreen() {
   const [tasks, setTasks] = useState<GeneratedTask[]>([]);
   const [isGeneratingTasks, setIsGeneratingTasks] = useState(false);
   const generationTimeoutsRef = useRef<ReturnType<typeof setTimeout>[]>([]);
-  const createTasksBulk = useCreateTasksBulk();
+  const recordingDurationSeconds = useCaptureStore((s) => s.recordingDurationSeconds);
 
   const handleSaveBobble = useCallback(() => {
-    const navigateToSaved = () => router.push('/capture/saved' as Href);
+    const durationSec = recordingDurationSeconds > 0 ? recordingDurationSeconds : 60;
+    const durationMin = Math.max(1, Math.round(durationSec / 60));
+    const captureKind = useCaptureStore.getState().captureKind;
 
-    if (tasks.length === 0) {
-      navigateToSaved();
-      return;
-    }
+    useCaptureStore.getState().setPendingBobbleSave({
+      title: DEMO_BOBBLE.title,
+      dateLabel: formatBobbleDateLabel(new Date().toISOString()),
+      durationMin,
+      durationSec,
+      category: categoryFromCaptureKind(captureKind),
+      tasks: tasks.map((task) => ({ title: task.title })),
+    });
 
-    createTasksBulk.mutate(
-      { tasks: tasks.map((task) => ({ title: task.title })) },
-      { onSettled: navigateToSaved },
-    );
-  }, [createTasksBulk, tasks]);
+    router.push('/capture/saving' as Href);
+  }, [recordingDurationSeconds, tasks]);
 
   const clearGenerationTimeouts = useCallback(() => {
     generationTimeoutsRef.current.forEach(clearTimeout);
@@ -110,7 +115,7 @@ export default function SummaryScreen() {
         <PrimaryButton
           label="Save Bobble"
           style={styles.saveAction}
-          loading={createTasksBulk.isPending}
+          loading={false}
           onPress={handleSaveBobble}
         />
       </View>

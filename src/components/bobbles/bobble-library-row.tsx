@@ -2,7 +2,7 @@ import { MoreHorizontal } from 'lucide-react-native';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { BOBBLE_CATEGORY_STYLES } from '@/src/components/bobbles/bobble-category-config';
-import type { BobbleCategory } from '@/src/data/demo-data';
+import type { BobbleCategory } from '@/src/features/bobbles/types';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { FontFamily, Typography } from '@/src/theme/fonts';
 
