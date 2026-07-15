@@ -1,6 +1,7 @@
 import { Href, router } from 'expo-router';
 import { Check } from 'lucide-react-native';
-import { ImageBackground, StyleSheet, Text, View } from 'react-native';
+import { ImageBackground, Platform, StyleSheet, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { BobbleDetailToolbar } from '@/src/components/bobbles/bobble-detail-toolbar';
 import { SecondaryButton } from '@/src/components/home/secondary-button';
@@ -8,9 +9,11 @@ import { BobbleMascot } from '@/src/components/onboarding/bobble-mascot';
 import { PrimaryButton } from '@/src/components/onboarding/primary-button';
 import { Typography } from '@/src/theme/fonts';
 import { toast } from '@/src/utils/toast';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 const SAVE_TEXT = '#17164B';
 const SUCCESS_BACKGROUND = require('@/src/assets/images/background/four.png');
+/** Fallback when Android reports 0 inset under the system nav bar. */
+const ANDROID_MIN_BOTTOM = 24;
 
 type BobbleSaveSuccessProps = {
   title: string;
@@ -29,10 +32,11 @@ export function BobbleSaveSuccess({
 }: BobbleSaveSuccessProps) {
   const insets = useSafeAreaInsets();
   return (
-    <ImageBackground source={SUCCESS_BACKGROUND} style={[styles.root, {
-      paddingTop: insets.top + 8,
-      paddingBottom: insets.bottom + 16,
-    }]} resizeMode="cover">
+    <ImageBackground
+      source={SUCCESS_BACKGROUND}
+      style={[styles.root, { paddingTop: insets.top + 8 }]}
+      resizeMode="cover"
+    >
       <View style={styles.content}>
         <View style={styles.hero}>
           <Text style={styles.title}>Bobble Saved!</Text>
@@ -61,7 +65,20 @@ export function BobbleSaveSuccess({
           <PrimaryButton label="View Bobble" showChevron={false} onPress={onViewBobble} />
           <SecondaryButton label="Home" onPress={onHome} />
         </View>
+      </View>
 
+      <View
+        style={[
+          styles.toolbar,
+          {
+            paddingBottom:
+              Math.max(
+                insets.bottom,
+                Platform.OS === 'android' ? ANDROID_MIN_BOTTOM : 16,
+              ) + 8,
+          },
+        ]}
+      >
         <BobbleDetailToolbar
           onShare={() => router.push({ pathname: '/share', params: { title } } as Href)}
           onAddTask={() => router.push('/(tabs)/tasks' as Href)}
@@ -107,7 +124,8 @@ const styles = StyleSheet.create({
   visual: {
     alignItems: 'center',
     justifyContent: 'center',
-    minHeight: 250,
+    flexShrink: 1,
+    minHeight: 180,
   },
   card: {
     flexDirection: 'row',
@@ -149,5 +167,9 @@ const styles = StyleSheet.create({
   },
   actions: {
     gap: 12,
+  },
+  toolbar: {
+    paddingHorizontal: 24,
+    paddingTop: 4,
   },
 });

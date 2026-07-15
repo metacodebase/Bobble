@@ -35,8 +35,8 @@ export const STAR_CATALOG: StarDefinition[] = [
     label: 'Early Bird',
     tone: 'blue',
     icon: Sunrise,
-    summary: 'Start your day with a thought.',
-    howToEarn: 'Capture a bobble before 8:00 AM.',
+    summary: 'Start your day with a bobble.',
+    howToEarn: 'Capture a bobble before 6:00 AM.',
   },
   {
     id: 'focus-master',
@@ -44,7 +44,7 @@ export const STAR_CATALOG: StarDefinition[] = [
     tone: 'yellow',
     icon: Target,
     summary: 'Turn ideas into action.',
-    howToEarn: 'Complete 10 tasks generated from your bobbles.',
+    howToEarn: 'Complete 10x tasks from bobbles.',
   },
   {
     id: 'bobbler',
@@ -52,7 +52,7 @@ export const STAR_CATALOG: StarDefinition[] = [
     tone: 'green',
     icon: Mic,
     summary: 'Build the capture habit.',
-    howToEarn: 'Record your first 5 bobbles.',
+    howToEarn: 'Save 20 bobbles.',
   },
   {
     id: 'streak-keeper',
