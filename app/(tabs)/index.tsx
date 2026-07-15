@@ -1,18 +1,19 @@
 import { Href, router } from 'expo-router';
 import { Mic } from 'lucide-react-native';
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { Dimensions, Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { HomeHeader } from '@/src/components/home/home-header';
 import { QuickActionTile } from '@/src/components/home/quick-action-tile';
-import { DUMMY_FOCUS_TASKS, TodayFocusCard } from '@/src/components/home/today-focus-card';
+import { TodayFocusCard } from '@/src/components/home/today-focus-card';
 import { TodayProgressCard } from '@/src/components/home/today-progress-card';
 import { BobbleMascot, type HomeVariant } from '@/src/components/onboarding/bobble-mascot';
 import { PrimaryButton } from '@/src/components/onboarding/primary-button';
-import { CaptureKind, useCaptureStore } from '@/src/store/capture-store';
-import { useAppStore } from '@/src/store/app-store';
 import { useProfile } from '@/src/hooks/profile';
+import { useTasks, useToggleTask } from '@/src/hooks/tasks';
+import { useAppStore } from '@/src/store/app-store';
+import { CaptureKind, useCaptureStore } from '@/src/store/capture-store';
 import { getDayPeriod, getGreeting } from '@/src/utils/day-period';
 
 function getProgressSubtitle(completed: number, total: number) {
@@ -70,28 +71,21 @@ export default function HomeScreen() {
   const { data: profile } = useProfile();
   const displayName =
     profile?.user.name?.split(' ')[0] ?? storeUser?.name?.split(' ')[0] ?? 'there';
-  const [completedIds, setCompletedIds] = useState<Set<string>>(() => new Set());
+  const { data: todayTasks = [] } = useTasks('today');
+  const toggleTask = useToggleTask();
 
   const focusTasks = useMemo(
     () =>
-      DUMMY_FOCUS_TASKS.map((task) => ({
-        ...task,
-        done: completedIds.has(task.id),
+      todayTasks.map((task) => ({
+        id: task._id,
+        title: task.title,
+        done: task.done,
       })),
-    [completedIds],
+    [todayTasks],
   );
-  const completedCount = completedIds.size;
-  const totalCount = DUMMY_FOCUS_TASKS.length;
+  const completedCount = todayTasks.filter((task) => task.done).length;
+  const totalCount = todayTasks.length;
   const homeMascotVariant = getHomeMascotVariant();
-
-  const toggleFocusTask = (id: string) => {
-    setCompletedIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  };
 
   const startCapture = (kind: CaptureKind = 'bobble') => {
     setCaptureKind(kind);
@@ -148,7 +142,11 @@ export default function HomeScreen() {
         </View>
 
         <View style={styles.todayRow}>
-          <TodayFocusCard tasks={focusTasks} onToggle={toggleFocusTask} />
+          <TodayFocusCard
+            tasks={focusTasks}
+            onToggle={(id) => toggleTask.mutate(id)}
+            emptyMessage="No tasks due today."
+          />
           <TodayProgressCard
             completed={completedCount}
             total={totalCount}

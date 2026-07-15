@@ -21,6 +21,7 @@ import {
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { useNightForeground } from '@/src/hooks/use-night-foreground';
 import { useTabBarInsets } from '@/src/hooks/use-tab-bar-insets';
+import { Typography } from '@/src/theme/fonts';
 
 const FILTER_PARAM: Record<TaskFilter, TaskFilterParam> = {
   All: 'all',
@@ -173,6 +174,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   stateText: {
+    ...Typography.body,
     textAlign: 'center',
     marginTop: 48,
     width: '100%',

@@ -13,13 +13,6 @@ export type FocusTask = {
   done: boolean;
 };
 
-/** Dummy focus tasks — replace with backend data later. */
-export const DUMMY_FOCUS_TASKS: Omit<FocusTask, 'done'>[] = [
-  { id: 'focus-1', title: 'Gym' },
-  { id: 'focus-2', title: 'Call Stellio' },
-  { id: 'focus-3', title: 'Project Proposal' },
-];
-
 type TodayFocusCardProps = {
   tasks?: FocusTask[];
   onToggle?: (id: string) => void;

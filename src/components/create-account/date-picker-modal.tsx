@@ -132,7 +132,7 @@ export function DatePickerModal({
         <View
           style={[
             styles.sheet,
-            { backgroundColor: colors.background, paddingBottom: insets.bottom + 16 },
+            { backgroundColor: colors.surface, paddingBottom: insets.bottom + 16 },
           ]}
         >
           <View style={[styles.handle, { backgroundColor: colors.border }]} />
