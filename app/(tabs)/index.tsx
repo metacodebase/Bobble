@@ -114,7 +114,7 @@ export default function HomeScreen() {
             variant="home"
             homeVariant={homeMascotVariant}
             size={Math.round(
-              Dimensions.get('window').width * (Platform.OS === 'android' ? 1.25 : 1.15),
+              Dimensions.get('window').width * (Platform.OS === 'android' ? 1.15 : 1.05),
             )}
           />
         </View>
@@ -168,17 +168,16 @@ const styles = StyleSheet.create({
   headerSection: {
     width: '95%',
     alignSelf: 'center',
-    marginBottom: 4,
   },
   mascotWrap: {
     alignItems: 'center',
     marginTop: 4,
-    marginBottom: 12,
+    marginBottom: 10,
   },
   section: {
     width: '95%',
     alignSelf: 'center',
-    marginBottom: 14,
+    marginBottom: 10,
   },
   primaryButton: {
     width: '100%',
@@ -188,7 +187,7 @@ const styles = StyleSheet.create({
     gap: 10,
     width: '95%',
     alignSelf: 'center',
-    marginBottom: 14,
+    marginBottom: 10,
   },
   todayRow: {
     flexDirection: 'row',
