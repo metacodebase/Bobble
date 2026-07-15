@@ -92,7 +92,7 @@ export default function SavingScreen() {
         const bobble = await bobblesApi.createBobble({
           title: payload.title,
           category: payload.category,
-          durationSec: payload.durationSec,
+          durationSec: Math.max(0, Math.round(payload.durationSec ?? 0)),
           skipProcess: true,
         });
 
@@ -125,10 +125,14 @@ export default function SavingScreen() {
           createdBobbleId: processed._id,
         });
 
-        const tasksToCreate =
-          payload.tasks.length > 0
-            ? payload.tasks
-            : (processed.suggestedTasks ?? []).map((title) => ({ title }));
+        const aiTasks = (processed.suggestedTasks ?? [])
+          .map((title) => title.trim())
+          .filter(Boolean)
+          .map((title) => ({ title }));
+
+        // Prefer OpenAI-suggested tasks from the transcript; only fall back to
+        // any client-side review tasks if the model returned none.
+        const tasksToCreate = aiTasks.length > 0 ? aiTasks : payload.tasks;
 
         if (tasksToCreate.length > 0) {
           await tasksApi.createTasksBulk({

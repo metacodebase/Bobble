@@ -17,7 +17,7 @@ import { formatBobbleDateLabel } from '@/src/features/bobbles/format';
 import { categoryFromCaptureKind } from '@/src/features/bobbles/types';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { useNightForeground } from '@/src/hooks/use-night-foreground';
-import { useCaptureStore } from '@/src/store/capture-store';
+import { CAPTURE_COPY, useCaptureStore } from '@/src/store/capture-store';
 import { Typography } from '@/src/theme/fonts';
 
 export default function SummaryScreen() {
@@ -34,18 +34,19 @@ export default function SummaryScreen() {
     const durationSec = recordingDurationSeconds > 0 ? recordingDurationSeconds : 60;
     const durationMin = Math.max(1, Math.round(durationSec / 60));
     const captureKind = useCaptureStore.getState().captureKind;
+    const copy = CAPTURE_COPY[captureKind];
 
     useCaptureStore.getState().setPendingBobbleSave({
-      title: DEMO_BOBBLE.title,
+      title: copy.title,
       dateLabel: formatBobbleDateLabel(new Date().toISOString()),
       durationMin,
       durationSec,
       category: categoryFromCaptureKind(captureKind),
-      tasks: tasks.map((task) => ({ title: task.title })),
+      tasks: [],
     });
 
     router.push('/capture/saving' as Href);
-  }, [recordingDurationSeconds, tasks]);
+  }, [recordingDurationSeconds]);
 
   const clearGenerationTimeouts = useCallback(() => {
     generationTimeoutsRef.current.forEach(clearTimeout);
