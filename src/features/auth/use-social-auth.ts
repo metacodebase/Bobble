@@ -58,6 +58,45 @@ function isGoogleNativeError(error: unknown): boolean {
   );
 }
 
+function getGoogleSignInErrorCode(error: unknown): string | undefined {
+  if (typeof error !== 'object' || error == null || !('code' in error)) return undefined;
+  const code = (error as { code?: unknown }).code;
+  return code == null ? undefined : String(code);
+}
+
+function isGoogleDeveloperError(error: unknown): boolean {
+  const code = getGoogleSignInErrorCode(error);
+  const message = error instanceof Error ? error.message : String(error);
+  return (
+    code === '10' ||
+    message.includes('DEVELOPER_ERROR') ||
+    message.includes('Developer console is not set up correctly')
+  );
+}
+
+function getGoogleSignInErrorMessage(
+  error: unknown,
+  statusCodes?: { PLAY_SERVICES_NOT_AVAILABLE: string },
+): string {
+  if (isGoogleDeveloperError(error)) {
+    return Platform.OS === 'android'
+      ? 'Google Sign-In is not set up for this Android build. Add your app SHA-1 in Firebase (Project settings → Your apps → Android), download a new google-services.json, and rebuild.'
+      : 'Google Sign-In is not configured correctly for this build. Check Firebase / Google Cloud OAuth client IDs and rebuild.';
+  }
+
+  const code = getGoogleSignInErrorCode(error);
+  if (statusCodes && code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+    return 'Google Play Services is required for sign-in. Please update Play Services and try again.';
+  }
+
+  if (__DEV__) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.warn('[Google Sign-In]', { code, message, error });
+  }
+
+  return 'Google sign-in failed, please try again';
+}
+
 type SocialPendingProvider = 'google' | 'apple';
 
 export function useSocialAuth() {
@@ -131,18 +170,20 @@ export function useSocialAuth() {
         toast.error('Google sign-in requires a rebuilt Android app (expo run:android)');
         return;
       }
+      let statusCodes: { PLAY_SERVICES_NOT_AVAILABLE: string } | undefined;
       try {
-        const { isErrorWithCode, statusCodes } = await loadGoogleSignin();
-        if (isErrorWithCode(error) && error.code === statusCodes.SIGN_IN_CANCELLED) {
+        const google = await loadGoogleSignin();
+        statusCodes = google.statusCodes;
+        if (google.isErrorWithCode(error) && error.code === google.statusCodes.SIGN_IN_CANCELLED) {
           return;
         }
-        if (isErrorWithCode(error) && error.code === statusCodes.IN_PROGRESS) {
+        if (google.isErrorWithCode(error) && error.code === google.statusCodes.IN_PROGRESS) {
           return;
         }
       } catch {
         // Ignore secondary load failures while classifying the original error.
       }
-      toast.error('Google sign-in failed, please try again');
+      toast.error(getGoogleSignInErrorMessage(error, statusCodes));
     } finally {
       if (!submitted) setOauthProvider(null);
     }
