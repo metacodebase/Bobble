@@ -1,12 +1,12 @@
 import { useNavigation } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import {
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    Text,
+    View,
 } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 

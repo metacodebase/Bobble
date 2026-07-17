@@ -1,6 +1,7 @@
-export { API } from './endpoints';
-export * as systemApi from './system';
 export * as authApi from './auth';
-export * as tasksApi from './tasks';
 export * as bobblesApi from './bobbles';
+export { API } from './endpoints';
 export * as profileApi from './profile';
+export * as systemApi from './system';
+export * as tasksApi from './tasks';
+

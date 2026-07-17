@@ -3,8 +3,8 @@ import { StyleSheet, View } from 'react-native';
 import { CalendarProviderIcon } from '@/src/components/create-account/calendar-brand-icons';
 import { CalendarRow } from '@/src/components/create-account/calendar-row';
 import {
-  SettingsDescription,
-  SettingsScreenLayout,
+    SettingsDescription,
+    SettingsScreenLayout,
 } from '@/src/components/settings/settings-screen-layout';
 
 const CALENDARS = [

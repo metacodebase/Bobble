@@ -1,31 +1,31 @@
 import Constants from 'expo-constants';
 import { router } from 'expo-router';
+import {
+    AlertCircle,
+    BarChart3,
+    Bell,
+    FileSpreadsheet,
+    FileText,
+    Globe,
+    HelpCircle,
+    Mail,
+    Mic,
+    Moon,
+    Shield,
+    User,
+    Zap,
+} from 'lucide-react-native';
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text } from 'react-native';
-import {
-  AlertCircle,
-  BarChart3,
-  Bell,
-  FileSpreadsheet,
-  FileText,
-  Globe,
-  HelpCircle,
-  Mail,
-  Mic,
-  Moon,
-  Shield,
-  User,
-  Zap,
-} from 'lucide-react-native';
 
 import { CalendarProviderIcon } from '@/src/components/create-account/calendar-brand-icons';
 import {
-  SettingsLinkItemRow,
-  SettingsToggleItemRow,
+    SettingsLinkItemRow,
+    SettingsToggleItemRow,
 } from '@/src/components/settings/settings-item-row';
 import {
-  SettingsScreenLayout,
-  SettingsSection,
+    SettingsScreenLayout,
+    SettingsSection,
 } from '@/src/components/settings/settings-screen-layout';
 import { useLogout } from '@/src/hooks/api';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';

@@ -44,10 +44,7 @@
       "package": "com.metacodebase.Bobble",
       "googleServicesFile": "./google-services.json",
       "usesCleartextTraffic": true,
-      "permissions": [
-        "android.permission.RECORD_AUDIO",
-        "android.permission.MODIFY_AUDIO_SETTINGS"
-      ]
+      "permissions": ["android.permission.RECORD_AUDIO", "android.permission.MODIFY_AUDIO_SETTINGS"]
     },
     "web": {
       "output": "static",
