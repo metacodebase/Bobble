@@ -2,6 +2,7 @@ import { GAMIFICATION, PROFILE_USER } from '@/src/data/demo-data';
 import type {
   AuthSession,
   AuthUser,
+  ChangePasswordBody,
   LoginBody,
   RegisterBody,
   SocialAuthBody,
@@ -68,4 +69,8 @@ export async function fetchMe(): Promise<AuthUser> {
 
 export async function deleteAccount(): Promise<{ message: string }> {
   return { message: 'Account deleted' };
+}
+
+export async function changePassword(_body: ChangePasswordBody): Promise<{ message: string }> {
+  return { message: 'Password updated' };
 }

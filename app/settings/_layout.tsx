@@ -17,6 +17,8 @@ export default function SettingsLayout() {
       <Stack.Screen name="index" />
       <Stack.Screen name="appearance" />
       <Stack.Screen name="account" />
+      <Stack.Screen name="edit-profile" />
+      <Stack.Screen name="change-password" />
       <Stack.Screen name="calendar-sync" />
       <Stack.Screen name="connections" />
       <Stack.Screen name="notifications" />

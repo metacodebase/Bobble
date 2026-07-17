@@ -42,6 +42,11 @@ export interface RegisterBody {
   password: string;
 }
 
+export interface ChangePasswordBody {
+  currentPassword: string;
+  newPassword: string;
+}
+
 export type SocialProvider = 'google' | 'apple';
 
 export interface SocialAuthBody {

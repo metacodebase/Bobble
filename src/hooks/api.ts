@@ -2,7 +2,12 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Href, router } from 'expo-router';
 
 import { authApi, systemApi } from '@/src/api';
-import type { LoginBody, RegisterBody, SocialAuthBody } from '@/src/features/auth/types';
+import type {
+  ChangePasswordBody,
+  LoginBody,
+  RegisterBody,
+  SocialAuthBody,
+} from '@/src/features/auth/types';
 import { queryKeys } from '@/src/services/query-keys';
 import { useAppStore } from '@/src/store/app-store';
 import { getApiErrorMessage } from '@/src/utils/api-error';
@@ -96,5 +101,16 @@ export function useDeleteAccount() {
       toast.success('Your account has been deleted');
     },
     onError: (e) => toast.error(getApiErrorMessage(e, 'Could not delete account')),
+  });
+}
+
+export function useChangePassword() {
+  return useMutation({
+    mutationFn: (body: ChangePasswordBody) => authApi.changePassword(body),
+    onSuccess: () => {
+      toast.success('Password updated');
+      router.back();
+    },
+    onError: (e) => toast.error(getApiErrorMessage(e, 'Could not change password')),
   });
 }

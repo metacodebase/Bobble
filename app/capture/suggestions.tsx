@@ -290,7 +290,7 @@ export default function SuggestionsScreen() {
                       onPress={() => toggleTask(task.id)}
                       style={({ pressed }) => [
                         styles.taskRow,
-                        { backgroundColor: colors.borderLight },
+                        { backgroundColor: colors.surface },
                         pressed && styles.pressed,
                       ]}
                     >
@@ -307,7 +307,7 @@ export default function SuggestionsScreen() {
                           <Check size={14} color={colors.textOnPrimary} strokeWidth={3} />
                         ) : null}
                       </View>
-                      <Text style={[styles.taskTitle, { color: textColor }]} numberOfLines={3}>
+                      <Text style={[styles.taskTitle, { color: colors.text }]} numberOfLines={3}>
                         {task.title}
                       </Text>
                     </Pressable>

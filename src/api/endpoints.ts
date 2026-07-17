@@ -7,6 +7,7 @@ export const API = {
     refresh: '/api/auth/refresh',
     logout: '/api/auth/logout',
     me: '/api/auth/me',
+    changePassword: '/api/auth/change-password',
   },
   tasks: {
     root: '/api/tasks',

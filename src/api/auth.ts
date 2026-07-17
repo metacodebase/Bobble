@@ -2,11 +2,12 @@ import { API } from '@/src/api/endpoints';
 import { BACKEND_ALLOWED } from '@/src/config/backend';
 import type {
   AuthSession,
+  AuthUser,
+  ChangePasswordBody,
   LoginBody,
   RegisterBody,
   SocialAuthBody,
 } from '@/src/features/auth/types';
-import type { AuthUser } from '@/src/features/auth/types';
 import { api, getApiBaseUrl, unwrap } from '@/src/services/api';
 import { offlineAuth } from '@/src/services/offline';
 
@@ -61,5 +62,14 @@ export async function fetchMe(): Promise<AuthUser> {
 export async function deleteAccount(): Promise<{ message: string }> {
   if (!BACKEND_ALLOWED) return offlineAuth.deleteAccount();
   const res = await api.delete<{ message: string }>(API.auth.me);
+  return unwrap(res);
+}
+
+export async function changePassword(body: ChangePasswordBody): Promise<{ message: string }> {
+  if (!BACKEND_ALLOWED) return offlineAuth.changePassword(body);
+  const res = await api.post<{ message: string }, ChangePasswordBody>(
+    API.auth.changePassword,
+    body
+  );
   return unwrap(res);
 }

@@ -1,3 +1,4 @@
+import { Href, router } from 'expo-router';
 import { Alert, StyleSheet, Text, View } from 'react-native';
 
 import { ProfileAvatar } from '@/src/components/create-account/profile-avatar';
@@ -52,8 +53,14 @@ export default function SettingsAccountScreen() {
       </View>
 
       <SettingsSection title="Profile">
-        <SettingsLinkRow label="Edit profile" />
-        <SettingsLinkRow label="Change password" />
+        <SettingsLinkRow
+          label="Edit profile"
+          onPress={() => router.push('/settings/edit-profile' as Href)}
+        />
+        <SettingsLinkRow
+          label="Change password"
+          onPress={() => router.push('/settings/change-password' as Href)}
+        />
         <SettingsLinkRow label="Email" value={displayEmail} isLast />
       </SettingsSection>
 
