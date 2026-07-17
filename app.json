@@ -17,6 +17,10 @@
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
         "NSMicrophoneUsageDescription": "Bobble uses your microphone to record voice memos and show a live waveform while you speak.",
+        "NSCalendarsUsageDescription": "Bobble uses your calendar to sync tasks and events from your Bobbles.",
+        "NSCalendarsFullAccessUsageDescription": "Bobble uses your calendar to sync tasks and events from your Bobbles.",
+        "NSRemindersUsageDescription": "Bobble uses your reminders to sync tasks from your Bobbles.",
+        "NSRemindersFullAccessUsageDescription": "Bobble uses your reminders to sync tasks from your Bobbles.",
         "NSAppTransportSecurity": {
           "NSAllowsArbitraryLoads": true,
           "NSAllowsLocalNetworking": true,
@@ -76,6 +80,13 @@
         "expo-audio",
         {
           "microphonePermission": "Bobble uses your microphone to record voice memos and show a live waveform while you speak."
+        }
+      ],
+      [
+        "expo-calendar",
+        {
+          "calendarPermission": "Bobble uses your calendar to sync tasks and events from your Bobbles.",
+          "remindersPermission": "Bobble uses your reminders to sync tasks from your Bobbles."
         }
       ],
       [

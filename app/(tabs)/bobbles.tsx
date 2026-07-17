@@ -17,6 +17,7 @@ import {
 } from '@/src/features/bobbles/format';
 import { useBobbles, useDeleteBobble } from '@/src/hooks/bobbles';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
+import { useNightForeground } from '@/src/hooks/use-night-foreground';
 import { useTabBarInsets } from '@/src/hooks/use-tab-bar-insets';
 import { Typography } from '@/src/theme/fonts';
 import { toast } from '@/src/utils/toast';
@@ -24,6 +25,7 @@ import { toast } from '@/src/utils/toast';
 export default function BobblesScreen() {
   const insets = useSafeAreaInsets();
   const colors = useBobbleColors();
+  const night = useNightForeground();
   const { height: tabBarHeight } = useTabBarInsets();
   const [filter, setFilter] = useState<BobbleFilter>('All');
   const [query, setQuery] = useState('');
@@ -60,7 +62,7 @@ export default function BobblesScreen() {
         <ScreenLoading label="Loading bobbles…" />
       ) : isError ? (
         <View style={styles.centered}>
-          <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
+          <Text style={[styles.emptyText, { color: night.textSecondary ?? colors.textSecondary }]}>
             Couldn’t load bobbles.
           </Text>
           <Text style={[styles.retry, { color: colors.primary }]} onPress={() => refetch()}>
@@ -77,7 +79,7 @@ export default function BobblesScreen() {
           showsVerticalScrollIndicator={false}
           ItemSeparatorComponent={() => <View style={styles.separator} />}
           ListEmptyComponent={
-            <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
+            <Text style={[styles.emptyText, { color: night.textSecondary ?? colors.textSecondary }]}>
               No bobbles yet — capture one to get started.
             </Text>
           }
