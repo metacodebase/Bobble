@@ -94,25 +94,27 @@ export default function ProcessingScreen() {
           suggestedTasks: [],
         });
 
-        // Step 2 — prepare / upload audio
-        const audio = recordingUri ? await readRecordingAsBase64(recordingUri) : null;
+        // Step 2 — prepare / upload audio (required for AssemblyAI transcription)
+        if (!recordingUri) {
+          throw new Error('Recording file was missing. Please record again.');
+        }
+
+        const audio = await readRecordingAsBase64(recordingUri);
         if (cancelled) return;
         setCompletedCount(2);
 
-        let processed = bobble;
-        if (audio?.audioBase64) {
-          console.log('[capture] uploading audio for processing', {
-            mimeType: audio.mimeType,
-            bytesApprox: Math.round((audio.audioBase64.length * 3) / 4),
-          });
-          processed = await bobblesApi.uploadBobbleAudio(bobble._id, {
-            ...audio,
-            process: true,
-          });
-        } else {
-          console.warn('[capture] no recording URI — processing without audio');
-          processed = await bobblesApi.processBobble(bobble._id);
+        if (!audio?.audioBase64) {
+          throw new Error('Could not read your recording. Please try again.');
         }
+
+        console.log('[capture] uploading audio for processing', {
+          mimeType: audio.mimeType,
+          bytesApprox: Math.round((audio.audioBase64.length * 3) / 4),
+        });
+        const processed = await bobblesApi.uploadBobbleAudio(bobble._id, {
+          ...audio,
+          process: true,
+        });
 
         if (cancelled) return;
         setCompletedCount(3);

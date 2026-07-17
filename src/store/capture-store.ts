@@ -21,7 +21,7 @@ export type PendingBobbleSave = {
   durationMin: number;
   durationSec: number;
   category: BobbleCategory;
-  tasks: { title: string }[];
+  tasks: { id?: string; title: string }[];
   /** Set after create/process succeeds so later screens can navigate / create tasks. */
   createdBobbleId?: string;
   /** AI-suggested task titles from OpenAI enrichment (not yet persisted as Task docs). */
@@ -53,7 +53,10 @@ export const useCaptureStore = create<CaptureState>((set) => ({
   setCaptureKind: (kind) => set({ captureKind: kind }),
 
   setRecording: (uri, durationSeconds) =>
-    set({ recordingUri: uri, recordingDurationSeconds: durationSeconds }),
+    set({
+      recordingUri: uri.trim() ? uri : null,
+      recordingDurationSeconds: durationSeconds,
+    }),
 
   clearRecording: () => set({ recordingUri: null, recordingDurationSeconds: 0 }),
 

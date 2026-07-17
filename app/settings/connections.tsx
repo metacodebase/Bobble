@@ -5,7 +5,6 @@ import { CalendarRow } from '@/src/components/create-account/calendar-row';
 import {
   SettingsDescription,
   SettingsScreenLayout,
-  SettingsSection,
 } from '@/src/components/settings/settings-screen-layout';
 
 const CONNECTIONS = [
@@ -21,29 +20,27 @@ export default function ConnectionsScreen() {
         Link apps and services to share Bobbles and sync reminders.
       </SettingsDescription>
 
-      <SettingsSection>
-        <View style={styles.list}>
-          {CONNECTIONS.map((item) => (
-            <CalendarRow
-              key={item.id}
-              name={item.name}
-              icon={
-                'provider' in item ? (
-                  <CalendarProviderIcon provider={item.provider} />
-                ) : (
-                  <Text style={{ fontSize: 20 }}>{item.emoji}</Text>
-                )
-              }
-            />
-          ))}
-        </View>
-      </SettingsSection>
+      <View style={styles.list}>
+        {CONNECTIONS.map((item) => (
+          <CalendarRow
+            key={item.id}
+            name={item.name}
+            icon={
+              'provider' in item ? (
+                <CalendarProviderIcon provider={item.provider} />
+              ) : (
+                <Text style={{ fontSize: 20 }}>{item.emoji}</Text>
+              )
+            }
+          />
+        ))}
+      </View>
     </SettingsScreenLayout>
   );
 }
 
 const styles = StyleSheet.create({
   list: {
-    gap: 0,
+    gap: 12,
   },
 });

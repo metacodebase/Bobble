@@ -48,9 +48,8 @@ export default function RecordScreen() {
 
   const handleStop = async () => {
     const uri = await stopRecording();
-    if (uri) {
-      setRecording(uri, elapsed);
-    }
+    // Always store duration; processing fails clearly if URI is missing.
+    setRecording(uri ?? '', Math.max(elapsed, 1));
     router.push('/capture/processing' as Href);
   };
 

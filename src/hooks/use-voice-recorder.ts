@@ -7,8 +7,11 @@ import {
 } from 'expo-audio';
 import { useCallback, useEffect, useRef } from 'react';
 
+import { persistRecordingUri } from '@/src/utils/recording-base64';
+
+/** AAC/m4a on both platforms — better for AssemblyAI than LOW_QUALITY (.3gp/amr on Android). */
 const RECORDING_OPTIONS = {
-  ...RecordingPresets.LOW_QUALITY,
+  ...RecordingPresets.HIGH_QUALITY,
   isMeteringEnabled: true,
 };
 
@@ -63,7 +66,10 @@ export function useVoiceRecorder(paused: boolean) {
 
     await audioRecorder.stop();
     startedRef.current = false;
-    return audioRecorder.uri;
+
+    const rawUri = audioRecorder.uri ?? audioRecorder.getStatus().url ?? null;
+    // Copy out of cache before this hook unmounts (which can delete the temp file).
+    return persistRecordingUri(rawUri);
   }, [audioRecorder]);
 
   return {

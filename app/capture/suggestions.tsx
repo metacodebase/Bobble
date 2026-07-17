@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { tasksApi } from '@/src/api';
 import { CaptureHeader } from '@/src/components/capture/capture-header';
+import { GeneratedTaskRow } from '@/src/components/capture/generated-task-row';
 import { PrimaryButton } from '@/src/components/onboarding/primary-button';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { useNightForeground } from '@/src/hooks/use-night-foreground';
@@ -17,10 +18,12 @@ import { Typography } from '@/src/theme/fonts';
 
 const TASKS_MASCOT = require('@/src/assets/images/bobble-tasks-ready.png');
 
-type SelectableTask = {
+type SuggestionTask = {
   id: string;
   title: string;
   selected: boolean;
+  /** Set after tasks are persisted via the API. */
+  persistedId?: string;
 };
 
 export default function SuggestionsScreen() {
@@ -32,8 +35,18 @@ export default function SuggestionsScreen() {
   const textColor = night.text ?? colors.text;
   const secondaryColor = night.textSecondary ?? colors.textSecondary;
 
-  const [tasks, setTasks] = useState<SelectableTask[]>(() => {
-    const titles = useCaptureStore.getState().pendingBobbleSave?.suggestedTasks ?? [];
+  const [tasks, setTasks] = useState<SuggestionTask[]>(() => {
+    const pending = useCaptureStore.getState().pendingBobbleSave;
+    if (pending?.tasksGenerated && pending.tasks.length > 0) {
+      return pending.tasks.map((task, index) => ({
+        id: task.id ?? `generated-${index}`,
+        persistedId: task.id,
+        title: task.title,
+        selected: true,
+      }));
+    }
+
+    const titles = pending?.suggestedTasks ?? [];
     return titles.map((title, index) => ({
       id: `suggestion-${index}`,
       title,
@@ -50,11 +63,72 @@ export default function SuggestionsScreen() {
   const title = pendingSave?.title ?? 'Your Bobble';
   const summaryIntro = pendingSave?.summaryIntro;
 
+  const syncTasksToStore = useCallback((nextTasks: SuggestionTask[]) => {
+    const current = useCaptureStore.getState().pendingBobbleSave;
+    if (!current) return;
+
+    useCaptureStore.getState().setPendingBobbleSave({
+      ...current,
+      tasks: nextTasks
+        .filter((task) => task.persistedId)
+        .map((task) => ({ id: task.persistedId, title: task.title.trim() })),
+    });
+  }, []);
+
   const toggleTask = useCallback((id: string) => {
     setTasks((prev) =>
       prev.map((task) => (task.id === id ? { ...task, selected: !task.selected } : task)),
     );
   }, []);
+
+  const handleUpdateTask = useCallback(
+    async (id: string, title: string) => {
+      const trimmed = title.trim();
+      if (!trimmed) return;
+
+      const task = tasks.find((entry) => entry.id === id);
+      if (!task?.persistedId) return;
+
+      const previous = tasks;
+      const next = previous.map((entry) =>
+        entry.id === id ? { ...entry, title: trimmed } : entry,
+      );
+      setTasks(next);
+
+      try {
+        await tasksApi.updateTask(task.persistedId, { title: trimmed });
+        syncTasksToStore(next);
+      } catch (error) {
+        setTasks(previous);
+        const message = getApiErrorMessage(error, 'Could not update task');
+        logApiError('capture update task failed', error);
+        toast.error(message, 'Update failed');
+      }
+    },
+    [syncTasksToStore, tasks],
+  );
+
+  const handleDeleteTask = useCallback(
+    async (id: string) => {
+      const task = tasks.find((entry) => entry.id === id);
+      if (!task?.persistedId) return;
+
+      const previous = tasks;
+      const next = previous.filter((entry) => entry.id !== id);
+      setTasks(next);
+
+      try {
+        await tasksApi.deleteTask(task.persistedId);
+        syncTasksToStore(next);
+      } catch (error) {
+        setTasks(previous);
+        const message = getApiErrorMessage(error, 'Could not delete task');
+        logApiError('capture delete task failed', error);
+        toast.error(message, 'Delete failed');
+      }
+    },
+    [syncTasksToStore, tasks],
+  );
 
   const handleDiscard = useCallback(() => {
     clearRecording();
@@ -74,20 +148,28 @@ export default function SuggestionsScreen() {
 
     setIsGenerating(true);
     try {
-      await tasksApi.createTasksBulk({
+      const created = await tasksApi.createTasksBulk({
         bobble: bobbleId,
         tasks: selected.map((task) => ({ title: task.title.trim() })),
       });
+
+      const generatedTasks: SuggestionTask[] = created.map((task) => ({
+        id: task._id,
+        persistedId: task._id,
+        title: task.title,
+        selected: true,
+      }));
 
       const current = useCaptureStore.getState().pendingBobbleSave;
       if (current) {
         useCaptureStore.getState().setPendingBobbleSave({
           ...current,
-          tasks: selected.map((task) => ({ title: task.title.trim() })),
+          tasks: generatedTasks.map((task) => ({ id: task.persistedId, title: task.title })),
           tasksGenerated: true,
         });
       }
 
+      setTasks(generatedTasks);
       setTasksGenerated(true);
       toast.success(
         selected.length === 1 ? '1 task created' : `${selected.length} tasks created`,
@@ -154,14 +236,14 @@ export default function SuggestionsScreen() {
         <View style={styles.hero}>
           <Text style={[styles.title, { color: textColor }]}>
             {tasksGenerated
-              ? 'Tasks created'
+              ? 'Review your tasks'
               : hasSuggestions
                 ? 'Suggestions from your Bobble'
                 : 'Ready to save'}
           </Text>
           <Text style={[styles.subtitle, { color: secondaryColor }]}>
             {tasksGenerated
-              ? 'Your selected suggestions are now tasks. Save the bobble to finish.'
+              ? 'Review and edit your tasks, then save the bobble to finish.'
               : hasSuggestions
                 ? 'Pick which ones to turn into tasks, or skip and save the bobble.'
                 : 'No task suggestions this time — you can still save your bobble.'}
@@ -185,41 +267,46 @@ export default function SuggestionsScreen() {
 
         {hasSuggestions ? (
           <View style={styles.taskList}>
-            {tasks.map((task) => {
-              const checked = task.selected;
-              return (
-                <Pressable
-                  key={task.id}
-                  onPress={() => {
-                    if (!tasksGenerated) toggleTask(task.id);
-                  }}
-                  disabled={tasksGenerated}
-                  style={({ pressed }) => [
-                    styles.taskRow,
-                    { backgroundColor: colors.borderLight },
-                    pressed && !tasksGenerated && styles.pressed,
-                    tasksGenerated && styles.taskRowLocked,
-                  ]}
-                >
-                  <View
-                    style={[
-                      styles.checkbox,
-                      {
-                        borderColor: colors.primary,
-                        backgroundColor: checked ? colors.primary : 'transparent',
-                      },
-                    ]}
-                  >
-                    {checked ? (
-                      <Check size={14} color={colors.textOnPrimary} strokeWidth={3} />
-                    ) : null}
-                  </View>
-                  <Text style={[styles.taskTitle, { color: textColor }]} numberOfLines={3}>
-                    {task.title}
-                  </Text>
-                </Pressable>
-              );
-            })}
+            {tasksGenerated
+              ? tasks.map((task) => (
+                  <GeneratedTaskRow
+                    key={task.id}
+                    task={{ id: task.id, title: task.title }}
+                    onUpdate={handleUpdateTask}
+                    onDelete={handleDeleteTask}
+                  />
+                ))
+              : tasks.map((task) => {
+                  const checked = task.selected;
+                  return (
+                    <Pressable
+                      key={task.id}
+                      onPress={() => toggleTask(task.id)}
+                      style={({ pressed }) => [
+                        styles.taskRow,
+                        { backgroundColor: colors.borderLight },
+                        pressed && styles.pressed,
+                      ]}
+                    >
+                      <View
+                        style={[
+                          styles.checkbox,
+                          {
+                            borderColor: colors.primary,
+                            backgroundColor: checked ? colors.primary : 'transparent',
+                          },
+                        ]}
+                      >
+                        {checked ? (
+                          <Check size={14} color={colors.textOnPrimary} strokeWidth={3} />
+                        ) : null}
+                      </View>
+                      <Text style={[styles.taskTitle, { color: textColor }]} numberOfLines={3}>
+                        {task.title}
+                      </Text>
+                    </Pressable>
+                  );
+                })}
           </View>
         ) : null}
       </ScrollView>
@@ -324,9 +411,6 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     paddingHorizontal: 14,
     gap: 12,
-  },
-  taskRowLocked: {
-    opacity: 0.85,
   },
   checkbox: {
     width: 24,

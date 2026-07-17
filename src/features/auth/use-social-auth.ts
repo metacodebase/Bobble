@@ -1,12 +1,5 @@
-import {
-  GoogleSignin,
-  isErrorWithCode,
-  isSuccessResponse,
-  statusCodes,
-} from '@react-native-google-signin/google-signin';
-import * as AppleAuthentication from 'expo-apple-authentication';
 import { useCallback, useEffect, useState } from 'react';
-import { Platform } from 'react-native';
+import { Platform, TurboModuleRegistry } from 'react-native';
 
 import { isDemoMode } from '@/src/config/backend';
 import { useSocialLogin } from '@/src/hooks/api';
@@ -17,8 +10,36 @@ const GOOGLE_IOS_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID;
 
 let googleConfigured = false;
 
-function configureGoogle() {
+/**
+ * Google Sign-In registers `RNGoogleSignin` in the native binary. Calling
+ * `import('@react-native-google-signin/google-signin')` evaluates
+ * TurboModuleRegistry.getEnforcing and throws if that module is missing
+ * (Expo Go, or a native build from before the plugin was added). Probe with
+ * the non-throwing `get` first.
+ */
+function isGoogleNativeAvailable(): boolean {
+  return TurboModuleRegistry.get('RNGoogleSignin') != null;
+}
+
+/**
+ * Google/Apple SDKs touch native modules at import time. Keep those behind
+ * dynamic imports so expo-router's sync route discovery in Android dev
+ * doesn't drop `sign-in` when the native module isn't ready yet.
+ */
+async function loadGoogleSignin() {
+  if (!isGoogleNativeAvailable()) {
+    throw new Error('GOOGLE_NATIVE_UNAVAILABLE');
+  }
+  return import('@react-native-google-signin/google-signin');
+}
+
+async function loadAppleAuthentication() {
+  return import('expo-apple-authentication');
+}
+
+async function configureGoogle() {
   if (googleConfigured) return;
+  const { GoogleSignin } = await loadGoogleSignin();
   GoogleSignin.configure({
     webClientId: GOOGLE_WEB_CLIENT_ID,
     iosClientId: GOOGLE_IOS_CLIENT_ID,
@@ -26,6 +47,15 @@ function configureGoogle() {
     scopes: ['profile', 'email'],
   });
   googleConfigured = true;
+}
+
+function isGoogleNativeError(error: unknown): boolean {
+  if (!(error instanceof Error)) return false;
+  return (
+    error.message === 'GOOGLE_NATIVE_UNAVAILABLE' ||
+    error.message.includes("RNGoogleSignin") ||
+    error.message.includes('TurboModuleRegistry.getEnforcing')
+  );
 }
 
 type SocialPendingProvider = 'google' | 'apple';
@@ -36,13 +66,10 @@ export function useSocialAuth() {
   const [oauthProvider, setOauthProvider] = useState<SocialPendingProvider | null>(null);
 
   useEffect(() => {
-    configureGoogle();
-  }, []);
-
-  useEffect(() => {
     if (Platform.OS !== 'ios') return;
     let active = true;
-    AppleAuthentication.isAvailableAsync()
+    void loadAppleAuthentication()
+      .then((AppleAuthentication) => AppleAuthentication.isAvailableAsync())
       .then((available) => {
         if (active) setAppleAvailable(available);
       })
@@ -69,14 +96,20 @@ export function useSocialAuth() {
       toast.error('Google sign-in is not configured');
       return;
     }
+    if (!isGoogleNativeAvailable()) {
+      toast.error('Google sign-in requires a rebuilt Android app (expo run:android)');
+      return;
+    }
+
     setOauthProvider('google');
     let submitted = false;
     try {
-      configureGoogle();
-      await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
-      const response = await GoogleSignin.signIn();
+      const google = await loadGoogleSignin();
+      await configureGoogle();
+      await google.GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+      const response = await google.GoogleSignin.signIn();
 
-      if (!isSuccessResponse(response)) {
+      if (!google.isSuccessResponse(response)) {
         // User cancelled the picker — stay silent.
         return;
       }
@@ -94,11 +127,20 @@ export function useSocialAuth() {
       });
       submitted = true;
     } catch (error) {
-      if (isErrorWithCode(error) && error.code === statusCodes.SIGN_IN_CANCELLED) {
+      if (isGoogleNativeError(error)) {
+        toast.error('Google sign-in requires a rebuilt Android app (expo run:android)');
         return;
       }
-      if (isErrorWithCode(error) && error.code === statusCodes.IN_PROGRESS) {
-        return;
+      try {
+        const { isErrorWithCode, statusCodes } = await loadGoogleSignin();
+        if (isErrorWithCode(error) && error.code === statusCodes.SIGN_IN_CANCELLED) {
+          return;
+        }
+        if (isErrorWithCode(error) && error.code === statusCodes.IN_PROGRESS) {
+          return;
+        }
+      } catch {
+        // Ignore secondary load failures while classifying the original error.
       }
       toast.error('Google sign-in failed, please try again');
     } finally {
@@ -114,6 +156,7 @@ export function useSocialAuth() {
     setOauthProvider('apple');
     let submitted = false;
     try {
+      const AppleAuthentication = await loadAppleAuthentication();
       const credential = await AppleAuthentication.signInAsync({
         requestedScopes: [
           AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
