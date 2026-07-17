@@ -120,7 +120,7 @@ const styles = StyleSheet.create({
   },
   list: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
   },
   row: {
     flexDirection: 'row',

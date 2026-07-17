@@ -1,4 +1,5 @@
 import { DEMO_TASKS } from '@/src/data/demo-data';
+import { filterTasksByParam } from '@/src/features/tasks/adapter';
 import type {
   CreateTaskBody,
   CreateTasksBulkBody,
@@ -57,39 +58,12 @@ function toTask(
 
 let taskStore: Task[] = DEMO_TASKS.map((item) => toTask(item));
 
-function deriveGroup(dueAt?: string | null): 'today' | 'tomorrow' | 'upcoming' {
-  if (!dueAt) return 'upcoming';
-
-  const due = new Date(dueAt);
-  due.setHours(0, 0, 0, 0);
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const oneDay = 24 * 60 * 60 * 1000;
-
-  if (due.getTime() <= today.getTime()) return 'today';
-  if (due.getTime() === today.getTime() + oneDay) return 'tomorrow';
-  return 'upcoming';
-}
-
-function filterTasks(tasks: Task[], filter: TaskFilterParam): Task[] {
-  switch (filter) {
-    case 'today':
-      return tasks.filter((task) => deriveGroup(task.dueAt) === 'today');
-    case 'upcoming':
-      return tasks.filter((task) => deriveGroup(task.dueAt) !== 'today');
-    case 'done':
-      return tasks.filter((task) => task.done);
-    default:
-      return tasks;
-  }
-}
-
 function nextId(): string {
   return `offline-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
 export async function listTasks(filter: TaskFilterParam = 'all'): Promise<Task[]> {
-  return filterTasks(taskStore, filter);
+  return filterTasksByParam(taskStore, filter);
 }
 
 export async function createTask(body: CreateTaskBody): Promise<Task> {

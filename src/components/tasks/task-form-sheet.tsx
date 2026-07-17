@@ -95,139 +95,144 @@ export function TaskFormSheet({
   const pickerValue = picker === 'due' ? dueAt : picker === 'reminder' ? reminderAt : null;
 
   return (
-    <>
-      <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
-        <KeyboardAvoidingView
-          style={styles.root}
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    <Modal
+      visible={visible}
+      transparent
+      animationType="fade"
+      presentationStyle="overFullScreen"
+      onRequestClose={onClose}
+    >
+      <KeyboardAvoidingView
+        style={styles.root}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
+        <Pressable
+          style={styles.backdrop}
+          onPress={onClose}
+          accessibilityRole="button"
+          accessibilityLabel="Close"
+        />
+
+        <View
+          style={[
+            styles.sheet,
+            { backgroundColor: colors.surface, paddingBottom: insets.bottom + 16 },
+          ]}
         >
-          <Pressable
-            style={styles.backdrop}
-            onPress={onClose}
-            accessibilityRole="button"
-            accessibilityLabel="Close"
-          />
+          <View style={styles.headerRow}>
+            <Text style={[styles.title, { color: colors.text }]}>
+              {mode === 'edit' ? 'Edit task' : 'New task'}
+            </Text>
+            <Pressable onPress={onClose} hitSlop={8}>
+              <X size={22} color={colors.textSecondary} strokeWidth={2} />
+            </Pressable>
+          </View>
 
-          <View
-            style={[
-              styles.sheet,
-              { backgroundColor: colors.surface, paddingBottom: insets.bottom + 16 },
-            ]}
+          <ScrollView
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.form}
           >
-            <View style={styles.headerRow}>
-              <Text style={[styles.title, { color: colors.text }]}>
-                {mode === 'edit' ? 'Edit task' : 'New task'}
-              </Text>
-              <Pressable onPress={onClose} hitSlop={8}>
-                <X size={22} color={colors.textSecondary} strokeWidth={2} />
-              </Pressable>
-            </View>
+            <TextInput
+              value={title}
+              onChangeText={setTitle}
+              placeholder="What do you need to do?"
+              placeholderTextColor={colors.textSecondary}
+              autoFocus={mode === 'create'}
+              returnKeyType="next"
+              style={[
+                styles.input,
+                {
+                  color: colors.text,
+                  borderColor: colors.border,
+                  backgroundColor: colors.borderLight,
+                },
+              ]}
+            />
 
-            <ScrollView
-              keyboardShouldPersistTaps="handled"
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={styles.form}
-            >
-              <TextInput
-                value={title}
-                onChangeText={setTitle}
-                placeholder="What do you need to do?"
-                placeholderTextColor={colors.textSecondary}
-                autoFocus={mode === 'create'}
-                returnKeyType="next"
-                style={[
-                  styles.input,
-                  {
-                    color: colors.text,
-                    borderColor: colors.border,
-                    backgroundColor: colors.borderLight,
-                  },
-                ]}
-              />
+            <TextInput
+              value={notes}
+              onChangeText={setNotes}
+              placeholder="Notes (optional)"
+              placeholderTextColor={colors.textSecondary}
+              multiline
+              style={[
+                styles.input,
+                styles.notesInput,
+                {
+                  color: colors.text,
+                  borderColor: colors.border,
+                  backgroundColor: colors.borderLight,
+                },
+              ]}
+            />
 
-              <TextInput
-                value={notes}
-                onChangeText={setNotes}
-                placeholder="Notes (optional)"
-                placeholderTextColor={colors.textSecondary}
-                multiline
-                style={[
-                  styles.input,
-                  styles.notesInput,
-                  {
-                    color: colors.text,
-                    borderColor: colors.border,
-                    backgroundColor: colors.borderLight,
-                  },
-                ]}
-              />
-
-              <Text style={[styles.label, { color: colors.textSecondary }]}>Priority</Text>
-              <View style={styles.priorityRow}>
-                {PRIORITIES.map((option) => {
-                  const active = option === priority;
-                  return (
-                    <Pressable
-                      key={option}
-                      onPress={() => setPriority(option)}
+            <Text style={[styles.label, { color: colors.textSecondary }]}>Priority</Text>
+            <View style={styles.priorityRow}>
+              {PRIORITIES.map((option) => {
+                const active = option === priority;
+                return (
+                  <Pressable
+                    key={option}
+                    onPress={() => setPriority(option)}
+                    style={[
+                      styles.priorityChip,
+                      { borderColor: colors.border },
+                      active && { backgroundColor: colors.primary, borderColor: colors.primary },
+                    ]}
+                  >
+                    <Text
                       style={[
-                        styles.priorityChip,
-                        { borderColor: colors.border },
-                        active && { backgroundColor: colors.primary, borderColor: colors.primary },
+                        styles.priorityText,
+                        { color: active ? colors.textOnPrimary : colors.textSecondary },
                       ]}
                     >
-                      <Text
-                        style={[
-                          styles.priorityText,
-                          { color: active ? colors.textOnPrimary : colors.textSecondary },
-                        ]}
-                      >
-                        {option}
-                      </Text>
-                    </Pressable>
-                  );
-                })}
-              </View>
+                      {option}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
 
-              <DateField
-                icon={<CalendarClock size={18} color={colors.textSecondary} strokeWidth={2} />}
-                label="Due date"
-                value={formatDate(dueAt)}
-                onPress={() => setPicker('due')}
-                onClear={dueAt ? () => setDueAt(null) : undefined}
-              />
-              <DateField
-                icon={<Bell size={18} color={colors.textSecondary} strokeWidth={2} />}
-                label="Reminder"
-                value={formatDate(reminderAt)}
-                onPress={() => setPicker('reminder')}
-                onClear={reminderAt ? () => setReminderAt(null) : undefined}
-              />
-            </ScrollView>
-
-            <PrimaryButton
-              label={mode === 'edit' ? 'Save changes' : 'Add task'}
-              onPress={handleSubmit}
-              loading={submitting}
-              disabled={!title.trim()}
-              style={{ width: '100%', marginTop: 8 }}
+            <DateField
+              icon={<CalendarClock size={18} color={colors.textSecondary} strokeWidth={2} />}
+              label="Due date"
+              value={formatDate(dueAt)}
+              onPress={() => setPicker('due')}
+              onClear={dueAt ? () => setDueAt(null) : undefined}
             />
-          </View>
-        </KeyboardAvoidingView>
-      </Modal>
+            <DateField
+              icon={<Bell size={18} color={colors.textSecondary} strokeWidth={2} />}
+              label="Reminder"
+              value={formatDate(reminderAt)}
+              onPress={() => setPicker('reminder')}
+              onClear={reminderAt ? () => setReminderAt(null) : undefined}
+            />
+          </ScrollView>
 
-      <DatePickerModal
-        visible={picker !== null}
-        value={pickerValue}
-        minYear={currentYear}
-        maxYear={currentYear + 5}
-        onSelect={(date) => {
-          if (picker === 'due') setDueAt(date);
-          else if (picker === 'reminder') setReminderAt(date);
-        }}
-        onClose={() => setPicker(null)}
-      />
-    </>
+          <PrimaryButton
+            label={mode === 'edit' ? 'Save changes' : 'Add task'}
+            onPress={handleSubmit}
+            loading={submitting}
+            disabled={!title.trim()}
+            style={{ width: '100%', marginTop: 8 }}
+          />
+        </View>
+
+        <DatePickerModal
+          visible={picker !== null}
+          embedded
+          value={pickerValue}
+          minYear={currentYear}
+          maxYear={currentYear + 5}
+          onSelect={(date) => {
+            if (picker === 'due') setDueAt(date);
+            else if (picker === 'reminder') setReminderAt(date);
+          }}
+          onClose={() => setPicker(null)}
+        />
+      </KeyboardAvoidingView>
+    </Modal>
   );
 }
 

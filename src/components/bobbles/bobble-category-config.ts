@@ -1,11 +1,4 @@
-import {
-  Bell,
-  Dumbbell,
-  Leaf,
-  Lightbulb,
-  Luggage,
-  type LucideIcon,
-} from 'lucide-react-native';
+import { Bell, Dumbbell, Leaf, Lightbulb, Luggage, type LucideIcon } from 'lucide-react-native';
 
 import {
   DEFAULT_BOBBLE_CATEGORY,
@@ -43,9 +36,7 @@ export const BOBBLE_CATEGORY_STYLES: Record<BobbleCategory, BobbleCategoryStyle>
 };
 
 /** Resolves styles for known categories; unknown/missing values fall back to default. */
-export function getBobbleCategoryStyle(
-  category?: string | null
-): BobbleCategoryStyle {
+export function getBobbleCategoryStyle(category?: string | null): BobbleCategoryStyle {
   if (category && category in BOBBLE_CATEGORY_STYLES) {
     return BOBBLE_CATEGORY_STYLES[category as BobbleCategory];
   }

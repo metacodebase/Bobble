@@ -1,5 +1,5 @@
 import type { TaskItem } from '@/src/data/demo-data';
-import type { Task } from '@/src/features/tasks/types';
+import type { Task, TaskFilterParam } from '@/src/features/tasks/types';
 
 type TaskGroup = TaskItem['group'];
 
@@ -37,6 +37,20 @@ export function mapTaskToItem(task: Task): TaskItem {
     group: deriveGroup(task.dueAt),
     notes: task.notes,
   };
+}
+
+/** Filter by the device's local calendar day (not the server timezone). */
+export function filterTasksByParam(tasks: Task[], filter: TaskFilterParam): Task[] {
+  switch (filter) {
+    case 'today':
+      return tasks.filter((task) => deriveGroup(task.dueAt) === 'today');
+    case 'upcoming':
+      return tasks.filter((task) => deriveGroup(task.dueAt) !== 'today');
+    case 'done':
+      return tasks.filter((task) => task.done);
+    default:
+      return tasks;
+  }
 }
 
 const GROUP_ORDER: { label: string; key: TaskGroup }[] = [

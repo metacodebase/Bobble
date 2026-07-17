@@ -38,6 +38,11 @@ type DatePickerModalProps = {
   minYear?: number;
   /** Latest selectable year (inclusive). Defaults to the current year. */
   maxYear?: number;
+  /**
+   * Render as an absolute overlay instead of a Modal.
+   * Use when already inside another Modal (iOS cannot stack Modals reliably).
+   */
+  embedded?: boolean;
   onSelect: (date: Date) => void;
   onClose: () => void;
 };
@@ -61,6 +66,7 @@ export function DatePickerModal({
   value,
   minYear = 1920,
   maxYear = new Date().getFullYear(),
+  embedded = false,
   onSelect,
   onClose,
 }: DatePickerModalProps) {
@@ -74,12 +80,12 @@ export function DatePickerModal({
 
   useEffect(() => {
     if (visible) {
-      const base = value ?? new Date(2000, 0, 1);
-      setViewYear(base.getFullYear());
+      const base = value ?? new Date();
+      setViewYear(Math.min(maxYear, Math.max(minYear, base.getFullYear())));
       setViewMonth(base.getMonth());
       setYearMode(false);
     }
-  }, [visible, value]);
+  }, [visible, value, minYear, maxYear]);
 
   const weeks = useMemo(() => {
     const cells = buildMonthGrid(viewYear, viewMonth);
@@ -119,142 +125,161 @@ export function DatePickerModal({
     onClose();
   };
 
-  return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <View style={styles.root}>
-        <Pressable
-          style={styles.backdrop}
-          onPress={onClose}
-          accessibilityRole="button"
-          accessibilityLabel="Close"
-        />
+  if (embedded && !visible) return null;
 
-        <View
-          style={[
-            styles.sheet,
-            { backgroundColor: colors.surface, paddingBottom: insets.bottom + 16 },
-          ]}
-        >
-          <View style={[styles.handle, { backgroundColor: colors.border }]} />
+  const content = (
+    <View
+      style={[
+        styles.root,
+        embedded && [StyleSheet.absoluteFillObject, styles.embeddedOverlay],
+      ]}
+    >
+      <Pressable
+        style={styles.backdrop}
+        onPress={onClose}
+        accessibilityRole="button"
+        accessibilityLabel="Close"
+      />
 
-          <View style={styles.header}>
-            <Pressable onPress={goPrevMonth} hitSlop={12} disabled={yearMode}>
-              <ChevronLeft
-                size={24}
-                color={yearMode ? colors.border : colors.text}
-                strokeWidth={2}
-              />
-            </Pressable>
+      <View
+        style={[
+          styles.sheet,
+          { backgroundColor: colors.surface, paddingBottom: insets.bottom + 16 },
+        ]}
+      >
+        <View style={[styles.handle, { backgroundColor: colors.border }]} />
 
-            <Pressable onPress={() => setYearMode((v) => !v)} hitSlop={8}>
-              <Text style={[styles.monthLabel, { color: colors.text }]}>
-                {MONTHS[viewMonth]} {viewYear}
-              </Text>
-            </Pressable>
+        <View style={styles.header}>
+          <Pressable onPress={goPrevMonth} hitSlop={12} disabled={yearMode}>
+            <ChevronLeft
+              size={24}
+              color={yearMode ? colors.border : colors.text}
+              strokeWidth={2}
+            />
+          </Pressable>
 
-            <Pressable onPress={goNextMonth} hitSlop={12} disabled={yearMode}>
-              <ChevronRight
-                size={24}
-                color={yearMode ? colors.border : colors.text}
-                strokeWidth={2}
-              />
-            </Pressable>
-          </View>
+          <Pressable onPress={() => setYearMode((v) => !v)} hitSlop={8}>
+            <Text style={[styles.monthLabel, { color: colors.text }]}>
+              {MONTHS[viewMonth]} {viewYear}
+            </Text>
+          </Pressable>
 
-          {yearMode ? (
-            <ScrollView
-              style={styles.yearScroll}
-              contentContainerStyle={styles.yearGrid}
-              showsVerticalScrollIndicator={false}
-            >
-              {years.map((year) => {
-                const selected = year === viewYear;
-                return (
-                  <Pressable
-                    key={year}
-                    onPress={() => {
-                      setViewYear(year);
-                      setYearMode(false);
-                    }}
+          <Pressable onPress={goNextMonth} hitSlop={12} disabled={yearMode}>
+            <ChevronRight
+              size={24}
+              color={yearMode ? colors.border : colors.text}
+              strokeWidth={2}
+            />
+          </Pressable>
+        </View>
+
+        {yearMode ? (
+          <ScrollView
+            style={styles.yearScroll}
+            contentContainerStyle={styles.yearGrid}
+            showsVerticalScrollIndicator={false}
+          >
+            {years.map((year) => {
+              const selected = year === viewYear;
+              return (
+                <Pressable
+                  key={year}
+                  onPress={() => {
+                    setViewYear(year);
+                    setYearMode(false);
+                  }}
+                  style={[
+                    styles.yearCell,
+                    { backgroundColor: selected ? colors.primary : colors.borderLight },
+                  ]}
+                >
+                  <Text
                     style={[
-                      styles.yearCell,
-                      { backgroundColor: selected ? colors.primary : colors.borderLight },
+                      styles.yearText,
+                      { color: selected ? colors.textOnPrimary : colors.text },
                     ]}
                   >
-                    <Text
-                      style={[
-                        styles.yearText,
-                        { color: selected ? colors.textOnPrimary : colors.text },
-                      ]}
-                    >
-                      {year}
-                    </Text>
-                  </Pressable>
-                );
-              })}
-            </ScrollView>
-          ) : (
-            <>
-              <View style={styles.weekdays}>
-                {WEEKDAYS.map((day) => (
-                  <Text
-                    key={day}
-                    style={[styles.weekday, { color: colors.textSecondary }]}
-                  >
-                    {day}
+                    {year}
                   </Text>
-                ))}
-              </View>
+                </Pressable>
+              );
+            })}
+          </ScrollView>
+        ) : (
+          <>
+            <View style={styles.weekdays}>
+              {WEEKDAYS.map((day) => (
+                <Text
+                  key={day}
+                  style={[styles.weekday, { color: colors.textSecondary }]}
+                >
+                  {day}
+                </Text>
+              ))}
+            </View>
 
-              <View style={styles.grid}>
-                {weeks.map((week, weekIndex) => (
-                  <View key={weekIndex} style={styles.weekRow}>
-                    {week.map((day, dayIndex) => {
-                      const selected =
-                        day != null &&
-                        value != null &&
-                        isSameDay(value, viewYear, viewMonth, day);
-                      return (
-                        <View key={dayIndex} style={styles.cell}>
-                          {day ? (
-                            <Pressable
-                              onPress={() => handleSelectDay(day)}
+            <View style={styles.grid}>
+              {weeks.map((week, weekIndex) => (
+                <View key={weekIndex} style={styles.weekRow}>
+                  {week.map((day, dayIndex) => {
+                    const selected =
+                      day != null &&
+                      value != null &&
+                      isSameDay(value, viewYear, viewMonth, day);
+                    return (
+                      <View key={dayIndex} style={styles.cell}>
+                        {day ? (
+                          <Pressable
+                            onPress={() => handleSelectDay(day)}
+                            style={[
+                              styles.dayWrap,
+                              selected && { backgroundColor: colors.primary },
+                            ]}
+                            android_ripple={{
+                              color: colors.primary + '33',
+                              borderless: true,
+                              radius: DAY_SIZE / 2,
+                            }}
+                          >
+                            <Text
                               style={[
-                                styles.dayWrap,
-                                selected && { backgroundColor: colors.primary },
+                                styles.day,
+                                { color: colors.text },
+                                selected && {
+                                  color: colors.textOnPrimary,
+                                  fontFamily: Typography.button.fontFamily,
+                                },
                               ]}
-                              android_ripple={{
-                                color: colors.primary + '33',
-                                borderless: true,
-                                radius: DAY_SIZE / 2,
-                              }}
                             >
-                              <Text
-                                style={[
-                                  styles.day,
-                                  { color: colors.text },
-                                  selected && {
-                                    color: colors.textOnPrimary,
-                                    fontFamily: Typography.button.fontFamily,
-                                  },
-                                ]}
-                              >
-                                {day}
-                              </Text>
-                            </Pressable>
-                          ) : (
-                            <View style={styles.daySpacer} />
-                          )}
-                        </View>
-                      );
-                    })}
-                  </View>
-                ))}
-              </View>
-            </>
-          )}
-        </View>
+                              {day}
+                            </Text>
+                          </Pressable>
+                        ) : (
+                          <View style={styles.daySpacer} />
+                        )}
+                      </View>
+                    );
+                  })}
+                </View>
+              ))}
+            </View>
+          </>
+        )}
       </View>
+    </View>
+  );
+
+  if (embedded) return content;
+
+  return (
+    <Modal
+      visible={visible}
+      transparent
+      animationType="slide"
+      presentationStyle="overFullScreen"
+      onRequestClose={onClose}
+    >
+      {content}
     </Modal>
   );
 }
@@ -263,6 +288,10 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
     justifyContent: 'flex-end',
+  },
+  embeddedOverlay: {
+    zIndex: 20,
+    elevation: 20,
   },
   backdrop: {
     ...StyleSheet.absoluteFillObject,

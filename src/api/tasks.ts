@@ -1,5 +1,6 @@
 import { API } from '@/src/api/endpoints';
 import { BACKEND_ALLOWED } from '@/src/config/backend';
+import { filterTasksByParam } from '@/src/features/tasks/adapter';
 import type {
   CreateTaskBody,
   CreateTasksBulkBody,
@@ -12,9 +13,10 @@ import { offlineTasks } from '@/src/services/offline';
 
 export async function listTasks(filter: TaskFilterParam = 'all'): Promise<Task[]> {
   if (!BACKEND_ALLOWED) return offlineTasks.listTasks(filter);
-  const qs = buildQueryString({ filter });
+  // Fetch all, then filter on-device so "today"/"upcoming" match the user's local day.
+  const qs = buildQueryString({ filter: 'all' });
   const res = await api.get<Task[]>(`${API.tasks.root}${qs}`);
-  return unwrap(res);
+  return filterTasksByParam(unwrap(res), filter);
 }
 
 export async function createTask(body: CreateTaskBody): Promise<Task> {

@@ -29,6 +29,12 @@ const STEPS = [
 
 type ProcessPhase = 'running' | 'ready' | 'error';
 
+function deleteOrphanBobble(id: string) {
+  bobblesApi.deleteBobble(id).catch((error) => {
+    logApiError('capture orphan cleanup failed', error);
+  });
+}
+
 export default function ProcessingScreen() {
   const colors = useBobbleColors();
   const night = useNightForeground();
@@ -51,6 +57,10 @@ export default function ProcessingScreen() {
   }, []);
 
   const handleDiscard = useCallback(() => {
+    const pending = useCaptureStore.getState().pendingBobbleSave;
+    if (pending?.createdBobbleId) {
+      deleteOrphanBobble(pending.createdBobbleId);
+    }
     clearRecording();
     useCaptureStore.getState().clearPendingBobbleSave();
     router.replace('/(tabs)' as Href);
@@ -58,6 +68,8 @@ export default function ProcessingScreen() {
 
   useEffect(() => {
     let cancelled = false;
+    let orphanBobbleId: string | null = null;
+    let processingSucceeded = false;
 
     setPhase('running');
     setCompletedCount(0);
@@ -80,7 +92,12 @@ export default function ProcessingScreen() {
           skipProcess: true,
         });
 
-        if (cancelled) return;
+        orphanBobbleId = bobble._id;
+
+        if (cancelled) {
+          deleteOrphanBobble(bobble._id);
+          return;
+        }
         setCompletedCount(1);
 
         useCaptureStore.getState().setPendingBobbleSave({
@@ -142,6 +159,8 @@ export default function ProcessingScreen() {
 
         setCompletedCount(4);
         setPhase('ready');
+        processingSucceeded = true;
+        orphanBobbleId = null;
       } catch (error) {
         const message = getApiErrorMessage(error, 'Could not process your recording');
         logApiError('capture process failed', error);
@@ -154,6 +173,9 @@ export default function ProcessingScreen() {
 
     return () => {
       cancelled = true;
+      if (!processingSucceeded && orphanBobbleId) {
+        deleteOrphanBobble(orphanBobbleId);
+      }
     };
   }, [recordingUri, recordingDurationSeconds, retryToken]);
 

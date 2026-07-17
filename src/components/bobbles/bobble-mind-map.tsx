@@ -1,9 +1,8 @@
-import { Dumbbell } from 'lucide-react-native';
 import { StyleSheet, Text, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 
-import type { MindMapNode } from '@/src/features/bobbles/types';
 import { DEMO_MIND_MAP } from '@/src/data/demo-data';
+import type { MindMapNode } from '@/src/features/bobbles/types';
 import { Typography } from '@/src/theme/fonts';
 
 const MAP_TEXT = '#17164B';
@@ -92,6 +91,8 @@ function MindMapNodeCard({ node }: MindMapNodeCardProps) {
           left: layout.x,
           top: layout.y,
           width: layout.width,
+          justifyContent: 'center',
+          alignItems: 'center',
           backgroundColor: node.backgroundColor ?? '#EDE9FE',
         },
       ]}
@@ -118,9 +119,7 @@ export function BobbleMindMap({
       <View style={styles.canvas}>
         <View style={[styles.centerCard, { left: CENTER.x, top: CENTER.y, width: CENTER.width }]}>
           <Text style={styles.centerTitle}>{centerTitle}</Text>
-          <View style={styles.centerIconCircle}>
-            <Dumbbell size={18} color="#9F52F2" strokeWidth={2.2} />
-          </View>
+         
         </View>
 
         <Svg
@@ -218,11 +217,13 @@ const styles = StyleSheet.create({
     fontSize: 13,
     lineHeight: 17,
     color: MAP_TEXT,
+    textAlign: 'center',
   },
   nodeSubtitle: {
     ...Typography.caption,
     fontSize: 10,
     lineHeight: 14,
     color: '#4B5563',
+    textAlign: 'center',
   },
 });

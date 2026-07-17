@@ -5,7 +5,7 @@ import { useCallback, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { tasksApi } from '@/src/api';
+import { bobblesApi, tasksApi } from '@/src/api';
 import { CaptureHeader } from '@/src/components/capture/capture-header';
 import { GeneratedTaskRow } from '@/src/components/capture/generated-task-row';
 import { PrimaryButton } from '@/src/components/onboarding/primary-button';
@@ -131,6 +131,12 @@ export default function SuggestionsScreen() {
   );
 
   const handleDiscard = useCallback(() => {
+    const pending = useCaptureStore.getState().pendingBobbleSave;
+    if (pending?.createdBobbleId) {
+      bobblesApi.deleteBobble(pending.createdBobbleId).catch((error) => {
+        logApiError('capture discard cleanup failed', error);
+      });
+    }
     clearRecording();
     useCaptureStore.getState().clearPendingBobbleSave();
     router.replace('/(tabs)' as Href);
