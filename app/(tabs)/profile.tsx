@@ -4,7 +4,6 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ProfileAvatar } from '@/src/components/create-account/profile-avatar';
-import { BadgeRow } from '@/src/components/profile/badge-row';
 import { StatCard } from '@/src/components/profile/stat-card';
 import { ProfileMenuRow } from '@/src/components/ui/profile-menu-row';
 import { ScreenHeader } from '@/src/components/ui/screen-header';
@@ -61,19 +60,10 @@ export default function ProfileScreen() {
           <Text style={[styles.name, { color: colors.text }]}>{displayName}</Text>
 
           <View style={styles.statsRow}>
-            <StatCard compact label="Streak" value={gamification?.streak ?? 0} />
             <StatCard compact label="Bobbles" value={gamification?.bobbles ?? 0} />
             <StatCard compact label="Tasks" value={gamification?.tasks ?? 0} />
           </View>
         </View>
-
-        <View style={styles.badgeWrap}>
-          <BadgeRow
-            badges={gamification?.badges}
-            onSeeAll={() => router.push('/settings/stars' as Href)}
-          />
-        </View>
-
         <View style={[styles.menu, { backgroundColor: colors.surface, borderColor: colors.border }]}>
           {PROFILE_MENU.map((item) => (
             <ProfileMenuRow

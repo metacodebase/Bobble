@@ -65,7 +65,6 @@ export default function TasksScreen() {
         notes: task.notes,
         priority: task.priority,
         dueAt: task.dueAt ?? null,
-        reminderAt: task.reminderAt ?? null,
       },
     });
   };

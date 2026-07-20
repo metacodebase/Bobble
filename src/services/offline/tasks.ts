@@ -75,7 +75,6 @@ export async function createTask(body: CreateTaskBody): Promise<Task> {
     notes: body.notes,
     done: body.done ?? false,
     dueAt: body.dueAt ?? null,
-    reminderAt: body.reminderAt ?? null,
     priority: body.priority ?? 'medium',
     bobble: body.bobble,
     createdAt: now,

@@ -1,4 +1,4 @@
-import { Bell, CalendarClock, X } from 'lucide-react-native';
+import { CalendarClock, X } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
 import {
   KeyboardAvoidingView,
@@ -26,7 +26,6 @@ export interface TaskFormValues {
   notes?: string;
   priority: TaskPriority;
   dueAt: string | null;
-  reminderAt: string | null;
 }
 
 type TaskFormSheetProps = {
@@ -37,8 +36,6 @@ type TaskFormSheetProps = {
   onClose: () => void;
   onSubmit: (values: TaskFormValues) => void;
 };
-
-type PickerTarget = 'due' | 'reminder' | null;
 
 function toDate(value?: string | null): Date | null {
   if (!value) return null;
@@ -67,8 +64,7 @@ export function TaskFormSheet({
   const [notes, setNotes] = useState('');
   const [priority, setPriority] = useState<TaskPriority>('medium');
   const [dueAt, setDueAt] = useState<Date | null>(null);
-  const [reminderAt, setReminderAt] = useState<Date | null>(null);
-  const [picker, setPicker] = useState<PickerTarget>(null);
+  const [pickerOpen, setPickerOpen] = useState(false);
 
   useEffect(() => {
     if (!visible) return;
@@ -76,8 +72,7 @@ export function TaskFormSheet({
     setNotes(initial?.notes ?? '');
     setPriority(initial?.priority ?? 'medium');
     setDueAt(toDate(initial?.dueAt));
-    setReminderAt(toDate(initial?.reminderAt));
-    setPicker(null);
+    setPickerOpen(false);
   }, [visible, initial]);
 
   const handleSubmit = () => {
@@ -88,11 +83,8 @@ export function TaskFormSheet({
       notes: notes.trim() ? notes.trim() : undefined,
       priority,
       dueAt: dueAt ? dueAt.toISOString() : null,
-      reminderAt: reminderAt ? reminderAt.toISOString() : null,
     });
   };
-
-  const pickerValue = picker === 'due' ? dueAt : picker === 'reminder' ? reminderAt : null;
 
   return (
     <Modal
@@ -198,15 +190,8 @@ export function TaskFormSheet({
               icon={<CalendarClock size={18} color={colors.textSecondary} strokeWidth={2} />}
               label="Due date"
               value={formatDate(dueAt)}
-              onPress={() => setPicker('due')}
+              onPress={() => setPickerOpen(true)}
               onClear={dueAt ? () => setDueAt(null) : undefined}
-            />
-            <DateField
-              icon={<Bell size={18} color={colors.textSecondary} strokeWidth={2} />}
-              label="Reminder"
-              value={formatDate(reminderAt)}
-              onPress={() => setPicker('reminder')}
-              onClear={reminderAt ? () => setReminderAt(null) : undefined}
             />
           </ScrollView>
 
@@ -220,16 +205,13 @@ export function TaskFormSheet({
         </View>
 
         <DatePickerModal
-          visible={picker !== null}
+          visible={pickerOpen}
           embedded
-          value={pickerValue}
+          value={dueAt}
           minYear={currentYear}
           maxYear={currentYear + 5}
-          onSelect={(date) => {
-            if (picker === 'due') setDueAt(date);
-            else if (picker === 'reminder') setReminderAt(date);
-          }}
-          onClose={() => setPicker(null)}
+          onSelect={setDueAt}
+          onClose={() => setPickerOpen(false)}
         />
       </KeyboardAvoidingView>
     </Modal>

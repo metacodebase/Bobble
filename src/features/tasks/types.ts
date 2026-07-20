@@ -11,7 +11,6 @@ export interface Task {
   done: boolean;
   completedAt?: string | null;
   dueAt?: string | null;
-  reminderAt?: string | null;
   priority: TaskPriority;
   createdAt: string;
   updatedAt: string;
@@ -23,7 +22,6 @@ export interface CreateTaskBody {
   bobble?: string;
   done?: boolean;
   dueAt?: string | null;
-  reminderAt?: string | null;
   priority?: TaskPriority;
 }
 

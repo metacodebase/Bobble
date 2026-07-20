@@ -1,4 +1,4 @@
-import { ChevronRight, Star } from 'lucide-react-native';
+import { Star } from 'lucide-react-native';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import type { Badge, BadgeTone } from '@/src/features/auth/types';
@@ -44,13 +44,13 @@ export function BadgeRow({ badges = [], onSeeAll }: BadgeRowProps) {
         disabled={!onSeeAll}
         hitSlop={8}
       >
-        <Text style={[styles.title, { color: colors.text }]}>Your Stars</Text>
+        {/* <Text style={[styles.title, { color: colors.text }]}>Your Stars</Text>
         {onSeeAll ? (
           <View style={styles.seeAll}>
             <Text style={[styles.seeAllText, { color: colors.primary }]}>See all</Text>
             <ChevronRight size={16} color={colors.primary} strokeWidth={2.5} />
           </View>
-        ) : null}
+        ) : null} */}
       </Pressable>
       {badges.length === 0 ? (
         <Text style={[styles.empty, { color: colors.textSecondary }]}>
