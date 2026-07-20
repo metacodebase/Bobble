@@ -90,6 +90,28 @@ export function useDeleteBobble() {
   });
 }
 
+export function useArchiveBobble() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => bobblesApi.archiveBobble(id),
+    onMutate: async (id: string) => {
+      await qc.cancelQueries({ queryKey: queryKeys.bobbles.all });
+      const snapshot = qc.getQueriesData<Bobble[]>({ queryKey: ['bobbles', 'list'] });
+      qc.setQueriesData<Bobble[]>({ queryKey: ['bobbles', 'list'] }, (prev) =>
+        prev?.filter((bobble) => bobble._id !== id),
+      );
+      return { snapshot } as { snapshot: BobblesSnapshot };
+    },
+    onError: (e, _id, context) => {
+      context?.snapshot.forEach(([key, data]) => qc.setQueryData(key, data));
+      toast.error(getApiErrorMessage(e, 'Could not archive bobble'));
+    },
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.bobbles.all });
+    },
+  });
+}
+
 export function useProcessBobble() {
   const qc = useQueryClient();
   return useMutation({

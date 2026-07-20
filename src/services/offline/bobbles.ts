@@ -70,6 +70,7 @@ let store: Bobble[] = DEMO_BOBBLES.map(demoToBobble);
 
 export async function listBobbles(params: ListBobblesParams = {}): Promise<Bobble[]> {
   let items = [...store];
+  items = items.filter((b) => !b.archived);
   if (params.category) {
     items = items.filter((b) => b.category === params.category);
   }
@@ -150,6 +151,10 @@ export async function updateBobble(id: string, body: UpdateBobbleBody): Promise<
 export async function deleteBobble(id: string): Promise<{ id: string }> {
   store = store.filter((b) => b._id !== id);
   return { id };
+}
+
+export async function archiveBobble(id: string): Promise<Bobble> {
+  return updateBobble(id, { archived: true });
 }
 
 export async function processBobble(id: string): Promise<Bobble> {

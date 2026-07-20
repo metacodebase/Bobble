@@ -15,7 +15,7 @@ import {
   filterCategoryFromChip,
   formatBobbleDateLabel,
 } from '@/src/features/bobbles/format';
-import { useBobbles, useDeleteBobble } from '@/src/hooks/bobbles';
+import { useBobbles, useArchiveBobble, useDeleteBobble } from '@/src/hooks/bobbles';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { useNightForeground } from '@/src/hooks/use-night-foreground';
 import { useTabBarInsets } from '@/src/hooks/use-tab-bar-insets';
@@ -37,6 +37,7 @@ export default function BobblesScreen() {
     limit: 50,
   });
   const deleteBobble = useDeleteBobble();
+  const archiveBobble = useArchiveBobble();
 
   const bobbles = useMemo(() => data ?? [], [data]);
 
@@ -95,6 +96,12 @@ export default function BobblesScreen() {
                 if (deleteBobble.isPending) return;
                 deleteBobble.mutate(item._id, {
                   onSuccess: () => toast.success('Bobble deleted'),
+                });
+              }}
+              onArchive={() => {
+                if (archiveBobble.isPending) return;
+                archiveBobble.mutate(item._id, {
+                  onSuccess: () => toast.success('Bobble archived'),
                 });
               }}
             />

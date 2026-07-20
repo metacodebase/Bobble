@@ -63,7 +63,6 @@ export default function TasksScreen() {
       initial: {
         title: task.title,
         notes: task.notes,
-        priority: task.priority,
         dueAt: task.dueAt ?? null,
       },
     });

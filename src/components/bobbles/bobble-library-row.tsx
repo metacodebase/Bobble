@@ -1,4 +1,4 @@
-import { MoreHorizontal, Trash2 } from 'lucide-react-native';
+import { Archive, Trash2 } from 'lucide-react-native';
 import { useRef } from 'react';
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Swipeable } from 'react-native-gesture-handler';
@@ -13,8 +13,8 @@ type BobbleLibraryRowProps = {
   timestamp: string;
   category?: BobbleCategory | string | null;
   onPress?: () => void;
-  onMenuPress?: () => void;
   onDelete?: () => void;
+  onArchive?: () => void;
 };
 
 export function BobbleLibraryRow({
@@ -22,8 +22,8 @@ export function BobbleLibraryRow({
   timestamp,
   category,
   onPress,
-  onMenuPress,
   onDelete,
+  onArchive,
 }: BobbleLibraryRowProps) {
   const colors = useBobbleColors();
   const categoryStyle = getBobbleCategoryStyle(category);
@@ -44,15 +44,41 @@ export function BobbleLibraryRow({
     ]);
   };
 
-  const renderRightActions = () => (
-    <Pressable
-      onPress={confirmDelete}
-      style={[styles.deleteAction, { backgroundColor: colors.error }]}
-    >
-      <Trash2 size={20} color={colors.textOnPrimary} strokeWidth={2} />
-      <Text style={[styles.deleteText, { color: colors.textOnPrimary }]}>Delete</Text>
-    </Pressable>
-  );
+  const confirmArchive = () => {
+    if (!onArchive) return;
+    Alert.alert('Archive bobble', `Archive "${title}"?`, [
+      { text: 'Cancel', style: 'cancel', onPress: () => swipeableRef.current?.close() },
+      {
+        text: 'Archive',
+        onPress: () => {
+          swipeableRef.current?.close();
+          onArchive();
+        },
+      },
+    ]);
+  };
+
+  const renderRightActions = () =>
+    onDelete ? (
+      <Pressable
+        onPress={confirmDelete}
+        style={[styles.action, { backgroundColor: colors.error }]}
+      >
+        <Trash2 size={20} color={colors.textOnPrimary} strokeWidth={2} />
+        <Text style={[styles.actionText, { color: colors.textOnPrimary }]}>Delete</Text>
+      </Pressable>
+    ) : null;
+
+  const renderLeftActions = () =>
+    onArchive ? (
+      <Pressable
+        onPress={confirmArchive}
+        style={[styles.action, { backgroundColor: colors.warning }]}
+      >
+        <Archive size={20} color={colors.textOnPrimary} strokeWidth={2} />
+        <Text style={[styles.actionText, { color: colors.textOnPrimary }]}>Archive</Text>
+      </Pressable>
+    ) : null;
 
   const content = (
     <View style={styles.cardContainer}>
@@ -77,20 +103,19 @@ export function BobbleLibraryRow({
             {timestamp}
           </Text>
         </View>
-        <Pressable onPress={onMenuPress} hitSlop={10} style={styles.menu}>
-          <MoreHorizontal size={20} color={colors.primaryLight} strokeWidth={2} />
-        </Pressable>
       </Pressable>
     </View>
   );
 
-  if (!onDelete) return content;
+  if (!onDelete && !onArchive) return content;
 
   return (
     <Swipeable
       ref={swipeableRef}
-      renderRightActions={renderRightActions}
+      renderRightActions={onDelete ? renderRightActions : undefined}
+      renderLeftActions={onArchive ? renderLeftActions : undefined}
       overshootRight={false}
+      overshootLeft={false}
       friction={2}
     >
       {content}
@@ -142,11 +167,7 @@ const styles = StyleSheet.create({
     fontSize: 11,
     lineHeight: 15,
   },
-  menu: {
-    alignSelf: 'center',
-    padding: 4,
-  },
-  deleteAction: {
+  action: {
     justifyContent: 'center',
     alignItems: 'center',
     width: 88,
@@ -154,7 +175,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     marginVertical: 1,
   },
-  deleteText: {
+  actionText: {
     ...Typography.caption,
   },
 });

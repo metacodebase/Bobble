@@ -63,6 +63,7 @@ export interface Bobble {
   };
   iconVariant?: BobbleIconVariant;
   suggestedTasks?: string[];
+  archived?: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -91,6 +92,7 @@ export interface CreateBobbleBody {
   };
   iconVariant?: BobbleIconVariant;
   suggestedTasks?: string[];
+  archived?: boolean;
   /** Leave bobble unprocessed until audio upload triggers the AI pipeline. */
   skipProcess?: boolean;
 }

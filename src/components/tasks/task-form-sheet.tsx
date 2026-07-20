@@ -15,16 +15,12 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { DatePickerModal } from '@/src/components/create-account/date-picker-modal';
 import { PrimaryButton } from '@/src/components/onboarding/primary-button';
-import type { TaskPriority } from '@/src/features/tasks/types';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { Typography } from '@/src/theme/fonts';
-
-const PRIORITIES: TaskPriority[] = ['low', 'medium', 'high'];
 
 export interface TaskFormValues {
   title: string;
   notes?: string;
-  priority: TaskPriority;
   dueAt: string | null;
 }
 
@@ -62,7 +58,6 @@ export function TaskFormSheet({
 
   const [title, setTitle] = useState('');
   const [notes, setNotes] = useState('');
-  const [priority, setPriority] = useState<TaskPriority>('medium');
   const [dueAt, setDueAt] = useState<Date | null>(null);
   const [pickerOpen, setPickerOpen] = useState(false);
 
@@ -70,7 +65,6 @@ export function TaskFormSheet({
     if (!visible) return;
     setTitle(initial?.title ?? '');
     setNotes(initial?.notes ?? '');
-    setPriority(initial?.priority ?? 'medium');
     setDueAt(toDate(initial?.dueAt));
     setPickerOpen(false);
   }, [visible, initial]);
@@ -81,7 +75,6 @@ export function TaskFormSheet({
     onSubmit({
       title: trimmed,
       notes: notes.trim() ? notes.trim() : undefined,
-      priority,
       dueAt: dueAt ? dueAt.toISOString() : null,
     });
   };
@@ -158,33 +151,6 @@ export function TaskFormSheet({
                 },
               ]}
             />
-
-            <Text style={[styles.label, { color: colors.textSecondary }]}>Priority</Text>
-            <View style={styles.priorityRow}>
-              {PRIORITIES.map((option) => {
-                const active = option === priority;
-                return (
-                  <Pressable
-                    key={option}
-                    onPress={() => setPriority(option)}
-                    style={[
-                      styles.priorityChip,
-                      { borderColor: colors.border },
-                      active && { backgroundColor: colors.primary, borderColor: colors.primary },
-                    ]}
-                  >
-                    <Text
-                      style={[
-                        styles.priorityText,
-                        { color: active ? colors.textOnPrimary : colors.textSecondary },
-                      ]}
-                    >
-                      {option}
-                    </Text>
-                  </Pressable>
-                );
-              })}
-            </View>
 
             <DateField
               icon={<CalendarClock size={18} color={colors.textSecondary} strokeWidth={2} />}
@@ -292,25 +258,6 @@ const styles = StyleSheet.create({
   notesInput: {
     minHeight: 72,
     textAlignVertical: 'top',
-  },
-  label: {
-    ...Typography.formLabel,
-    marginTop: 4,
-  },
-  priorityRow: {
-    flexDirection: 'row',
-    gap: 10,
-  },
-  priorityChip: {
-    flex: 1,
-    borderWidth: 1,
-    borderRadius: 20,
-    paddingVertical: 10,
-    alignItems: 'center',
-  },
-  priorityText: {
-    ...Typography.caption,
-    textTransform: 'capitalize',
   },
   dateField: {
     flexDirection: 'row',

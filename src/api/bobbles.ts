@@ -47,6 +47,11 @@ export async function deleteBobble(id: string): Promise<{ id: string }> {
   return unwrap(res);
 }
 
+export async function archiveBobble(id: string): Promise<Bobble> {
+  if (!BACKEND_ALLOWED) return offlineBobbles.archiveBobble(id);
+  return updateBobble(id, { archived: true });
+}
+
 export async function processBobble(id: string): Promise<Bobble> {
   if (!BACKEND_ALLOWED) return offlineBobbles.processBobble(id);
   const res = await api.post<Bobble, Record<string, never>>(API.bobbles.process(id), {});
