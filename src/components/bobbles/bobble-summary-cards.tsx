@@ -1,4 +1,4 @@
-import { Bell, Dumbbell, Heart, Leaf, LucideIcon, Target } from 'lucide-react-native';
+import { Bell, Dumbbell, Leaf, LucideIcon, Target } from 'lucide-react-native';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { Typography } from '@/src/theme/fonts';
@@ -53,13 +53,9 @@ function SummaryCard({ label, value }: SummaryCardItem) {
 
 type BobbleSummaryCardsProps = {
   items: readonly SummaryCardItem[];
-  motivation?: string;
 };
 
-export function BobbleSummaryCards({
-  items,
-  motivation = "You're on the right track! Consistency is key.",
-}: BobbleSummaryCardsProps) {
+export function BobbleSummaryCards({ items }: BobbleSummaryCardsProps) {
   const pairs: SummaryCardItem[][] = [];
   for (let i = 0; i < items.length; i += 2) {
     pairs.push(items.slice(i, i + 2));
@@ -78,11 +74,6 @@ export function BobbleSummaryCards({
             {row.length === 1 ? <View style={styles.gridCell} /> : null}
           </View>
         ))}
-      </View>
-
-      <View style={styles.motivation}>
-        <Heart size={18} color="#9F52F2" fill="#9F52F2" strokeWidth={0} />
-        <Text style={styles.motivationText}>{motivation}</Text>
       </View>
     </View>
   );
@@ -133,21 +124,5 @@ const styles = StyleSheet.create({
     fontSize: 13,
     lineHeight: 18,
     color: '#6B7280',
-  },
-  motivation: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    backgroundColor: 'rgba(159, 82, 242, 0.12)',
-    borderRadius: 16,
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-  },
-  motivationText: {
-    ...Typography.body,
-    flex: 1,
-    fontSize: 14,
-    lineHeight: 20,
-    color: '#5B21B6',
   },
 });

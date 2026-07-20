@@ -1,11 +1,13 @@
 import { Image } from 'expo-image';
-import { Ear, Lightbulb, List } from 'lucide-react-native';
+import { Check, Ear, Lightbulb, List } from 'lucide-react-native';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { Typography } from '@/src/theme/fonts';
 
 const PROCESSING_TEXT = '#17164B';
+const CHECK_GREEN = '#22C55E';
+const CHECK_GREEN_LIGHT = '#DCFCE7';
 const BOBBLE_ICON = require('@/src/assets/images/bobble-tab-active.png');
 
 export type ProcessingStep = {
@@ -17,29 +19,17 @@ export type ProcessingStep = {
 type ProcessingChecklistProps = {
   steps: readonly ProcessingStep[];
   completedCount: number;
+  revealedCount: number;
 };
 
 const ICON_BOX = 36;
+const CHECK_BOX = 26;
 
-function StepIcon({
-  type,
-  highlighted,
-}: {
-  type: ProcessingStep['icon'];
-  highlighted: boolean;
-}) {
+function StepIcon({ type }: { type: ProcessingStep['icon'] }) {
   const colors = useBobbleColors();
-  const iconColor = highlighted ? colors.textOnPrimary : colors.primary;
 
   return (
-    <View
-      style={[
-        styles.iconBox,
-        {
-          backgroundColor: colors.primary + '18',
-        },
-      ]}
-    >
+    <View style={[styles.iconBox, { backgroundColor: `${colors.primary}18` }]}>
       {type === 'ear' ? (
         <Ear size={18} color={colors.primaryLight} strokeWidth={2.2} />
       ) : type === 'list' ? (
@@ -53,33 +43,43 @@ function StepIcon({
   );
 }
 
-export function ProcessingChecklist({ steps, completedCount }: ProcessingChecklistProps) {
+function CompletedCheck() {
+  return (
+    <View style={styles.checkCircle}>
+      <Check size={13} color={CHECK_GREEN} strokeWidth={3} />
+    </View>
+  );
+}
+
+export function ProcessingChecklist({
+  steps,
+  completedCount,
+  revealedCount,
+}: ProcessingChecklistProps) {
   const colors = useBobbleColors();
 
   return (
     <View style={[styles.container, { backgroundColor: `${colors.primary}14` }]}>
       {steps.map((step, index) => {
-        const done = index < completedCount;
-        const active = index === completedCount;
+        const done = index < revealedCount;
         const pending = index > completedCount;
-        const highlighted = done || active;
+        const active = !done && !pending;
 
         return (
-          <View
-            key={step.id}
-            style={[styles.card, pending && styles.cardPending]}
-          >
-            <StepIcon type={step.icon} highlighted={highlighted} />
+          <View key={step.id} style={[styles.card, pending && styles.cardPending]}>
+            <StepIcon type={step.icon} />
             <Text
               style={[
                 styles.label,
                 { color: PROCESSING_TEXT },
                 pending && styles.labelPending,
-                (done || active) && styles.labelActive,
+                active && styles.labelActive,
+                done && styles.labelDone,
               ]}
             >
               {step.label}
             </Text>
+            {done ? <CompletedCheck /> : <View style={styles.checkPlaceholder} />}
           </View>
         );
       })}
@@ -90,6 +90,7 @@ export function ProcessingChecklist({ steps, completedCount }: ProcessingCheckli
 const styles = StyleSheet.create({
   container: {
     width: '100%',
+    alignSelf: 'stretch',
     borderRadius: 24,
     padding: 10,
     gap: 8,
@@ -114,9 +115,21 @@ const styles = StyleSheet.create({
   iconBox: {
     width: ICON_BOX,
     height: ICON_BOX,
-    borderRadius: 10,
+    borderRadius: ICON_BOX / 2,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  checkCircle: {
+    width: CHECK_BOX,
+    height: CHECK_BOX,
+    borderRadius: CHECK_BOX / 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: CHECK_GREEN_LIGHT,
+  },
+  checkPlaceholder: {
+    width: CHECK_BOX,
+    height: CHECK_BOX,
   },
   bobbleIcon: {
     width: 22,
@@ -129,6 +142,9 @@ const styles = StyleSheet.create({
     lineHeight: 21,
   },
   labelActive: {
+    fontFamily: Typography.button.fontFamily,
+  },
+  labelDone: {
     fontFamily: Typography.button.fontFamily,
   },
   labelPending: {

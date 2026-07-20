@@ -8,6 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { bobblesApi, tasksApi } from '@/src/api';
 import { CaptureHeader } from '@/src/components/capture/capture-header';
 import { GeneratedTaskRow } from '@/src/components/capture/generated-task-row';
+import { RecordingPlaybackBar } from '@/src/components/capture/recording-playback-bar';
 import { PrimaryButton } from '@/src/components/onboarding/primary-button';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { useNightForeground } from '@/src/hooks/use-night-foreground';
@@ -17,6 +18,8 @@ import { toast } from '@/src/utils/toast';
 import { Typography } from '@/src/theme/fonts';
 
 const TASKS_MASCOT = require('@/src/assets/images/bobble-tasks-ready.png');
+const CARD_TEXT = '#17164B';
+const CARD_TEXT_SECONDARY = '#6B7280';
 
 type SuggestionTask = {
   id: string;
@@ -31,6 +34,8 @@ export default function SuggestionsScreen() {
   const night = useNightForeground();
   const insets = useSafeAreaInsets();
   const pendingSave = useCaptureStore((state) => state.pendingBobbleSave);
+  const recordingUri = useCaptureStore((state) => state.recordingUri);
+  const recordingDurationSeconds = useCaptureStore((state) => state.recordingDurationSeconds);
   const clearRecording = useCaptureStore((state) => state.clearRecording);
   const textColor = night.text ?? colors.text;
   const secondaryColor = night.textSecondary ?? colors.textSecondary;
@@ -61,7 +66,9 @@ export default function SuggestionsScreen() {
   const selectedCount = tasks.filter((task) => task.selected).length;
   const hasSuggestions = tasks.length > 0;
   const title = pendingSave?.title ?? 'Your Bobble';
-  const summaryIntro = pendingSave?.summaryIntro;
+  const summaryIntro =
+    pendingSave?.summaryIntro?.trim() || 'Here is what I captured from your note.';
+  const showSummaryCard = Boolean(title || summaryIntro);
 
   const syncTasksToStore = useCallback((nextTasks: SuggestionTask[]) => {
     const current = useCaptureStore.getState().pendingBobbleSave;
@@ -207,7 +214,7 @@ export default function SuggestionsScreen() {
           styles.root,
           {
             paddingTop: insets.top + 8,
-            paddingBottom: insets.bottom + 24,
+            paddingBottom: insets.bottom + 8,
             justifyContent: 'center',
             gap: 16,
           },
@@ -228,7 +235,7 @@ export default function SuggestionsScreen() {
         styles.root,
         {
           paddingTop: insets.top + 8,
-          paddingBottom: insets.bottom + 24,
+          paddingBottom: Math.max(insets.bottom, 8),
         },
       ]}
     >
@@ -260,16 +267,22 @@ export default function SuggestionsScreen() {
           <Image source={TASKS_MASCOT} style={styles.mascot} contentFit="contain" />
         </View>
 
-        <View style={[styles.summaryCard, { backgroundColor: `${colors.primary}14` }]}>
-          <Text style={[styles.summaryTitle, { color: textColor }]} numberOfLines={2}>
-            {title}
-          </Text>
-          {summaryIntro ? (
-            <Text style={[styles.summaryIntro, { color: secondaryColor }]} numberOfLines={4}>
+        {showSummaryCard ? (
+          <View style={styles.summaryCard}>
+            <Text style={styles.summaryTitle} numberOfLines={2}>
+              {title}
+            </Text>
+            <Text style={styles.summaryIntro} numberOfLines={4}>
               {summaryIntro}
             </Text>
-          ) : null}
-        </View>
+          </View>
+        ) : null}
+
+        {recordingUri ? (
+          <View style={styles.playbackWrap}>
+            <RecordingPlaybackBar uri={recordingUri} durationSeconds={recordingDurationSeconds} />
+          </View>
+        ) : null}
 
         {hasSuggestions ? (
           <View style={styles.taskList}>
@@ -290,7 +303,6 @@ export default function SuggestionsScreen() {
                       onPress={() => toggleTask(task.id)}
                       style={({ pressed }) => [
                         styles.taskRow,
-                        { backgroundColor: colors.surface },
                         pressed && styles.pressed,
                       ]}
                     >
@@ -307,7 +319,7 @@ export default function SuggestionsScreen() {
                           <Check size={14} color={colors.textOnPrimary} strokeWidth={3} />
                         ) : null}
                       </View>
-                      <Text style={[styles.taskTitle, { color: colors.text }]} numberOfLines={3}>
+                      <Text style={styles.taskTitle} numberOfLines={3}>
                         {task.title}
                       </Text>
                     </Pressable>
@@ -361,14 +373,14 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    flexGrow: 1,
-    paddingBottom: 16,
-    gap: 12,
+    paddingBottom: 8,
+    gap: 14,
   },
   hero: {
     alignItems: 'center',
-    gap: 4,
+    gap: 6,
     marginTop: 4,
+    marginBottom: 4,
   },
   title: {
     ...Typography.heading,
@@ -387,25 +399,36 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   mascot: {
-    width: 280,
-    height: 180,
+    width: 220,
+    height: 120,
     backgroundColor: 'transparent',
+  },
+  playbackWrap: {
+    width: '100%',
   },
   summaryCard: {
     borderRadius: 18,
-    padding: 16,
-    gap: 6,
-    marginTop: -40,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    gap: 4,
+    backgroundColor: '#FFFFFF',
+    shadowColor: '#9F52F2',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 2,
   },
   summaryTitle: {
     ...Typography.formLabel,
     fontSize: 18,
     lineHeight: 24,
+    color: CARD_TEXT,
   },
   summaryIntro: {
     ...Typography.body,
     fontSize: 14,
     lineHeight: 20,
+    color: CARD_TEXT_SECONDARY,
   },
   taskList: {
     gap: 10,
@@ -417,6 +440,12 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     paddingHorizontal: 14,
     gap: 12,
+    backgroundColor: '#FFFFFF',
+    shadowColor: '#9F52F2',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 6,
+    elevation: 1,
   },
   checkbox: {
     width: 24,
@@ -431,17 +460,19 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 15,
     lineHeight: 21,
+    color: CARD_TEXT,
   },
   actions: {
-    gap: 8,
-    paddingTop: 12,
+    gap: 6,
+    marginTop: 'auto',
+    paddingTop: 20,
   },
   primaryAction: {
     width: '100%',
   },
   skipButton: {
     alignItems: 'center',
-    paddingVertical: 12,
+    paddingVertical: 8,
   },
   skipLabel: {
     ...Typography.formLabel,

@@ -13,6 +13,13 @@ import { useAppStore } from '@/src/store/app-store';
 import { getApiErrorMessage } from '@/src/utils/api-error';
 import { toast } from '@/src/utils/toast';
 
+type QueryClient = ReturnType<typeof useQueryClient>;
+
+function invalidateUserStats(qc: QueryClient) {
+  void qc.invalidateQueries({ queryKey: queryKeys.auth.me });
+  void qc.invalidateQueries({ queryKey: queryKeys.profile.all });
+}
+
 export function useTasks(filter: TaskFilterParam = 'all', enabled = true) {
   const isAuthenticated = useAppStore((s) => s.isAuthenticated);
   return useQuery({
@@ -29,6 +36,7 @@ export function useCreateTask() {
     mutationFn: (body: CreateTaskBody) => tasksApi.createTask(body),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.tasks.all });
+      invalidateUserStats(qc);
     },
     onError: (e) => toast.error(getApiErrorMessage(e, 'Could not create task')),
   });
@@ -40,6 +48,7 @@ export function useCreateTasksBulk() {
     mutationFn: (body: CreateTasksBulkBody) => tasksApi.createTasksBulk(body),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.tasks.all });
+      invalidateUserStats(qc);
     },
     onError: (e) => toast.error(getApiErrorMessage(e, 'Could not save tasks')),
   });
@@ -52,6 +61,7 @@ export function useUpdateTask() {
       tasksApi.updateTask(id, body),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.tasks.all });
+      invalidateUserStats(qc);
     },
     onError: (e) => toast.error(getApiErrorMessage(e, 'Could not update task')),
   });
@@ -82,6 +92,7 @@ export function useToggleTask() {
     },
     onSettled: () => {
       qc.invalidateQueries({ queryKey: queryKeys.tasks.all });
+      invalidateUserStats(qc);
     },
   });
 }
@@ -104,6 +115,7 @@ export function useDeleteTask() {
     },
     onSettled: () => {
       qc.invalidateQueries({ queryKey: queryKeys.tasks.all });
+      invalidateUserStats(qc);
     },
   });
 }

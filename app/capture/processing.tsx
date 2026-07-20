@@ -1,13 +1,12 @@
 import { Image } from 'expo-image';
 import { Href, router } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { bobblesApi } from '@/src/api';
 import { CaptureHeader } from '@/src/components/capture/capture-header';
 import { ProcessingChecklist } from '@/src/components/capture/processing-checklist';
-import { RecordingPlaybackBar } from '@/src/components/capture/recording-playback-bar';
 import { PrimaryButton } from '@/src/components/onboarding/primary-button';
 import { formatBobbleDateLabel } from '@/src/features/bobbles/format';
 import { categoryFromCaptureKind } from '@/src/features/bobbles/types';
@@ -27,6 +26,8 @@ const STEPS = [
   { id: 'points', label: 'Finding the key points...', icon: 'lightbulb' },
 ] as const;
 
+const STEP_REVEAL_DELAY_MS = 700;
+
 type ProcessPhase = 'running' | 'ready' | 'error';
 
 function deleteOrphanBobble(id: string) {
@@ -40,6 +41,7 @@ export default function ProcessingScreen() {
   const night = useNightForeground();
   const insets = useSafeAreaInsets();
   const [completedCount, setCompletedCount] = useState(0);
+  const [revealedCount, setRevealedCount] = useState(0);
   const [phase, setPhase] = useState<ProcessPhase>('running');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [retryToken, setRetryToken] = useState(0);
@@ -50,7 +52,7 @@ export default function ProcessingScreen() {
   const textColor = night.text ?? colors.text;
   const secondaryColor = night.textSecondary ?? colors.textSecondary;
 
-  const isComplete = phase === 'ready';
+  const isComplete = phase === 'ready' && revealedCount >= STEPS.length;
 
   const handleContinue = useCallback(() => {
     router.push('/capture/suggestions' as Href);
@@ -67,12 +69,23 @@ export default function ProcessingScreen() {
   }, [clearRecording]);
 
   useEffect(() => {
+    if (revealedCount >= completedCount) return;
+
+    const timer = setTimeout(() => {
+      setRevealedCount((count) => count + 1);
+    }, STEP_REVEAL_DELAY_MS);
+
+    return () => clearTimeout(timer);
+  }, [completedCount, revealedCount]);
+
+  useEffect(() => {
     let cancelled = false;
     let orphanBobbleId: string | null = null;
     let processingSucceeded = false;
 
     setPhase('running');
     setCompletedCount(0);
+    setRevealedCount(0);
     setErrorMessage(null);
 
     (async () => {
@@ -185,17 +198,13 @@ export default function ProcessingScreen() {
         styles.root,
         {
           paddingTop: insets.top + 8,
-          paddingBottom: insets.bottom + 24,
+          paddingBottom: Math.max(insets.bottom, 8),
         },
       ]}
     >
       <CaptureHeader leftLabel="Discard" onLeftPress={handleDiscard} />
 
-      <ScrollView
-        style={styles.scroll}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
+      <View style={styles.content}>
         <View style={styles.hero}>
           <Text style={[styles.title, { color: textColor }]}>
             {phase === 'error'
@@ -213,23 +222,20 @@ export default function ProcessingScreen() {
           </Text>
         </View>
 
-        <View style={styles.mascotWrap}>
-          <Image source={PROCESSING_MASCOT} style={styles.mascot} contentFit="contain" />
-        </View>
-
-        {recordingUri ? (
-          <View style={styles.playbackWrap}>
-            <RecordingPlaybackBar uri={recordingUri} durationSeconds={recordingDurationSeconds} />
+        <View style={styles.mainBlock}>
+          <View style={styles.mascotWrap}>
+            <Image source={PROCESSING_MASCOT} style={styles.mascot} contentFit="contain" />
           </View>
-        ) : null}
 
-        {phase !== 'error' ? (
-          <ProcessingChecklist
-            steps={STEPS}
-            completedCount={Math.min(completedCount, STEPS.length)}
-          />
-        ) : null}
-      </ScrollView>
+          {phase !== 'error' ? (
+            <ProcessingChecklist
+              steps={STEPS}
+              completedCount={Math.min(completedCount, STEPS.length)}
+              revealedCount={Math.min(revealedCount, STEPS.length)}
+            />
+          ) : null}
+        </View>
+      </View>
 
       {phase === 'error' ? (
         <View style={styles.actions}>
@@ -261,11 +267,15 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 24,
   },
+  content: {
+    flex: 1,
+    justifyContent: 'space-between',
+  },
   hero: {
     alignItems: 'center',
-    gap: 4,
+    gap: 6,
     marginTop: 4,
-    marginBottom: 8,
+    paddingBottom: 8,
   },
   title: {
     ...Typography.heading,
@@ -279,28 +289,22 @@ const styles = StyleSheet.create({
     lineHeight: 24,
     textAlign: 'center',
   },
+  mainBlock: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    gap: 14,
+    paddingBottom: 8,
+  },
   mascotWrap: {
     alignItems: 'center',
     justifyContent: 'center',
   },
   mascot: {
-    width: 300,
-    height: 224,
+    width: 220,
+    height: 150,
     backgroundColor: 'transparent',
   },
-  scroll: {
-    flex: 1,
-  },
-  scrollContent: {
-    flexGrow: 1,
-    paddingBottom: 16,
-    gap: 16,
-  },
-  playbackWrap: {
-    width: '100%',
-  },
   actions: {
-    marginTop: 'auto',
     paddingTop: 12,
   },
   primaryAction: {
@@ -310,7 +314,6 @@ const styles = StyleSheet.create({
     ...Typography.body,
     fontFamily: Typography.button.fontFamily,
     textAlign: 'center',
-    marginTop: 'auto',
     paddingTop: 12,
   },
 });

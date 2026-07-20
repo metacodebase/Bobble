@@ -1,7 +1,9 @@
 import { Href, router } from 'expo-router';
 import { Settings } from 'lucide-react-native';
+import { useCallback } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useFocusEffect } from '@react-navigation/native';
 
 import { ProfileAvatar } from '@/src/components/create-account/profile-avatar';
 import { StatCard } from '@/src/components/profile/stat-card';
@@ -30,13 +32,19 @@ export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
   const colors = useBobbleColors();
   const storedUser = useAppStore((s) => s.user);
-  const { data: fetchedUser } = useMe();
+  const { data: fetchedUser, refetch } = useMe();
   const user = fetchedUser ?? storedUser;
   const logout = useLogout();
   const rawName = user?.name ?? user?.email?.split('@')[0] ?? PROFILE_USER.name;
   const displayName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
 
   const gamification = user?.gamification;
+
+  useFocusEffect(
+    useCallback(() => {
+      void refetch();
+    }, [refetch]),
+  );
 
   return (
     <View style={[styles.root, { paddingTop: insets.top + 12 }]}>
