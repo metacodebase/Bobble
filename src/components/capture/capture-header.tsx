@@ -1,9 +1,11 @@
-import { ChevronLeft, LucideIcon } from 'lucide-react-native';
+import { ChevronLeft, LucideIcon, Trash2 } from 'lucide-react-native';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { useNightForeground } from '@/src/hooks/use-night-foreground';
 import { Typography } from '@/src/theme/fonts';
+
+const DISCARD_COLOR = '#FDEAC2';
 
 type CaptureHeaderProps = {
   title?: string;
@@ -30,6 +32,7 @@ export function CaptureHeader({
   const night = useNightForeground();
   const iconColor = night.text ?? colors.text;
   const mutedIconColor = night.textSecondary ?? colors.textSecondary;
+  const discardColor = night.isNight ? DISCARD_COLOR : mutedIconColor;
 
   return (
     <View style={styles.root}>
@@ -37,8 +40,8 @@ export function CaptureHeader({
         {leftLabel ? (
           <Pressable onPress={onLeftPress} hitSlop={12} style={styles.iconButton}>
             <View style={styles.leftLabelRow}>
-              <ChevronLeft size={22} color={mutedIconColor} strokeWidth={2} />
-              <Text style={[styles.leftLabel, { color: mutedIconColor }]}>{leftLabel}</Text>
+              <Trash2 size={18} color={discardColor} strokeWidth={2} />
+              <Text style={[styles.leftLabel, { color: discardColor }]}>{leftLabel}</Text>
             </View>
           </Pressable>
         ) : onBack ? (
@@ -101,7 +104,7 @@ const styles = StyleSheet.create({
   leftLabelRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 2,
+    gap: 6,
   },
   sideRight: {
     alignItems: 'flex-end',

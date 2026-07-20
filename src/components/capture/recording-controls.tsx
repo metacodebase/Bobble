@@ -10,19 +10,29 @@ type RecordingControlsProps = {
   paused: boolean;
   onPause: () => void;
   onStop: () => void;
+  stopLabel?: string;
+  pauseDisabled?: boolean;
 };
 
-export function RecordingControls({ paused, onPause, onStop }: RecordingControlsProps) {
+export function RecordingControls({
+  paused,
+  onPause,
+  onStop,
+  stopLabel = 'Stop',
+  pauseDisabled = false,
+}: RecordingControlsProps) {
   const colors = useBobbleColors();
 
   return (
     <View style={styles.root}>
       <Pressable
         onPress={onPause}
+        disabled={pauseDisabled}
         style={({ pressed }) => [
           styles.button,
           { backgroundColor: CONTROL_BG },
-          pressed && styles.pressed,
+          pauseDisabled && styles.disabled,
+          pressed && !pauseDisabled && styles.pressed,
         ]}
       >
         <Pause size={18} color={colors.text} strokeWidth={2.5} />
@@ -38,7 +48,7 @@ export function RecordingControls({ paused, onPause, onStop }: RecordingControls
         ]}
       >
         <Square size={16} color={colors.error} fill={colors.error} strokeWidth={0} />
-        <Text style={[styles.label, { color: colors.error }]}>Stop</Text>
+        <Text style={[styles.label, { color: colors.error }]}>{stopLabel}</Text>
       </Pressable>
     </View>
   );
@@ -62,6 +72,9 @@ const styles = StyleSheet.create({
   },
   pressed: {
     opacity: 0.85,
+  },
+  disabled: {
+    opacity: 0.45,
   },
   label: {
     ...Typography.button,

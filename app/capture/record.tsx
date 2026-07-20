@@ -1,5 +1,6 @@
+import { useFocusEffect } from '@react-navigation/native';
 import { Href, router } from 'expo-router';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -25,14 +26,64 @@ export default function RecordScreen() {
   const insets = useSafeAreaInsets();
   const [elapsed, setElapsed] = useState(0);
   const [paused, setPaused] = useState(false);
+  const [autoStart, setAutoStart] = useState(() => !useCaptureStore.getState().recordingUri);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const elapsedRef = useRef(0);
   const captureKind = useCaptureStore((state) => state.captureKind);
+  const recordingUri = useCaptureStore((state) => state.recordingUri);
   const setRecording = useCaptureStore((state) => state.setRecording);
-  const { metering, stopRecording } = useVoiceRecorder(paused);
+  const { metering, isActive, startRecording, stopRecording } = useVoiceRecorder(paused, {
+    autoStart,
+  });
+  const isActiveRef = useRef(isActive);
+  const stopRecordingRef = useRef(stopRecording);
+  const setRecordingRef = useRef(setRecording);
   const copy = CAPTURE_COPY[captureKind];
 
+  const canContinue = Boolean(recordingUri) && !isActive;
+
   useEffect(() => {
-    if (paused) {
+    isActiveRef.current = isActive;
+  }, [isActive]);
+
+  useEffect(() => {
+    stopRecordingRef.current = stopRecording;
+  }, [stopRecording]);
+
+  useEffect(() => {
+    setRecordingRef.current = setRecording;
+  }, [setRecording]);
+
+  useEffect(() => {
+    elapsedRef.current = elapsed;
+  }, [elapsed]);
+
+  useFocusEffect(
+    useCallback(() => {
+      const { recordingUri: savedUri, recordingDurationSeconds } = useCaptureStore.getState();
+
+      if (savedUri) {
+        setElapsed(recordingDurationSeconds);
+        setAutoStart(false);
+      } else {
+        setElapsed(0);
+        setAutoStart(true);
+      }
+      setPaused(false);
+
+      return () => {
+        void (async () => {
+          if (!isActiveRef.current) return;
+
+          const uri = await stopRecordingRef.current();
+          setRecordingRef.current(uri ?? '', Math.max(elapsedRef.current, 1));
+        })();
+      };
+    }, []),
+  );
+
+  useEffect(() => {
+    if (paused || !isActive) {
       if (intervalRef.current) clearInterval(intervalRef.current);
       return;
     }
@@ -44,11 +95,15 @@ export default function RecordScreen() {
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, [paused]);
+  }, [paused, isActive]);
 
   const handleStop = async () => {
+    if (!isActive) {
+      await startRecording();
+      return;
+    }
+
     const uri = await stopRecording();
-    // Always store duration; processing fails clearly if URI is missing.
     setRecording(uri ?? '', Math.max(elapsed, 1));
     router.push('/capture/processing' as Href);
   };
@@ -71,20 +126,26 @@ export default function RecordScreen() {
 
       <View style={styles.statusBlock}>
         <Text style={[styles.status, { color: colors.primary }]}>
-          {paused ? 'Paused' : copy.listening}
+          {!isActive && canContinue
+            ? 'Paused'
+            : paused
+              ? 'Paused'
+              : copy.listening}
         </Text>
         <Text style={[styles.timer, { color: night.text ?? colors.text }]}>{formatElapsed(elapsed)}</Text>
       </View>
 
       <View style={styles.visualBlock}>
-        <RecordingVisualizer active={!paused} metering={metering} />
-        <AudioWaveform active={!paused} metering={metering} />
+        <RecordingVisualizer active={isActive && !paused} metering={metering} />
+        <AudioWaveform active={isActive && !paused} metering={metering} />
       </View>
 
       <RecordingControls
         paused={paused}
         onPause={() => setPaused((prev) => !prev)}
         onStop={handleStop}
+        stopLabel={canContinue ? 'Continue recording' : 'Stop'}
+        pauseDisabled={!isActive}
       />
     </View>
   );

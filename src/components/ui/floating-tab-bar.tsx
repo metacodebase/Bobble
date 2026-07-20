@@ -119,6 +119,7 @@ export function FloatingTabBar({ state, navigation }: BottomTabBarProps) {
   const scheme = useColorScheme();
   const colors = useBobbleColors();
   const setCaptureKind = useCaptureStore((state) => state.setCaptureKind);
+  const clearRecording = useCaptureStore((state) => state.clearRecording);
   const glassEnabled = useLiquidGlassTabBar();
   const bottom = Math.max(insets.bottom, 10);
 
@@ -205,6 +206,7 @@ export function FloatingTabBar({ state, navigation }: BottomTabBarProps) {
                 <Pressable
                   onPress={() => {
                     setCaptureKind('bobble');
+                    clearRecording();
                     router.push('/capture/record' as Href);
                   }}
                   style={styles.micHitArea}

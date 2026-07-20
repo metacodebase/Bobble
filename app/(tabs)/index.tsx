@@ -67,6 +67,7 @@ const QUICK_ACTIONS = [
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const setCaptureKind = useCaptureStore((state) => state.setCaptureKind);
+  const clearRecording = useCaptureStore((state) => state.clearRecording);
   const storeUser = useAppStore((s) => s.user);
   const { data: profile } = useProfile();
   const displayName =
@@ -89,6 +90,7 @@ export default function HomeScreen() {
 
   const startCapture = (kind: CaptureKind = 'bobble') => {
     setCaptureKind(kind);
+    clearRecording();
     router.push('/capture/record' as Href);
   };
 
