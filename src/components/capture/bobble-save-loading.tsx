@@ -1,22 +1,5 @@
 import { Image } from 'expo-image';
-import {
-  Check,
-  Dumbbell,
-  Folder,
-  Leaf,
-  List,
-  LucideIcon,
-  Music2,
-} from 'lucide-react-native';
-import { useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import Animated, {
-  Easing,
-  useAnimatedStyle,
-  useSharedValue,
-  withRepeat,
-  withTiming,
-} from 'react-native-reanimated';
 
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { useNightForeground } from '@/src/hooks/use-night-foreground';
@@ -25,50 +8,11 @@ import { Typography } from '@/src/theme/fonts';
 const SAVING_MASCOT = require('@/src/assets/images/bobble-saving.png');
 const MIN_PROGRESS = 0.08;
 
-type OrbitItem = {
-  Icon: LucideIcon;
-  backgroundColor: string;
-  color: string;
-  angle: number;
-};
-
-const ORBIT_ITEMS: OrbitItem[] = [
-  { Icon: Music2, backgroundColor: '#EDE9FE', color: '#9F52F2', angle: 0 },
-  { Icon: Check, backgroundColor: '#DBEAFE', color: '#3B82F6', angle: 60 },
-  { Icon: List, backgroundColor: '#FCE7F3', color: '#EC4899', angle: 120 },
-  { Icon: Leaf, backgroundColor: '#DCFCE7', color: '#16A34A', angle: 180 },
-  { Icon: Folder, backgroundColor: '#FEF9C3', color: '#CA8A04', angle: 240 },
-  { Icon: Dumbbell, backgroundColor: '#EDE9FE', color: '#7C3AED', angle: 300 },
-];
-
-const ORBIT_RADIUS = 118;
-
 type BobbleSaveLoadingProps = {
   progress: number;
   /** Current pipeline step shown under the title. */
   stageLabel?: string;
 };
-
-function OrbitIcon({ item }: { item: OrbitItem }) {
-  const radians = (item.angle * Math.PI) / 180;
-  const x = Math.cos(radians) * ORBIT_RADIUS;
-  const y = Math.sin(radians) * ORBIT_RADIUS;
-  const Icon = item.Icon;
-
-  return (
-    <View
-      style={[
-        styles.orbitIcon,
-        {
-          transform: [{ translateX: x }, { translateY: y }],
-          backgroundColor: item.backgroundColor,
-        },
-      ]}
-    >
-      <Icon size={18} color={item.color} strokeWidth={2.2} />
-    </View>
-  );
-}
 
 export function BobbleSaveLoading({
   progress,
@@ -76,22 +20,8 @@ export function BobbleSaveLoading({
 }: BobbleSaveLoadingProps) {
   const colors = useBobbleColors();
   const night = useNightForeground();
-  const rotation = useSharedValue(0);
   const textColor = night.text ?? colors.text;
   const secondaryColor = night.textSecondary ?? colors.textSecondary;
-
-  useEffect(() => {
-    rotation.value = withRepeat(
-      withTiming(360, { duration: 12000, easing: Easing.linear }),
-      -1,
-      false,
-    );
-  }, [rotation]);
-
-  const orbitStyle = useAnimatedStyle(() => ({
-    transform: [{ rotate: `${rotation.value}deg` }],
-  }));
-
   const clampedProgress = Math.max(MIN_PROGRESS, Math.min(progress, 1));
 
   return (
@@ -102,11 +32,6 @@ export function BobbleSaveLoading({
       </View>
 
       <View style={styles.visual}>
-        <Animated.View style={[styles.orbitLayer, orbitStyle]} pointerEvents="none">
-          {ORBIT_ITEMS.map((item) => (
-            <OrbitIcon key={item.angle} item={item} />
-          ))}
-        </Animated.View>
         <Image source={SAVING_MASCOT} style={styles.mascot} contentFit="contain" />
       </View>
 
@@ -151,26 +76,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     minHeight: 380,
-  },
-  orbitLayer: {
-    position: 'absolute',
-    width: 0,
-    height: 0,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  orbitIcon: {
-    position: 'absolute',
-    width: 40,
-    height: 40,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#9F52F2',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    elevation: 2,
   },
   mascot: {
     width: 380,
