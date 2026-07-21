@@ -11,7 +11,7 @@ import {
 } from '@/src/components/capture/generate-capture-tasks';
 import { GeneratedTask } from '@/src/components/capture/generated-task-row';
 import { SegmentTabs, SummaryTab } from '@/src/components/capture/segment-tabs';
-import { DEMO_BOBBLE, MindScoreCard, SummaryContent } from '@/src/components/capture/summary-content';
+import { DEMO_BOBBLE, SummaryContent } from '@/src/components/capture/summary-content';
 import { PrimaryButton } from '@/src/components/onboarding/primary-button';
 import { formatBobbleDateLabel } from '@/src/features/bobbles/format';
 import { categoryFromCaptureKind } from '@/src/features/bobbles/types';
@@ -87,14 +87,10 @@ export default function SummaryScreen() {
     <View style={[styles.root, { paddingTop: insets.top + 8 }]}>
       <View style={styles.headerBlock}>
         <CaptureHeader onBack={() => router.back()} rightIcon={Pencil} />
-        <SegmentTabs active={tab} onChange={setTab} compact={tab === 'mindmap'} />
-        {tab === 'mindmap' ? (
-          <MindScoreCard />
-        ) : (
-          <Text style={[styles.title, { color: night.text ?? colors.text }]} numberOfLines={2}>
-            {DEMO_BOBBLE.title}
-          </Text>
-        )}
+        <SegmentTabs active={tab} onChange={setTab} />
+        <Text style={[styles.title, { color: night.text ?? colors.text }]} numberOfLines={2}>
+          {DEMO_BOBBLE.title}
+        </Text>
       </View>
 
       <ScrollView

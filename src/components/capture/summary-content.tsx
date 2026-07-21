@@ -59,7 +59,7 @@ export function MindScoreCard({ score = DEMO_BOBBLE.mindScore }: MindScoreCardPr
 }
 
 type SummaryContentProps = {
-  tab: 'summary' | 'transcript' | 'mindmap' | 'insights';
+  tab: 'summary' | 'transcript' | 'insights';
   tasks?: GeneratedTask[];
   isGeneratingTasks?: boolean;
   onGenerateTasks?: () => void;
@@ -83,10 +83,6 @@ export function SummaryContent({
   }
 
   if (tab === 'insights') {
-    return null;
-  }
-
-  if (tab === 'mindmap') {
     return null;
   }
 

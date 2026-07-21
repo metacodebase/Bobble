@@ -1,9 +1,8 @@
-import { setAudioModeAsync, useAudioPlayer, useAudioPlayerStatus } from 'expo-audio';
 import { Pause, Play } from 'lucide-react-native';
-import { useEffect } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
+import { useRecordingPlayback } from '@/src/hooks/use-recording-playback';
 import { Typography } from '@/src/theme/fonts';
 
 const PROCESSING_TEXT = '#17164B';
@@ -22,40 +21,21 @@ function formatTime(seconds: number) {
 
 export function RecordingPlaybackBar({ uri, durationSeconds = 0 }: RecordingPlaybackBarProps) {
   const colors = useBobbleColors();
-  const player = useAudioPlayer(uri, { updateInterval: 250 });
-  const status = useAudioPlayerStatus(player);
-
-  useEffect(() => {
-    void setAudioModeAsync({
-      playsInSilentMode: true,
-      allowsRecording: false,
-    });
-  }, []);
-
-  const totalDuration = status.duration > 0 ? status.duration : durationSeconds;
-  const progress = totalDuration > 0 ? Math.min(1, status.currentTime / totalDuration) : 0;
-
-  const handleTogglePlayback = () => {
-    if (status.playing) {
-      player.pause();
-      return;
-    }
-
-    if (status.didJustFinish || (totalDuration > 0 && status.currentTime >= totalDuration)) {
-      player.seekTo(0);
-    }
-
-    player.play();
-  };
+  const { canPlay, status, totalDuration, progress, handleTogglePlayback } = useRecordingPlayback({
+    localUri: uri,
+    durationSeconds,
+  });
 
   return (
     <View style={styles.root}>
       <Pressable
         onPress={handleTogglePlayback}
+        disabled={!canPlay}
         style={({ pressed }) => [
           styles.playButton,
           { backgroundColor: colors.primary },
-          pressed && styles.pressed,
+          !canPlay && styles.playButtonDisabled,
+          pressed && canPlay && styles.pressed,
         ]}
         accessibilityRole="button"
         accessibilityLabel={status.playing ? 'Pause recording' : 'Play recording'}
@@ -113,6 +93,9 @@ const styles = StyleSheet.create({
     borderRadius: 22,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  playButtonDisabled: {
+    opacity: 0.5,
   },
   pressed: {
     opacity: 0.88,

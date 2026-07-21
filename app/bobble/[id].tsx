@@ -7,7 +7,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BobbleDetailSummary } from '@/src/components/bobbles/bobble-detail-summary';
 import { BobbleDetailToolbar } from '@/src/components/bobbles/bobble-detail-toolbar';
 import { BobbleInsights } from '@/src/components/bobbles/bobble-insights';
-import { BobbleMindMap } from '@/src/components/bobbles/bobble-mind-map';
 import { BobbleTranscript } from '@/src/components/bobbles/bobble-transcript';
 import { CaptureHeader } from '@/src/components/capture/capture-header';
 import { SegmentTabs, SummaryTab } from '@/src/components/capture/segment-tabs';
@@ -35,9 +34,8 @@ export default function BobbleDetailScreen() {
 
   const title = bobble?.title ?? 'Bobble';
   const isTranscript = tab === 'transcript';
-  const isMindMap = tab === 'mindmap';
   const isInsights = tab === 'insights';
-  const showToolbar = !isTranscript && !isMindMap;
+  const showToolbar = !isTranscript;
 
   const transcriptSegments = useMemo(() => {
     return (bobble?.transcriptSegments ?? []).map((segment) => ({
@@ -47,17 +45,6 @@ export default function BobbleDetailScreen() {
       text: segment.text,
     }));
   }, [bobble?.transcriptSegments]);
-
-  const mindMapNodes = useMemo(() => {
-    return (bobble?.mindMap?.nodes ?? []).map((node) => ({
-      id: node.id,
-      title: node.title,
-      subtitle: node.subtitle,
-      backgroundColor: node.backgroundColor ?? '#EDE9FE',
-      lineColor: node.lineColor ?? '#C4B5FD',
-      position: node.position,
-    }));
-  }, [bobble?.mindMap?.nodes]);
 
   const moreOptions = useMemo(
     () => [
@@ -129,24 +116,19 @@ export default function BobbleDetailScreen() {
     <View style={[styles.root, { paddingTop: insets.top + 8, paddingBottom: insets.bottom + 16 }]}>
       <View style={styles.headerBlock}>
         <CaptureHeader onBack={() => router.back()} rightIcon={Pencil} />
-        <SegmentTabs active={tab} onChange={setTab} compact={isMindMap} />
+        <SegmentTabs active={tab} onChange={setTab} />
       </View>
 
       {isTranscript ? (
         <BobbleTranscript
+          bobbleId={bobble._id}
           segments={transcriptSegments}
-          recordingUri={recordingUri ?? bobble.audioUrl}
+          localRecordingUri={recordingUri}
+          remoteAudioUrl={bobble.audioUrl}
           durationSeconds={
             recordingDurationSeconds > 0 ? recordingDurationSeconds : bobble.durationSec
           }
         />
-      ) : isMindMap ? (
-        <View style={styles.mindMapWrap}>
-          <BobbleMindMap
-            centerTitle={bobble.mindMap?.centerTitle ?? bobble.title}
-            nodes={mindMapNodes.length > 0 ? mindMapNodes : undefined}
-          />
-        </View>
       ) : isInsights ? (
         <BobbleInsights
           title={bobble.insights?.title}
@@ -207,11 +189,6 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingTop: 4,
     paddingBottom: 12,
-  },
-  mindMapWrap: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   errorText: {
     ...Typography.body,

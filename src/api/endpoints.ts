@@ -20,8 +20,10 @@ export const API = {
     byId: (id: string) => `/api/bobbles/${id}`,
     process: (id: string) => `/api/bobbles/${id}/process`,
     audio: (id: string) => `/api/bobbles/${id}/audio`,
+    recording: (id: string) => `/api/bobbles/${id}/recording`,
   },
   profile: {
     root: '/api/profile',
+    avatar: '/api/profile/avatar',
   },
 } as const;

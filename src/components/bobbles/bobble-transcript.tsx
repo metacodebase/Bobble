@@ -1,17 +1,19 @@
-import { setAudioModeAsync, useAudioPlayer, useAudioPlayerStatus } from 'expo-audio';
 import { Pause, Play, Search } from 'lucide-react-native';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import type { TranscriptSegment } from '@/src/data/demo-data';
 import { DEMO_TRANSCRIPT_SEGMENTS } from '@/src/data/demo-data';
+import { useRecordingPlayback } from '@/src/hooks/use-recording-playback';
 import { Typography } from '@/src/theme/fonts';
 
 const TRANSCRIPT_TEXT = '#17164B';
 
 type BobbleTranscriptProps = {
   segments?: TranscriptSegment[];
-  recordingUri?: string | null;
+  bobbleId?: string | null;
+  localRecordingUri?: string | null;
+  remoteAudioUrl?: string | null;
   durationSeconds?: number;
 };
 
@@ -54,50 +56,31 @@ function TranscriptCard({ segment, onJump, canJump }: TranscriptCardProps) {
 
 export function BobbleTranscript({
   segments = DEMO_TRANSCRIPT_SEGMENTS,
-  recordingUri = null,
+  bobbleId = null,
+  localRecordingUri = null,
+  remoteAudioUrl = null,
   durationSeconds = 34,
 }: BobbleTranscriptProps) {
   const [query, setQuery] = useState('');
-  const player = useAudioPlayer(recordingUri ?? '', { updateInterval: 250 });
-  const status = useAudioPlayerStatus(player);
-  const canPlay = Boolean(recordingUri);
-
-  useEffect(() => {
-    void setAudioModeAsync({
-      playsInSilentMode: true,
-      allowsRecording: false,
-    });
-  }, []);
-
-  const totalDuration = status.duration > 0 ? status.duration : durationSeconds;
-  const progress = totalDuration > 0 ? Math.min(1, status.currentTime / totalDuration) : 0;
+  const {
+    canPlay,
+    status,
+    totalDuration,
+    progress,
+    handleTogglePlayback,
+    handleJump,
+  } = useRecordingPlayback({
+    localUri: localRecordingUri,
+    remoteAudioUrl,
+    bobbleId,
+    durationSeconds,
+  });
 
   const filteredSegments = useMemo(() => {
     const normalized = query.trim().toLowerCase();
     if (!normalized) return segments;
     return segments.filter((segment) => segment.text.toLowerCase().includes(normalized));
   }, [query, segments]);
-
-  const handleJump = (seconds: number) => {
-    if (!canPlay) return;
-    player.seekTo(seconds);
-    player.play();
-  };
-
-  const handleTogglePlayback = () => {
-    if (!canPlay) return;
-
-    if (status.playing) {
-      player.pause();
-      return;
-    }
-
-    if (status.didJustFinish || (totalDuration > 0 && status.currentTime >= totalDuration)) {
-      player.seekTo(0);
-    }
-
-    player.play();
-  };
 
   return (
     <View style={styles.root}>

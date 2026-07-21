@@ -4,7 +4,7 @@ import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { useNightForeground } from '@/src/hooks/use-night-foreground';
 import { Typography } from '@/src/theme/fonts';
 
-export type SummaryTab = 'summary' | 'transcript' | 'mindmap' | 'insights';
+export type SummaryTab = 'summary' | 'transcript' | 'insights';
 
 type SegmentTabsProps = {
   active: SummaryTab;
@@ -16,7 +16,6 @@ type SegmentTabsProps = {
 const TABS: { id: SummaryTab; label: string }[] = [
   { id: 'summary', label: 'Summary' },
   { id: 'transcript', label: 'Transcript' },
-  { id: 'mindmap', label: 'Mind Map' },
   { id: 'insights', label: 'Insights' },
 ];
 

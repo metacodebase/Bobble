@@ -30,3 +30,8 @@ export interface UpdateProfileBody {
   handle?: string;
   avatarUrl?: string;
 }
+
+export interface UploadAvatarBody {
+  imageBase64: string;
+  mimeType?: string;
+}
