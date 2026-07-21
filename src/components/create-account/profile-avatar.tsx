@@ -6,7 +6,7 @@ import { CameraIcon } from '@/src/components/onboarding/ui-icons';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { useAppStore } from '@/src/store/app-store';
 import { BobbleColors } from '@/src/theme/colors';
-import { buildAvatarImageSource, resolveAvatarUrl } from '@/src/utils/avatar-url';
+import { buildAvatarImageSource, isLocalAvatarUri, resolveAvatarUrl } from '@/src/utils/avatar-url';
 
 const DEFAULT_PROFILE_IMAGE = require('@/src/assets/images/profile-avatar-default.png');
 
@@ -33,6 +33,7 @@ export function ProfileAvatar({
 }: ProfileAvatarProps) {
   const colors = useBobbleColors();
   const authToken = useAppStore((s) => s.authToken);
+  const avatarCacheKey = useAppStore((s) => s.avatarCacheKey);
   const [loadFailed, setLoadFailed] = useState(false);
   const radius = size / 2;
   const cameraSize = size * (36 / 140);
@@ -42,17 +43,22 @@ export function ProfileAvatar({
     typeof imageSource === 'object' && imageSource && 'uri' in imageSource
       ? imageSource.uri
       : undefined;
-  const validRemoteUri = resolveAvatarUrl(remoteUri);
+  const validRemoteUri = isLocalAvatarUri(remoteUri)
+    ? remoteUri
+    : resolveAvatarUrl(remoteUri);
   const handleCameraPress = onCameraPress ?? onPress;
 
   const resolvedSource = useMemo(() => {
     if (!validRemoteUri || loadFailed) return DEFAULT_PROFILE_IMAGE;
-    return buildAvatarImageSource(validRemoteUri, authToken) ?? DEFAULT_PROFILE_IMAGE;
-  }, [authToken, loadFailed, validRemoteUri]);
+    if (isLocalAvatarUri(validRemoteUri)) return { uri: validRemoteUri };
+    return (
+      buildAvatarImageSource(validRemoteUri, authToken, avatarCacheKey) ?? DEFAULT_PROFILE_IMAGE
+    );
+  }, [authToken, avatarCacheKey, loadFailed, validRemoteUri]);
 
   useEffect(() => {
     setLoadFailed(false);
-  }, [validRemoteUri, authToken]);
+  }, [validRemoteUri, authToken, avatarCacheKey]);
 
   return (
     <View style={[styles.wrapper, centered && styles.wrapperCentered, style]}>
@@ -70,7 +76,7 @@ export function ProfileAvatar({
         ]}
       >
         <Image
-          key={`${validRemoteUri ?? 'default'}-${loadFailed ? 'fallback' : 'remote'}`}
+          key={`${validRemoteUri ?? 'default'}-${avatarCacheKey}-${loadFailed ? 'fallback' : 'remote'}`}
           source={resolvedSource}
           style={{ width: size, height: size, borderRadius: radius }}
           contentFit="cover"

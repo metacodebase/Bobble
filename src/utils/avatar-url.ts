@@ -31,16 +31,26 @@ export function toAvatarLoadUrl(url?: string): string | undefined {
 export function buildAvatarImageSource(
   url: string | undefined,
   authToken: string | null | undefined,
+  cacheKey = 0,
 ): ImageSource | undefined {
   const loadUrl = toAvatarLoadUrl(url);
   if (!loadUrl) return undefined;
 
-  if (loadUrl.includes('/api/profile/avatar') && authToken) {
+  const uri =
+    cacheKey > 0
+      ? `${loadUrl}${loadUrl.includes('?') ? '&' : '?'}v=${cacheKey}`
+      : loadUrl;
+
+  if (uri.includes('/api/profile/avatar') && authToken) {
     return {
-      uri: loadUrl,
+      uri,
       headers: { Authorization: `Bearer ${authToken}` },
     };
   }
 
-  return { uri: loadUrl };
+  return { uri };
+}
+
+export function isLocalAvatarUri(uri?: string): boolean {
+  return Boolean(uri?.startsWith('file://') || uri?.startsWith('content://'));
 }

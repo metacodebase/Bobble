@@ -59,6 +59,7 @@ export function useUploadAvatar() {
       qc.setQueryData(queryKeys.profile.me, profile);
       applyProfileUser(profile, setUser);
       syncAuthMeAvatar(qc, profile.user.avatarUrl);
+      useAppStore.getState().bumpAvatarCacheKey();
       qc.invalidateQueries({ queryKey: queryKeys.auth.me });
       toast.success('Profile photo updated');
     },

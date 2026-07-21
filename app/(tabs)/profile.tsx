@@ -41,7 +41,7 @@ export default function ProfileScreen() {
   const { data: profile, refetch: refetchProfile } = useProfile();
   const user = fetchedUser ?? storedUser;
   const logout = useLogout();
-  const { openPicker, isUploading, sheetProps } = useProfileAvatarPicker();
+  const { openPicker, isUploading, localPreviewUri, sheetProps } = useProfileAvatarPicker();
   const [viewerOpen, setViewerOpen] = useState(false);
   const rawName = user?.name ?? user?.email?.split('@')[0] ?? PROFILE_USER.name;
   const displayName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
@@ -50,7 +50,11 @@ export default function ProfileScreen() {
     storedUser?.avatarUrl,
     user?.avatarUrl,
   );
-  const avatarSource = avatarUrl ? { uri: avatarUrl } : undefined;
+  const avatarSource = localPreviewUri
+    ? { uri: localPreviewUri }
+    : avatarUrl
+      ? { uri: avatarUrl }
+      : undefined;
 
   const handleAvatarPress = useCallback(() => {
     if (avatarUrl) {

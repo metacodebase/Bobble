@@ -15,7 +15,8 @@ type AvatarImageViewerProps = {
 export function AvatarImageViewer({ visible, avatarUrl, onClose }: AvatarImageViewerProps) {
   const insets = useSafeAreaInsets();
   const authToken = useAppStore((s) => s.authToken);
-  const source = buildAvatarImageSource(avatarUrl, authToken);
+  const avatarCacheKey = useAppStore((s) => s.avatarCacheKey);
+  const source = buildAvatarImageSource(avatarUrl, authToken, avatarCacheKey);
 
   if (!source) return null;
 
@@ -36,6 +37,7 @@ export function AvatarImageViewer({ visible, avatarUrl, onClose }: AvatarImageVi
 
         <View style={styles.imageWrap}>
           <Image
+            key={avatarCacheKey}
             source={source}
             style={styles.image}
             contentFit="contain"

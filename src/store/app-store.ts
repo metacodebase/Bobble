@@ -15,12 +15,16 @@ interface AppState {
   /** Explicit appearance; `null` follows the device light/dark setting. */
   themeOverride: 'light' | 'dark' | null;
 
+  /** Bumped after avatar upload so the stable proxy URL refetches. */
+  avatarCacheKey: number;
+
   setSession: (session: AuthSession) => void;
   setAuthToken: (token: string | null) => void;
   setUser: (user: AuthUser | null) => void;
   setHasOnboarded: (value: boolean) => void;
   setHasHydrated: (value: boolean) => void;
   setThemeOverride: (theme: 'light' | 'dark' | null) => void;
+  bumpAvatarCacheKey: () => void;
   clearSession: () => void;
 }
 
@@ -34,6 +38,7 @@ const createAppState: StateCreator<AppState> = (set) => ({
   hasOnboarded: false,
   hasHydrated: isDemoMode,
   themeOverride: null,
+  avatarCacheKey: 0,
 
   setSession: (session) =>
     set({
@@ -58,12 +63,15 @@ const createAppState: StateCreator<AppState> = (set) => ({
 
   setThemeOverride: (theme) => set({ themeOverride: theme }),
 
+  bumpAvatarCacheKey: () => set({ avatarCacheKey: Date.now() }),
+
   clearSession: () =>
     set({
       authToken: null,
       refreshToken: null,
       user: null,
       isAuthenticated: false,
+      avatarCacheKey: 0,
     }),
 });
 

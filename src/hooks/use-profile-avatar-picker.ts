@@ -17,7 +17,7 @@ const PICKER_OPTIONS: ImagePicker.ImagePickerOptions = {
 
 async function pickImage(
   source: 'library' | 'camera',
-): Promise<{ base64: string; mimeType: string } | null> {
+): Promise<{ base64: string; mimeType: string; uri: string } | null> {
   const permission =
     source === 'camera'
       ? await ImagePicker.requestCameraPermissionsAsync()
@@ -51,11 +51,13 @@ async function pickImage(
   return {
     base64,
     mimeType: asset.mimeType ?? 'image/jpeg',
+    uri: asset.uri,
   };
 }
 
 export function useProfileAvatarPicker() {
   const [visible, setVisible] = useState(false);
+  const [localPreviewUri, setLocalPreviewUri] = useState<string | null>(null);
   const uploadAvatar = useUploadAvatar();
 
   const closePicker = useCallback(() => setVisible(false), []);
@@ -72,10 +74,16 @@ export function useProfileAvatarPicker() {
       try {
         const payload = await pickImage(source);
         if (!payload) return;
-        uploadAvatar.mutate({
-          imageBase64: payload.base64,
-          mimeType: payload.mimeType,
-        });
+        setLocalPreviewUri(payload.uri);
+        uploadAvatar.mutate(
+          {
+            imageBase64: payload.base64,
+            mimeType: payload.mimeType,
+          },
+          {
+            onSettled: () => setLocalPreviewUri(null),
+          },
+        );
       } catch (error) {
         console.warn('[profile] avatar pick failed', error);
         toast.error('Could not update your profile photo.');
@@ -105,6 +113,7 @@ export function useProfileAvatarPicker() {
   return {
     openPicker,
     closePicker,
+    localPreviewUri,
     isUploading: uploadAvatar.isPending,
     sheetProps: {
       visible,
