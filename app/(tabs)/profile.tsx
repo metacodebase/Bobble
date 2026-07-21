@@ -12,10 +12,12 @@ import { ProfileMenuRow } from '@/src/components/ui/profile-menu-row';
 import { ScreenHeader } from '@/src/components/ui/screen-header';
 import { PROFILE_MENU, PROFILE_USER } from '@/src/data/demo-data';
 import { useLogout, useMe } from '@/src/hooks/api';
+import { useProfile } from '@/src/hooks/profile';
 import { useProfileAvatarPicker } from '@/src/hooks/use-profile-avatar-picker';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { useAppStore } from '@/src/store/app-store';
 import { Typography } from '@/src/theme/fonts';
+import { resolveAvatarUrl } from '@/src/utils/avatar-url';
 
 const TAB_BAR_CLEARANCE = 100;
 
@@ -35,19 +37,26 @@ export default function ProfileScreen() {
   const colors = useBobbleColors();
   const storedUser = useAppStore((s) => s.user);
   const { data: fetchedUser, refetch } = useMe();
+  const { data: profile, refetch: refetchProfile } = useProfile();
   const user = fetchedUser ?? storedUser;
   const logout = useLogout();
   const { openPicker, isUploading, sheetProps } = useProfileAvatarPicker();
   const rawName = user?.name ?? user?.email?.split('@')[0] ?? PROFILE_USER.name;
   const displayName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
-  const avatarSource = user?.avatarUrl ? { uri: user.avatarUrl } : undefined;
+  const avatarUrl = resolveAvatarUrl(
+    profile?.user.avatarUrl,
+    storedUser?.avatarUrl,
+    user?.avatarUrl,
+  );
+  const avatarSource = avatarUrl ? { uri: avatarUrl } : undefined;
 
   const gamification = user?.gamification;
 
   useFocusEffect(
     useCallback(() => {
       void refetch();
-    }, [refetch]),
+      void refetchProfile();
+    }, [refetch, refetchProfile]),
   );
 
   return (

@@ -1,9 +1,12 @@
 import { Image, ImageSource } from 'expo-image';
+import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, View, ViewStyle } from 'react-native';
 
 import { CameraIcon } from '@/src/components/onboarding/ui-icons';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
+import { useAppStore } from '@/src/store/app-store';
 import { BobbleColors } from '@/src/theme/colors';
+import { buildAvatarImageSource, resolveAvatarUrl } from '@/src/utils/avatar-url';
 
 const DEFAULT_PROFILE_IMAGE = require('@/src/assets/images/profile-avatar-default.png');
 
@@ -27,11 +30,36 @@ export function ProfileAvatar({
   style,
 }: ProfileAvatarProps) {
   const colors = useBobbleColors();
+  const authToken = useAppStore((s) => s.authToken);
+  const [loadFailed, setLoadFailed] = useState(false);
   const radius = size / 2;
   const cameraSize = size * (36 / 140);
   const cameraIcon = size * (18 / 140);
   const cameraBorder = size * (3 / 140);
-  const resolvedSource = imageSource ?? DEFAULT_PROFILE_IMAGE;
+  const remoteUri =
+    typeof imageSource === 'object' && imageSource && 'uri' in imageSource
+      ? imageSource.uri
+      : undefined;
+  const validRemoteUri = resolveAvatarUrl(remoteUri);
+
+  const resolvedSource = useMemo(() => {
+    if (!validRemoteUri || loadFailed) return DEFAULT_PROFILE_IMAGE;
+    return buildAvatarImageSource(validRemoteUri, authToken) ?? DEFAULT_PROFILE_IMAGE;
+  }, [authToken, loadFailed, validRemoteUri]);
+
+  useEffect(() => {
+    setLoadFailed(false);
+  }, [validRemoteUri, authToken]);
+
+  useEffect(() => {
+    if (!validRemoteUri) return;
+    const source = buildAvatarImageSource(validRemoteUri, authToken);
+    console.log('[ProfileAvatar] loading', {
+      storedUrl: validRemoteUri,
+      loadUrl: source && typeof source === 'object' && 'uri' in source ? source.uri : source,
+      hasAuth: Boolean(authToken),
+    });
+  }, [authToken, validRemoteUri]);
 
   return (
     <View style={[styles.wrapper, centered && styles.wrapperCentered, style]}>
@@ -44,13 +72,24 @@ export function ProfileAvatar({
             width: size,
             height: size,
             borderRadius: radius,
+            backgroundColor: colors.border,
           },
         ]}
       >
         <Image
+          key={`${validRemoteUri ?? 'default'}-${loadFailed ? 'fallback' : 'remote'}`}
           source={resolvedSource}
           style={{ width: size, height: size, borderRadius: radius }}
           contentFit="cover"
+          cachePolicy={validRemoteUri && !loadFailed ? 'none' : 'memory-disk'}
+          onLoad={() => {
+            console.log('[ProfileAvatar] loaded OK');
+            setLoadFailed(false);
+          }}
+          onError={(error) => {
+            console.warn('[ProfileAvatar] load failed', error);
+            setLoadFailed(true);
+          }}
         />
         {uploading ? (
           <View style={[styles.uploadOverlay, { borderRadius: radius }]}>

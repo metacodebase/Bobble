@@ -5,6 +5,7 @@ import type { UpdateProfileBody, UploadAvatarBody } from '@/src/features/profile
 import { queryKeys } from '@/src/services/query-keys';
 import { useAppStore } from '@/src/store/app-store';
 import { getApiErrorMessage } from '@/src/utils/api-error';
+import { resolveAvatarUrl } from '@/src/utils/avatar-url';
 import { toast } from '@/src/utils/toast';
 
 export function useProfile(enabled = true) {
@@ -20,13 +21,13 @@ export function useProfile(enabled = true) {
 export function useUpdateProfile() {
   const qc = useQueryClient();
   const setUser = useAppStore((s) => s.setUser);
-  const user = useAppStore((s) => s.user);
 
   return useMutation({
     mutationFn: (body: UpdateProfileBody) => profileApi.updateProfile(body),
     onSuccess: (profile) => {
       qc.setQueryData(queryKeys.profile.me, profile);
-      applyProfileUser(profile, setUser, user);
+      applyProfileUser(profile, setUser);
+      syncAuthMeAvatar(qc, profile.user.avatarUrl);
       qc.invalidateQueries({ queryKey: queryKeys.auth.me });
       toast.success('Profile updated');
     },
@@ -37,30 +38,41 @@ export function useUpdateProfile() {
 function applyProfileUser(
   profile: Awaited<ReturnType<typeof profileApi.fetchProfile>>,
   setUser: ReturnType<typeof useAppStore.getState>['setUser'],
-  user: ReturnType<typeof useAppStore.getState>['user'],
 ) {
-  if (!user) return;
+  const current = useAppStore.getState().user;
+  if (!current) return;
   setUser({
-    ...user,
+    ...current,
     name: profile.user.name,
     handle: profile.user.handle,
-    avatarUrl: profile.user.avatarUrl,
+    avatarUrl: resolveAvatarUrl(profile.user.avatarUrl) ?? profile.user.avatarUrl,
   });
 }
 
 export function useUploadAvatar() {
   const qc = useQueryClient();
   const setUser = useAppStore((s) => s.setUser);
-  const user = useAppStore((s) => s.user);
 
   return useMutation({
     mutationFn: (body: UploadAvatarBody) => profileApi.uploadAvatar(body),
     onSuccess: (profile) => {
       qc.setQueryData(queryKeys.profile.me, profile);
-      applyProfileUser(profile, setUser, user);
+      applyProfileUser(profile, setUser);
+      syncAuthMeAvatar(qc, profile.user.avatarUrl);
       qc.invalidateQueries({ queryKey: queryKeys.auth.me });
       toast.success('Profile photo updated');
     },
     onError: (e) => toast.error(getApiErrorMessage(e, 'Could not upload profile photo')),
+  });
+}
+
+function syncAuthMeAvatar(
+  qc: ReturnType<typeof useQueryClient>,
+  avatarUrl?: string,
+) {
+  const resolved = resolveAvatarUrl(avatarUrl);
+  qc.setQueryData(queryKeys.auth.me, (current: ReturnType<typeof useAppStore.getState>['user']) => {
+    if (!current) return current;
+    return { ...current, avatarUrl: resolved };
   });
 }

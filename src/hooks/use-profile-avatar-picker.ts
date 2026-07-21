@@ -11,7 +11,8 @@ const PICKER_OPTIONS: ImagePicker.ImagePickerOptions = {
   mediaTypes: ['images'],
   allowsEditing: true,
   aspect: [1, 1],
-  quality: 0.85,
+  quality: 0.55,
+  base64: true,
 };
 
 async function pickImage(
@@ -41,7 +42,7 @@ async function pickImage(
   }
 
   const asset = result.assets[0];
-  const base64 = await readAsStringAsync(asset.uri, { encoding: EncodingType.Base64 });
+  const base64 = asset.base64 ?? (await readAsStringAsync(asset.uri, { encoding: EncodingType.Base64 }));
   if (!base64) {
     toast.error('Could not read the selected photo.');
     return null;

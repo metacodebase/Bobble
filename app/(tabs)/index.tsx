@@ -15,6 +15,7 @@ import { useTasks, useToggleTask } from '@/src/hooks/tasks';
 import { useAppStore } from '@/src/store/app-store';
 import { CaptureKind, useCaptureStore } from '@/src/store/capture-store';
 import { getDayPeriod, getGreeting } from '@/src/utils/day-period';
+import { resolveAvatarUrl } from '@/src/utils/avatar-url';
 
 function getProgressSubtitle(completed: number, total: number) {
   if (total === 0) return 'Your day is just beginning, record your first Bobble.';
@@ -73,7 +74,7 @@ export default function HomeScreen() {
   const { data: profile } = useProfile();
   const displayName =
     profile?.user.name?.split(' ')[0] ?? storeUser?.name?.split(' ')[0] ?? 'there';
-  const avatarUrl = profile?.user.avatarUrl ?? storeUser?.avatarUrl;
+  const avatarUrl = resolveAvatarUrl(profile?.user.avatarUrl, storeUser?.avatarUrl);
   const { data: todayTasks = [] } = useTasks('today');
   const toggleTask = useToggleTask();
 
