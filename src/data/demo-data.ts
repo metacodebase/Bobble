@@ -292,6 +292,8 @@ export const PROFILE_USER = {
   name: 'Steven',
   handle: '@steven_thinks',
   email: 'steven@example.com',
+  phone: '+61 457 596 267',
+  address: '',
 } as const;
 
 export function getBobbleById(id: string): BobbleItem | undefined {

@@ -46,6 +46,8 @@ function applyProfileUser(
     name: profile.user.name,
     handle: profile.user.handle,
     avatarUrl: resolveAvatarUrl(profile.user.avatarUrl) ?? profile.user.avatarUrl,
+    phone: profile.user.phone,
+    address: profile.user.address,
   });
 }
 

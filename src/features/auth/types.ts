@@ -22,6 +22,8 @@ export interface AuthUser {
   email: string;
   handle?: string;
   avatarUrl?: string;
+  phone?: string;
+  address?: string;
   gamification?: Gamification;
 }
 

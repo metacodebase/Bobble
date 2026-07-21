@@ -11,6 +11,8 @@ function buildProfile(overrides: UpdateProfileBody = {}): ProfilePayload {
       email: sessionUser?.email ?? PROFILE_USER.email,
       handle: overrides.handle ?? sessionUser?.handle ?? PROFILE_USER.handle,
       avatarUrl: overrides.avatarUrl ?? sessionUser?.avatarUrl,
+      phone: overrides.phone ?? sessionUser?.phone ?? PROFILE_USER.phone,
+      address: overrides.address ?? sessionUser?.address ?? PROFILE_USER.address,
     },
     gamification: {
       level: GAMIFICATION.level,

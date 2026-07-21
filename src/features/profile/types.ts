@@ -4,6 +4,8 @@ export interface ProfileUser {
   email: string;
   handle?: string;
   avatarUrl?: string;
+  phone?: string;
+  address?: string;
 }
 
 export interface ProfilePayload {
@@ -29,6 +31,8 @@ export interface UpdateProfileBody {
   name?: string;
   handle?: string;
   avatarUrl?: string;
+  phone?: string;
+  address?: string;
 }
 
 export interface UploadAvatarBody {

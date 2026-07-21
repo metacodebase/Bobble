@@ -16,13 +16,13 @@ export default function NotificationsScreen() {
   return (
     <SettingsScreenLayout title="Notifications">
       <SettingsDescription>
-        Choose how Bobble keeps you updated on tasks, streaks, and new insights.
+        Choose how Bobble keeps you updated.
       </SettingsDescription>
 
       <SettingsSection title="Alerts">
         <SettingsToggleRow
           label="Push notifications"
-          description="Task reminders and streak updates"
+          description="Task reminders."
           value={pushEnabled}
           onValueChange={setPushEnabled}
         />
