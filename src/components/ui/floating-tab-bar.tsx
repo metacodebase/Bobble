@@ -1,4 +1,3 @@
-import { Image } from 'expo-image';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { BlurView } from 'expo-blur';
 import {
@@ -6,6 +5,7 @@ import {
   isGlassEffectAPIAvailable,
   isLiquidGlassAvailable,
 } from 'expo-glass-effect';
+import { Image } from 'expo-image';
 import { Href, router } from 'expo-router';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -92,7 +92,7 @@ function TabBarSurface({
             style={[
               styles.barGlass,
               isDark ? styles.barShadowDark : styles.barShadowLight,
-              { backgroundColor: isDark ? 'rgba(0,0,0,0.3)' : 'rgba(255,255,255,0.3)' }
+              { backgroundColor: 'rgba(255,255,255,0.4)' }
             ]}
             tint={colorScheme}
             intensity={0}

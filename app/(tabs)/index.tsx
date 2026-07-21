@@ -73,6 +73,7 @@ export default function HomeScreen() {
   const { data: profile } = useProfile();
   const displayName =
     profile?.user.name?.split(' ')[0] ?? storeUser?.name?.split(' ')[0] ?? 'there';
+  const avatarUrl = profile?.user.avatarUrl ?? storeUser?.avatarUrl;
   const { data: todayTasks = [] } = useTasks('today');
   const toggleTask = useToggleTask();
 
@@ -110,6 +111,7 @@ export default function HomeScreen() {
           <HomeHeader
             greeting={getGreeting()}
             name={displayName}
+            avatarUrl={avatarUrl}
             onProfilePress={() => router.push('/(tabs)/profile' as Href)}
           />
         </View>

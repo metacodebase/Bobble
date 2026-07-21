@@ -1,5 +1,5 @@
 import { Image, ImageSource } from 'expo-image';
-import { Pressable, StyleSheet, View, ViewStyle } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, View, ViewStyle } from 'react-native';
 
 import { CameraIcon } from '@/src/components/onboarding/ui-icons';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
@@ -13,6 +13,7 @@ type ProfileAvatarProps = {
   showCamera?: boolean;
   centered?: boolean;
   imageSource?: ImageSource;
+  uploading?: boolean;
   style?: ViewStyle;
 };
 
@@ -21,7 +22,8 @@ export function ProfileAvatar({
   size = 140,
   showCamera = true,
   centered = true,
-  imageSource = DEFAULT_PROFILE_IMAGE,
+  imageSource,
+  uploading = false,
   style,
 }: ProfileAvatarProps) {
   const colors = useBobbleColors();
@@ -29,10 +31,13 @@ export function ProfileAvatar({
   const cameraSize = size * (36 / 140);
   const cameraIcon = size * (18 / 140);
   const cameraBorder = size * (3 / 140);
+  const resolvedSource = imageSource ?? DEFAULT_PROFILE_IMAGE;
 
   return (
     <View style={[styles.wrapper, centered && styles.wrapperCentered, style]}>
-      <View
+      <Pressable
+        onPress={onPress}
+        disabled={!onPress || uploading}
         style={[
           styles.avatar,
           {
@@ -43,15 +48,20 @@ export function ProfileAvatar({
         ]}
       >
         <Image
-          source={imageSource}
+          source={resolvedSource}
           style={{ width: size, height: size, borderRadius: radius }}
           contentFit="cover"
         />
-      </View>
+        {uploading ? (
+          <View style={[styles.uploadOverlay, { borderRadius: radius }]}>
+            <ActivityIndicator color="#FFFFFF" />
+          </View>
+        ) : null}
+      </Pressable>
       {showCamera ? (
         <Pressable
           onPress={onPress}
-          disabled={!onPress}
+          disabled={!onPress || uploading}
           style={({ pressed }) => [
             styles.cameraButton,
             {
@@ -85,6 +95,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
+  },
+  uploadOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.35)',
   },
   cameraButton: {
     position: 'absolute',

@@ -16,11 +16,12 @@ export type ActionSheetOption = {
 type ActionSheetProps = {
   visible: boolean;
   title?: string;
+  subtitle?: string;
   options: ActionSheetOption[];
   onClose: () => void;
 };
 
-export function ActionSheet({ visible, title, options, onClose }: ActionSheetProps) {
+export function ActionSheet({ visible, title, subtitle, options, onClose }: ActionSheetProps) {
   const colors = useBobbleColors();
   const insets = useSafeAreaInsets();
 
@@ -30,7 +31,7 @@ export function ActionSheet({ visible, title, options, onClose }: ActionSheetPro
   };
 
   return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
+    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <View style={styles.root}>
         <Pressable style={styles.backdrop} onPress={onClose} accessibilityRole="button" accessibilityLabel="Close menu" />
 
@@ -43,13 +44,22 @@ export function ActionSheet({ visible, title, options, onClose }: ActionSheetPro
             },
           ]}
         >
-          {title ? (
-            <Text style={[styles.title, { color: colors.textSecondary }]} numberOfLines={1}>
-              {title}
-            </Text>
+          {title || subtitle ? (
+            <View style={[styles.header, { backgroundColor: colors.surface }]}>
+              {title ? (
+                <Text style={[styles.title, { color: colors.text }]} numberOfLines={1}>
+                  {title}
+                </Text>
+              ) : null}
+              {subtitle ? (
+                <Text style={[styles.subtitle, { color: colors.textSecondary }]} numberOfLines={2}>
+                  {subtitle}
+                </Text>
+              ) : null}
+            </View>
           ) : null}
 
-          <View style={[styles.optionsGroup, { backgroundColor: colors.borderLight }]}>
+          <View style={[styles.optionsGroup, { backgroundColor: colors.surface }]}>
             {options.map((option, index) => {
               const Icon = option.icon;
               const isLast = index === options.length - 1;
@@ -68,11 +78,9 @@ export function ActionSheet({ visible, title, options, onClose }: ActionSheetPro
                   ]}
                 >
                   {Icon ? (
-                    <Icon
-                      size={20}
-                      color={option.destructive ? colors.error : colors.textSecondary}
-                      strokeWidth={2}
-                    />
+                    <View style={[styles.iconWrap, { backgroundColor: `${colors.primary}18` }]}>
+                      <Icon size={20} color={colors.primary} strokeWidth={2} />
+                    </View>
                   ) : null}
                   <Text
                     style={[
@@ -92,11 +100,11 @@ export function ActionSheet({ visible, title, options, onClose }: ActionSheetPro
             onPress={onClose}
             style={({ pressed }) => [
               styles.cancel,
-              { backgroundColor: colors.borderLight },
+              { backgroundColor: colors.surface },
               pressed && styles.pressed,
             ]}
           >
-            <Text style={[styles.cancelLabel, { color: colors.text }]}>Cancel</Text>
+            <Text style={[styles.cancelLabel, { color: colors.textSecondary }]}>Cancel</Text>
           </Pressable>
         </View>
       </View>
@@ -115,34 +123,57 @@ const styles = StyleSheet.create({
   },
   sheet: {
     paddingHorizontal: 16,
-    paddingTop: 8,
-    gap: 8,
+    paddingTop: 12,
+    gap: 10,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+  },
+  header: {
+    borderRadius: 20,
+    paddingHorizontal: 18,
+    paddingVertical: 16,
+    gap: 4,
   },
   title: {
-    ...Typography.caption,
+    ...Typography.heading,
+    fontSize: 20,
+    lineHeight: 26,
     textAlign: 'center',
-    paddingVertical: 8,
-    paddingHorizontal: 12,
+  },
+  subtitle: {
+    ...Typography.body,
+    fontSize: 14,
+    lineHeight: 20,
+    textAlign: 'center',
   },
   optionsGroup: {
-    borderRadius: 14,
+    borderRadius: 20,
     overflow: 'hidden',
   },
   option: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: 14,
     paddingHorizontal: 16,
     paddingVertical: 16,
   },
+  iconWrap: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   optionLabel: {
     ...Typography.body,
+    fontSize: 16,
+    flex: 1,
   },
   destructiveLabel: {
     fontFamily: Typography.button.fontFamily,
   },
   cancel: {
-    borderRadius: 14,
+    borderRadius: 20,
     alignItems: 'center',
     paddingVertical: 16,
   },

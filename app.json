@@ -17,6 +17,8 @@
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
         "NSMicrophoneUsageDescription": "Bobble uses your microphone to record voice memos and show a live waveform while you speak.",
+        "NSPhotoLibraryUsageDescription": "Bobble uses your photo library so you can choose a profile picture.",
+        "NSCameraUsageDescription": "Bobble uses your camera so you can take a profile picture.",
         "NSCalendarsUsageDescription": "Bobble uses your calendar to sync tasks and events from your Bobbles.",
         "NSCalendarsFullAccessUsageDescription": "Bobble uses your calendar to sync tasks and events from your Bobbles.",
         "NSRemindersUsageDescription": "Bobble uses your reminders to sync tasks from your Bobbles.",
@@ -48,7 +50,11 @@
       "package": "com.metacodebase.Bobble",
       "googleServicesFile": "./google-services.json",
       "usesCleartextTraffic": true,
-      "permissions": ["android.permission.RECORD_AUDIO", "android.permission.MODIFY_AUDIO_SETTINGS"]
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.MODIFY_AUDIO_SETTINGS",
+        "android.permission.CAMERA"
+      ]
     },
     "web": {
       "output": "static",
@@ -80,6 +86,13 @@
         "expo-audio",
         {
           "microphonePermission": "Bobble uses your microphone to record voice memos and show a live waveform while you speak."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Bobble uses your photo library so you can choose a profile picture.",
+          "cameraPermission": "Bobble uses your camera so you can take a profile picture."
         }
       ],
       [

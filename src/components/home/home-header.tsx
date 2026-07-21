@@ -10,10 +10,11 @@ import { Typography } from '@/src/theme/fonts';
 type HomeHeaderProps = {
   greeting: string;
   name: string;
+  avatarUrl?: string | null;
   onProfilePress?: () => void;
 };
 
-export function HomeHeader({ greeting, name, onProfilePress }: HomeHeaderProps) {
+export function HomeHeader({ greeting, name, avatarUrl, onProfilePress }: HomeHeaderProps) {
   const colors = useBobbleColors();
   const night = useNightForeground();
   const { isDark, toggle } = useThemeToggle();
@@ -43,7 +44,12 @@ export function HomeHeader({ greeting, name, onProfilePress }: HomeHeaderProps) 
         </Pressable>
 
         <Pressable onPress={onProfilePress} hitSlop={8}>
-          <ProfileAvatar size={48} showCamera={false} centered={false} />
+          <ProfileAvatar
+            size={48}
+            showCamera={false}
+            centered={false}
+            imageSource={avatarUrl ? { uri: avatarUrl } : undefined}
+          />
         </Pressable>
       </View>
     </View>

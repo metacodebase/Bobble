@@ -6,11 +6,13 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 
 import { ProfileAvatar } from '@/src/components/create-account/profile-avatar';
+import { ActionSheet } from '@/src/components/ui/action-sheet';
 import { StatCard } from '@/src/components/profile/stat-card';
 import { ProfileMenuRow } from '@/src/components/ui/profile-menu-row';
 import { ScreenHeader } from '@/src/components/ui/screen-header';
 import { PROFILE_MENU, PROFILE_USER } from '@/src/data/demo-data';
 import { useLogout, useMe } from '@/src/hooks/api';
+import { useProfileAvatarPicker } from '@/src/hooks/use-profile-avatar-picker';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { useAppStore } from '@/src/store/app-store';
 import { Typography } from '@/src/theme/fonts';
@@ -35,8 +37,10 @@ export default function ProfileScreen() {
   const { data: fetchedUser, refetch } = useMe();
   const user = fetchedUser ?? storedUser;
   const logout = useLogout();
+  const { openPicker, isUploading, sheetProps } = useProfileAvatarPicker();
   const rawName = user?.name ?? user?.email?.split('@')[0] ?? PROFILE_USER.name;
   const displayName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
+  const avatarSource = user?.avatarUrl ? { uri: user.avatarUrl } : undefined;
 
   const gamification = user?.gamification;
 
@@ -64,7 +68,13 @@ export default function ProfileScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View style={[styles.heroCard, { backgroundColor: colors.surface }]}>
-          <ProfileAvatar size={140} style={styles.avatar} onPress={() => {}} />
+          <ProfileAvatar
+            size={140}
+            style={styles.avatar}
+            imageSource={avatarSource}
+            uploading={isUploading}
+            onPress={openPicker}
+          />
           <Text style={[styles.name, { color: colors.text }]}>{displayName}</Text>
 
           <View style={styles.statsRow}>
@@ -93,6 +103,8 @@ export default function ProfileScreen() {
           />
         </View>
       </ScrollView>
+
+      <ActionSheet {...sheetProps} />
     </View>
   );
 }
