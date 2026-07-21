@@ -1,6 +1,6 @@
 import { Href, router } from 'expo-router';
 import { Mic } from 'lucide-react-native';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Dimensions, Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -36,6 +36,7 @@ function getHomeMascotVariant(): HomeVariant {
 }
 
 const TAB_BAR_CLEARANCE = 100;
+const TODAY_ROW_HEIGHT = Math.round(Dimensions.get('window').height * 0.25);
 
 const QUICK_ACTIONS = [
   {
@@ -87,6 +88,7 @@ export default function HomeScreen() {
   const completedCount = todayTasks.filter((task) => task.done).length;
   const totalCount = todayTasks.length;
   const homeMascotVariant = getHomeMascotVariant();
+  const [focusListScrolling, setFocusListScrolling] = useState(false);
 
   const startCapture = (kind: CaptureKind = 'bobble') => {
     setCaptureKind(kind);
@@ -102,6 +104,7 @@ export default function HomeScreen() {
           { paddingBottom: insets.bottom + TAB_BAR_CLEARANCE },
         ]}
         showsVerticalScrollIndicator={false}
+        scrollEnabled={!focusListScrolling}
       >
         <View style={styles.headerSection}>
           <HomeHeader
@@ -143,11 +146,12 @@ export default function HomeScreen() {
           ))}
         </View>
 
-        <View style={styles.todayRow}>
+        <View style={[styles.todayRow, { height: TODAY_ROW_HEIGHT }]}>
           <TodayFocusCard
             tasks={focusTasks}
             onToggle={(id) => toggleTask.mutate(id)}
             emptyMessage="No tasks due today."
+            onParentScrollLockChange={setFocusListScrolling}
           />
           <TodayProgressCard
             completed={completedCount}
@@ -197,6 +201,5 @@ const styles = StyleSheet.create({
     width: '95%',
     alignSelf: 'center',
     marginBottom: 24,
-    maxHeight: '25%'
   },
 });

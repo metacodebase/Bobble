@@ -1,6 +1,7 @@
 import { Image } from 'expo-image';
 import { Check } from 'lucide-react-native';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { ScrollView } from 'react-native-gesture-handler';
 
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { Typography } from '@/src/theme/fonts';
@@ -17,15 +18,19 @@ type TodayFocusCardProps = {
   tasks?: FocusTask[];
   onToggle?: (id: string) => void;
   emptyMessage?: string;
+  onParentScrollLockChange?: (locked: boolean) => void;
 };
 
 export function TodayFocusCard({
   tasks = [],
   onToggle,
   emptyMessage = 'Record your first Bobble.',
+  onParentScrollLockChange,
 }: TodayFocusCardProps) {
   const colors = useBobbleColors();
   const hasTasks = tasks.length > 0;
+
+  const unlockParentScroll = () => onParentScrollLockChange?.(false);
 
   return (
     <View
@@ -37,10 +42,22 @@ export function TodayFocusCard({
         },
       ]}
     >
-      <Text style={[styles.title, { color: colors.primary }]}>Today's Focus</Text>
+      <Text style={[styles.title, { color: colors.primary }]}>
+        Today&apos;s Focus ({tasks.length})
+      </Text>
 
       {hasTasks ? (
-        <View style={styles.list}>
+        <ScrollView
+          style={styles.list}
+          contentContainerStyle={styles.listContent}
+          showsVerticalScrollIndicator={false}
+          nestedScrollEnabled
+          onTouchStart={() => onParentScrollLockChange?.(true)}
+          onTouchEnd={unlockParentScroll}
+          onTouchCancel={unlockParentScroll}
+          onScrollEndDrag={unlockParentScroll}
+          onMomentumScrollEnd={unlockParentScroll}
+        >
           {tasks.map((task, index) => (
             <Pressable
               key={task.id}
@@ -82,7 +99,7 @@ export function TodayFocusCard({
               </Text>
             </Pressable>
           ))}
-        </View>
+        </ScrollView>
       ) : (
         <View style={styles.body}>
           <Text style={[styles.message, { color: colors.textSecondary }]}>
@@ -112,6 +129,7 @@ const styles = StyleSheet.create({
     padding: 14,
     minHeight: 150,
     gap: 8,
+    overflow: 'hidden',
   },
   title: {
     ...Typography.caption,
@@ -120,7 +138,10 @@ const styles = StyleSheet.create({
   },
   list: {
     flex: 1,
-    justifyContent: 'flex-start',
+    minHeight: 0,
+  },
+  listContent: {
+    flexGrow: 1,
   },
   row: {
     flexDirection: 'row',
