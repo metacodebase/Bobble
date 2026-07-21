@@ -2,6 +2,7 @@ import { Href, router } from 'expo-router';
 import { useState } from 'react';
 import { Platform, StyleSheet, Text, View } from 'react-native';
 
+import { TermsNotice } from '@/src/components/create-account/terms-notice';
 import { OnboardingScreenLayout } from '@/src/components/onboarding/onboarding-screen-layout';
 import { SocialButton } from '@/src/components/onboarding/social-button';
 import { isDemoMode } from '@/src/config/backend';
@@ -100,7 +101,27 @@ export default function AuthScreen() {
   };
 
   return (
-    <OnboardingScreenLayout contentStyle={styles.content} backgroundImage={require('@/src/assets/images/background/five.png')}>
+    <OnboardingScreenLayout
+      contentStyle={styles.content}
+      backgroundImage={require('@/src/assets/images/background/five.png')}
+      footer={
+        <View style={styles.footerStack}>
+          <TermsNotice
+            prefix={
+              mode === 'sign-up'
+                ? 'By signing up, you agree to our'
+                : 'By signing in, you agree to our'
+            }
+          />
+          <Text style={[styles.footerText, { color: colors.text }]}>
+            {copy.footerPrompt}{' '}
+            <Text style={[styles.footerLink, { color: colors.textAccent }]} onPress={toggleMode}>
+              {copy.footerAction}
+            </Text>
+          </Text>
+        </View>
+      }
+    >
       <View style={styles.header}>
         <AuthHeading mode={mode} />
       </View>
@@ -121,28 +142,20 @@ export default function AuthScreen() {
 
         <SocialButton
           provider="email"
-          label="Continue with Email"
+          label={mode === 'sign-up' ? 'Sign up with Email' : 'Continue with Email'}
           onPress={handleEmailAuth}
           disabled={isPending}
         />
-        <View style={styles.footer}>
-        <Text style={[styles.footerText, { color: colors.text }]}>
-          {copy.footerPrompt}{' '}
-          <Text style={[styles.footerLink, { color: colors.textAccent }]} onPress={toggleMode}>
-            {copy.footerAction}
-          </Text>
-        </Text>
       </View>
-      </View>
-
-  
     </OnboardingScreenLayout>
   );
 }
 
+const FOOTER_LINE_HEIGHT = 20;
+const FOOTER_GAP = 16;
+
 const styles = StyleSheet.create({
   content: {
-    justifyContent: 'space-between',
     width: '80%',
     alignSelf: 'center',
   },
@@ -152,7 +165,7 @@ const styles = StyleSheet.create({
   },
   headingGroup: {
     gap: 8,
-    marginBottom: 20,
+    marginBottom: 28,
     width: '100%',
     alignSelf: 'center',
   },
@@ -166,25 +179,30 @@ const styles = StyleSheet.create({
   },
   buttons: {
     width: '100%',
-    gap: 18, 
-    height: '70%',
-    justifyContent:'flex-start',
-    alignItems:'center',
+    gap: 18,
+    alignItems: 'center',
+    height: "70%",
+    justifyContent: "center",
+    alignSelf: "center"
   },
   dividerText: {
     ...Typography.divider,
     textAlign: 'center',
-    // marginVertical: 4,
   },
-  footer: {
+  footerStack: {
+    width: '100%',
     alignItems: 'center',
-    paddingBottom: 8,
+    gap: FOOTER_GAP,
+    paddingTop: 8,
   },
   footerText: {
     ...Typography.caption,
+    textAlign: 'center',
+    lineHeight: FOOTER_LINE_HEIGHT,
   },
   footerLink: {
     ...Typography.caption,
     fontWeight: '600',
+    lineHeight: FOOTER_LINE_HEIGHT,
   },
 });

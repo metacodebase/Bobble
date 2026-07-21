@@ -20,6 +20,7 @@ import { PhoneInput } from '@/src/components/create-account/phone-input';
 import { PickerModal } from '@/src/components/create-account/picker-modal';
 import { ProfileAvatar } from '@/src/components/create-account/profile-avatar';
 import { SelectField } from '@/src/components/create-account/select-field';
+import { TermsAcceptance } from '@/src/components/create-account/terms-acceptance';
 import { TextLinkButton } from '@/src/components/create-account/text-link-button';
 import { AccentText } from '@/src/components/onboarding/accent-heading';
 import { OnboardingScreenLayout } from '@/src/components/onboarding/onboarding-screen-layout';
@@ -111,6 +112,7 @@ export default function CreateAccountScreen() {
   const [datePickerVisible, setDatePickerVisible] = useState(false);
   const [countryPickerVisible, setCountryPickerVisible] = useState(false);
   const [timeZonePickerVisible, setTimeZonePickerVisible] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   const navigation = useNavigation();
   const register = useRegister();
@@ -189,6 +191,10 @@ export default function CreateAccountScreen() {
         toast.error('Please enter your phone number');
         return false;
       }
+      if (!acceptedTerms) {
+        toast.error('Please accept the Terms & Conditions');
+        return false;
+      }
     }
     if (current === 1 && password.length < 8) {
       toast.error('Password must be at least 8 characters');
@@ -233,10 +239,11 @@ export default function CreateAccountScreen() {
       !dob ||
       !EMAIL_REGEX.test(email.trim()) ||
       !phone.trim() ||
-      password.length < 8
+      password.length < 8 ||
+      !acceptedTerms
     ) {
       toast.error('Please complete all required fields');
-      if (!fullName.trim() || !dob || !EMAIL_REGEX.test(email.trim()) || !phone.trim()) {
+      if (!fullName.trim() || !dob || !EMAIL_REGEX.test(email.trim()) || !phone.trim() || !acceptedTerms) {
         setStep(0);
       } else {
         setStep(1);
@@ -387,18 +394,24 @@ export default function CreateAccountScreen() {
     <OnboardingScreenLayout
       contentStyle={styles.content}
       footer={
-        isLast ? (
-          <View style={styles.footerGroup}>
-            <PrimaryButton
-              label="Create Account"
-              onPress={handleFinish}
-              loading={submitting}
-            />
-            <TextLinkButton label="Skip for now" onPress={handleFinish} />
-          </View>
-        ) : (
-          <PrimaryButton label="Continue" onPress={handleContinue} />
-        )
+        <View style={styles.footerGroup}>
+          <TermsAcceptance
+            accepted={acceptedTerms}
+            onToggle={() => setAcceptedTerms((value) => !value)}
+          />
+          {isLast ? (
+            <>
+              <PrimaryButton
+                label="Create Account"
+                onPress={handleFinish}
+                loading={submitting}
+              />
+              <TextLinkButton label="Skip for now" onPress={handleFinish} />
+            </>
+          ) : (
+            <PrimaryButton label="Continue" onPress={handleContinue} />
+          )}
+        </View>
       }
     >
       <GestureDetector gesture={swipeBackGesture}>
@@ -490,7 +503,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   footerGroup: {
-    gap: 8,
+    gap: 12,
     alignItems: 'center',
     width: '100%',
     alignSelf: 'center',
