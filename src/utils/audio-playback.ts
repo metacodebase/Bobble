@@ -1,11 +1,19 @@
 import type { AudioSource } from 'expo-audio';
-import { getInfoAsync } from 'expo-file-system/legacy';
+import { downloadAsync, cacheDirectory, getInfoAsync } from 'expo-file-system/legacy';
 
 import { API } from '@/src/api/endpoints';
 import { getConfiguredApiUrl } from '@/src/config/api';
 
 function isInvalidPlaybackUri(uri: string): boolean {
   return uri.startsWith('offline://');
+}
+
+function isPublicUploadsUrl(url: string): boolean {
+  return /\/uploads\/[^/?#]+$/i.test(url);
+}
+
+function isPrivateObjectStorageUrl(url: string): boolean {
+  return /\.amazonaws\.com\//i.test(url) || /\/recordings\//i.test(url);
 }
 
 async function localFileExists(uri: string): Promise<boolean> {
@@ -21,7 +29,30 @@ export function bobbleRecordingApiUrl(bobbleId: string): string {
   return `${getConfiguredApiUrl()}${API.bobbles.recording(bobbleId)}`;
 }
 
-/** Prefer a local capture file; otherwise stream from the authenticated API route. */
+async function cacheAuthenticatedRecording(
+  bobbleId: string,
+  authToken?: string | null,
+): Promise<string | null> {
+  const headers: Record<string, string> = {
+    Accept: 'audio/*',
+  };
+  if (authToken) {
+    headers.Authorization = `Bearer ${authToken}`;
+  }
+
+  const destination = `${cacheDirectory}bobble-recording-${bobbleId}.m4a`;
+  try {
+    const result = await downloadAsync(bobbleRecordingApiUrl(bobbleId), destination, { headers });
+    if (result.status < 200 || result.status >= 300) {
+      return null;
+    }
+    return result.uri;
+  } catch {
+    return null;
+  }
+}
+
+/** Prefer a local capture file; otherwise play public uploads or stream via the API route. */
 export async function resolvePlaybackSource(options: {
   localUri?: string | null;
   remoteAudioUrl?: string | null;
@@ -36,8 +67,22 @@ export async function resolvePlaybackSource(options: {
   const remote = options.remoteAudioUrl?.trim();
   const bobbleId = options.bobbleId?.trim();
 
-  // S3 recordings are private — always stream through the authenticated API route.
-  if (bobbleId && remote && !isInvalidPlaybackUri(remote)) {
+  if (remote && !isInvalidPlaybackUri(remote) && /^https?:\/\//i.test(remote)) {
+    if (isPublicUploadsUrl(remote) && !isPrivateObjectStorageUrl(remote)) {
+      return remote;
+    }
+
+    if (!isPrivateObjectStorageUrl(remote)) {
+      return remote;
+    }
+  }
+
+  if (bobbleId) {
+    const cached = await cacheAuthenticatedRecording(bobbleId, options.authToken);
+    if (cached) {
+      return cached;
+    }
+
     const headers: Record<string, string> = {};
     if (options.authToken) {
       headers.Authorization = `Bearer ${options.authToken}`;
