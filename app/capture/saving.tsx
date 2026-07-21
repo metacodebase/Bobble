@@ -149,6 +149,7 @@ export default function SavingScreen() {
           title={displayTitle}
           dateLabel={saveData.dateLabel}
           durationMin={saveData.durationMin}
+          bobbleId={createdId ?? undefined}
           onViewBobble={handleViewBobble}
           onHome={handleHome}
         />

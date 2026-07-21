@@ -152,7 +152,12 @@ export default function BobbleDetailScreen() {
 
       {showToolbar ? (
         <BobbleDetailToolbar
-          onShare={() => router.push({ pathname: '/share', params: { title } } as Href)}
+          onShare={() =>
+            router.push({
+              pathname: '/share',
+              params: { bobbleId: id },
+            } as Href)
+          }
           onAddTask={() => router.push('/(tabs)/tasks' as Href)}
           onPin={() => router.push('/(tabs)/bobbles' as Href)}
           onMore={() => setMoreVisible(true)}

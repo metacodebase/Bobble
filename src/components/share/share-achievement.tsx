@@ -1,6 +1,6 @@
 import { Image } from 'expo-image';
 import { Download, Lock, X } from 'lucide-react-native';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { ImageBackground, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -9,6 +9,7 @@ import { ShareAchievementBar } from '@/src/components/share/share-achievement-ba
 import { getBobbleCardById } from '@/src/data/bobble-cards';
 import { BobbleColors } from '@/src/theme/colors';
 import { Typography } from '@/src/theme/fonts';
+import { copyBobbleShareLink, saveBobbleCardToPhotos, shareBobbleCardOnFacebook } from '@/src/utils/share-bobble-card';
 import { toast } from '@/src/utils/toast';
 
 const SHARE_BACKGROUND = require('@/src/assets/images/background/four.png');
@@ -16,15 +17,80 @@ const BOBBLE_CARD_ASPECT_RATIO = 4096 / 5300;
 
 type ShareAchievementProps = {
   cardId?: string;
+  bobbleId?: string;
   onClose: () => void;
 };
 
-export function ShareAchievement({ cardId, onClose }: ShareAchievementProps) {
+export function ShareAchievement({ cardId, bobbleId, onClose }: ShareAchievementProps) {
   const insets = useSafeAreaInsets();
   const card = useMemo(() => getBobbleCardById(cardId), [cardId]);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isCopyingLink, setIsCopyingLink] = useState(false);
+  const [isSharingFacebook, setIsSharingFacebook] = useState(false);
+
+  const shareParams = useMemo(
+    () => ({
+      cardId: card.id,
+      bobbleId,
+      cardLabel: card.label,
+    }),
+    [bobbleId, card.id, card.label],
+  );
 
   const handleShareAction = (label: string) => {
     toast.success(`${label} sharing coming soon`);
+  };
+
+  const handleShareFacebook = async () => {
+    if (isSharingFacebook) return;
+
+    setIsSharingFacebook(true);
+    try {
+      const destination = await shareBobbleCardOnFacebook(card.image, shareParams);
+      toast.success(
+        destination === 'facebook-app'
+          ? 'Opened Facebook to share your Bobble'
+          : 'Opened Facebook in your browser',
+      );
+    } catch (error) {
+      if (error instanceof Error && /cancel|dismiss|did not share|user denied/i.test(error.message)) {
+        return;
+      }
+
+      const message = error instanceof Error ? error.message : 'Could not share to Facebook';
+      toast.error(message);
+    } finally {
+      setIsSharingFacebook(false);
+    }
+  };
+
+  const handleSaveToPhotos = async () => {
+    if (isSaving) return;
+
+    setIsSaving(true);
+    try {
+      await saveBobbleCardToPhotos(card.image);
+      toast.success('Saved to your photo library');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Could not save to Photos';
+      toast.error(message);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleCopyLink = async () => {
+    if (isCopyingLink) return;
+
+    setIsCopyingLink(true);
+    try {
+      await copyBobbleShareLink({ cardId: card.id, bobbleId });
+      toast.success('Link copied to clipboard');
+    } catch {
+      toast.error('Could not copy link');
+    } finally {
+      setIsCopyingLink(false);
+    }
   };
 
   return (
@@ -66,10 +132,10 @@ export function ShareAchievement({ cardId, onClose }: ShareAchievementProps) {
 
         <View style={styles.actionsBlock}>
           <ShareAchievementBar
-            onFacebook={() => handleShareAction('Facebook')}
+            onFacebook={handleShareFacebook}
             onZapme={() => handleShareAction('Zapme')}
             onMessage={() => handleShareAction('Boice Vox')}
-            onCopyLink={() => toast.success('Link copied')}
+            onCopyLink={handleCopyLink}
             onMore={() => handleShareAction('More')}
           />
 
@@ -77,7 +143,9 @@ export function ShareAchievement({ cardId, onClose }: ShareAchievementProps) {
             label="Save to Photos"
             icon={Download}
             showChevron={false}
-            onPress={() => toast.success('Saved to Photos')}
+            loading={isSaving}
+            disabled={isSaving}
+            onPress={handleSaveToPhotos}
           />
         </View>
 

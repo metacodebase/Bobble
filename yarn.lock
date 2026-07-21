@@ -3767,10 +3767,12 @@ __metadata:
     eslint-config-expo: "npm:~10.0.0"
     expo: "npm:~54.0.33"
     expo-apple-authentication: "npm:~8.0.8"
+    expo-asset: "npm:~12.0.13"
     expo-audio: "npm:~1.1.1"
     expo-blur: "npm:~15.0.8"
     expo-build-properties: "npm:~1.0.10"
     expo-calendar: "npm:~15.0.8"
+    expo-clipboard: "npm:~8.0.8"
     expo-constants: "npm:~18.0.13"
     expo-file-system: "npm:~19.0.23"
     expo-font: "npm:~14.0.11"
@@ -3780,6 +3782,7 @@ __metadata:
     expo-image-picker: "npm:~17.0.11"
     expo-linear-gradient: "npm:~15.0.8"
     expo-linking: "npm:~8.0.11"
+    expo-media-library: "npm:~18.2.1"
     expo-router: "npm:~6.0.23"
     expo-secure-store: "npm:~15.0.8"
     expo-splash-screen: "npm:~31.0.13"
@@ -3797,6 +3800,7 @@ __metadata:
     react-native-reanimated: "npm:~4.1.1"
     react-native-safe-area-context: "npm:~5.6.0"
     react-native-screens: "npm:~4.16.0"
+    react-native-share: "npm:^12.3.1"
     react-native-svg: "npm:15.12.1"
     react-native-toast-message: "npm:^2.3.3"
     react-native-web: "npm:~0.21.0"
@@ -5156,6 +5160,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"expo-clipboard@npm:~8.0.8":
+  version: 8.0.8
+  resolution: "expo-clipboard@npm:8.0.8"
+  peerDependencies:
+    expo: "*"
+    react: "*"
+    react-native: "*"
+  checksum: 10c0/afd16183bee237c825ed594320dd4eccd1b8cbcdf6fa993b80c946a7dc26adcdd48a847bd57e7150f176866a6e351a898efe87188793ef0982382ba1e32fb6fb
+  languageName: node
+  linkType: hard
+
 "expo-constants@npm:~18.0.13":
   version: 18.0.13
   resolution: "expo-constants@npm:18.0.13"
@@ -5304,6 +5319,16 @@ __metadata:
   peerDependencies:
     expo: "*"
   checksum: 10c0/184f3ce01f9f0099ef08433c33a42ca1f865045bfcde00a6bb7f8c51825288b5b4d9f2150fc4e57aea9f6aff34093f49157f4d78fdd0d79157a199a03cdb4243
+  languageName: node
+  linkType: hard
+
+"expo-media-library@npm:~18.2.1":
+  version: 18.2.1
+  resolution: "expo-media-library@npm:18.2.1"
+  peerDependencies:
+    expo: "*"
+    react-native: "*"
+  checksum: 10c0/f1f171aea7be77cd9226401449ad41235fd6fd0ec5325762dbf66a816864711fe0ef99ac2c3faff3c99db5bb2a3949c6944db2b4c21a57379bc372f7e6e3f52b
   languageName: node
   linkType: hard
 
@@ -8555,6 +8580,13 @@ __metadata:
     react: "*"
     react-native: "*"
   checksum: 10c0/8ec459ff52cbd317bfca598843a0010b4ca9070d05664f28d792594d8ceabb398b9d68abb578f40295e41f906308efe7ac7359046fba7aaf318a0d9d65446102
+  languageName: node
+  linkType: hard
+
+"react-native-share@npm:^12.3.1":
+  version: 12.3.1
+  resolution: "react-native-share@npm:12.3.1"
+  checksum: 10c0/4ee8a64e5a992ecf16bcf59a4d1384b3310d590d5fb0e7b07f60073635cc9de8fd3adf31bcbd93500252690bdf59a45ca6d01f3a834b32842768e1a02e5e5524
   languageName: node
   linkType: hard
 

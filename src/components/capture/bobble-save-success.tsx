@@ -19,6 +19,7 @@ type BobbleSaveSuccessProps = {
   title: string;
   dateLabel: string;
   durationMin: number;
+  bobbleId?: string;
   onViewBobble: () => void;
   onHome: () => void;
 };
@@ -27,6 +28,7 @@ export function BobbleSaveSuccess({
   title,
   dateLabel,
   durationMin,
+  bobbleId,
   onViewBobble,
   onHome,
 }: BobbleSaveSuccessProps) {
@@ -80,7 +82,12 @@ export function BobbleSaveSuccess({
         ]}
       >
         <BobbleDetailToolbar
-          onShare={() => router.push({ pathname: '/share', params: { title } } as Href)}
+          onShare={() =>
+            router.push({
+              pathname: '/share',
+              params: bobbleId ? { bobbleId } : undefined,
+            } as Href)
+          }
           onAddTask={() => router.push('/(tabs)/tasks' as Href)}
           onPin={() => router.push('/(tabs)/bobbles' as Href)}
           onMore={() => toast.success('More options coming soon')}
