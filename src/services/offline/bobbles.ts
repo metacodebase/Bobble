@@ -153,6 +153,11 @@ export async function deleteBobble(id: string): Promise<{ id: string }> {
   return { id };
 }
 
+export async function deleteBobblesBulk(ids: string[]): Promise<void> {
+  const idSet = new Set(ids);
+  store = store.filter((b) => !idSet.has(b._id));
+}
+
 export async function archiveBobble(id: string): Promise<Bobble> {
   return updateBobble(id, { archived: true });
 }

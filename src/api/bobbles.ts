@@ -47,6 +47,18 @@ export async function deleteBobble(id: string): Promise<{ id: string }> {
   return unwrap(res);
 }
 
+export async function deleteBobblesBulk(ids: string[]): Promise<void> {
+  if (!BACKEND_ALLOWED) {
+    await offlineBobbles.deleteBobblesBulk(ids);
+    return;
+  }
+  const results = await Promise.allSettled(ids.map((id) => deleteBobble(id)));
+  const failed = results.filter((result) => result.status === 'rejected').length;
+  if (failed > 0) {
+    throw new Error(`${failed} bobble${failed === 1 ? '' : 's'} could not be deleted`);
+  }
+}
+
 export async function archiveBobble(id: string): Promise<Bobble> {
   if (!BACKEND_ALLOWED) return offlineBobbles.archiveBobble(id);
   return updateBobble(id, { archived: true });

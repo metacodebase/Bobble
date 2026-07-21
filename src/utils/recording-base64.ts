@@ -61,14 +61,19 @@ function findLatestCachedAudio(minBytes = 1): string | null {
   }
 }
 
-async function waitForNonEmptyFile(uri: string, attempts = 8): Promise<boolean> {
+async function waitForNonEmptyFile(uri: string, attempts = 12): Promise<boolean> {
   for (let i = 0; i < attempts; i += 1) {
-    if (fileSize(uri) > 0) return true;
+    if (fileSize(uri) > 4096) return true;
     const legacy = await getInfoAsync(uri);
-    if (legacy.exists && 'size' in legacy && typeof legacy.size === 'number' && legacy.size > 0) {
+    if (
+      legacy.exists &&
+      'size' in legacy &&
+      typeof legacy.size === 'number' &&
+      legacy.size > 4096
+    ) {
       return true;
     }
-    await new Promise((r) => setTimeout(r, 75));
+    await new Promise((r) => setTimeout(r, 100));
   }
   return fileSize(uri) > 0;
 }

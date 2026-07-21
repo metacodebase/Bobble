@@ -44,7 +44,10 @@ export function useRecordingPlayback({
     };
   }, [authToken, bobbleId, localUri, remoteAudioUrl]);
 
-  const player = useAudioPlayer(null, { updateInterval: 250 });
+  const player = useAudioPlayer(null, {
+    updateInterval: 250,
+    downloadFirst: Boolean(bobbleId?.trim() && remoteAudioUrl?.trim()),
+  });
   const status = useAudioPlayerStatus(player);
 
   useEffect(() => {

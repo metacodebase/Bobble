@@ -13,9 +13,9 @@ import { categoryFromCaptureKind } from '@/src/features/bobbles/types';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { useNightForeground } from '@/src/hooks/use-night-foreground';
 import { CAPTURE_COPY, useCaptureStore } from '@/src/store/capture-store';
+import { Typography } from '@/src/theme/fonts';
 import { getApiErrorMessage, logApiError } from '@/src/utils/api-error';
 import { readRecordingAsBase64 } from '@/src/utils/recording-base64';
-import { Typography } from '@/src/theme/fonts';
 
 const PROCESSING_MASCOT = require('@/src/assets/images/bobble-dualSound.png');
 
@@ -81,6 +81,7 @@ export default function ProcessingScreen() {
   useEffect(() => {
     let cancelled = false;
     let orphanBobbleId: string | null = null;
+    let uploadStarted = false;
     let processingSucceeded = false;
 
     setPhase('running');
@@ -137,10 +138,18 @@ export default function ProcessingScreen() {
           throw new Error('Could not read your recording. Please try again.');
         }
 
+        const bytesApprox = Math.round((audio.audioBase64.length * 3) / 4);
+        if (bytesApprox < 4096) {
+          throw new Error(
+            'Your recording looks empty. Check microphone permissions and try again.',
+          );
+        }
+
         console.log('[capture] uploading audio for processing', {
           mimeType: audio.mimeType,
-          bytesApprox: Math.round((audio.audioBase64.length * 3) / 4),
+          bytesApprox,
         });
+        uploadStarted = true;
         const processed = await bobblesApi.uploadBobbleAudio(bobble._id, {
           ...audio,
           process: true,
@@ -186,7 +195,7 @@ export default function ProcessingScreen() {
 
     return () => {
       cancelled = true;
-      if (!processingSucceeded && orphanBobbleId) {
+      if (!processingSucceeded && orphanBobbleId && !uploadStarted) {
         deleteOrphanBobble(orphanBobbleId);
       }
     };
@@ -222,42 +231,41 @@ export default function ProcessingScreen() {
           </Text>
         </View>
 
-        <View style={styles.mainBlock}>
-          <View style={styles.mascotWrap}>
-            <Image source={PROCESSING_MASCOT} style={styles.mascot} contentFit="contain" />
-          </View>
-
-          {phase !== 'error' ? (
-            <ProcessingChecklist
-              steps={STEPS}
-              completedCount={Math.min(completedCount, STEPS.length)}
-              revealedCount={Math.min(revealedCount, STEPS.length)}
-            />
-          ) : null}
+        <View style={styles.mascotWrap}>
+          <Image source={PROCESSING_MASCOT} style={styles.mascot} contentFit="contain" />
         </View>
+
+        {phase !== 'error' ? (
+          <ProcessingChecklist
+            steps={STEPS}
+            completedCount={Math.min(completedCount, STEPS.length)}
+            revealedCount={Math.min(revealedCount, STEPS.length)}
+          />
+        ) : null}
       </View>
-
-      {phase === 'error' ? (
-        <View style={styles.actions}>
-          <PrimaryButton
-            label="Retry"
-            style={styles.primaryAction}
-            onPress={() => setRetryToken((n) => n + 1)}
-          />
-        </View>
-      ) : isComplete ? (
-        <View style={styles.actions}>
-          <PrimaryButton
-            label="Continue"
-            style={styles.primaryAction}
-            onPress={handleContinue}
-          />
-        </View>
-      ) : (
-        <Text style={[styles.footer, { color: secondaryColor }]}>
-          Transcription can take up to a minute
-        </Text>
-      )}
+      <View style={{minHeight:100,justifyContent: 'center',alignItems: 'center'}}>
+        {phase === 'error' ? (
+          <View style={styles.actions}>
+            <PrimaryButton
+              label="Retry"
+              style={styles.primaryAction}
+              onPress={() => setRetryToken((n) => n + 1)}
+            />
+          </View>
+        ) : isComplete ? (
+          <View style={styles.actions}>
+            <PrimaryButton
+              label="Continue"
+              style={styles.primaryAction}
+              onPress={handleContinue}
+            />
+          </View>
+        ) : (
+          <Text style={[styles.footer, { color: secondaryColor }]}>
+            Transcription can take up to a minute
+          </Text>
+        )}
+      </View>
     </View>
   );
 }
@@ -269,13 +277,12 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    justifyContent: 'space-between',
+    gap: 14,
   },
   hero: {
     alignItems: 'center',
     gap: 6,
     marginTop: 4,
-    paddingBottom: 8,
   },
   title: {
     ...Typography.heading,
@@ -289,23 +296,18 @@ const styles = StyleSheet.create({
     lineHeight: 24,
     textAlign: 'center',
   },
-  mainBlock: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    gap: 14,
-    paddingBottom: 8,
-  },
   mascotWrap: {
     alignItems: 'center',
     justifyContent: 'center',
   },
   mascot: {
-    width: 220,
-    height: 150,
+    width: 350,
+    height: 250,
     backgroundColor: 'transparent',
   },
   actions: {
     paddingTop: 12,
+    width: '100%',
   },
   primaryAction: {
     width: '100%',

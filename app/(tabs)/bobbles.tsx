@@ -1,6 +1,8 @@
+import * as Haptics from 'expo-haptics';
 import { Href, router } from 'expo-router';
-import { useMemo, useState } from 'react';
-import { FlatList, StyleSheet, Text, View } from 'react-native';
+import { Trash2 } from 'lucide-react-native';
+import { useCallback, useMemo, useState } from 'react';
+import { Alert, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { BOBBLE_FILTER_CHIP_STYLES } from '@/src/components/bobbles/bobble-category-config';
@@ -15,7 +17,12 @@ import {
   filterCategoryFromChip,
   formatBobbleDateLabel,
 } from '@/src/features/bobbles/format';
-import { useBobbles, useArchiveBobble, useDeleteBobble } from '@/src/hooks/bobbles';
+import {
+  useArchiveBobble,
+  useBobbles,
+  useDeleteBobble,
+  useDeleteBobblesBulk,
+} from '@/src/hooks/bobbles';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { useNightForeground } from '@/src/hooks/use-night-foreground';
 import { useTabBarInsets } from '@/src/hooks/use-tab-bar-insets';
@@ -29,6 +36,8 @@ export default function BobblesScreen() {
   const { height: tabBarHeight } = useTabBarInsets();
   const [filter, setFilter] = useState<BobbleFilter>('All');
   const [query, setQuery] = useState('');
+  const [selectionMode, setSelectionMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(() => new Set());
   const category = filterCategoryFromChip(filter);
 
   const { data, isLoading, isError, refetch, isRefetching } = useBobbles({
@@ -37,18 +46,108 @@ export default function BobblesScreen() {
     limit: 50,
   });
   const deleteBobble = useDeleteBobble();
+  const deleteBobblesBulk = useDeleteBobblesBulk();
   const archiveBobble = useArchiveBobble();
 
   const bobbles = useMemo(() => data ?? [], [data]);
+  const selectedCount = selectedIds.size;
+  const allVisibleSelected =
+    bobbles.length > 0 && bobbles.every((bobble) => selectedIds.has(bobble._id));
+  const isDeleting = deleteBobble.isPending || deleteBobblesBulk.isPending;
+
+  const exitSelectionMode = useCallback(() => {
+    setSelectionMode(false);
+    setSelectedIds(new Set());
+  }, []);
+
+  const enterSelectionMode = useCallback((id: string) => {
+    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    setSelectionMode(true);
+    setSelectedIds(new Set([id]));
+  }, []);
+
+  const toggleSelection = useCallback((id: string) => {
+    setSelectedIds((current) => {
+      const next = new Set(current);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  }, []);
+
+  const handleSelectAll = useCallback(() => {
+    if (allVisibleSelected) {
+      setSelectedIds(new Set());
+      return;
+    }
+    setSelectedIds(new Set(bobbles.map((bobble) => bobble._id)));
+  }, [allVisibleSelected, bobbles]);
+
+  const handleBulkDelete = useCallback(() => {
+    const ids = Array.from(selectedIds);
+    if (ids.length === 0 || isDeleting) return;
+
+    Alert.alert(
+      'Delete bobbles',
+      `Delete ${ids.length} bobble${ids.length === 1 ? '' : 's'}? This cannot be undone.`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () => {
+            deleteBobblesBulk.mutate(ids, {
+              onSuccess: () => {
+                toast.success(
+                  `${ids.length} bobble${ids.length === 1 ? '' : 's'} deleted`,
+                );
+                exitSelectionMode();
+              },
+            });
+          },
+        },
+      ],
+    );
+  }, [deleteBobblesBulk, exitSelectionMode, isDeleting, selectedIds]);
 
   return (
     <View style={[styles.root, { paddingTop: insets.top + 12 }]}>
       <View style={styles.header}>
-        <ScreenHeader title="Bobbles" compact />
+        {selectionMode ? (
+          <View style={styles.selectionHeader}>
+            <Pressable onPress={exitSelectionMode} hitSlop={8} style={styles.headerActionLeft}>
+              <Text style={[styles.headerActionText, { color: colors.primary }]}>Cancel</Text>
+            </Pressable>
+            <Text style={[styles.selectionTitle, { color: night.text ?? colors.text }]}>
+              {selectedCount} selected
+            </Text>
+            <Pressable
+              onPress={handleSelectAll}
+              hitSlop={8}
+              style={styles.headerActionRight}
+              disabled={bobbles.length === 0}
+            >
+              <Text
+                style={[
+                  styles.headerActionText,
+                  { color: bobbles.length === 0 ? colors.textSecondary : colors.primary },
+                ]}
+              >
+                {allVisibleSelected ? 'Deselect all' : 'Select all'}
+              </Text>
+            </Pressable>
+          </View>
+        ) : (
+          <ScreenHeader title="Bobbles" compact />
+        )}
         <SearchBar
           value={query}
           onChangeText={setQuery}
           placeholder="Search Bobbles..."
+          editable={!selectionMode}
         />
         <FilterChips
           options={BOBBLE_FILTERS}
@@ -76,7 +175,10 @@ export default function BobblesScreen() {
           keyExtractor={(item) => item._id}
           refreshing={isRefetching}
           onRefresh={refetch}
-          contentContainerStyle={[styles.list, { paddingBottom: tabBarHeight + 24 }]}
+          contentContainerStyle={[
+            styles.list,
+            { paddingBottom: tabBarHeight + 24 },
+          ]}
           showsVerticalScrollIndicator={false}
           ItemSeparatorComponent={() => <View style={styles.separator} />}
           ListEmptyComponent={
@@ -89,11 +191,15 @@ export default function BobblesScreen() {
               title={item.title}
               timestamp={formatBobbleDateLabel(item.createdAt)}
               category={item.category}
+              selectionMode={selectionMode}
+              selected={selectedIds.has(item._id)}
+              onLongPress={() => enterSelectionMode(item._id)}
+              onToggleSelect={() => toggleSelection(item._id)}
               onPress={() =>
                 router.push({ pathname: '/bobble/[id]', params: { id: item._id } } as Href)
               }
               onDelete={() => {
-                if (deleteBobble.isPending) return;
+                if (isDeleting) return;
                 deleteBobble.mutate(item._id, {
                   onSuccess: () => toast.success('Bobble deleted'),
                 });
@@ -108,6 +214,25 @@ export default function BobblesScreen() {
           )}
         />
       )}
+
+      {selectionMode && selectedCount > 0 ? (
+        <Pressable
+          onPress={handleBulkDelete}
+          disabled={isDeleting}
+          accessibilityRole="button"
+          accessibilityLabel={`Delete ${selectedCount} bobble${selectedCount === 1 ? '' : 's'}`}
+          style={({ pressed }) => [
+            styles.bulkDeleteFab,
+            {
+              bottom: tabBarHeight + 16,
+              backgroundColor: colors.error,
+            },
+            (pressed || isDeleting) && styles.bulkDeletePressed,
+          ]}
+        >
+          <Trash2 size={22} color={colors.textOnPrimary} strokeWidth={2} />
+        </Pressable>
+      ) : null}
     </View>
   );
 }
@@ -122,6 +247,29 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     width: '100%',
     alignSelf: 'center',
+  },
+  selectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    minHeight: 36,
+    marginBottom: 4,
+  },
+  selectionTitle: {
+    ...Typography.formLabel,
+    fontSize: 16,
+  },
+  headerActionLeft: {
+    minWidth: 88,
+    alignItems: 'flex-start',
+  },
+  headerActionRight: {
+    minWidth: 88,
+    alignItems: 'flex-end',
+  },
+  headerActionText: {
+    ...Typography.formLabel,
+    fontSize: 15,
   },
   list: {
     paddingTop: 4,
@@ -144,5 +292,22 @@ const styles = StyleSheet.create({
   },
   retry: {
     ...Typography.formLabel,
+  },
+  bulkDeleteFab: {
+    position: 'absolute',
+    right: 20,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#DC2626',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.28,
+    shadowRadius: 10,
+    elevation: 6,
+  },
+  bulkDeletePressed: {
+    opacity: 0.88,
   },
 });

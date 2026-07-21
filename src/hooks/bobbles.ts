@@ -90,6 +90,32 @@ export function useDeleteBobble() {
   });
 }
 
+export function useDeleteBobblesBulk() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (ids: string[]) => bobblesApi.deleteBobblesBulk(ids),
+    onMutate: async (ids: string[]) => {
+      await qc.cancelQueries({ queryKey: queryKeys.bobbles.all });
+      const snapshot = qc.getQueriesData<Bobble[]>({ queryKey: ['bobbles', 'list'] });
+      const idSet = new Set(ids);
+      qc.setQueriesData<Bobble[]>({ queryKey: ['bobbles', 'list'] }, (prev) =>
+        prev?.filter((bobble) => !idSet.has(bobble._id)),
+      );
+      ids.forEach((id) => qc.removeQueries({ queryKey: queryKeys.bobbles.detail(id) }));
+      return { snapshot } as { snapshot: BobblesSnapshot };
+    },
+    onError: (e, _ids, context) => {
+      context?.snapshot.forEach(([key, data]) => qc.setQueryData(key, data));
+      toast.error(getApiErrorMessage(e, 'Could not delete bobbles'));
+    },
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.bobbles.all });
+      qc.invalidateQueries({ queryKey: queryKeys.auth.me });
+      qc.invalidateQueries({ queryKey: queryKeys.profile.all });
+    },
+  });
+}
+
 export function useArchiveBobble() {
   const qc = useQueryClient();
   return useMutation({

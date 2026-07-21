@@ -1,4 +1,4 @@
-import { Archive, Trash2 } from 'lucide-react-native';
+import { Archive, Check, Trash2 } from 'lucide-react-native';
 import { useRef } from 'react';
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Swipeable } from 'react-native-gesture-handler';
@@ -15,6 +15,10 @@ type BobbleLibraryRowProps = {
   onPress?: () => void;
   onDelete?: () => void;
   onArchive?: () => void;
+  selectionMode?: boolean;
+  selected?: boolean;
+  onLongPress?: () => void;
+  onToggleSelect?: () => void;
 };
 
 export function BobbleLibraryRow({
@@ -24,6 +28,10 @@ export function BobbleLibraryRow({
   onPress,
   onDelete,
   onArchive,
+  selectionMode = false,
+  selected = false,
+  onLongPress,
+  onToggleSelect,
 }: BobbleLibraryRowProps) {
   const colors = useBobbleColors();
   const categoryStyle = getBobbleCategoryStyle(category);
@@ -83,13 +91,34 @@ export function BobbleLibraryRow({
   const content = (
     <View style={styles.cardContainer}>
       <Pressable
-        onPress={onPress}
+        onPress={selectionMode ? onToggleSelect : onPress}
+        onLongPress={selectionMode ? undefined : onLongPress}
+        delayLongPress={280}
         style={({ pressed }) => [
           styles.card,
-          { backgroundColor: colors.surface },
+          {
+            backgroundColor: colors.surface,
+            borderColor: selected ? colors.primary : 'transparent',
+            borderWidth: selected ? 2 : 0,
+          },
           pressed && styles.pressed,
         ]}
       >
+        {selectionMode ? (
+          <View
+            style={[
+              styles.checkbox,
+              {
+                borderColor: colors.primary,
+                backgroundColor: selected ? colors.primary : 'transparent',
+              },
+            ]}
+          >
+            {selected ? (
+              <Check size={14} color={colors.textOnPrimary} strokeWidth={3} />
+            ) : null}
+          </View>
+        ) : null}
         <View style={styles.content}>
           <View style={[styles.tag, { backgroundColor: categoryStyle.tagBackground }]}>
             <Text style={[styles.tagText, { color: categoryStyle.tagColor }]}>
@@ -108,6 +137,7 @@ export function BobbleLibraryRow({
   );
 
   if (!onDelete && !onArchive) return content;
+  if (selectionMode) return content;
 
   return (
     <Swipeable
@@ -138,6 +168,14 @@ const styles = StyleSheet.create({
     gap: 16,
     padding: 16,
     borderRadius: 16,
+  },
+  checkbox: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    borderWidth: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   pressed: {
     opacity: 0.92,

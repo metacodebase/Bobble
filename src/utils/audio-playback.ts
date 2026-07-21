@@ -36,24 +36,22 @@ export async function resolvePlaybackSource(options: {
   const remote = options.remoteAudioUrl?.trim();
   const bobbleId = options.bobbleId?.trim();
 
-  if (remote && !isInvalidPlaybackUri(remote) && /^https?:\/\//i.test(remote)) {
-    // Public S3/CloudFront URLs can play directly in the media player.
-    if (!remote.includes('/api/bobbles/')) {
-      return remote;
+  // S3 recordings are private — always stream through the authenticated API route.
+  if (bobbleId && remote && !isInvalidPlaybackUri(remote)) {
+    const headers: Record<string, string> = {};
+    if (options.authToken) {
+      headers.Authorization = `Bearer ${options.authToken}`;
     }
+
+    return {
+      uri: bobbleRecordingApiUrl(bobbleId),
+      headers,
+    };
   }
 
-  if (!remote || !bobbleId || isInvalidPlaybackUri(remote)) {
-    return null;
+  if (remote && !isInvalidPlaybackUri(remote) && /^https?:\/\//i.test(remote)) {
+    return remote;
   }
 
-  const headers: Record<string, string> = {};
-  if (options.authToken) {
-    headers.Authorization = `Bearer ${options.authToken}`;
-  }
-
-  return {
-    uri: bobbleRecordingApiUrl(bobbleId),
-    headers,
-  };
+  return null;
 }
