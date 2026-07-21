@@ -6,7 +6,12 @@ import { CameraIcon } from '@/src/components/onboarding/ui-icons';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { useAppStore } from '@/src/store/app-store';
 import { BobbleColors } from '@/src/theme/colors';
-import { buildAvatarImageSource, isLocalAvatarUri, resolveAvatarUrl } from '@/src/utils/avatar-url';
+import {
+  avatarUrlNeedsAuth,
+  buildAvatarImageSource,
+  isLocalAvatarUri,
+  resolveAvatarUrl,
+} from '@/src/utils/avatar-url';
 
 const DEFAULT_PROFILE_IMAGE = require('@/src/assets/images/profile-avatar-default.png');
 
@@ -34,7 +39,7 @@ export function ProfileAvatar({
   const colors = useBobbleColors();
   const authToken = useAppStore((s) => s.authToken);
   const avatarCacheKey = useAppStore((s) => s.avatarCacheKey);
-  const [loadFailed, setLoadFailed] = useState(false);
+  const [remoteFailed, setRemoteFailed] = useState(false);
   const radius = size / 2;
   const cameraSize = size * (36 / 140);
   const cameraIcon = size * (18 / 140);
@@ -48,17 +53,18 @@ export function ProfileAvatar({
     : resolveAvatarUrl(remoteUri);
   const handleCameraPress = onCameraPress ?? onPress;
 
-  const resolvedSource = useMemo(() => {
-    if (!validRemoteUri || loadFailed) return DEFAULT_PROFILE_IMAGE;
+  const remoteSource = useMemo(() => {
+    if (!validRemoteUri || remoteFailed) return null;
     if (isLocalAvatarUri(validRemoteUri)) return { uri: validRemoteUri };
-    return (
-      buildAvatarImageSource(validRemoteUri, authToken, avatarCacheKey) ?? DEFAULT_PROFILE_IMAGE
-    );
-  }, [authToken, avatarCacheKey, loadFailed, validRemoteUri]);
+    if (avatarUrlNeedsAuth(validRemoteUri) && !authToken) return null;
+    return buildAvatarImageSource(validRemoteUri, authToken, avatarCacheKey);
+  }, [authToken, avatarCacheKey, remoteFailed, validRemoteUri]);
 
   useEffect(() => {
-    setLoadFailed(false);
-  }, [validRemoteUri, authToken, avatarCacheKey]);
+    setRemoteFailed(false);
+  }, [validRemoteUri, avatarCacheKey]);
+
+  const displaySource = remoteSource ?? DEFAULT_PROFILE_IMAGE;
 
   return (
     <View style={[styles.wrapper, centered && styles.wrapperCentered, style]}>
@@ -76,13 +82,17 @@ export function ProfileAvatar({
         ]}
       >
         <Image
-          key={`${validRemoteUri ?? 'default'}-${avatarCacheKey}-${loadFailed ? 'fallback' : 'remote'}`}
-          source={resolvedSource}
+          source={displaySource}
+          placeholder={DEFAULT_PROFILE_IMAGE}
+          placeholderContentFit="cover"
           style={{ width: size, height: size, borderRadius: radius }}
           contentFit="cover"
-          cachePolicy={validRemoteUri && !loadFailed ? 'none' : 'memory-disk'}
-          onLoad={() => setLoadFailed(false)}
-          onError={() => setLoadFailed(true)}
+          transition={200}
+          cachePolicy="memory-disk"
+          recyclingKey={`${validRemoteUri ?? 'default'}-${avatarCacheKey}`}
+          onError={() => {
+            if (remoteSource) setRemoteFailed(true);
+          }}
         />
         {uploading ? (
           <View style={[styles.uploadOverlay, { borderRadius: radius }]}>

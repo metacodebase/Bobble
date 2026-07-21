@@ -25,7 +25,6 @@ const TAB_BAR_CLEARANCE = 100;
 const SETTINGS_ROUTES: Record<(typeof PROFILE_MENU)[number]['id'], Href> = {
   account: '/settings/account',
   calendar: '/settings/calendar-sync',
-  connections: '/settings/connections',
   export: '/settings/export-data',
   help: '/settings/help',
   billing: '/settings/billing',
@@ -37,7 +36,7 @@ export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
   const colors = useBobbleColors();
   const storedUser = useAppStore((s) => s.user);
-  const { data: fetchedUser, refetch } = useMe();
+  const { data: fetchedUser } = useMe();
   const { data: profile, refetch: refetchProfile } = useProfile();
   const user = fetchedUser ?? storedUser;
   const logout = useLogout();
@@ -68,9 +67,8 @@ export default function ProfileScreen() {
 
   useFocusEffect(
     useCallback(() => {
-      void refetch();
       void refetchProfile();
-    }, [refetch, refetchProfile]),
+    }, [refetchProfile]),
   );
 
   return (

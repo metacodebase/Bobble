@@ -181,8 +181,6 @@ const styles = StyleSheet.create({
     width: '100%',
     gap: 18,
     alignItems: 'center',
-    height: "70%",
-    justifyContent: "center",
     alignSelf: "center"
   },
   dividerText: {
@@ -198,10 +196,12 @@ const styles = StyleSheet.create({
   footerText: {
     ...Typography.caption,
     textAlign: 'center',
+    fontSize: 14,
     lineHeight: FOOTER_LINE_HEIGHT,
   },
   footerLink: {
     ...Typography.caption,
+    fontSize: 14,
     fontWeight: '600',
     lineHeight: FOOTER_LINE_HEIGHT,
   },

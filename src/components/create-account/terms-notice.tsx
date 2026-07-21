@@ -38,9 +38,11 @@ const styles = StyleSheet.create({
     ...Typography.caption,
     textAlign: 'center',
     lineHeight: 20,
+    fontSize: 14
   },
   link: {
     ...Typography.caption,
+    fontSize: 14,
     fontWeight: '600',
     lineHeight: 20,
     textDecorationLine: 'underline',

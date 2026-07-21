@@ -264,7 +264,6 @@ export const PROFILE_MENU = [
   { id: 'account', label: 'Edit Profile', icon: 'user' },
   { id: 'notifications', label: 'Notifications', icon: 'bell' },
   { id: 'calendar', label: 'Calendar Sync', icon: 'calendar' },
-  { id: 'connections', label: 'Privacy & Data', icon: 'shield' },
   { id: 'export', label: 'Export Data', icon: 'download' },
   { id: 'help', label: 'Support', icon: 'help' },
   { id: 'billing', label: 'Billing', icon: 'credit-card' },

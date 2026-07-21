@@ -41,7 +41,9 @@ export function AvatarImageViewer({ visible, avatarUrl, onClose }: AvatarImageVi
             source={source}
             style={styles.image}
             contentFit="contain"
-            cachePolicy="none"
+            cachePolicy="memory-disk"
+            transition={200}
+            recyclingKey={`avatar-viewer-${avatarCacheKey}`}
           />
         </View>
       </View>

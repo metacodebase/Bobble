@@ -54,3 +54,7 @@ export function buildAvatarImageSource(
 export function isLocalAvatarUri(uri?: string): boolean {
   return Boolean(uri?.startsWith('file://') || uri?.startsWith('content://'));
 }
+
+export function avatarUrlNeedsAuth(url?: string): boolean {
+  return Boolean(url?.includes('/api/profile/avatar'));
+}

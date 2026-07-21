@@ -81,7 +81,11 @@ export function useProfileAvatarPicker() {
             mimeType: payload.mimeType,
           },
           {
-            onSettled: () => setLocalPreviewUri(null),
+            onSuccess: () => {
+              // Keep the local preview until the proxied avatar has time to load.
+              setTimeout(() => setLocalPreviewUri(null), 1200);
+            },
+            onError: () => setLocalPreviewUri(null),
           },
         );
       } catch (error) {

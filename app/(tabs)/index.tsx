@@ -14,12 +14,12 @@ import { useProfile } from '@/src/hooks/profile';
 import { useTasks, useToggleTask } from '@/src/hooks/tasks';
 import { useAppStore } from '@/src/store/app-store';
 import { CaptureKind, useCaptureStore } from '@/src/store/capture-store';
-import { getDayPeriod, getGreeting } from '@/src/utils/day-period';
 import { resolveAvatarUrl } from '@/src/utils/avatar-url';
+import { getDayPeriod, getGreeting } from '@/src/utils/day-period';
 
 function getProgressSubtitle(completed: number, total: number) {
   if (total === 0) return 'Your day is just beginning, record your first Bobble.';
-  if (completed === 0) return 'Start with one small task, Bobble will celebrate the rest.';
+  if (completed === 0) return 'Start with one small task, Bobble will organize the rest.';
   if (completed >= total) return 'Congratulations! you completed all your tasks.';
   return 'Nice progress — keep the momentum going.';
 }

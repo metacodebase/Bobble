@@ -32,7 +32,7 @@ import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { useNightForeground } from '@/src/hooks/use-night-foreground';
 import { useAppStore } from '@/src/store/app-store';
 import { Typography } from '@/src/theme/fonts';
-import { exportUserDataCsv } from '@/src/utils/export-user-data';
+import { exportUserDataCsv, exportUserDataPdf, isExportShareCancelled } from '@/src/utils/export-user-data';
 import { toast } from '@/src/utils/toast';
 
 function themePreferenceLabel(themeOverride: 'light' | 'dark' | null) {
@@ -64,20 +64,33 @@ export default function SettingsScreen() {
   const [shareAnalytics, setShareAnalytics] = useState(true);
   const [personalisation, setPersonalisation] = useState(true);
   const [isExportingCsv, setIsExportingCsv] = useState(false);
+  const [isExportingPdf, setIsExportingPdf] = useState(false);
 
   const handleExportCsv = async () => {
-    if (isExportingCsv) return;
+    if (isExportingCsv || isExportingPdf) return;
     setIsExportingCsv(true);
     try {
       await exportUserDataCsv();
       toast.success('Export ready to share');
     } catch (error) {
-      if (error instanceof Error && /cancel|dismiss|did not share|user denied/i.test(error.message)) {
-        return;
-      }
+      if (isExportShareCancelled(error)) return;
       toast.error('Could not export data');
     } finally {
       setIsExportingCsv(false);
+    }
+  };
+
+  const handleExportPdf = async () => {
+    if (isExportingCsv || isExportingPdf) return;
+    setIsExportingPdf(true);
+    try {
+      await exportUserDataPdf();
+      toast.success('PDF export ready to share');
+    } catch (error) {
+      if (isExportShareCancelled(error)) return;
+      toast.error('Could not export PDF');
+    } finally {
+      setIsExportingPdf(false);
     }
   };
 
@@ -177,9 +190,9 @@ export default function SettingsScreen() {
 
       <SettingsSection title="Data Export">
         <SettingsLinkItemRow
-          label="Export as PDF"
+          label={isExportingPdf ? 'Preparing PDF…' : 'Export as PDF'}
           icon={<FileText size={22} color={colors.primary} strokeWidth={2} />}
-          onPress={() => toast.success('PDF export is coming soon')}
+          onPress={isExportingPdf ? undefined : () => void handleExportPdf()}
         />
         <SettingsLinkItemRow
           label={isExportingCsv ? 'Preparing CSV…' : 'Export as CSV'}
