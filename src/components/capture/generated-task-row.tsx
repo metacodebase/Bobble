@@ -8,6 +8,7 @@ import { Typography } from '@/src/theme/fonts';
 export type GeneratedTask = {
   id: string;
   title: string;
+  dueLabel?: string | null;
 };
 
 type GeneratedTaskRowProps = {
@@ -33,23 +34,32 @@ export function GeneratedTaskRow({ task, onUpdate, onDelete }: GeneratedTaskRowP
 
   return (
     <View style={[styles.row, { backgroundColor: colors.borderLight }]}>
-      {isEditing ? (
-        <TextInput
-          value={draft}
-          onChangeText={setDraft}
-          onSubmitEditing={commitEdit}
-          autoFocus
-          returnKeyType="done"
-          style={[
-            styles.input,
-            { color: colors.text, borderColor: colors.primary, backgroundColor: colors.background },
-          ]}
-        />
-      ) : (
-        <Text style={[styles.title, { color: colors.text }]} numberOfLines={3}>
-          {task.title}
-        </Text>
-      )}
+      <View style={styles.content}>
+        {isEditing ? (
+          <TextInput
+            value={draft}
+            onChangeText={setDraft}
+            onSubmitEditing={commitEdit}
+            autoFocus
+            returnKeyType="done"
+            style={[
+              styles.input,
+              { color: colors.text, borderColor: colors.primary, backgroundColor: colors.background },
+            ]}
+          />
+        ) : (
+          <>
+            <Text style={[styles.title, { color: colors.text }]} numberOfLines={3}>
+              {task.title}
+            </Text>
+            {task.dueLabel ? (
+              <Text style={[styles.dueLabel, { color: colors.textSecondary }]} numberOfLines={1}>
+                {task.dueLabel}
+              </Text>
+            ) : null}
+          </>
+        )}
+      </View>
 
       <View style={styles.actions}>
         <Pressable
@@ -92,9 +102,16 @@ const styles = StyleSheet.create({
     paddingRight: 8,
     gap: 8,
   },
+  content: {
+    flex: 1,
+    gap: 2,
+  },
   title: {
     ...Typography.body,
-    flex: 1,
+  },
+  dueLabel: {
+    ...Typography.caption,
+    fontSize: 13,
   },
   input: {
     ...Typography.body,

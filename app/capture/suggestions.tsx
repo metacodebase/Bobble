@@ -14,6 +14,7 @@ import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { useNightForeground } from '@/src/hooks/use-night-foreground';
 import { useCaptureStore } from '@/src/store/capture-store';
 import { getApiErrorMessage, logApiError } from '@/src/utils/api-error';
+import { formatSuggestedDueLabel } from '@/src/utils/suggested-tasks';
 import { toast } from '@/src/utils/toast';
 import { Typography } from '@/src/theme/fonts';
 
@@ -24,6 +25,7 @@ const CARD_TEXT_SECONDARY = '#6B7280';
 type SuggestionTask = {
   id: string;
   title: string;
+  dueAt?: string | null;
   selected: boolean;
   /** Set after tasks are persisted via the API. */
   persistedId?: string;
@@ -47,14 +49,16 @@ export default function SuggestionsScreen() {
         id: task.id ?? `generated-${index}`,
         persistedId: task.id,
         title: task.title,
+        dueAt: task.dueAt,
         selected: true,
       }));
     }
 
-    const titles = pending?.suggestedTasks ?? [];
-    return titles.map((title, index) => ({
+    const suggestions = pending?.suggestedTasks ?? [];
+    return suggestions.map((task, index) => ({
       id: `suggestion-${index}`,
-      title,
+      title: task.title,
+      dueAt: task.dueAt,
       selected: true,
     }));
   });
@@ -78,7 +82,11 @@ export default function SuggestionsScreen() {
       ...current,
       tasks: nextTasks
         .filter((task) => task.persistedId)
-        .map((task) => ({ id: task.persistedId, title: task.title.trim() })),
+        .map((task) => ({
+          id: task.persistedId,
+          title: task.title.trim(),
+          dueAt: task.dueAt ?? null,
+        })),
     });
   }, []);
 
@@ -163,13 +171,17 @@ export default function SuggestionsScreen() {
     try {
       const created = await tasksApi.createTasksBulk({
         bobble: bobbleId,
-        tasks: selected.map((task) => ({ title: task.title.trim() })),
+        tasks: selected.map((task) => ({
+          title: task.title.trim(),
+          dueAt: task.dueAt ?? null,
+        })),
       });
 
       const generatedTasks: SuggestionTask[] = created.map((task) => ({
         id: task._id,
         persistedId: task._id,
         title: task.title,
+        dueAt: task.dueAt ?? null,
         selected: true,
       }));
 
@@ -177,7 +189,11 @@ export default function SuggestionsScreen() {
       if (current) {
         useCaptureStore.getState().setPendingBobbleSave({
           ...current,
-          tasks: generatedTasks.map((task) => ({ id: task.persistedId, title: task.title })),
+          tasks: generatedTasks.map((task) => ({
+            id: task.persistedId,
+            title: task.title,
+            dueAt: task.dueAt ?? null,
+          })),
           tasksGenerated: true,
         });
       }
@@ -290,7 +306,11 @@ export default function SuggestionsScreen() {
               ? tasks.map((task) => (
                   <GeneratedTaskRow
                     key={task.id}
-                    task={{ id: task.id, title: task.title }}
+                    task={{
+                      id: task.id,
+                      title: task.title,
+                      dueLabel: formatSuggestedDueLabel(task.dueAt),
+                    }}
                     onUpdate={handleUpdateTask}
                     onDelete={handleDeleteTask}
                   />
@@ -319,9 +339,16 @@ export default function SuggestionsScreen() {
                           <Check size={14} color={colors.textOnPrimary} strokeWidth={3} />
                         ) : null}
                       </View>
-                      <Text style={styles.taskTitle} numberOfLines={3}>
-                        {task.title}
-                      </Text>
+                      <View style={styles.taskText}>
+                        <Text style={styles.taskTitle} numberOfLines={3}>
+                          {task.title}
+                        </Text>
+                        {formatSuggestedDueLabel(task.dueAt) ? (
+                          <Text style={styles.taskDue} numberOfLines={1}>
+                            {formatSuggestedDueLabel(task.dueAt)}
+                          </Text>
+                        ) : null}
+                      </View>
                     </Pressable>
                   );
                 })}
@@ -457,10 +484,18 @@ const styles = StyleSheet.create({
   },
   taskTitle: {
     ...Typography.body,
-    flex: 1,
     fontSize: 15,
     lineHeight: 21,
     color: CARD_TEXT,
+  },
+  taskText: {
+    flex: 1,
+    gap: 2,
+  },
+  taskDue: {
+    ...Typography.caption,
+    fontSize: 13,
+    color: CARD_TEXT_SECONDARY,
   },
   actions: {
     gap: 6,

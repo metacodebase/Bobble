@@ -10,22 +10,27 @@ import {
 } from '@/src/components/settings/settings-screen-layout';
 import { PROFILE_USER } from '@/src/data/demo-data';
 import { useDeleteAccount, useLogout, useMe } from '@/src/hooks/api';
+import { useProfile } from '@/src/hooks/profile';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { useNightForeground } from '@/src/hooks/use-night-foreground';
 import { useAppStore } from '@/src/store/app-store';
 import { Typography } from '@/src/theme/fonts';
+import { resolveAvatarUrl } from '@/src/utils/avatar-url';
 
 export default function SettingsAccountScreen() {
   const colors = useBobbleColors();
   const night = useNightForeground();
   const storedUser = useAppStore((s) => s.user);
   const { data: fetchedUser } = useMe();
+  const { data: profile } = useProfile();
   const user = fetchedUser ?? storedUser;
   const logout = useLogout();
   const deleteAccount = useDeleteAccount();
   const rawName = user?.name ?? user?.email?.split('@')[0] ?? PROFILE_USER.name;
   const displayName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
   const displayEmail = user?.email ?? PROFILE_USER.email;
+  const avatarUrl = resolveAvatarUrl(profile?.user.avatarUrl, storedUser?.avatarUrl, user?.avatarUrl);
+  const avatarSource = avatarUrl ? { uri: avatarUrl } : undefined;
 
   const confirmDeleteAccount = () => {
     Alert.alert(
@@ -45,7 +50,7 @@ export default function SettingsAccountScreen() {
   return (
     <SettingsScreenLayout title="Account">
       <View style={styles.avatarWrap}>
-        <ProfileAvatar centered={false} showCamera={false} size={100} />
+        <ProfileAvatar centered={false} showCamera={false} size={100} imageSource={avatarSource} />
         <Text style={[styles.name, { color: night.text ?? colors.text }]}>{displayName}</Text>
         <Text style={[styles.email, { color: night.textSecondary ?? colors.textSecondary }]}>
           {displayEmail}
@@ -65,7 +70,10 @@ export default function SettingsAccountScreen() {
       </SettingsSection>
 
       <SettingsSection title="Data">
-        <SettingsLinkRow label="Export my data" />
+        <SettingsLinkRow
+          label="Export my data"
+          onPress={() => router.push('/settings/export-data' as Href)}
+        />
         <SettingsLinkRow
           label={deleteAccount.isPending ? 'Deleting account…' : 'Delete account'}
           destructive

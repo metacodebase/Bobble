@@ -49,7 +49,13 @@ export default function BobblesScreen() {
   const deleteBobblesBulk = useDeleteBobblesBulk();
   const archiveBobble = useArchiveBobble();
 
-  const bobbles = useMemo(() => data ?? [], [data]);
+  const bobbles = useMemo(() => {
+    const items = data ?? [];
+    return [...items].sort((a, b) => {
+      if (Boolean(a.pinned) === Boolean(b.pinned)) return 0;
+      return a.pinned ? -1 : 1;
+    });
+  }, [data]);
   const selectedCount = selectedIds.size;
   const allVisibleSelected =
     bobbles.length > 0 && bobbles.every((bobble) => selectedIds.has(bobble._id));
@@ -210,6 +216,7 @@ export default function BobblesScreen() {
                   onSuccess: () => toast.success('Bobble archived'),
                 });
               }}
+              pinned={item.pinned}
             />
           )}
         />

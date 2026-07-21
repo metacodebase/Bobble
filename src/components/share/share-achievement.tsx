@@ -9,7 +9,8 @@ import { ShareAchievementBar } from '@/src/components/share/share-achievement-ba
 import { getBobbleCardById } from '@/src/data/bobble-cards';
 import { BobbleColors } from '@/src/theme/colors';
 import { Typography } from '@/src/theme/fonts';
-import { copyBobbleShareLink, saveBobbleCardToPhotos, shareBobbleCardOnFacebook } from '@/src/utils/share-bobble-card';
+import { copyBobbleShareLink, saveBobbleCardToPhotos, shareBobbleCardOnFacebook, buildBobbleShareLink } from '@/src/utils/share-bobble-card';
+import { sharePlainText } from '@/src/utils/share-text';
 import { toast } from '@/src/utils/toast';
 
 const SHARE_BACKGROUND = require('@/src/assets/images/background/four.png');
@@ -27,6 +28,7 @@ export function ShareAchievement({ cardId, bobbleId, onClose }: ShareAchievement
   const [isSaving, setIsSaving] = useState(false);
   const [isCopyingLink, setIsCopyingLink] = useState(false);
   const [isSharingFacebook, setIsSharingFacebook] = useState(false);
+  const [isSharingText, setIsSharingText] = useState(false);
 
   const shareParams = useMemo(
     () => ({
@@ -37,8 +39,30 @@ export function ShareAchievement({ cardId, bobbleId, onClose }: ShareAchievement
     [bobbleId, card.id, card.label],
   );
 
-  const handleShareAction = (label: string) => {
-    toast.success(`${label} sharing coming soon`);
+  const shareMessage = useMemo(() => {
+    const link = buildBobbleShareLink(shareParams);
+    return `I just unlocked ${shareParams.cardLabel} on Bobble! ${link}`;
+  }, [shareParams]);
+
+  const handleShareText = async () => {
+    if (isSharingText) return;
+
+    setIsSharingText(true);
+    try {
+      const result = await sharePlainText({
+        title: 'My Bobble achievement',
+        message: shareMessage,
+        url: buildBobbleShareLink(shareParams),
+      });
+      toast.success(result === 'shared' ? 'Share sheet opened' : 'Copied to clipboard');
+    } catch (error) {
+      if (error instanceof Error && /cancel|dismiss|did not share|user denied/i.test(error.message)) {
+        return;
+      }
+      toast.error('Could not share');
+    } finally {
+      setIsSharingText(false);
+    }
   };
 
   const handleShareFacebook = async () => {
@@ -133,10 +157,10 @@ export function ShareAchievement({ cardId, bobbleId, onClose }: ShareAchievement
         <View style={styles.actionsBlock}>
           <ShareAchievementBar
             onFacebook={handleShareFacebook}
-            onZapme={() => handleShareAction('Zapme')}
-            onMessage={() => handleShareAction('Boice Vox')}
+            onZapme={handleShareText}
+            onMessage={handleShareText}
             onCopyLink={handleCopyLink}
-            onMore={() => handleShareAction('More')}
+            onMore={handleShareText}
           />
 
           <PrimaryButton

@@ -16,6 +16,7 @@ import { CAPTURE_COPY, useCaptureStore } from '@/src/store/capture-store';
 import { Typography } from '@/src/theme/fonts';
 import { getApiErrorMessage, logApiError } from '@/src/utils/api-error';
 import { readRecordingAsBase64 } from '@/src/utils/recording-base64';
+import { normalizeSuggestedTasks } from '@/src/utils/suggested-tasks';
 
 const PROCESSING_MASCOT = require('@/src/assets/images/bobble-dualSound.png');
 
@@ -153,14 +154,14 @@ export default function ProcessingScreen() {
         const processed = await bobblesApi.uploadBobbleAudio(bobble._id, {
           ...audio,
           process: true,
+          clientNow: new Date().toISOString(),
+          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         });
 
         if (cancelled) return;
         setCompletedCount(3);
 
-        const suggestedTasks = (processed.suggestedTasks ?? [])
-          .map((title) => title.trim())
-          .filter(Boolean);
+        const suggestedTasks = normalizeSuggestedTasks(processed.suggestedTasks);
         const successTitle = processed.title?.trim() || copy.title;
 
         useCaptureStore.getState().setPendingBobbleSave({

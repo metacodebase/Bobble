@@ -37,6 +37,11 @@ export interface TranscriptSegment {
   text: string;
 }
 
+export interface SuggestedTask {
+  title: string;
+  dueAt?: string | null;
+}
+
 export interface Bobble {
   _id: string;
   user: string;
@@ -62,8 +67,9 @@ export interface Bobble {
     items: InsightItem[];
   };
   iconVariant?: BobbleIconVariant;
-  suggestedTasks?: string[];
+  suggestedTasks?: SuggestedTask[];
   archived?: boolean;
+  pinned?: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -91,7 +97,7 @@ export interface CreateBobbleBody {
     items: InsightItem[];
   };
   iconVariant?: BobbleIconVariant;
-  suggestedTasks?: string[];
+  suggestedTasks?: SuggestedTask[];
   archived?: boolean;
   /** Leave bobble unprocessed until audio upload triggers the AI pipeline. */
   skipProcess?: boolean;
@@ -112,6 +118,9 @@ export interface UploadAudioBody {
   mimeType?: string;
   /** Default true — run AssemblyAI + OpenAI after storing the file. */
   process?: boolean;
+  /** User-local reference time for AI deadline extraction. */
+  clientNow?: string;
+  timezone?: string;
 }
 
 export const DEFAULT_BOBBLE_CATEGORY: BobbleCategory = 'tasks';

@@ -7,8 +7,8 @@ import { BobbleDetailToolbar } from '@/src/components/bobbles/bobble-detail-tool
 import { SecondaryButton } from '@/src/components/home/secondary-button';
 import { BobbleMascot } from '@/src/components/onboarding/bobble-mascot';
 import { PrimaryButton } from '@/src/components/onboarding/primary-button';
+import { useBobbleToolbarActions } from '@/src/hooks/use-bobble-toolbar-actions';
 import { Typography } from '@/src/theme/fonts';
-import { toast } from '@/src/utils/toast';
 
 const SAVE_TEXT = '#17164B';
 const SUCCESS_BACKGROUND = require('@/src/assets/images/background/four.png');
@@ -33,6 +33,10 @@ export function BobbleSaveSuccess({
   onHome,
 }: BobbleSaveSuccessProps) {
   const insets = useSafeAreaInsets();
+  const { handleAddTasks, handlePin, isAddingTasks, isPinning, bobble } = useBobbleToolbarActions({
+    bobbleId,
+  });
+
   return (
     <ImageBackground
       source={SUCCESS_BACKGROUND}
@@ -88,9 +92,15 @@ export function BobbleSaveSuccess({
               params: bobbleId ? { bobbleId } : undefined,
             } as Href)
           }
-          onAddTask={() => router.push('/(tabs)/tasks' as Href)}
-          onPin={() => router.push('/(tabs)/bobbles' as Href)}
-          onMore={() => toast.success('More options coming soon')}
+          onAddTask={handleAddTasks}
+          onPin={handlePin}
+          onMore={() => {
+            if (bobbleId) {
+              router.push({ pathname: '/bobble/[id]', params: { id: bobbleId } } as Href);
+            }
+          }}
+          disabled={isAddingTasks || isPinning}
+          pinned={bobble?.pinned}
         />
       </View>
     </ImageBackground>

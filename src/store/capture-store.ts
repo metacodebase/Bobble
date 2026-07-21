@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-import type { BobbleCategory } from '@/src/features/bobbles/types';
+import type { BobbleCategory, SuggestedTask } from '@/src/features/bobbles/types';
 
 export type CaptureKind = 'bobble' | 'idea' | 'task' | 'brain-dump' | 'reflection';
 
@@ -21,11 +21,11 @@ export type PendingBobbleSave = {
   durationMin: number;
   durationSec: number;
   category: BobbleCategory;
-  tasks: { id?: string; title: string }[];
+  tasks: { id?: string; title: string; dueAt?: string | null }[];
   /** Set after create/process succeeds so later screens can navigate / create tasks. */
   createdBobbleId?: string;
-  /** AI-suggested task titles from OpenAI enrichment (not yet persisted as Task docs). */
-  suggestedTasks?: string[];
+  /** AI-suggested tasks from OpenAI enrichment (not yet persisted as Task docs). */
+  suggestedTasks?: SuggestedTask[];
   /** Optional summary intro from enrichment for the suggestions screen. */
   summaryIntro?: string;
   /** Whether the user already ran Generate Tasks on the suggestions screen. */

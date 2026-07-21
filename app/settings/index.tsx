@@ -32,6 +32,8 @@ import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { useNightForeground } from '@/src/hooks/use-night-foreground';
 import { useAppStore } from '@/src/store/app-store';
 import { Typography } from '@/src/theme/fonts';
+import { exportUserDataCsv } from '@/src/utils/export-user-data';
+import { toast } from '@/src/utils/toast';
 
 function themePreferenceLabel(themeOverride: 'light' | 'dark' | null) {
   if (themeOverride === 'dark') return 'Night';
@@ -61,6 +63,23 @@ export default function SettingsScreen() {
   const [insightsWeekly, setInsightsWeekly] = useState(true);
   const [shareAnalytics, setShareAnalytics] = useState(true);
   const [personalisation, setPersonalisation] = useState(true);
+  const [isExportingCsv, setIsExportingCsv] = useState(false);
+
+  const handleExportCsv = async () => {
+    if (isExportingCsv) return;
+    setIsExportingCsv(true);
+    try {
+      await exportUserDataCsv();
+      toast.success('Export ready to share');
+    } catch (error) {
+      if (error instanceof Error && /cancel|dismiss|did not share|user denied/i.test(error.message)) {
+        return;
+      }
+      toast.error('Could not export data');
+    } finally {
+      setIsExportingCsv(false);
+    }
+  };
 
   return (
     <SettingsScreenLayout title="Settings">
@@ -160,12 +179,12 @@ export default function SettingsScreen() {
         <SettingsLinkItemRow
           label="Export as PDF"
           icon={<FileText size={22} color={colors.primary} strokeWidth={2} />}
-          onPress={() => {}}
+          onPress={() => toast.success('PDF export is coming soon')}
         />
         <SettingsLinkItemRow
-          label="Export as CSV"
+          label={isExportingCsv ? 'Preparing CSV…' : 'Export as CSV'}
           icon={<FileSpreadsheet size={22} color={colors.primary} strokeWidth={2} />}
-          onPress={() => {}}
+          onPress={isExportingCsv ? undefined : () => void handleExportCsv()}
           isLast
         />
       </SettingsSection>

@@ -24,6 +24,7 @@ import {
   useDeleteBobble,
   useUpdateBobble,
 } from '@/src/hooks/bobbles';
+import { useBobbleToolbarActions } from '@/src/hooks/use-bobble-toolbar-actions';
 import { useCaptureStore } from '@/src/store/capture-store';
 import { Typography } from '@/src/theme/fonts';
 import { buildDuplicateBobbleBody } from '@/src/utils/bobble-actions';
@@ -37,6 +38,10 @@ export default function BobbleDetailScreen() {
   const deleteBobble = useDeleteBobble();
   const updateBobble = useUpdateBobble();
   const createBobble = useCreateBobble();
+  const { handleAddTasks, handlePin, isAddingTasks, isPinning } = useBobbleToolbarActions({
+    bobbleId: id,
+    bobble,
+  });
   const [tab, setTab] = useState<SummaryTab>('summary');
   const [moreVisible, setMoreVisible] = useState(false);
   const [renameVisible, setRenameVisible] = useState(false);
@@ -219,6 +224,7 @@ export default function BobbleDetailScreen() {
             dateLabel={dateLabel}
             durationMin={durationMin}
             bullets={bobble.summary?.bullets}
+            pinned={bobble.pinned}
           />
         </ScrollView>
       )}
@@ -231,9 +237,11 @@ export default function BobbleDetailScreen() {
               params: { bobbleId: id },
             } as Href)
           }
-          onAddTask={() => router.push('/(tabs)/tasks' as Href)}
-          onPin={() => router.push('/(tabs)/bobbles' as Href)}
+          onAddTask={handleAddTasks}
+          onPin={handlePin}
           onMore={() => setMoreVisible(true)}
+          disabled={isAddingTasks || isPinning}
+          pinned={bobble.pinned}
         />
       ) : null}
 

@@ -4,6 +4,7 @@ import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Swipeable } from 'react-native-gesture-handler';
 
 import { getBobbleCategoryStyle } from '@/src/components/bobbles/bobble-category-config';
+import { PinnedBadge } from '@/src/components/bobbles/pinned-badge';
 import type { BobbleCategory } from '@/src/features/bobbles/types';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { FontFamily, Typography } from '@/src/theme/fonts';
@@ -19,6 +20,7 @@ type BobbleLibraryRowProps = {
   selected?: boolean;
   onLongPress?: () => void;
   onToggleSelect?: () => void;
+  pinned?: boolean;
 };
 
 export function BobbleLibraryRow({
@@ -32,6 +34,7 @@ export function BobbleLibraryRow({
   selected = false,
   onLongPress,
   onToggleSelect,
+  pinned = false,
 }: BobbleLibraryRowProps) {
   const colors = useBobbleColors();
   const categoryStyle = getBobbleCategoryStyle(category);
@@ -133,6 +136,7 @@ export function BobbleLibraryRow({
           </Text>
         </View>
       </Pressable>
+      {pinned && !selectionMode ? <PinnedBadge size={26} style={styles.pinBadge} /> : null}
     </View>
   );
 
@@ -155,6 +159,7 @@ export function BobbleLibraryRow({
 
 const styles = StyleSheet.create({
   cardContainer: {
+    position: 'relative',
     shadowColor: '#9F52F2',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.06,
@@ -204,6 +209,12 @@ const styles = StyleSheet.create({
     fontFamily: FontFamily.regular,
     fontSize: 11,
     lineHeight: 15,
+  },
+  pinBadge: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    zIndex: 2,
   },
   action: {
     justifyContent: 'center',

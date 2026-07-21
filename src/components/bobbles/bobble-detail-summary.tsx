@@ -1,6 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
 
 import { BobbleSummaryCards } from '@/src/components/bobbles/bobble-summary-cards';
+import { PinnedBadge } from '@/src/components/bobbles/pinned-badge';
 import { DEMO_BOBBLE_DETAIL } from '@/src/data/demo-data';
 import { Typography } from '@/src/theme/fonts';
 
@@ -11,6 +12,7 @@ type BobbleDetailSummaryProps = {
   dateLabel?: string;
   durationMin?: number;
   bullets?: readonly { label: string; value: string }[];
+  pinned?: boolean;
 };
 
 export function BobbleDetailSummary({
@@ -18,9 +20,11 @@ export function BobbleDetailSummary({
   dateLabel = DEMO_BOBBLE_DETAIL.dateLabel,
   durationMin = DEMO_BOBBLE_DETAIL.durationMin,
   bullets = DEMO_BOBBLE_DETAIL.bullets,
+  pinned = false,
 }: BobbleDetailSummaryProps) {
   return (
     <View style={styles.section}>
+      {pinned ? <PinnedBadge size={28} style={styles.pinBadge} /> : null}
       <View style={styles.titleRow}>
         <Text style={styles.title} numberOfLines={2}>
           {title}
@@ -40,6 +44,13 @@ export function BobbleDetailSummary({
 const styles = StyleSheet.create({
   section: {
     gap: 20,
+    position: 'relative',
+  },
+  pinBadge: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    zIndex: 2,
   },
   titleRow: {
     flexDirection: 'row',

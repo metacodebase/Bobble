@@ -6,6 +6,8 @@ type BobbleDetailToolbarProps = {
   onAddTask?: () => void;
   onPin?: () => void;
   onMore?: () => void;
+  disabled?: boolean;
+  pinned?: boolean;
 };
 
 export function BobbleDetailToolbar({
@@ -13,23 +15,37 @@ export function BobbleDetailToolbar({
   onAddTask,
   onPin,
   onMore,
+  disabled = false,
+  pinned = false,
 }: BobbleDetailToolbarProps) {
   const actions = [
-    { icon: Share2, onPress: onShare },
-    { icon: ListTodo, onPress: onAddTask },
-    { icon: Pin, onPress: onPin },
-    { icon: MoreHorizontal, onPress: onMore },
-  ];
+    { id: 'share', icon: Share2, onPress: onShare, active: false },
+    { id: 'tasks', icon: ListTodo, onPress: onAddTask, active: false },
+    { id: 'pin', icon: Pin, onPress: onPin, active: pinned },
+    { id: 'more', icon: MoreHorizontal, onPress: onMore, active: false },
+  ] as const;
 
   return (
     <View style={styles.root}>
-      {actions.map(({ icon: Icon, onPress }, index) => (
+      {actions.map(({ id, icon: Icon, onPress, active }) => (
         <Pressable
-          key={index}
+          key={id}
           onPress={onPress}
-          style={({ pressed }) => [styles.button, pressed && styles.pressed]}
+          disabled={disabled || !onPress}
+          style={({ pressed }) => [
+            styles.button,
+            active && styles.buttonActive,
+            (pressed || disabled) && styles.pressed,
+            disabled && styles.disabled,
+          ]}
+          accessibilityLabel={id === 'pin' ? (pinned ? 'Unpin bobble' : 'Pin bobble') : undefined}
         >
-          <Icon size={20} color="#7C3AED" strokeWidth={2} />
+          <Icon
+            size={20}
+            color="#9F52F2"
+            fill={active ? 'rgba(159, 82, 242, 0.18)' : 'transparent'}
+            strokeWidth={active ? 1.75 : 2}
+          />
         </Pressable>
       ))}
     </View>
@@ -52,7 +68,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: 'rgba(159, 82, 242, 0.14)',
   },
+  buttonActive: {
+    backgroundColor: 'rgba(159, 82, 242, 0.2)',
+  },
   pressed: {
     opacity: 0.7,
+  },
+  disabled: {
+    opacity: 0.45,
   },
 });
