@@ -1,11 +1,12 @@
 import { Href, router } from 'expo-router';
 import { Settings } from 'lucide-react-native';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 
 import { ProfileAvatar } from '@/src/components/create-account/profile-avatar';
+import { AvatarImageViewer } from '@/src/components/profile/avatar-image-viewer';
 import { ActionSheet } from '@/src/components/ui/action-sheet';
 import { StatCard } from '@/src/components/profile/stat-card';
 import { ProfileMenuRow } from '@/src/components/ui/profile-menu-row';
@@ -41,6 +42,7 @@ export default function ProfileScreen() {
   const user = fetchedUser ?? storedUser;
   const logout = useLogout();
   const { openPicker, isUploading, sheetProps } = useProfileAvatarPicker();
+  const [viewerOpen, setViewerOpen] = useState(false);
   const rawName = user?.name ?? user?.email?.split('@')[0] ?? PROFILE_USER.name;
   const displayName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
   const avatarUrl = resolveAvatarUrl(
@@ -49,6 +51,14 @@ export default function ProfileScreen() {
     user?.avatarUrl,
   );
   const avatarSource = avatarUrl ? { uri: avatarUrl } : undefined;
+
+  const handleAvatarPress = useCallback(() => {
+    if (avatarUrl) {
+      setViewerOpen(true);
+      return;
+    }
+    openPicker();
+  }, [avatarUrl, openPicker]);
 
   const gamification = user?.gamification;
 
@@ -82,7 +92,8 @@ export default function ProfileScreen() {
             style={styles.avatar}
             imageSource={avatarSource}
             uploading={isUploading}
-            onPress={openPicker}
+            onPress={handleAvatarPress}
+            onCameraPress={openPicker}
           />
           <Text style={[styles.name, { color: colors.text }]}>{displayName}</Text>
 
@@ -114,6 +125,11 @@ export default function ProfileScreen() {
       </ScrollView>
 
       <ActionSheet {...sheetProps} />
+      <AvatarImageViewer
+        visible={viewerOpen}
+        avatarUrl={avatarUrl}
+        onClose={() => setViewerOpen(false)}
+      />
     </View>
   );
 }

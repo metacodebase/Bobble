@@ -12,6 +12,7 @@ const DEFAULT_PROFILE_IMAGE = require('@/src/assets/images/profile-avatar-defaul
 
 type ProfileAvatarProps = {
   onPress?: () => void;
+  onCameraPress?: () => void;
   size?: number;
   showCamera?: boolean;
   centered?: boolean;
@@ -22,6 +23,7 @@ type ProfileAvatarProps = {
 
 export function ProfileAvatar({
   onPress,
+  onCameraPress,
   size = 140,
   showCamera = true,
   centered = true,
@@ -41,6 +43,7 @@ export function ProfileAvatar({
       ? imageSource.uri
       : undefined;
   const validRemoteUri = resolveAvatarUrl(remoteUri);
+  const handleCameraPress = onCameraPress ?? onPress;
 
   const resolvedSource = useMemo(() => {
     if (!validRemoteUri || loadFailed) return DEFAULT_PROFILE_IMAGE;
@@ -50,16 +53,6 @@ export function ProfileAvatar({
   useEffect(() => {
     setLoadFailed(false);
   }, [validRemoteUri, authToken]);
-
-  useEffect(() => {
-    if (!validRemoteUri) return;
-    const source = buildAvatarImageSource(validRemoteUri, authToken);
-    console.log('[ProfileAvatar] loading', {
-      storedUrl: validRemoteUri,
-      loadUrl: source && typeof source === 'object' && 'uri' in source ? source.uri : source,
-      hasAuth: Boolean(authToken),
-    });
-  }, [authToken, validRemoteUri]);
 
   return (
     <View style={[styles.wrapper, centered && styles.wrapperCentered, style]}>
@@ -82,14 +75,8 @@ export function ProfileAvatar({
           style={{ width: size, height: size, borderRadius: radius }}
           contentFit="cover"
           cachePolicy={validRemoteUri && !loadFailed ? 'none' : 'memory-disk'}
-          onLoad={() => {
-            console.log('[ProfileAvatar] loaded OK');
-            setLoadFailed(false);
-          }}
-          onError={(error) => {
-            console.warn('[ProfileAvatar] load failed', error);
-            setLoadFailed(true);
-          }}
+          onLoad={() => setLoadFailed(false)}
+          onError={() => setLoadFailed(true)}
         />
         {uploading ? (
           <View style={[styles.uploadOverlay, { borderRadius: radius }]}>
@@ -99,8 +86,8 @@ export function ProfileAvatar({
       </Pressable>
       {showCamera ? (
         <Pressable
-          onPress={onPress}
-          disabled={!onPress || uploading}
+          onPress={handleCameraPress}
+          disabled={!handleCameraPress || uploading}
           style={({ pressed }) => [
             styles.cameraButton,
             {
