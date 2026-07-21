@@ -1,13 +1,14 @@
 import { Href, router, useLocalSearchParams } from 'expo-router';
 import { Copy, Download, Pencil, Trash2 } from 'lucide-react-native';
-import { useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useCallback, useMemo, useState } from 'react';
+import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { BobbleDetailSummary } from '@/src/components/bobbles/bobble-detail-summary';
 import { BobbleDetailToolbar } from '@/src/components/bobbles/bobble-detail-toolbar';
 import { BobbleInsights } from '@/src/components/bobbles/bobble-insights';
 import { BobbleTranscript } from '@/src/components/bobbles/bobble-transcript';
+import { RenameBobbleSheet } from '@/src/components/bobbles/rename-bobble-sheet';
 import { CaptureHeader } from '@/src/components/capture/capture-header';
 import { SegmentTabs, SummaryTab } from '@/src/components/capture/segment-tabs';
 import { ActionSheet } from '@/src/components/ui/action-sheet';
@@ -17,9 +18,16 @@ import {
   formatBobbleDateLabel,
   formatTimestampLabel,
 } from '@/src/features/bobbles/format';
-import { useBobble, useDeleteBobble } from '@/src/hooks/bobbles';
+import {
+  useBobble,
+  useCreateBobble,
+  useDeleteBobble,
+  useUpdateBobble,
+} from '@/src/hooks/bobbles';
 import { useCaptureStore } from '@/src/store/capture-store';
 import { Typography } from '@/src/theme/fonts';
+import { buildDuplicateBobbleBody } from '@/src/utils/bobble-actions';
+import { exportBobbleSummary } from '@/src/utils/export-bobble-summary';
 import { toast } from '@/src/utils/toast';
 
 export default function BobbleDetailScreen() {
@@ -27,8 +35,11 @@ export default function BobbleDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { data: bobble, isLoading, isError } = useBobble(id);
   const deleteBobble = useDeleteBobble();
+  const updateBobble = useUpdateBobble();
+  const createBobble = useCreateBobble();
   const [tab, setTab] = useState<SummaryTab>('summary');
   const [moreVisible, setMoreVisible] = useState(false);
+  const [renameVisible, setRenameVisible] = useState(false);
   const recordingUri = useCaptureStore((state) => state.recordingUri);
   const recordingDurationSeconds = useCaptureStore((state) => state.recordingDurationSeconds);
 
@@ -36,6 +47,8 @@ export default function BobbleDetailScreen() {
   const isTranscript = tab === 'transcript';
   const isInsights = tab === 'insights';
   const showToolbar = !isTranscript;
+  const dateLabel = bobble ? formatBobbleDateLabel(bobble.createdAt) : undefined;
+  const durationMin = bobble ? bobbleDurationMin(bobble) : undefined;
 
   const transcriptSegments = useMemo(() => {
     return (bobble?.transcriptSegments ?? []).map((segment) => ({
@@ -46,43 +59,99 @@ export default function BobbleDetailScreen() {
     }));
   }, [bobble?.transcriptSegments]);
 
+  const openRename = useCallback(() => {
+    setRenameVisible(true);
+  }, []);
+
+  const handleRename = useCallback(
+    (nextTitle: string) => {
+      if (!id || updateBobble.isPending) return;
+      updateBobble.mutate(
+        { id, body: { title: nextTitle } },
+        {
+          onSuccess: () => {
+            setRenameVisible(false);
+            toast.success('Bobble renamed');
+          },
+        },
+      );
+    },
+    [id, updateBobble],
+  );
+
+  const handleDuplicate = useCallback(() => {
+    if (!bobble || createBobble.isPending) return;
+    createBobble.mutate(buildDuplicateBobbleBody(bobble), {
+      onSuccess: (created) => {
+        toast.success('Bobble duplicated');
+        router.push({ pathname: '/bobble/[id]', params: { id: created._id } } as Href);
+      },
+    });
+  }, [bobble, createBobble]);
+
+  const handleExportSummary = useCallback(async () => {
+    if (!bobble) return;
+    try {
+      const result = await exportBobbleSummary(bobble, { dateLabel, durationMin });
+      toast.success(result === 'shared' ? 'Summary exported' : 'Summary copied to clipboard');
+    } catch (error) {
+      if (error instanceof Error && error.message.toLowerCase().includes('cancel')) return;
+      toast.error('Could not export summary');
+    }
+  }, [bobble, dateLabel, durationMin]);
+
+  const confirmDelete = useCallback(() => {
+    if (!id || deleteBobble.isPending) return;
+    Alert.alert(
+      'Delete Bobble',
+      'This will permanently delete this bobble. This action cannot be undone.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () => {
+            deleteBobble.mutate(id, {
+              onSuccess: () => {
+                toast.success('Bobble deleted');
+                router.back();
+              },
+            });
+          },
+        },
+      ],
+    );
+  }, [deleteBobble, id]);
+
   const moreOptions = useMemo(
     () => [
       {
         id: 'rename',
         label: 'Rename Bobble',
         icon: Pencil,
-        onPress: () => toast.success('Rename is coming soon'),
+        onPress: openRename,
       },
       {
         id: 'duplicate',
         label: 'Duplicate Bobble',
         icon: Copy,
-        onPress: () => toast.success('Bobble duplicated to your library'),
+        onPress: handleDuplicate,
       },
       {
         id: 'export',
         label: 'Export Summary',
         icon: Download,
-        onPress: () => toast.success('Summary exported'),
+        onPress: () => void handleExportSummary(),
       },
       {
         id: 'delete',
         label: 'Delete Bobble',
         icon: Trash2,
         destructive: true,
-        onPress: () => {
-          if (!id || deleteBobble.isPending) return;
-          deleteBobble.mutate(id, {
-            onSuccess: () => {
-              toast.success('Bobble deleted');
-              router.back();
-            },
-          });
-        },
+        onPress: confirmDelete,
       },
     ],
-    [deleteBobble, id],
+    [confirmDelete, handleDuplicate, handleExportSummary, openRename],
   );
 
   if (isLoading) {
@@ -115,7 +184,11 @@ export default function BobbleDetailScreen() {
   return (
     <View style={[styles.root, { paddingTop: insets.top + 8, paddingBottom: insets.bottom + 16 }]}>
       <View style={styles.headerBlock}>
-        <CaptureHeader onBack={() => router.back()} rightIcon={Pencil} />
+        <CaptureHeader
+          onBack={() => router.back()}
+          rightIcon={Pencil}
+          onRightPress={openRename}
+        />
         <SegmentTabs active={tab} onChange={setTab} />
       </View>
 
@@ -143,8 +216,8 @@ export default function BobbleDetailScreen() {
         >
           <BobbleDetailSummary
             title={title}
-            dateLabel={formatBobbleDateLabel(bobble.createdAt)}
-            durationMin={bobbleDurationMin(bobble)}
+            dateLabel={dateLabel}
+            durationMin={durationMin}
             bullets={bobble.summary?.bullets}
           />
         </ScrollView>
@@ -169,6 +242,14 @@ export default function BobbleDetailScreen() {
         title={title}
         options={moreOptions}
         onClose={() => setMoreVisible(false)}
+      />
+
+      <RenameBobbleSheet
+        visible={renameVisible}
+        initialTitle={title}
+        submitting={updateBobble.isPending}
+        onClose={() => setRenameVisible(false)}
+        onSubmit={handleRename}
       />
     </View>
   );
