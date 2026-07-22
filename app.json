@@ -23,6 +23,8 @@
         "NSCalendarsFullAccessUsageDescription": "Bobble uses your calendar to sync tasks and events from your Bobbles.",
         "NSRemindersUsageDescription": "Bobble uses your reminders to sync tasks from your Bobbles.",
         "NSRemindersFullAccessUsageDescription": "Bobble uses your reminders to sync tasks from your Bobbles.",
+        "NSUserNotificationsUsageDescription": "Bobble sends task reminders and streak alerts.",
+        "UIBackgroundModes": ["remote-notification"],
         "NSAppTransportSecurity": {
           "NSAllowsArbitraryLoads": true,
           "NSAllowsLocalNetworking": true,
@@ -53,7 +55,8 @@
       "permissions": [
         "android.permission.RECORD_AUDIO",
         "android.permission.MODIFY_AUDIO_SETTINGS",
-        "android.permission.CAMERA"
+        "android.permission.CAMERA",
+        "android.permission.POST_NOTIFICATIONS"
       ]
     },
     "web": {
@@ -131,6 +134,14 @@
               }
             ]
           }
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./src/assets/images/bobble-app-icon.png",
+          "color": "#A485FA",
+          "defaultChannel": "default"
         }
       ],
       [

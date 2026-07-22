@@ -28,7 +28,8 @@ export default function ExportDataScreen() {
       toast.success('PDF export ready to share');
     } catch (error) {
       if (isExportShareCancelled(error)) return;
-      toast.error('Could not export PDF');
+      const message = error instanceof Error ? error.message : '';
+      toast.error(message.includes('native build') ? message : 'Could not export PDF');
     } finally {
       setIsExportingPdf(false);
     }

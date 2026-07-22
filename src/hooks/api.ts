@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Href, router } from 'expo-router';
 
 import { authApi, systemApi } from '@/src/api';
+import { unregisterPushTokenFromBackend } from '@/src/features/notifications/push-notifications';
 import type {
   ChangePasswordBody,
   LoginBody,
@@ -75,6 +76,11 @@ export function useLogout() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async () => {
+      try {
+        await unregisterPushTokenFromBackend();
+      } catch {
+        /* best effort */
+      }
       try {
         await authApi.logout();
       } catch {

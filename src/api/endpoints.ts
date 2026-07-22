@@ -26,4 +26,8 @@ export const API = {
     root: '/api/profile',
     avatar: '/api/profile/avatar',
   },
+  notifications: {
+    preferences: '/api/notifications/preferences',
+    devices: '/api/notifications/devices',
+  },
 } as const;

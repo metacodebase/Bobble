@@ -22,7 +22,7 @@ export function TermsNotice({
         hitSlop={8}
         style={({ pressed }) => [pressed && styles.pressed]}
       >
-        <Text style={[styles.link, { color: colors.textAccent }]}>Terms & Conditions</Text>
+        <Text style={[styles.link, { color: colors.textAccent }]}>Terms of Use</Text>
       </Pressable>
     </View>
   );

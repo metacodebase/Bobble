@@ -41,7 +41,14 @@ export function TermsAcceptance({ accepted, onToggle }: TermsAcceptanceProps) {
             style={[styles.link, { color: colors.textAccent }]}
             onPress={() => router.push('/(auth)/terms-and-conditions' as Href)}
           >
-            Terms & Conditions
+            Terms of Use
+          </Text>{' '}
+          and{' '}
+          <Text
+            style={[styles.link, { color: colors.textAccent }]}
+            onPress={() => router.push('/(auth)/privacy-policy' as Href)}
+          >
+            Privacy Policy
           </Text>
         </Text>
       </View>

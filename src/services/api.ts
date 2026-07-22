@@ -151,8 +151,11 @@ export const api = {
     options?: Omit<RequestOptions<B>, 'method' | 'body'>
   ) => request<ApiSuccessResponse<T>, B>(path, { method: 'PATCH', body, ...options }),
 
-  delete: <T>(path: string, options?: Omit<RequestOptions, 'method' | 'body'>) =>
-    request<ApiSuccessResponse<T>>(path, { method: 'DELETE', ...options }),
+  delete: <T, B = unknown>(
+    path: string,
+    body?: B,
+    options?: Omit<RequestOptions<B>, 'method' | 'body'>
+  ) => request<ApiSuccessResponse<T>, B>(path, { method: 'DELETE', body, ...options }),
 };
 
 export function buildQueryString(

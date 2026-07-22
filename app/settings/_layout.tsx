@@ -25,6 +25,8 @@ export default function SettingsLayout() {
       <Stack.Screen name="help" />
       <Stack.Screen name="billing" />
       <Stack.Screen name="about" />
+      <Stack.Screen name="terms-and-conditions" />
+      <Stack.Screen name="privacy-policy" />
       <Stack.Screen name="export-data" />
     </Stack>
   );

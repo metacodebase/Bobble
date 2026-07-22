@@ -17,6 +17,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 
 import { ApiBootstrap } from '@/src/components/api-bootstrap';
+import { PushBootstrap } from '@/src/components/push-bootstrap';
 import { AppBackground, useAppBackdrop } from '@/src/components/ui/app-background';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { useColorScheme } from '@/src/hooks/use-color-scheme';
@@ -118,6 +119,7 @@ function AppShell() {
   return (
     <AppBackground>
       <ApiBootstrap />
+      <PushBootstrap />
       <NavigationThemeProvider>
         <Stack
           screenLayout={({ children }) => <AppBackground>{children}</AppBackground>}

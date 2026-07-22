@@ -9,7 +9,7 @@ import {
   TERMS_VERSION,
 } from '@/src/data/terms-and-conditions';
 
-export default function TermsAndConditionsScreen() {
+export default function SettingsTermsAndConditionsScreen() {
   return (
     <LegalDocumentScreen
       title="Terms of Use"

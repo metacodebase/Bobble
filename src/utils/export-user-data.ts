@@ -1,5 +1,4 @@
 import { EncodingType, cacheDirectory, writeAsStringAsync } from 'expo-file-system/legacy';
-import * as Print from 'expo-print';
 import Share from 'react-native-share';
 
 import { bobblesApi, profileApi, tasksApi } from '@/src/api';
@@ -213,10 +212,26 @@ export async function exportUserDataCsv(): Promise<void> {
   await shareFile(path, 'text/csv', `bobble-export-${Date.now()}.csv`);
 }
 
+async function printHtmlToPdf(html: string): Promise<string> {
+  try {
+    const Print = await import('expo-print');
+    const { uri } = await Print.printToFileAsync({ html });
+    return uri;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    if (message.includes('ExpoPrint') || message.includes('native module')) {
+      throw new Error(
+        'PDF export requires a new native build. Run: npx expo run:ios (or run:android)',
+      );
+    }
+    throw error;
+  }
+}
+
 export async function exportUserDataPdf(): Promise<void> {
   const { bobbles, tasks, profile } = await fetchExportData();
   const html = buildExportHtml(bobbles, tasks, profile?.user.name);
-  const { uri } = await Print.printToFileAsync({ html });
+  const uri = await printHtmlToPdf(html);
   await shareFile(uri, 'application/pdf', `bobble-export-${Date.now()}.pdf`);
 }
 

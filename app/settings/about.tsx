@@ -1,4 +1,5 @@
 import Constants from 'expo-constants';
+import { router } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { BobbleMascot } from '@/src/components/onboarding/bobble-mascot';
@@ -30,8 +31,14 @@ export default function AboutScreen() {
       </View>
 
       <SettingsSection title="Legal">
-        <SettingsLinkRow label="Terms of Service" />
-        <SettingsLinkRow label="Privacy Policy" />
+        <SettingsLinkRow
+          label="Terms of Use"
+          onPress={() => router.push('/settings/terms-and-conditions')}
+        />
+        <SettingsLinkRow
+          label="Privacy Policy"
+          onPress={() => router.push('/settings/privacy-policy')}
+        />
         <SettingsLinkRow label="Licenses" isLast />
       </SettingsSection>
     </SettingsScreenLayout>

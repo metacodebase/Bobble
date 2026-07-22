@@ -9,6 +9,7 @@ type SettingsToggleRowProps = {
   value: boolean;
   onValueChange: (value: boolean) => void;
   isLast?: boolean;
+  disabled?: boolean;
 };
 
 export function SettingsToggleRow({
@@ -17,6 +18,7 @@ export function SettingsToggleRow({
   value,
   onValueChange,
   isLast,
+  disabled = false,
 }: SettingsToggleRowProps) {
   const colors = useBobbleColors();
 
@@ -36,6 +38,7 @@ export function SettingsToggleRow({
       <Switch
         value={value}
         onValueChange={onValueChange}
+        disabled={disabled}
         trackColor={{ false: colors.border, true: colors.primaryMuted }}
         thumbColor={value ? colors.primary : colors.surface}
       />
