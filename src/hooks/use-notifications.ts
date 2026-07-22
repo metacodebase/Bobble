@@ -8,6 +8,7 @@ import {
 import type { NotificationPreferences, UpdateNotificationPreferencesBody } from '@/src/features/notifications/types';
 import {
   attachNotificationListeners,
+  handleColdStartNotificationTap,
   syncPushRegistration,
 } from '@/src/features/notifications/push-notifications';
 import { queryKeys } from '@/src/services/query-keys';
@@ -60,5 +61,15 @@ export function usePushNotificationsBootstrap(enabled = true) {
   useEffect(() => {
     if (!enabled || !isAuthenticated) return;
     return attachNotificationListeners();
+  }, [enabled, isAuthenticated]);
+
+  useEffect(() => {
+    if (!enabled || !isAuthenticated) return;
+
+    void handleColdStartNotificationTap().catch((error) => {
+      if (__DEV__) {
+        console.warn('[push] cold-start notification routing failed', error);
+      }
+    });
   }, [enabled, isAuthenticated]);
 }

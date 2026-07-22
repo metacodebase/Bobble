@@ -22,6 +22,12 @@ Notifications.setNotificationHandler({
 });
 
 let cachedPushToken: string | null = null;
+let handledNotificationKey: string | null = null;
+
+function notificationResponseKey(response: Notifications.NotificationResponse): string {
+  const { identifier } = response.notification.request;
+  return `${identifier}:${response.notification.date}`;
+}
 
 function getEasProjectId(): string | undefined {
   return (
@@ -34,7 +40,11 @@ function getEasProjectId(): string | undefined {
 function routeFromNotificationData(data: Record<string, unknown> | undefined): void {
   if (!data) return;
   if (data.type === 'task_reminder') {
-    router.push('/(tabs)/tasks' as Href);
+    if (typeof data.taskId === 'string') {
+      router.push({ pathname: '/(tabs)/tasks', params: { taskId: data.taskId } } as Href);
+    } else {
+      router.push('/(tabs)/tasks' as Href);
+    }
     return;
   }
   if (data.type === 'streak_reminder') {
@@ -68,7 +78,7 @@ export async function getExpoPushToken(): Promise<string | null> {
   const projectId = getEasProjectId();
   if (!projectId) {
     console.warn(
-      '[push] Missing EAS project ID. Run `eas init` and set EXPO_PUBLIC_EAS_PROJECT_ID.',
+      '[push] Missing Expo project ID. Set EXPO_PUBLIC_EAS_PROJECT_ID in .env (Expo push tokens; not EAS Build).',
     );
     return null;
   }
@@ -122,13 +132,50 @@ export async function syncPushRegistration(pushEnabled: boolean): Promise<void> 
   await registerPushTokenWithBackend(token);
 }
 
+export function handleNotificationResponse(
+  response: Notifications.NotificationResponse | null | undefined,
+): void {
+  if (!response) return;
+
+  const key = notificationResponseKey(response);
+  if (handledNotificationKey === key) return;
+  handledNotificationKey = key;
+
+  routeFromNotificationData(
+    response.notification.request.content.data as Record<string, unknown>,
+  );
+}
+
+export async function handleColdStartNotificationTap(): Promise<void> {
+  const response = await Notifications.getLastNotificationResponseAsync();
+  if (!response) return;
+
+  // Android can return a stale last response on normal launches; only route recent taps.
+  const ageMs = Date.now() - response.notification.date;
+  if (ageMs > 10_000) return;
+
+  handleNotificationResponse(response);
+}
+
 export function attachNotificationListeners(): () => void {
   const responseSub = Notifications.addNotificationResponseReceivedListener((response) => {
-    routeFromNotificationData(response.notification.request.content.data as Record<string, unknown>);
+    handleNotificationResponse(response);
+  });
+
+  const tokenSub = Notifications.addPushTokenListener(({ data }) => {
+    const wasRegistered = cachedPushToken !== null;
+    cachedPushToken = data;
+    if (!wasRegistered) return;
+    void registerPushTokenWithBackend(data).catch((error) => {
+      if (__DEV__) {
+        console.warn('[push] token refresh registration failed', error);
+      }
+    });
   });
 
   return () => {
     responseSub.remove();
+    tokenSub.remove();
   };
 }
 

@@ -99,7 +99,14 @@ export function useDeleteAccount() {
   const clearSession = useAppStore((s) => s.clearSession);
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: () => authApi.deleteAccount(),
+    mutationFn: async () => {
+      try {
+        await unregisterPushTokenFromBackend();
+      } catch {
+        /* best effort */
+      }
+      return authApi.deleteAccount();
+    },
     onSuccess: () => {
       clearSession();
       qc.clear();

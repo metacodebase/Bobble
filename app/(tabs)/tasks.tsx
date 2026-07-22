@@ -1,5 +1,6 @@
+import { router, useLocalSearchParams } from 'expo-router';
 import { Calendar, CheckCircle, Clock } from 'lucide-react-native';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -40,6 +41,7 @@ export default function TasksScreen() {
   const night = useNightForeground();
   const { height: tabBarHeight } = useTabBarInsets();
   const fabBottom = tabBarHeight + 16;
+  const { taskId: taskIdParam } = useLocalSearchParams<{ taskId?: string }>();
   const [filter, setFilter] = useState<TaskFilter>('All');
   const [sheet, setSheet] = useState<SheetState | null>(null);
 
@@ -67,6 +69,29 @@ export default function TasksScreen() {
       },
     });
   };
+
+  useEffect(() => {
+    if (!taskIdParam) return;
+    if (filter !== 'All') {
+      setFilter('All');
+      return;
+    }
+    if (isLoading) return;
+
+    const task = tasks.find((t) => t._id === taskIdParam);
+    if (task) {
+      setSheet({
+        mode: 'edit',
+        id: taskIdParam,
+        initial: {
+          title: task.title,
+          notes: task.notes,
+          dueAt: task.dueAt ?? null,
+        },
+      });
+    }
+    router.setParams({ taskId: undefined });
+  }, [taskIdParam, filter, isLoading, tasks]);
 
   const handleSubmit = (values: TaskFormValues) => {
     if (sheet?.mode === 'edit') {

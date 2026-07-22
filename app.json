@@ -24,7 +24,9 @@
         "NSRemindersUsageDescription": "Bobble uses your reminders to sync tasks from your Bobbles.",
         "NSRemindersFullAccessUsageDescription": "Bobble uses your reminders to sync tasks from your Bobbles.",
         "NSUserNotificationsUsageDescription": "Bobble sends task reminders and streak alerts.",
-        "UIBackgroundModes": ["remote-notification"],
+        "UIBackgroundModes": [
+          "remote-notification"
+        ],
         "NSAppTransportSecurity": {
           "NSAllowsArbitraryLoads": true,
           "NSAllowsLocalNetworking": true,
@@ -147,8 +149,12 @@
       [
         "react-native-share",
         {
-          "ios": ["fb"],
-          "android": ["com.facebook.katana"],
+          "ios": [
+            "fb"
+          ],
+          "android": [
+            "com.facebook.katana"
+          ],
           "enableBase64ShareAndroid": true
         }
       ],
