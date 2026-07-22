@@ -1,4 +1,5 @@
-import { EncodingType, cacheDirectory, writeAsStringAsync } from 'expo-file-system/legacy';
+import { EncodingType, cacheDirectory, copyAsync, writeAsStringAsync } from 'expo-file-system/legacy';
+import * as Sharing from 'expo-sharing';
 import Share from 'react-native-share';
 
 import { bobblesApi, profileApi, tasksApi } from '@/src/api';
@@ -54,7 +55,7 @@ async function fetchExportData(): Promise<{
   profile: ProfilePayload | null;
 }> {
   const [bobbles, tasks, profile] = await Promise.all([
-    bobblesApi.listBobbles({ limit: 500 }),
+    bobblesApi.listAllBobbles(),
     tasksApi.listTasks('all'),
     profileApi.fetchProfile().catch(() => null),
   ]);
@@ -194,13 +195,25 @@ function buildExportHtml(
 </html>`;
 }
 
-async function shareFile(path: string, type: string, filename: string): Promise<void> {
+async function shareCsvFile(path: string, filename: string): Promise<void> {
   const url = path.startsWith('file://') ? path : `file://${path}`;
   await Share.open({
     url,
-    type,
+    type: 'text/csv',
     filename,
     title: 'Bobble export',
+  });
+}
+
+async function sharePdfFile(path: string): Promise<void> {
+  if (!(await Sharing.isAvailableAsync())) {
+    throw new Error('Sharing is not available on this device.');
+  }
+
+  await Sharing.shareAsync(path, {
+    mimeType: 'application/pdf',
+    UTI: 'com.adobe.pdf',
+    dialogTitle: 'Bobble export',
   });
 }
 
@@ -209,14 +222,17 @@ export async function exportUserDataCsv(): Promise<void> {
   const csv = buildUnifiedCsv(bobbles, tasks);
   const path = `${cacheDirectory}bobble-export-${Date.now()}.csv`;
   await writeAsStringAsync(path, csv, { encoding: EncodingType.UTF8 });
-  await shareFile(path, 'text/csv', `bobble-export-${Date.now()}.csv`);
+  await shareCsvFile(path, `bobble-export-${Date.now()}.csv`);
 }
 
 async function printHtmlToPdf(html: string): Promise<string> {
   try {
     const Print = await import('expo-print');
     const { uri } = await Print.printToFileAsync({ html });
-    return uri;
+    const filename = `bobble-export-${Date.now()}.pdf`;
+    const dest = `${cacheDirectory}${filename}`;
+    await copyAsync({ from: uri, to: dest });
+    return dest;
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     if (message.includes('ExpoPrint') || message.includes('native module')) {
@@ -232,7 +248,12 @@ export async function exportUserDataPdf(): Promise<void> {
   const { bobbles, tasks, profile } = await fetchExportData();
   const html = buildExportHtml(bobbles, tasks, profile?.user.name);
   const uri = await printHtmlToPdf(html);
-  await shareFile(uri, 'application/pdf', `bobble-export-${Date.now()}.pdf`);
+  await sharePdfFile(uri);
+}
+
+export function getExportErrorMessage(error: unknown, fallback: string): string {
+  if (!(error instanceof Error) || !error.message.trim()) return fallback;
+  return error.message;
 }
 
 export function isExportShareCancelled(error: unknown): boolean {

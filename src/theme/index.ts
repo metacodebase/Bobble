@@ -93,7 +93,7 @@ export function getBobbleThemeColors(scheme: ColorScheme): BobbleThemeColors {
     surface: theme.surface,
     text: theme.text,
     textSecondary: theme.textSecondary,
-    textAccent: scheme === 'dark' ? theme.primaryLight : BobbleColors.textAccent,
+    textAccent: scheme === 'dark' ? BobbleColors.primaryDark : BobbleColors.textAccent,
     textOnPrimary: BobbleColors.textOnPrimary,
     success: theme.success,
     error: theme.error,

@@ -101,6 +101,6 @@ export const Typography = {
   input: {
     fontFamily: FontFamily.regular,
     fontSize: Platform.OS === 'android' ? 18 : 16,
-    lineHeight: 28,
+    lineHeight: Platform.OS === 'android' ? 28 : 24,
   },
 } as const;

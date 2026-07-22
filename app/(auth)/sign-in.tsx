@@ -179,9 +179,9 @@ const styles = StyleSheet.create({
   },
   buttons: {
     width: '100%',
-    gap: 18,
+    gap: Platform.OS === 'ios' ? 10 : 18,
     alignItems: 'center',
-    alignSelf: "center"
+    alignSelf: "center",
   },
   dividerText: {
     ...Typography.divider,

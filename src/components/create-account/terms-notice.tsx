@@ -32,7 +32,10 @@ const styles = StyleSheet.create({
   root: {
     width: '100%',
     alignItems: 'center',
+    justifyContent: 'center',
     gap: 4,
+    flexDirection: 'row',
+    alignSelf: 'center',
   },
   prefix: {
     ...Typography.caption,

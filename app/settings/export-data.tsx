@@ -11,6 +11,7 @@ import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import {
   exportUserDataCsv,
   exportUserDataPdf,
+  getExportErrorMessage,
   isExportShareCancelled,
 } from '@/src/utils/export-user-data';
 import { toast } from '@/src/utils/toast';
@@ -28,8 +29,7 @@ export default function ExportDataScreen() {
       toast.success('PDF export ready to share');
     } catch (error) {
       if (isExportShareCancelled(error)) return;
-      const message = error instanceof Error ? error.message : '';
-      toast.error(message.includes('native build') ? message : 'Could not export PDF');
+      toast.error(getExportErrorMessage(error, 'Could not export PDF'));
     } finally {
       setIsExportingPdf(false);
     }

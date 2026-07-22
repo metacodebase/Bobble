@@ -33,9 +33,10 @@ export function LabeledTextInput({ label, style, ...props }: LabeledTextInputPro
 const styles = StyleSheet.create({
   input: {
     ...Typography.input,
+    height: 55,
+    paddingHorizontal: 20,
     borderWidth: 1,
     borderRadius: 32,
-    paddingHorizontal: 20,
-    paddingVertical: 16,
+    lineHeight: 24,
   },
 });

@@ -1143,13 +1143,13 @@ __metadata:
   linkType: hard
 
 "@eslint-community/eslint-utils@npm:^4.8.0, @eslint-community/eslint-utils@npm:^4.9.1":
-  version: 4.9.1
-  resolution: "@eslint-community/eslint-utils@npm:4.9.1"
+  version: 4.10.0
+  resolution: "@eslint-community/eslint-utils@npm:4.10.0"
   dependencies:
-    eslint-visitor-keys: "npm:^3.4.3"
+    eslint-visitor-keys: "npm:^5.0.1"
   peerDependencies:
     eslint: ^6.0.0 || ^7.0.0 || >=8.0.0
-  checksum: 10c0/dc4ab5e3e364ef27e33666b11f4b86e1a6c1d7cbf16f0c6ff87b1619b3562335e9201a3d6ce806221887ff780ec9d828962a290bb910759fd40a674686503f02
+  checksum: 10c0/5f09ba8a16e64116a5a093a56273edc07d9e834e9e2d7380fe72e6141b95fb0d2c0ad8511ef19e969da0e9d801cb7a59201c107c36e948564c2ded55b8aeb5c3
   languageName: node
   linkType: hard
 
@@ -3815,6 +3815,7 @@ __metadata:
     expo-print: "npm:~15.0.8"
     expo-router: "npm:~6.0.23"
     expo-secure-store: "npm:~15.0.8"
+    expo-sharing: "npm:~14.0.8"
     expo-splash-screen: "npm:~31.0.13"
     expo-status-bar: "npm:~3.0.9"
     expo-symbols: "npm:~1.0.8"
@@ -4984,13 +4985,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-visitor-keys@npm:^3.4.3":
-  version: 3.4.3
-  resolution: "eslint-visitor-keys@npm:3.4.3"
-  checksum: 10c0/92708e882c0a5ffd88c23c0b404ac1628cf20104a108c745f240a13c332a11aac54f49a22d5762efbffc18ecbc9a580d1b7ad034bf5f3cc3307e5cbff2ec9820
-  languageName: node
-  linkType: hard
-
 "eslint-visitor-keys@npm:^4.2.1":
   version: 4.2.1
   resolution: "eslint-visitor-keys@npm:4.2.1"
@@ -4998,7 +4992,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-visitor-keys@npm:^5.0.0":
+"eslint-visitor-keys@npm:^5.0.0, eslint-visitor-keys@npm:^5.0.1":
   version: 5.0.1
   resolution: "eslint-visitor-keys@npm:5.0.1"
   checksum: 10c0/16190bdf2cbae40a1109384c94450c526a79b0b9c3cb21e544256ed85ac48a4b84db66b74a6561d20fe6ab77447f150d711c2ad5ad74df4fcc133736bce99678
@@ -5513,6 +5507,15 @@ __metadata:
   version: 1.0.7
   resolution: "expo-server@npm:1.0.7"
   checksum: 10c0/1baf6dfb07e8b6be737a10c898c25e7ad80575e2e371413cd6530e81d471575f9454b1e3751ed14a9a7d8671d3da1e2917e27ac5faebb50671e87b923f0b7b27
+  languageName: node
+  linkType: hard
+
+"expo-sharing@npm:~14.0.8":
+  version: 14.0.8
+  resolution: "expo-sharing@npm:14.0.8"
+  peerDependencies:
+    expo: "*"
+  checksum: 10c0/64c6f42272b7e762988dbb92af6eabb71bd8229366cdc675cda78513fea39c46c9a46bb250ffaf5587b8361bd824a89820e46771cb5f97fc16bbfc87e3f00518
   languageName: node
   linkType: hard
 

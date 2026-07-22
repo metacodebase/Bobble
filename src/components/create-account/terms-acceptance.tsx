@@ -35,7 +35,7 @@ export function TermsAcceptance({ accepted, onToggle }: TermsAcceptanceProps) {
             {accepted ? <Check size={14} color={colors.textOnPrimary} strokeWidth={3} /> : null}
           </View>
         </Pressable>
-        <Text style={[styles.label, { color: colors.text }]}>
+        {<Text style={[styles.label, { color: colors.text }]}>
           I agree to the{' '}
           <Text
             style={[styles.link, { color: colors.textAccent }]}
@@ -50,7 +50,7 @@ export function TermsAcceptance({ accepted, onToggle }: TermsAcceptanceProps) {
           >
             Privacy Policy
           </Text>
-        </Text>
+        </Text>}
       </View>
     </View>
   );

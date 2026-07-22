@@ -129,6 +129,7 @@
             "usesCleartextTraffic": true
           },
           "ios": {
+            "buildReactNativeFromSource": true,
             "extraPods": [
               {
                 "name": "AppCheckCore",

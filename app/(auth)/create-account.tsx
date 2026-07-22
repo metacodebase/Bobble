@@ -1,12 +1,12 @@
 import { useNavigation } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import {
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Text,
-    View,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
 } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 
@@ -21,7 +21,6 @@ import { PickerModal } from '@/src/components/create-account/picker-modal';
 import { ProfileAvatar } from '@/src/components/create-account/profile-avatar';
 import { SelectField } from '@/src/components/create-account/select-field';
 import { TermsAcceptance } from '@/src/components/create-account/terms-acceptance';
-import { TextLinkButton } from '@/src/components/create-account/text-link-button';
 import { AccentText } from '@/src/components/onboarding/accent-heading';
 import { OnboardingScreenLayout } from '@/src/components/onboarding/onboarding-screen-layout';
 import { PrimaryButton } from '@/src/components/onboarding/primary-button';
@@ -90,8 +89,8 @@ function StepHeading({ step }: { step: number }) {
     case 4:
       return (
         <CreateAccountHeader>
-          Connect your <Text style={{ fontFamily: FontFamily.bold,color:BobbleColors.primary }}>Calendars</Text>{'\n'}
-          <AccentText textStyle={{fontFamily: FontFamily.bold, color: BobbleColors.text }}>Sync to never Miss What Matters</AccentText>
+          Connect your <Text style={{ fontFamily: FontFamily.bold, color: BobbleColors.primary }}>Calendars</Text>{'\n'}
+          <AccentText textStyle={{ fontFamily: FontFamily.bold, color: BobbleColors.text }}>Sync to never Miss What Matters</AccentText>
         </CreateAccountHeader>
       );
     default:
@@ -191,7 +190,7 @@ export default function CreateAccountScreen() {
         toast.error('Please enter your phone number');
         return false;
       }
-      if (!acceptedTerms) {
+      if (!acceptedTerms && isLast) {
         toast.error('Please accept the Terms & Conditions');
         return false;
       }
@@ -395,18 +394,19 @@ export default function CreateAccountScreen() {
       contentStyle={styles.content}
       footer={
         <View style={styles.footerGroup}>
-          <TermsAcceptance
-            accepted={acceptedTerms}
-            onToggle={() => setAcceptedTerms((value) => !value)}
-          />
+
           {isLast ? (
             <>
+              <TermsAcceptance
+                accepted={acceptedTerms}
+                onToggle={() => setAcceptedTerms((value) => !value)}
+              />
               <PrimaryButton
                 label="Create Account"
                 onPress={handleFinish}
                 loading={submitting}
               />
-              <TextLinkButton label="Skip for now" onPress={handleFinish} />
+              {/* <TextLinkButton label="Skip for now" onPress={handleFinish} /> */}
             </>
           ) : (
             <PrimaryButton label="Continue" onPress={handleContinue} />

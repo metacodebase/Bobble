@@ -10,6 +10,9 @@ import type {
 import { api, buildQueryString, unwrap, unwrapPaginated } from '@/src/services/api';
 import { offlineBobbles } from '@/src/services/offline';
 
+/** Must stay in sync with backend `listBobblesQuerySchema` max limit. */
+export const BOBBLES_MAX_PAGE_SIZE = 100;
+
 export async function listBobbles(params: ListBobblesParams = {}): Promise<Bobble[]> {
   if (!BACKEND_ALLOWED) return offlineBobbles.listBobbles(params);
   const qs = buildQueryString({
@@ -17,10 +20,37 @@ export async function listBobbles(params: ListBobblesParams = {}): Promise<Bobbl
     status: params.status,
     search: params.search,
     page: params.page ?? 1,
-    limit: params.limit ?? 50,
+    limit: Math.min(params.limit ?? 50, BOBBLES_MAX_PAGE_SIZE),
   });
   const res = await api.getPaginated<Bobble>(`${API.bobbles.root}${qs}`);
   return unwrapPaginated(res).data;
+}
+
+export async function listAllBobbles(
+  params: Omit<ListBobblesParams, 'page' | 'limit'> = {},
+): Promise<Bobble[]> {
+  if (!BACKEND_ALLOWED) return offlineBobbles.listBobbles(params);
+
+  const all: Bobble[] = [];
+  let page = 1;
+  let hasNextPage = true;
+
+  while (hasNextPage) {
+    const qs = buildQueryString({
+      category: params.category,
+      status: params.status,
+      search: params.search,
+      page,
+      limit: BOBBLES_MAX_PAGE_SIZE,
+    });
+    const res = await api.getPaginated<Bobble>(`${API.bobbles.root}${qs}`);
+    const { data, pagination } = unwrapPaginated(res);
+    all.push(...data);
+    hasNextPage = pagination.hasNextPage;
+    page += 1;
+  }
+
+  return all;
 }
 
 export async function getBobble(id: string): Promise<Bobble> {

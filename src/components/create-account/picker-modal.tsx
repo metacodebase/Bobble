@@ -83,7 +83,7 @@ export function PickerModal({
         <View
           style={[
             styles.sheet,
-            { backgroundColor: colors.background, paddingBottom: insets.bottom + 12 },
+            { backgroundColor: colors.surface, paddingBottom: insets.bottom + 12 },
           ]}
         >
           <View style={[styles.handle, { backgroundColor: colors.border }]} />
@@ -94,7 +94,7 @@ export function PickerModal({
             <View
               style={[
                 styles.searchBox,
-                { backgroundColor: colors.borderLight, borderColor: colors.border },
+                { backgroundColor: colors.surface, borderColor: colors.border },
               ]}
             >
               <Search size={18} color={colors.textSecondary} strokeWidth={2} />

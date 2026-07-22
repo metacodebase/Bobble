@@ -32,7 +32,7 @@ import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { useNightForeground } from '@/src/hooks/use-night-foreground';
 import { useAppStore } from '@/src/store/app-store';
 import { Typography } from '@/src/theme/fonts';
-import { exportUserDataCsv, exportUserDataPdf, isExportShareCancelled } from '@/src/utils/export-user-data';
+import { exportUserDataCsv, exportUserDataPdf, getExportErrorMessage, isExportShareCancelled } from '@/src/utils/export-user-data';
 import { toast } from '@/src/utils/toast';
 
 function themePreferenceLabel(themeOverride: 'light' | 'dark' | null) {
@@ -88,7 +88,7 @@ export default function SettingsScreen() {
       toast.success('PDF export ready to share');
     } catch (error) {
       if (isExportShareCancelled(error)) return;
-      toast.error('Could not export PDF');
+      toast.error(getExportErrorMessage(error, 'Could not export PDF'));
     } finally {
       setIsExportingPdf(false);
     }
