@@ -7,14 +7,15 @@
     "android": "expo run:android",
     "android:apk": "bash ./scripts/android-release-apk.sh",
     "ios": "expo run:ios",
+    "ios:archive": "bash ./scripts/testflight-local.sh",
+    "setup:eas": "bash ./scripts/setup-eas-project.sh",
     "web": "expo start --web",
     "lint": "expo lint",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "type-check": "tsc --noEmit",
     "reset-project": "node ./scripts/reset-project.js",
-    "generate:splash": "node ./scripts/generate-splash-native.mjs",
-    "ios:archive": "bash ./scripts/testflight-local.sh"
+    "generate:splash": "node ./scripts/generate-splash-native.mjs"
   },
   "dependencies": {
     "@expo-google-fonts/dynapuff": "^0.4.3",
