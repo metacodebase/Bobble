@@ -11,13 +11,14 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "metadots.bobble.app",
-      "buildNumber": "4",
+      "buildNumber": "5",
       "usesAppleSignIn": true,
       "googleServicesFile": "./GoogleService-Info.plist",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
         "NSMicrophoneUsageDescription": "Bobble uses your microphone to record voice memos and show a live waveform while you speak.",
         "NSPhotoLibraryUsageDescription": "Bobble uses your photo library so you can choose a profile picture.",
+        "NSPhotoLibraryAddUsageDescription": "Bobble saves achievement cards to your photo library when you tap Save to Photos.",
         "NSCameraUsageDescription": "Bobble uses your camera so you can take a profile picture.",
         "NSCalendarsUsageDescription": "Bobble uses your calendar to sync tasks and events from your Bobbles.",
         "NSCalendarsFullAccessUsageDescription": "Bobble uses your calendar to sync tasks and events from your Bobbles.",
@@ -66,6 +67,7 @@
       "favicon": "./src/assets/images/bobble-main.png"
     },
     "plugins": [
+      "./plugins/with-bobble-ios-privacy.js",
       "./plugins/with-bobble-native-splash.js",
       "expo-router",
       [

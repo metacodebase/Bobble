@@ -16,10 +16,8 @@ cd "$ROOT"
 
 echo "==> Bundle ID: $BUNDLE_ID | Team: $TEAM_ID"
 
-if [[ ! -d "$WORKSPACE" ]]; then
-  echo "==> Generating native iOS project..."
-  npx expo prebuild --platform ios --clean
-fi
+echo "==> Syncing native iOS project (Info.plist privacy strings, plugins, version)..."
+npx expo prebuild --platform ios --no-install
 
 echo "==> Installing pods..."
 (cd "$IOS" && pod install)
