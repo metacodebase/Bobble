@@ -1,5 +1,5 @@
-import { CalendarClock, X } from 'lucide-react-native';
-import { useEffect, useState } from 'react';
+import { CalendarClock, Clock, X } from 'lucide-react-native';
+import { useEffect, useMemo, useState } from 'react';
 import {
   KeyboardAvoidingView,
   Modal,
@@ -14,6 +14,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { DatePickerModal } from '@/src/components/create-account/date-picker-modal';
+import { PickerModal } from '@/src/components/create-account/picker-modal';
 import { PrimaryButton } from '@/src/components/onboarding/primary-button';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { Typography } from '@/src/theme/fonts';
@@ -44,6 +45,25 @@ function formatDate(date: Date | null): string {
   return date.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
+function formatTime(date: Date | null): string {
+  if (!date) return '';
+  return date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+}
+
+const TIME_OPTIONS = Array.from({ length: 24 * 4 }).map((_, i) => {
+  const totalMinutes = i * 15;
+  const h = Math.floor(totalMinutes / 60);
+  const m = totalMinutes % 60;
+  const isPM = h >= 12;
+  const displayH = h === 0 ? 12 : h > 12 ? h - 12 : h;
+  const displayM = m.toString().padStart(2, '0');
+  const ampm = isPM ? 'PM' : 'AM';
+  return {
+    id: `${h}:${m}`,
+    label: `${displayH}:${displayM} ${ampm}`,
+  };
+});
+
 export function TaskFormSheet({
   visible,
   mode,
@@ -60,6 +80,7 @@ export function TaskFormSheet({
   const [notes, setNotes] = useState('');
   const [dueAt, setDueAt] = useState<Date | null>(null);
   const [pickerOpen, setPickerOpen] = useState(false);
+  const [timePickerOpen, setTimePickerOpen] = useState(false);
 
   useEffect(() => {
     if (!visible) return;
@@ -67,6 +88,7 @@ export function TaskFormSheet({
     setNotes(initial?.notes ?? '');
     setDueAt(toDate(initial?.dueAt));
     setPickerOpen(false);
+    setTimePickerOpen(false);
   }, [visible, initial]);
 
   const handleSubmit = () => {
@@ -152,13 +174,27 @@ export function TaskFormSheet({
               ]}
             />
 
-            <DateField
-              icon={<CalendarClock size={18} color={colors.textSecondary} strokeWidth={2} />}
-              label="Due date"
-              value={formatDate(dueAt)}
-              onPress={() => setPickerOpen(true)}
-              onClear={dueAt ? () => setDueAt(null) : undefined}
-            />
+            <View style={styles.dateRow}>
+              <DateField
+                icon={<CalendarClock size={18} color={colors.textSecondary} strokeWidth={2} />}
+                label="Due date"
+                value={formatDate(dueAt)}
+                onPress={() => setPickerOpen(true)}
+                onClear={dueAt ? () => setDueAt(null) : undefined}
+                style={{ flex: 1 }}
+                compact={!!dueAt}
+              />
+              {dueAt ? (
+                <DateField
+                  icon={<Clock size={18} color={colors.textSecondary} strokeWidth={2} />}
+                  label="Time"
+                  value={formatTime(dueAt)}
+                  onPress={() => setTimePickerOpen(true)}
+                  style={{ flex: 1 }}
+                  compact={true}
+                />
+              ) : null}
+            </View>
           </ScrollView>
 
           <PrimaryButton
@@ -179,6 +215,25 @@ export function TaskFormSheet({
           onSelect={setDueAt}
           onClose={() => setPickerOpen(false)}
         />
+
+        {timePickerOpen && dueAt ? (
+          <PickerModal
+            visible={timePickerOpen}
+            embedded
+            title="Select time"
+            options={TIME_OPTIONS}
+            searchable={false}
+            selectedId={`${dueAt.getHours()}:${dueAt.getMinutes()}`}
+            onSelect={(id) => {
+              const [h, m] = id.split(':').map(Number);
+              const newDate = new Date(dueAt);
+              newDate.setHours(h, m, 0, 0);
+              setDueAt(newDate);
+              setTimePickerOpen(false);
+            }}
+            onClose={() => setTimePickerOpen(false)}
+          />
+        ) : null}
       </KeyboardAvoidingView>
     </Modal>
   );
@@ -190,22 +245,57 @@ function DateField({
   value,
   onPress,
   onClear,
+  style,
+  compact = false,
 }: {
   icon: React.ReactNode;
   label: string;
   value: string;
   onPress: () => void;
   onClear?: () => void;
+  style?: any;
+  compact?: boolean;
 }) {
   const colors = useBobbleColors();
+  
+  if (compact) {
+    return (
+      <Pressable
+        onPress={onPress}
+        style={[
+          styles.dateFieldCompact,
+          { borderColor: colors.border, backgroundColor: colors.borderLight },
+          style,
+        ]}
+      >
+        <View style={styles.dateFieldCompactHeader}>
+          {icon}
+          <Text style={[styles.dateLabelCompact, { color: colors.textSecondary }]} numberOfLines={1}>
+            {label}
+          </Text>
+        </View>
+        <View style={styles.dateFieldCompactBody}>
+          <Text style={[styles.dateValueCompact, { color: value ? colors.text : colors.textSecondary }]} numberOfLines={1}>
+            {value || 'None'}
+          </Text>
+          {onClear ? (
+            <Pressable onPress={onClear} hitSlop={8} style={{ marginLeft: 4 }}>
+              <X size={16} color={colors.textSecondary} strokeWidth={2} />
+            </Pressable>
+          ) : null}
+        </View>
+      </Pressable>
+    );
+  }
+
   return (
     <Pressable
       onPress={onPress}
-      style={[styles.dateField, { borderColor: colors.border, backgroundColor: colors.borderLight }]}
+      style={[styles.dateField, { borderColor: colors.border, backgroundColor: colors.borderLight }, style]}
     >
       {icon}
-      <Text style={[styles.dateLabel, { color: colors.text }]}>{label}</Text>
-      <Text style={[styles.dateValue, { color: value ? colors.text : colors.textSecondary }]}>
+      <Text style={[styles.dateLabel, { color: colors.text }]} numberOfLines={1}>{label}</Text>
+      <Text style={[styles.dateValue, { color: value ? colors.text : colors.textSecondary }]} numberOfLines={1}>
         {value || 'None'}
       </Text>
       {onClear ? (
@@ -259,6 +349,10 @@ const styles = StyleSheet.create({
     minHeight: 72,
     textAlignVertical: 'top',
   },
+  dateRow: {
+    flexDirection: 'row',
+    gap: 12,
+  },
   dateField: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -274,5 +368,32 @@ const styles = StyleSheet.create({
   },
   dateValue: {
     ...Typography.caption,
+  },
+  dateFieldCompact: {
+    borderWidth: 1,
+    borderRadius: 14,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    gap: 6,
+  },
+  dateFieldCompactHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  dateLabelCompact: {
+    ...Typography.caption,
+    fontSize: 14,
+    flex: 1,
+  },
+  dateFieldCompactBody: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  dateValueCompact: {
+    ...Typography.body,
+    fontSize: 15,
+    flex: 1,
   },
 });

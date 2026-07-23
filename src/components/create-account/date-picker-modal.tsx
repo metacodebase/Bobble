@@ -121,7 +121,13 @@ export function DatePickerModal({
   };
 
   const handleSelectDay = (day: number) => {
-    onSelect(new Date(viewYear, viewMonth, day));
+    const newDate = new Date(viewYear, viewMonth, day);
+    if (value) {
+      newDate.setHours(value.getHours(), value.getMinutes(), value.getSeconds(), value.getMilliseconds());
+    } else {
+      newDate.setHours(9, 0, 0, 0); // Default to 9:00 AM
+    }
+    onSelect(newDate);
     onClose();
   };
 

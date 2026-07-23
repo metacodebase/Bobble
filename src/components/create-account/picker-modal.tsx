@@ -32,6 +32,7 @@ type PickerModalProps = {
   selectedId?: string;
   searchable?: boolean;
   searchPlaceholder?: string;
+  embedded?: boolean;
   onSelect: (id: string) => void;
   onClose: () => void;
 };
@@ -43,6 +44,7 @@ export function PickerModal({
   selectedId,
   searchable = true,
   searchPlaceholder = 'Search',
+  embedded = false,
   onSelect,
   onClose,
 }: PickerModalProps) {
@@ -70,89 +72,98 @@ export function PickerModal({
     onSelect(id);
   };
 
+  const content = (
+    <View style={[styles.root, embedded && [StyleSheet.absoluteFillObject, styles.embeddedOverlay]]}>
+      <Pressable
+        style={styles.backdrop}
+        onPress={handleClose}
+        accessibilityRole="button"
+        accessibilityLabel="Close"
+      />
+
+      <View
+        style={[
+          styles.sheet,
+          { backgroundColor: colors.surface, paddingBottom: insets.bottom + 12 },
+        ]}
+      >
+        <View style={[styles.handle, { backgroundColor: colors.border }]} />
+
+        <Text style={[styles.title, { color: colors.text }]}>{title}</Text>
+
+        {searchable ? (
+          <View
+            style={[
+              styles.searchBox,
+              { backgroundColor: colors.surface, borderColor: colors.border },
+            ]}
+          >
+            <Search size={18} color={colors.textSecondary} strokeWidth={2} />
+            <TextInput
+              value={query}
+              onChangeText={setQuery}
+              placeholder={searchPlaceholder}
+              placeholderTextColor={colors.textSecondary}
+              autoCorrect={false}
+              style={[styles.searchInput, { color: colors.text }]}
+            />
+          </View>
+        ) : null}
+
+        <FlatList
+          data={filtered}
+          keyExtractor={(item) => item.id}
+          keyboardShouldPersistTaps="handled"
+          style={styles.list}
+          contentContainerStyle={styles.listContent}
+          showsVerticalScrollIndicator={false}
+          ListEmptyComponent={
+            <Text style={[styles.empty, { color: colors.textSecondary }]}>No results</Text>
+          }
+          renderItem={({ item }) => {
+            const selected = item.id === selectedId;
+            return (
+              <Pressable
+                onPress={() => handleSelect(item.id)}
+                style={({ pressed }) => [
+                  styles.row,
+                  { borderBottomColor: colors.border },
+                  pressed && { backgroundColor: colors.borderLight },
+                ]}
+              >
+                {item.leading ? <View style={styles.leading}>{item.leading}</View> : null}
+                <View style={styles.rowText}>
+                  <Text style={[styles.rowLabel, { color: colors.text }]} numberOfLines={1}>
+                    {item.label}
+                  </Text>
+                  {item.sublabel ? (
+                    <Text
+                      style={[styles.rowSublabel, { color: colors.textSecondary }]}
+                      numberOfLines={1}
+                    >
+                      {item.sublabel}
+                    </Text>
+                  ) : null}
+                </View>
+                {selected ? (
+                  <Check size={20} color={colors.primary} strokeWidth={2.5} />
+                ) : null}
+              </Pressable>
+            );
+          }}
+        />
+      </View>
+    </View>
+  );
+
+  if (embedded) {
+    if (!visible) return null;
+    return content;
+  }
+
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={handleClose}>
-      <View style={styles.root}>
-        <Pressable
-          style={styles.backdrop}
-          onPress={handleClose}
-          accessibilityRole="button"
-          accessibilityLabel="Close"
-        />
-
-        <View
-          style={[
-            styles.sheet,
-            { backgroundColor: colors.surface, paddingBottom: insets.bottom + 12 },
-          ]}
-        >
-          <View style={[styles.handle, { backgroundColor: colors.border }]} />
-
-          <Text style={[styles.title, { color: colors.text }]}>{title}</Text>
-
-          {searchable ? (
-            <View
-              style={[
-                styles.searchBox,
-                { backgroundColor: colors.surface, borderColor: colors.border },
-              ]}
-            >
-              <Search size={18} color={colors.textSecondary} strokeWidth={2} />
-              <TextInput
-                value={query}
-                onChangeText={setQuery}
-                placeholder={searchPlaceholder}
-                placeholderTextColor={colors.textSecondary}
-                autoCorrect={false}
-                style={[styles.searchInput, { color: colors.text }]}
-              />
-            </View>
-          ) : null}
-
-          <FlatList
-            data={filtered}
-            keyExtractor={(item) => item.id}
-            keyboardShouldPersistTaps="handled"
-            style={styles.list}
-            contentContainerStyle={styles.listContent}
-            showsVerticalScrollIndicator={false}
-            ListEmptyComponent={
-              <Text style={[styles.empty, { color: colors.textSecondary }]}>No results</Text>
-            }
-            renderItem={({ item }) => {
-              const selected = item.id === selectedId;
-              return (
-                <Pressable
-                  onPress={() => handleSelect(item.id)}
-                  style={({ pressed }) => [
-                    styles.row,
-                    { borderBottomColor: colors.border },
-                    pressed && { backgroundColor: colors.borderLight },
-                  ]}
-                >
-                  {item.leading ? <View style={styles.leading}>{item.leading}</View> : null}
-                  <View style={styles.rowText}>
-                    <Text style={[styles.rowLabel, { color: colors.text }]} numberOfLines={1}>
-                      {item.label}
-                    </Text>
-                    {item.sublabel ? (
-                      <Text
-                        style={[styles.rowSublabel, { color: colors.textSecondary }]}
-                        numberOfLines={1}
-                      >
-                        {item.sublabel}
-                      </Text>
-                    ) : null}
-                  </View>
-                  {selected ? (
-                    <Check size={20} color={colors.primary} strokeWidth={2.5} />
-                  ) : null}
-                </Pressable>
-              );
-            }}
-          />
-        </View>
-      </View>
+      {content}
     </Modal>
   );
 }
@@ -161,6 +172,10 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
     justifyContent: 'flex-end',
+  },
+  embeddedOverlay: {
+    zIndex: 20,
+    elevation: 20,
   },
   backdrop: {
     ...StyleSheet.absoluteFillObject,
