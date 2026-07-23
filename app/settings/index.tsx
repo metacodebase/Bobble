@@ -1,6 +1,7 @@
 import Constants from 'expo-constants';
 import { router } from 'expo-router';
 import {
+    Calendar,
     AlertCircle,
     BarChart3,
     Bell,
@@ -54,9 +55,6 @@ export default function SettingsScreen() {
     Constants.expoConfig?.android?.versionCode?.toString() ??
     '108';
 
-  const [googleCalendar, setGoogleCalendar] = useState(true);
-  const [appleCalendar, setAppleCalendar] = useState(false);
-  const [outlookCalendar, setOutlookCalendar] = useState(false);
   const [dailyReminders, setDailyReminders] = useState(true);
   const [taskAlerts, setTaskAlerts] = useState(true);
   const [streakReminders, setStreakReminders] = useState(false);
@@ -107,23 +105,10 @@ export default function SettingsScreen() {
       </SettingsSection>
 
       <SettingsSection title="Calendar Sync">
-        <SettingsToggleItemRow
-          label="Google Calendar"
-          icon={<CalendarProviderIcon provider="google" size={22} />}
-          value={googleCalendar}
-          onValueChange={setGoogleCalendar}
-        />
-        <SettingsToggleItemRow
-          label="Apple Calendar"
-          icon={<CalendarProviderIcon provider="apple" size={22} />}
-          value={appleCalendar}
-          onValueChange={setAppleCalendar}
-        />
-        <SettingsToggleItemRow
-          label="Outlook Calendar"
-          icon={<CalendarProviderIcon provider="outlook" size={22} />}
-          value={outlookCalendar}
-          onValueChange={setOutlookCalendar}
+        <SettingsLinkItemRow
+          label="Manage Calendars"
+          icon={<Calendar size={22} color={colors.primary} strokeWidth={2} />}
+          onPress={() => router.push('/settings/calendar-sync')}
           isLast
         />
       </SettingsSection>

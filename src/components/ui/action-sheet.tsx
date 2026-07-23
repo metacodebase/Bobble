@@ -59,42 +59,45 @@ export function ActionSheet({ visible, title, subtitle, options, onClose }: Acti
             </View>
           ) : null}
 
-          <View style={[styles.optionsGroup, { backgroundColor: colors.surface }]}>
-            {options.map((option, index) => {
-              const Icon = option.icon;
-              const isLast = index === options.length - 1;
+          {options.length > 0 ? (
+            <View style={[styles.optionsGroup, { backgroundColor: colors.surface }]}>
+              {options.map((option, index) => {
+                const Icon = option.icon;
+                const isLast = index === options.length - 1;
 
-              return (
-                <Pressable
-                  key={option.id}
-                  onPress={() => handlePress(option)}
-                  style={({ pressed }) => [
-                    styles.option,
-                    !isLast && {
-                      borderBottomWidth: StyleSheet.hairlineWidth,
-                      borderBottomColor: colors.border,
-                    },
-                    pressed && styles.pressed,
-                  ]}
-                >
-                  {Icon ? (
-                    <View style={[styles.iconWrap, { backgroundColor: `${colors.primary}18` }]}>
-                      <Icon size={20} color={colors.primary} strokeWidth={2} />
-                    </View>
-                  ) : null}
-                  <Text
-                    style={[
-                      styles.optionLabel,
-                      { color: option.destructive ? colors.error : colors.text },
-                      option.destructive && styles.destructiveLabel,
+                return (
+                  <Pressable
+                    key={option.id}
+                    onPress={() => handlePress(option)}
+                    style={({ pressed }) => [
+                      styles.option,
+                      !isLast && {
+                        borderBottomWidth: StyleSheet.hairlineWidth,
+                        borderBottomColor: colors.border,
+                      },
+                      pressed && styles.pressed,
                     ]}
                   >
-                    {option.label}
-                  </Text>
-                </Pressable>
-              );
-            })}
-          </View>
+                    {Icon ? (
+                      <View style={[styles.iconWrap, { backgroundColor: `${colors.primary}18` }]}>
+                        <Icon size={20} color={colors.primary} strokeWidth={2} />
+                      </View>
+                    ) : null}
+                    <Text
+                      style={[
+                        styles.optionLabel,
+                        { color: option.destructive ? colors.error : colors.text },
+                        option.destructive && styles.destructiveLabel,
+                        !Icon && { textAlign: 'center' }
+                      ]}
+                    >
+                      {option.label}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+          ) : null}
 
           <Pressable
             onPress={onClose}
@@ -104,7 +107,9 @@ export function ActionSheet({ visible, title, subtitle, options, onClose }: Acti
               pressed && styles.pressed,
             ]}
           >
-            <Text style={[styles.cancelLabel, { color: colors.textSecondary }]}>Cancel</Text>
+            <Text style={[styles.cancelLabel, { color: colors.textSecondary }]}>
+              {options.length === 0 ? 'Got it' : 'Cancel'}
+            </Text>
           </Pressable>
         </View>
       </View>
