@@ -99,6 +99,7 @@ export interface CreateBobbleBody {
   iconVariant?: BobbleIconVariant;
   suggestedTasks?: SuggestedTask[];
   archived?: boolean;
+  pinned?: boolean;
   /** Leave bobble unprocessed until audio upload triggers the AI pipeline. */
   skipProcess?: boolean;
 }

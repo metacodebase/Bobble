@@ -4,11 +4,12 @@ import { Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { Typography } from '@/src/theme/fonts';
 
-type SearchBarProps = {
+export type SearchBarProps = {
   value: string;
   onChangeText: (text: string) => void;
   placeholder?: string;
   onFilterPress?: () => void;
+  editable?: boolean;
 };
 
 export function SearchBar({
@@ -16,6 +17,7 @@ export function SearchBar({
   onChangeText,
   placeholder = 'Search...',
   onFilterPress,
+  editable,
 }: SearchBarProps) {
   const colors = useBobbleColors();
 
@@ -27,6 +29,7 @@ export function SearchBar({
         onChangeText={onChangeText}
         placeholder={placeholder}
         placeholderTextColor={colors.textSecondary}
+        editable={editable}
         style={[styles.input, { color: colors.text }]}
       />
       {onFilterPress ? (

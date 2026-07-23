@@ -417,7 +417,7 @@ export default function CreateAccountScreen() {
       <GestureDetector gesture={swipeBackGesture}>
         <KeyboardAvoidingView
           style={styles.flex}
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          behavior="padding"
         >
           <ScrollView
             style={styles.flex}
