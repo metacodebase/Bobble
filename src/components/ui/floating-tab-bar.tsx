@@ -6,7 +6,6 @@ import {
   isLiquidGlassAvailable,
 } from 'expo-glass-effect';
 import { Image } from 'expo-image';
-import { Href, router } from 'expo-router';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -14,10 +13,10 @@ import { BobblesTabIcon } from '@/src/components/ui/bobbles-tab-icon';
 import { TAB_ICON_SIZE } from '@/src/components/ui/tab-bar-icons';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { useColorScheme } from '@/src/hooks/use-color-scheme';
-import { useCaptureStore } from '@/src/store/capture-store';
 import { FontFamily } from '@/src/theme/fonts';
 
-const MIC_BUTTON = require('@/src/assets/images/mic-button.png');
+const MINDMAP_ACTIVE = require('@/src/assets/images/tab-icons/mindmap-active.png');
+const MINDMAP_INACTIVE = require('@/src/assets/images/tab-icons/mindmap-inactive.png');
 const HOME_ACTIVE = require('@/src/assets/images/tab-icons/home-active.png');
 const HOME_INACTIVE = require('@/src/assets/images/tab-icons/home-inactive.png');
 const TASKS_ACTIVE = require('@/src/assets/images/tab-icons/tasks-active.png');
@@ -92,7 +91,7 @@ function TabBarSurface({
             style={[
               styles.barGlass,
               isDark ? styles.barShadowDark : styles.barShadowLight,
-              { backgroundColor: 'rgba(255,255,255,0.4)' }
+              { backgroundColor: 'rgba(255,255,255,0.4)' },
             ]}
             tint={colorScheme}
             intensity={0}
@@ -118,8 +117,6 @@ export function FloatingTabBar({ state, navigation }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
   const scheme = useColorScheme();
   const colors = useBobbleColors();
-  const setCaptureKind = useCaptureStore((state) => state.setCaptureKind);
-  const clearRecording = useCaptureStore((state) => state.clearRecording);
   const glassEnabled = useLiquidGlassTabBar();
   const bottom = Math.max(insets.bottom, 10);
 
@@ -138,8 +135,17 @@ export function FloatingTabBar({ state, navigation }: BottomTabBarProps) {
     {
       name: 'bobbles',
       label: 'Bobbles',
+      renderIcon: (focused) => <BobblesTabIcon focused={focused} size={TAB_ICON_SIZE} />,
+    },
+    {
+      name: 'brain-map',
+      label: 'Brain Map',
       renderIcon: (focused) => (
-        <BobblesTabIcon focused={focused} size={TAB_ICON_SIZE} />
+        <TabBarImageIcon
+          focused={focused}
+          activeSource={MINDMAP_ACTIVE}
+          inactiveSource={MINDMAP_INACTIVE}
+        />
       ),
     },
     {
@@ -183,14 +189,6 @@ export function FloatingTabBar({ state, navigation }: BottomTabBarProps) {
     }
   };
 
-  const slots: ({ type: 'tab'; tab: TabConfig } | { type: 'mic' })[] = [
-    { type: 'tab', tab: tabs[0] },
-    { type: 'tab', tab: tabs[1] },
-    { type: 'mic' },
-    { type: 'tab', tab: tabs[2] },
-    { type: 'tab', tab: tabs[3] },
-  ];
-
   return (
     <View style={[styles.wrapper, { bottom }]}>
       <TabBarSurface
@@ -199,31 +197,7 @@ export function FloatingTabBar({ state, navigation }: BottomTabBarProps) {
         isDark={scheme === 'dark'}
         surfaceColor={colors.surface}
       >
-        {slots.map((slot) => {
-          if (slot.type === 'mic') {
-            return (
-              <View key="mic" style={styles.micSlot}>
-                <Pressable
-                  onPress={() => {
-                    setCaptureKind('bobble');
-                    clearRecording();
-                    router.push('/capture/record' as Href);
-                  }}
-                  style={styles.micHitArea}
-                >
-                  {({ pressed }) => (
-                    <Image
-                      source={MIC_BUTTON}
-                      style={[styles.micButton, pressed && styles.micPressed]}
-                      contentFit="contain"
-                    />
-                  )}
-                </Pressable>
-              </View>
-            );
-          }
-
-          const { tab } = slot;
+        {tabs.map((tab) => {
           const isFocused = activeRoute === tab.name;
           const color = isFocused ? colors.primary : colors.text;
 
@@ -238,7 +212,9 @@ export function FloatingTabBar({ state, navigation }: BottomTabBarProps) {
                 {({ pressed }) => (
                   <View style={[styles.tab, pressed && styles.tabPressed]}>
                     {tab.renderIcon(isFocused)}
-                    <Text style={[styles.label, { color }]}>{tab.label}</Text>
+                    <Text style={[styles.label, { color }]} numberOfLines={1}>
+                      {tab.label}
+                    </Text>
                   </View>
                 )}
               </Pressable>
@@ -255,13 +231,12 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 20,
     right: 20,
-    overflow: 'visible',
   },
   bar: {
     position: 'relative',
     minHeight: 64,
     borderRadius: 32,
-    overflow: 'visible',
+    overflow: 'hidden',
   },
   barBorderLight: {
     borderWidth: 1,
@@ -298,21 +273,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 6,
     paddingTop: 8,
     paddingBottom: 8,
-    overflow: 'visible',
   },
   slot: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'flex-end',
     height: 48,
-  },
-  micSlot: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-    height: 40,
-    overflow: 'visible',
-    zIndex: 10,
   },
   tabHitArea: {
     alignItems: 'center',
@@ -337,21 +303,5 @@ const styles = StyleSheet.create({
   label: {
     fontFamily: FontFamily.regular,
     fontSize: 11,
-  },
-  micHitArea: {
-    position: 'absolute',
-    top: -38,
-    width: 88,
-    height: 88,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  micButton: {
-    width: 84,
-    height: 84,
-  },
-  micPressed: {
-    opacity: 0.92,
-    transform: [{ scale: 0.92 }],
   },
 });

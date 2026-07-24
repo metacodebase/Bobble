@@ -30,6 +30,7 @@ export default function TabLayout() {
     >
       <Tabs.Screen name="index" options={{ title: 'Home' }} />
       <Tabs.Screen name="bobbles" options={{ title: 'Bobbles' }} />
+      <Tabs.Screen name="brain-map" options={{ title: 'Brain Map' }} />
       <Tabs.Screen name="tasks" options={{ title: 'Tasks' }} />
       <Tabs.Screen name="profile" options={{ title: 'Profile' }} />
       <Tabs.Screen name="calendar" options={{ href: null }} />

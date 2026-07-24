@@ -1,3 +1,5 @@
+import { Href, router } from 'expo-router';
+
 import { SettingsLinkRow } from '@/src/components/settings/settings-link-row';
 import {
   SettingsDescription,
@@ -11,7 +13,11 @@ export default function BillingScreen() {
       <SettingsDescription>Manage your subscription and payment methods.</SettingsDescription>
 
       <SettingsSection title="Subscription">
-        <SettingsLinkRow label="Current plan" />
+        <SettingsLinkRow
+          label="Upgrade to Bobble Pro"
+          onPress={() => router.push('/paywall' as Href)}
+        />
+        <SettingsLinkRow label="Current plan" value="Free" />
         <SettingsLinkRow label="Payment method" isLast />
       </SettingsSection>
     </SettingsScreenLayout>

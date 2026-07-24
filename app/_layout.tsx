@@ -141,6 +141,16 @@ function AppShell() {
           <Stack.Screen name="bobble" options={{ headerShown: false }} />
           <Stack.Screen name="settings" options={{ headerShown: false }} />
           <Stack.Screen name="share" options={{ presentation: 'modal', headerShown: false }} />
+          <Stack.Screen
+            name="paywall"
+            options={{
+              headerShown: false,
+              animation: 'slide_from_right',
+              contentStyle: {
+                backgroundColor: backdropColor,
+              },
+            }}
+          />
           <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
         </Stack>
       </NavigationThemeProvider>
