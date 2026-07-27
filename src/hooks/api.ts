@@ -10,6 +10,7 @@ import type {
   SocialAuthBody,
 } from '@/src/features/auth/types';
 import { queryKeys } from '@/src/services/query-keys';
+import { clearTaskWidgets } from '@/src/services/widget-sync';
 import { useAppStore } from '@/src/store/app-store';
 import { getApiErrorMessage } from '@/src/utils/api-error';
 import { toast } from '@/src/utils/toast';
@@ -90,6 +91,7 @@ export function useLogout() {
     onSettled: () => {
       clearSession();
       qc.clear();
+      void clearTaskWidgets();
       router.replace('/(auth)/splash' as Href);
     },
   });
@@ -110,6 +112,7 @@ export function useDeleteAccount() {
     onSuccess: () => {
       clearSession();
       qc.clear();
+      void clearTaskWidgets();
       router.replace('/(auth)/splash' as Href);
       toast.success('Your account has been deleted');
     },

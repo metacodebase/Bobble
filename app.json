@@ -40,7 +40,10 @@
           }
         }
       },
-      "appleTeamId": "A9X3L9QMZT"
+      "appleTeamId": "A9X3L9QMZT",
+      "entitlements": {
+        "com.apple.security.application-groups": ["group.metadots.bobble.app"]
+      }
     },
     "android": {
       "icon": "./src/assets/images/bobble-app-icon.png",
@@ -69,6 +72,45 @@
     "plugins": [
       "./plugins/with-bobble-ios-privacy.js",
       "./plugins/with-bobble-native-splash.js",
+      "@bacons/apple-targets",
+      [
+        "react-native-android-widget",
+        {
+          "fonts": [
+            "./node_modules/@expo-google-fonts/sniglet/400Regular/Sniglet_400Regular.ttf"
+          ],
+          "widgets": [
+            {
+              "name": "BobbleTasksSmall",
+              "label": "Bobble Tasks",
+              "description": "Small — today's count and Bobble mood (same as iOS).",
+              "minWidth": "110dp",
+              "minHeight": "110dp",
+              "targetCellWidth": 2,
+              "targetCellHeight": 2,
+              "maxResizeWidth": "250dp",
+              "maxResizeHeight": "250dp",
+              "resizeMode": "none",
+              "previewImage": "./src/assets/images/widget-preview-small.png",
+              "updatePeriodMillis": 1800000
+            },
+            {
+              "name": "BobbleTasks",
+              "label": "Bobble Tasks",
+              "description": "Medium — tasks, next due, and Bobble mood (same as iOS).",
+              "minWidth": "250dp",
+              "minHeight": "110dp",
+              "targetCellWidth": 4,
+              "targetCellHeight": 2,
+              "maxResizeWidth": "500dp",
+              "maxResizeHeight": "250dp",
+              "resizeMode": "none",
+              "previewImage": "./src/assets/images/widget-preview-medium.png",
+              "updatePeriodMillis": 1800000
+            }
+          ]
+        }
+      ],
       "expo-router",
       [
         "expo-splash-screen",

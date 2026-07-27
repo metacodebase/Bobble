@@ -221,7 +221,7 @@ export type TaskItem = {
   title: string;
   time: string;
   done: boolean;
-  group: 'today' | 'tomorrow' | 'upcoming';
+  group: 'overdue' | 'today' | 'tomorrow' | 'upcoming';
   notes?: string;
 };
 

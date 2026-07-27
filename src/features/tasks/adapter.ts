@@ -16,9 +16,15 @@ function deriveGroup(dueAt?: string | null): TaskGroup {
   const today = startOfDay(new Date());
   const oneDay = 24 * 60 * 60 * 1000;
 
-  if (due <= today) return 'today';
+  if (due < today) return 'overdue';
+  if (due === today) return 'today';
   if (due === today + oneDay) return 'tomorrow';
   return 'upcoming';
+}
+
+function isTodayFilterMatch(dueAt?: string | null): boolean {
+  const group = deriveGroup(dueAt);
+  return group === 'today' || group === 'overdue';
 }
 
 function formatTime(dueAt?: string | null): string {
@@ -43,9 +49,9 @@ export function mapTaskToItem(task: Task): TaskItem {
 export function filterTasksByParam(tasks: Task[], filter: TaskFilterParam): Task[] {
   switch (filter) {
     case 'today':
-      return tasks.filter((task) => deriveGroup(task.dueAt) === 'today');
+      return tasks.filter((task) => isTodayFilterMatch(task.dueAt));
     case 'upcoming':
-      return tasks.filter((task) => deriveGroup(task.dueAt) !== 'today');
+      return tasks.filter((task) => !isTodayFilterMatch(task.dueAt));
     case 'done':
       return tasks.filter((task) => task.done);
     default:
@@ -54,6 +60,7 @@ export function filterTasksByParam(tasks: Task[], filter: TaskFilterParam): Task
 }
 
 const GROUP_ORDER: { label: string; key: TaskGroup }[] = [
+  { label: 'Overdue', key: 'overdue' },
   { label: 'Today', key: 'today' },
   { label: 'Tomorrow', key: 'tomorrow' },
   { label: 'Upcoming', key: 'upcoming' },

@@ -1,6 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useEffect } from 'react';
 
 import { tasksApi } from '@/src/api';
+import { filterTasksByParam } from '@/src/features/tasks/adapter';
 import type {
   CreateTaskBody,
   CreateTasksBulkBody,
@@ -10,6 +12,7 @@ import type {
 } from '@/src/features/tasks/types';
 import { queryKeys } from '@/src/services/query-keys';
 import { removeTaskFromCalendar, syncTaskToCalendar } from '@/src/services/calendar-sync';
+import { syncTaskWidgets } from '@/src/services/widget-sync';
 import { useAppStore } from '@/src/store/app-store';
 import { getApiErrorMessage } from '@/src/utils/api-error';
 import { toast } from '@/src/utils/toast';
@@ -23,12 +26,22 @@ function invalidateUserStats(qc: QueryClient) {
 
 export function useTasks(filter: TaskFilterParam = 'all', enabled = true) {
   const isAuthenticated = useAppStore((s) => s.isAuthenticated);
-  return useQuery({
+  const query = useQuery({
     queryKey: queryKeys.tasks.list(filter),
     queryFn: () => tasksApi.listTasks(filter),
     enabled: enabled && isAuthenticated,
     staleTime: 30_000,
   });
+
+  // Keep the home-screen widgets in sync with today's tasks.
+  const { data } = query;
+  useEffect(() => {
+    if (!data) return;
+    if (filter !== 'today' && filter !== 'all') return;
+    void syncTaskWidgets(filter === 'today' ? data : filterTasksByParam(data, 'today'));
+  }, [data, filter]);
+
+  return query;
 }
 
 export function useCreateTask() {
