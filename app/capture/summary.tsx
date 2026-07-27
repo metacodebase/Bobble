@@ -19,6 +19,7 @@ import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { useNightForeground } from '@/src/hooks/use-night-foreground';
 import { CAPTURE_COPY, useCaptureStore } from '@/src/store/capture-store';
 import { Typography } from '@/src/theme/fonts';
+import { androidSafeBottom, androidSafeTop } from '@/src/utils/safe-padding';
 
 export default function SummaryScreen() {
   const colors = useBobbleColors();
@@ -84,9 +85,9 @@ export default function SummaryScreen() {
   }, []);
 
   return (
-    <View style={[styles.root, { paddingTop: insets.top + 8 }]}>
+    <View style={[styles.root, { paddingTop: androidSafeTop(insets.top) + 8 }]}>
       <View style={styles.headerBlock}>
-        <CaptureHeader onBack={() => router.back()} rightIcon={Pencil} />
+        <CaptureHeader onBack={() => router.back()} rightIcon={Pencil} safeTop={false} />
         <SegmentTabs active={tab} onChange={setTab} />
         <Text style={[styles.title, { color: night.text ?? colors.text }]} numberOfLines={2}>
           {DEMO_BOBBLE.title}
@@ -95,7 +96,7 @@ export default function SummaryScreen() {
 
       <ScrollView
         style={styles.scroll}
-        contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 100 }]}
+        contentContainerStyle={[styles.scrollContent, { paddingBottom: androidSafeBottom(insets.bottom) + 100 }]}
         showsVerticalScrollIndicator={false}
       >
         <SummaryContent
@@ -108,7 +109,7 @@ export default function SummaryScreen() {
         />
       </ScrollView>
 
-      <View style={[styles.footer, { paddingBottom: insets.bottom + 16 }]}>
+      <View style={[styles.footer, { paddingBottom: androidSafeBottom(insets.bottom) + 16 }]}>
         <PrimaryButton
           label="Save Bobble"
           style={styles.saveAction}

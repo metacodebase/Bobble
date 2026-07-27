@@ -12,10 +12,12 @@ import { BobbleMascot, type HomeVariant } from '@/src/components/onboarding/bobb
 import { PrimaryButton } from '@/src/components/onboarding/primary-button';
 import { useProfile } from '@/src/hooks/profile';
 import { useTasks, useToggleTask } from '@/src/hooks/tasks';
+import { useTabBarInsets } from '@/src/hooks/use-tab-bar-insets';
 import { useAppStore } from '@/src/store/app-store';
 import { CaptureKind, useCaptureStore } from '@/src/store/capture-store';
 import { resolveAvatarUrl } from '@/src/utils/avatar-url';
 import { getDayPeriod, getGreeting } from '@/src/utils/day-period';
+import { androidSafeTop } from '@/src/utils/safe-padding';
 
 function getProgressSubtitle(completed: number, total: number) {
   if (total === 0) return 'Your day is just beginning, record your first Bobble.';
@@ -36,7 +38,6 @@ function getHomeMascotVariant(): HomeVariant {
   }
 }
 
-const TAB_BAR_CLEARANCE = 100;
 const TODAY_ROW_HEIGHT = Math.round(Dimensions.get('window').height * 0.25);
 
 const QUICK_ACTIONS = [
@@ -68,6 +69,7 @@ const QUICK_ACTIONS = [
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
+  const { height: tabBarHeight } = useTabBarInsets();
   const setCaptureKind = useCaptureStore((state) => state.setCaptureKind);
   const clearRecording = useCaptureStore((state) => state.clearRecording);
   const storeUser = useAppStore((s) => s.user);
@@ -99,11 +101,11 @@ export default function HomeScreen() {
   };
 
   return (
-    <View style={[styles.root, { paddingTop: insets.top + 20 }]}>
+    <View style={[styles.root, { paddingTop: androidSafeTop(insets.top) + 20 }]}>
       <ScrollView
         contentContainerStyle={[
           styles.scrollContent,
-          { paddingBottom: insets.bottom + TAB_BAR_CLEARANCE },
+          { paddingBottom: tabBarHeight + 24 },
         ]}
         showsVerticalScrollIndicator={false}
         scrollEnabled={!focusListScrolling}

@@ -26,6 +26,7 @@ import {
 } from '@/src/data/paywall';
 import { useNightForeground } from '@/src/hooks/use-night-foreground';
 import { Typography } from '@/src/theme/fonts';
+import { androidSafeBottom, androidSafeTop } from '@/src/utils/safe-padding';
 import { toast } from '@/src/utils/toast';
 
 const BUSINESS_MASCOT = require('@/src/assets/images/paywall/bobble-business.png');
@@ -98,7 +99,7 @@ export function PaywallScreen({ onClose }: PaywallScreenProps) {
         style={[
           styles.closeButton,
           {
-            top: insets.top + 10,
+            top: androidSafeTop(insets.top) + 10,
             backgroundColor: closeButtonBg,
           },
         ]}
@@ -112,8 +113,8 @@ export function PaywallScreen({ onClose }: PaywallScreenProps) {
         contentContainerStyle={[
           styles.content,
           {
-            paddingTop: insets.top + 8,
-            paddingBottom: insets.bottom + 16,
+            paddingTop: androidSafeTop(insets.top) + 8,
+            paddingBottom: androidSafeBottom(insets.bottom) + 16,
           },
         ]}
       >

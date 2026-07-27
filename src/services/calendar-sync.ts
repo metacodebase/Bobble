@@ -1,5 +1,6 @@
 import * as Calendar from 'expo-calendar';
 
+import { tasksApi } from '@/src/api';
 import { secureStorage } from '@/src/services/secure-storage';
 import { useAppStore } from '@/src/store/app-store';
 import type { Task } from '@/src/features/tasks/types';
@@ -72,17 +73,51 @@ export async function syncTaskToCalendar(task: Task) {
 
   try {
     if (existingEventId) {
-      // Update existing event
       await Calendar.updateEventAsync(existingEventId, eventDetails);
     } else {
-      // Create new event
       const eventId = await Calendar.createEventAsync(syncCalendarId, eventDetails);
       mapping[task._id] = eventId;
       await saveEventMapping(mapping);
     }
   } catch (error) {
-    console.error('Failed to sync task to calendar:', error);
+    if (existingEventId) {
+      // Stale mapping (e.g. user deleted the event in their calendar app) — recreate.
+      try {
+        delete mapping[task._id];
+        const eventId = await Calendar.createEventAsync(syncCalendarId, eventDetails);
+        mapping[task._id] = eventId;
+        await saveEventMapping(mapping);
+      } catch (retryError) {
+        console.error('Failed to recreate calendar event:', retryError);
+      }
+    } else {
+      console.error('Failed to sync task to calendar:', error);
+    }
   }
+}
+
+/** Syncs multiple tasks to the connected calendar (no-op if calendar not connected). */
+export async function syncTasksToCalendar(tasks: Task[]) {
+  for (const task of tasks) {
+    await syncTaskToCalendar(task);
+  }
+}
+
+/**
+ * Re-syncs all incomplete tasks with a due date to the connected calendar.
+ * Repairs stale mappings when events were deleted externally.
+ */
+export async function resyncAllTasksToCalendar(): Promise<{ synced: number }> {
+  const syncCalendarId = useAppStore.getState().syncCalendarId;
+  if (!syncCalendarId) return { synced: 0 };
+
+  const { status } = await Calendar.getCalendarPermissionsAsync();
+  if (status !== 'granted') return { synced: 0 };
+
+  const tasks = await tasksApi.listTasks('all');
+  const eligible = tasks.filter((task) => !task.done && task.dueAt);
+  await syncTasksToCalendar(eligible);
+  return { synced: eligible.length };
 }
 
 /**

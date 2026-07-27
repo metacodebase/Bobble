@@ -7,6 +7,7 @@ import { CaptureHeader } from '@/src/components/capture/capture-header';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { useNightForeground } from '@/src/hooks/use-night-foreground';
 import { Typography } from '@/src/theme/fonts';
+import { androidSafeBottom, androidSafeTop } from '@/src/utils/safe-padding';
 
 type SettingsScreenLayoutProps = {
   title: string;
@@ -20,11 +21,14 @@ export function SettingsScreenLayout({ title, children }: SettingsScreenLayoutPr
     <View
       style={[
         styles.root,
-        { paddingTop: insets.top + 8, paddingBottom: insets.bottom + 24 },
+        {
+          paddingTop: androidSafeTop(insets.top) + 8,
+          paddingBottom: androidSafeBottom(insets.bottom) + 24,
+        },
       ]}
     >
       <View style={styles.headerBlock}>
-        <CaptureHeader title={title} onBack={() => router.back()} centered />
+        <CaptureHeader title={title} onBack={() => router.back()} centered safeTop={false} />
       </View>
       <ScrollView
         showsVerticalScrollIndicator={false}

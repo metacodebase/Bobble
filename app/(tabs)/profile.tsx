@@ -16,11 +16,11 @@ import { useLogout, useMe } from '@/src/hooks/api';
 import { useProfile } from '@/src/hooks/profile';
 import { useProfileAvatarPicker } from '@/src/hooks/use-profile-avatar-picker';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
+import { useTabBarInsets } from '@/src/hooks/use-tab-bar-insets';
 import { useAppStore } from '@/src/store/app-store';
 import { Typography } from '@/src/theme/fonts';
 import { resolveAvatarUrl } from '@/src/utils/avatar-url';
-
-const TAB_BAR_CLEARANCE = 100;
+import { androidSafeTop } from '@/src/utils/safe-padding';
 
 const SETTINGS_ROUTES: Record<(typeof PROFILE_MENU)[number]['id'], Href> = {
   account: '/settings/account',
@@ -34,6 +34,7 @@ const SETTINGS_ROUTES: Record<(typeof PROFILE_MENU)[number]['id'], Href> = {
 
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
+  const { height: tabBarHeight } = useTabBarInsets();
   const colors = useBobbleColors();
   const storedUser = useAppStore((s) => s.user);
   const { data: fetchedUser } = useMe();
@@ -72,7 +73,7 @@ export default function ProfileScreen() {
   );
 
   return (
-    <View style={[styles.root, { paddingTop: insets.top + 12 }]}>
+    <View style={[styles.root, { paddingTop: androidSafeTop(insets.top) + 12 }]}>
       <View style={styles.header}>
         <ScreenHeader
           title="Profile"
@@ -84,7 +85,7 @@ export default function ProfileScreen() {
       <ScrollView
         contentContainerStyle={[
           styles.content,
-          { paddingBottom: insets.bottom + TAB_BAR_CLEARANCE },
+          { paddingBottom: tabBarHeight + 24 },
         ]}
         showsVerticalScrollIndicator={false}
       >

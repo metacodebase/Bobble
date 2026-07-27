@@ -1,16 +1,19 @@
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 import * as Calendar from 'expo-calendar';
+import { RefreshCw } from 'lucide-react-native';
 
 import { CalendarRow } from '@/src/components/create-account/calendar-row';
 import { CalendarProviderIcon, type CalendarProvider } from '@/src/components/create-account/calendar-brand-icons';
 import { PickerModal } from '@/src/components/create-account/picker-modal';
+import { SecondaryButton } from '@/src/components/home/secondary-button';
 import {
     SettingsDescription,
     SettingsScreenLayout,
 } from '@/src/components/settings/settings-screen-layout';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { PrimaryButton } from '@/src/components/onboarding/primary-button';
+import { resyncAllTasksToCalendar } from '@/src/services/calendar-sync';
 import { Typography } from '@/src/theme/fonts';
 import { useAppStore } from '@/src/store/app-store';
 
@@ -31,6 +34,7 @@ export default function CalendarSyncScreen() {
   const [permissionStatus, setPermissionStatus] = useState<Calendar.PermissionStatus | null>(null);
   const [calendars, setCalendars] = useState<Calendar.Calendar[]>([]);
   const [loading, setLoading] = useState(true);
+  const [resyncing, setResyncing] = useState(false);
 
   // Picker State
   const [pickerVisible, setPickerVisible] = useState(false);
@@ -100,6 +104,44 @@ export default function CalendarSyncScreen() {
     return null;
   }
 
+  const handleResync = async () => {
+    if (!syncCalendarId || resyncing) return;
+    setResyncing(true);
+    try {
+      const { synced } = await resyncAllTasksToCalendar();
+      if (synced === 0) {
+        toast.success('Only tasks with a due date are synced', 'Nothing to sync');
+      } else {
+        toast.success(`Synced ${synced} task${synced === 1 ? '' : 's'} to your calendar`);
+      }
+    } catch (error) {
+      console.error('Calendar re-sync failed:', error);
+      toast.error('Could not sync tasks to calendar');
+    } finally {
+      setResyncing(false);
+    }
+  };
+
+  const handleCalendarConnected = async (id: string) => {
+    setSyncCalendarId(id);
+    setPickerVisible(false);
+    const selectedCal = calendars.find((c) => c.id === id);
+    if (selectedCal) {
+      toast.success(`Tasks will now sync to ${selectedCal.title}`);
+    }
+    setResyncing(true);
+    try {
+      const { synced } = await resyncAllTasksToCalendar();
+      if (synced > 0) {
+        toast.success(`Synced ${synced} existing task${synced === 1 ? '' : 's'} to your calendar`);
+      }
+    } catch (error) {
+      console.error('Initial calendar sync failed:', error);
+    } finally {
+      setResyncing(false);
+    }
+  };
+
   const handleProviderPress = (providerItem: typeof PROVIDERS[0]) => {
     const matchingCalendars = calendars.filter(c => getCalendarProvider(c) === providerItem.provider);
     
@@ -165,6 +207,21 @@ export default function CalendarSyncScreen() {
               />
             );
           })}
+
+          {syncCalendarId ? (
+            <View style={styles.resyncSection}>
+              <Text style={[styles.resyncHint, { color: colors.textSecondary }]}>
+                Tasks with a due date sync automatically. Re-sync if you deleted events from your
+                calendar or tasks are missing.
+              </Text>
+              <SecondaryButton
+                label={resyncing ? 'Syncing…' : 'Re-sync all tasks'}
+                icon={RefreshCw}
+                onPress={() => void handleResync()}
+                style={resyncing ? styles.resyncDisabled : undefined}
+              />
+            </View>
+          ) : null}
         </ScrollView>
       )}
 
@@ -174,14 +231,7 @@ export default function CalendarSyncScreen() {
         searchPlaceholder="Search accounts..."
         selectedId={syncCalendarId || undefined}
         options={pickerOptions}
-        onSelect={(id) => {
-          setSyncCalendarId(id);
-          setPickerVisible(false);
-          const selectedCal = calendars.find(c => c.id === id);
-          if (selectedCal) {
-            toast.success(`Tasks will now sync to ${selectedCal.title}`);
-          }
-        }}
+        onSelect={(id) => void handleCalendarConnected(id)}
         onClose={() => setPickerVisible(false)}
       />
 
@@ -215,5 +265,16 @@ const styles = StyleSheet.create({
   listContent: {
     gap: 12,
     paddingBottom: 20,
+  },
+  resyncSection: {
+    marginTop: 8,
+    gap: 12,
+  },
+  resyncHint: {
+    ...Typography.caption,
+    lineHeight: 18,
+  },
+  resyncDisabled: {
+    opacity: 0.6,
   },
 });

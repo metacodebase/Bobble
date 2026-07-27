@@ -6,6 +6,11 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { bobblesApi, tasksApi } from '@/src/api';
+import {
+  removeTaskFromCalendar,
+  syncTaskToCalendar,
+  syncTasksToCalendar,
+} from '@/src/services/calendar-sync';
 import { CaptureHeader } from '@/src/components/capture/capture-header';
 import { GeneratedTaskRow } from '@/src/components/capture/generated-task-row';
 import { RecordingPlaybackBar } from '@/src/components/capture/recording-playback-bar';
@@ -111,7 +116,8 @@ export default function SuggestionsScreen() {
       setTasks(next);
 
       try {
-        await tasksApi.updateTask(task.persistedId, { title: trimmed });
+        const updated = await tasksApi.updateTask(task.persistedId, { title: trimmed });
+        void syncTaskToCalendar(updated);
         syncTasksToStore(next);
       } catch (error) {
         setTasks(previous);
@@ -134,6 +140,7 @@ export default function SuggestionsScreen() {
 
       try {
         await tasksApi.deleteTask(task.persistedId);
+        void removeTaskFromCalendar(task.persistedId);
         syncTasksToStore(next);
       } catch (error) {
         setTasks(previous);
@@ -176,6 +183,7 @@ export default function SuggestionsScreen() {
           dueAt: task.dueAt ?? null,
         })),
       });
+      void syncTasksToCalendar(created);
 
       const generatedTasks: SuggestionTask[] = created.map((task) => ({
         id: task._id,

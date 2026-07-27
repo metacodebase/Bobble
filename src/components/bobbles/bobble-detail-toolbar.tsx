@@ -1,5 +1,8 @@
 import { ListTodo, MoreHorizontal, Pin, Share2 } from 'lucide-react-native';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import { androidSafeBottom } from '@/src/utils/safe-padding';
 
 type BobbleDetailToolbarProps = {
   onShare?: () => void;
@@ -8,6 +11,8 @@ type BobbleDetailToolbarProps = {
   onMore?: () => void;
   disabled?: boolean;
   pinned?: boolean;
+  /** When true (default on Android), pad above the system nav bar. */
+  safeBottom?: boolean;
 };
 
 export function BobbleDetailToolbar({
@@ -17,7 +22,9 @@ export function BobbleDetailToolbar({
   onMore,
   disabled = false,
   pinned = false,
+  safeBottom = Platform.OS === 'android',
 }: BobbleDetailToolbarProps) {
+  const insets = useSafeAreaInsets();
   const actions = [
     { id: 'share', icon: Share2, onPress: onShare, active: false },
     { id: 'tasks', icon: ListTodo, onPress: onAddTask, active: false },
@@ -25,8 +32,13 @@ export function BobbleDetailToolbar({
     { id: 'more', icon: MoreHorizontal, onPress: onMore, active: false },
   ] as const;
 
+  const bottomPad =
+    safeBottom && Platform.OS === 'android' && insets.bottom <= 0
+      ? androidSafeBottom(insets.bottom)
+      : 0;
+
   return (
-    <View style={styles.root}>
+    <View style={[styles.root, bottomPad > 0 && { paddingBottom: bottomPad }]}>
       {actions.map(({ id, icon: Icon, onPress, active }) => (
         <Pressable
           key={id}

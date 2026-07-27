@@ -1,6 +1,6 @@
 import { Href, router } from 'expo-router';
 import { Check } from 'lucide-react-native';
-import { ImageBackground, Platform, StyleSheet, Text, View } from 'react-native';
+import { ImageBackground, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { BobbleDetailToolbar } from '@/src/components/bobbles/bobble-detail-toolbar';
@@ -9,11 +9,10 @@ import { BobbleMascot } from '@/src/components/onboarding/bobble-mascot';
 import { PrimaryButton } from '@/src/components/onboarding/primary-button';
 import { useBobbleToolbarActions } from '@/src/hooks/use-bobble-toolbar-actions';
 import { Typography } from '@/src/theme/fonts';
+import { androidSafeBottom, androidSafeTop } from '@/src/utils/safe-padding';
 
 const SAVE_TEXT = '#17164B';
 const SUCCESS_BACKGROUND = require('@/src/assets/images/background/four.png');
-/** Fallback when Android reports 0 inset under the system nav bar. */
-const ANDROID_MIN_BOTTOM = 24;
 
 type BobbleSaveSuccessProps = {
   title: string;
@@ -40,7 +39,7 @@ export function BobbleSaveSuccess({
   return (
     <ImageBackground
       source={SUCCESS_BACKGROUND}
-      style={[styles.root, { paddingTop: insets.top + 8 }]}
+      style={[styles.root, { paddingTop: androidSafeTop(insets.top) + 8 }]}
       resizeMode="cover"
     >
       <View style={styles.content}>
@@ -77,15 +76,12 @@ export function BobbleSaveSuccess({
         style={[
           styles.toolbar,
           {
-            paddingBottom:
-              Math.max(
-                insets.bottom,
-                Platform.OS === 'android' ? ANDROID_MIN_BOTTOM : 16,
-              ) + 8,
+            paddingBottom: androidSafeBottom(insets.bottom, 24) + 8,
           },
         ]}
       >
         <BobbleDetailToolbar
+          safeBottom={false}
           onShare={() =>
             router.push({
               pathname: '/share',

@@ -1,9 +1,11 @@
 import { ChevronLeft, LucideIcon, Trash2 } from 'lucide-react-native';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { useNightForeground } from '@/src/hooks/use-night-foreground';
 import { Typography } from '@/src/theme/fonts';
+import { androidSafeTop } from '@/src/utils/safe-padding';
 
 const DISCARD_COLOR = '#FDEAC2';
 
@@ -16,6 +18,11 @@ type CaptureHeaderProps = {
   onRightPress?: () => void;
   centered?: boolean;
   titleColor?: string;
+  /**
+   * When true (default on Android), apply top safe padding so the back control
+   * clears the status bar. Disable when the parent screen already pads `insets.top`.
+   */
+  safeTop?: boolean;
 };
 
 export function CaptureHeader({
@@ -27,15 +34,25 @@ export function CaptureHeader({
   onRightPress,
   centered = false,
   titleColor,
+  safeTop = Platform.OS === 'android',
 }: CaptureHeaderProps) {
   const colors = useBobbleColors();
   const night = useNightForeground();
+  const insets = useSafeAreaInsets();
   const iconColor = night.text ?? colors.text;
   const mutedIconColor = night.textSecondary ?? colors.textSecondary;
   const discardColor = night.isNight ? DISCARD_COLOR : mutedIconColor;
 
+  // Only add the inset when the parent did not already — parents typically use
+  // `paddingTop: insets.top + N`. On Android, if that value was 0/too small,
+  // give the back button its own clearance without double-padding common cases.
+  const topPad =
+    safeTop && Platform.OS === 'android' && insets.top <= 0
+      ? androidSafeTop(insets.top)
+      : 0;
+
   return (
-    <View style={styles.root}>
+    <View style={[styles.root, topPad > 0 && { paddingTop: topPad }]}>
       <View style={[styles.side, leftLabel ? styles.sideWide : null]}>
         {leftLabel ? (
           <Pressable onPress={onLeftPress} hitSlop={12} style={styles.iconButton}>

@@ -4,6 +4,8 @@ import { useCallback, useMemo, useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { androidSafeBottom, androidSafeTop } from '@/src/utils/safe-padding';
+
 import { BobbleDetailSummary } from '@/src/components/bobbles/bobble-detail-summary';
 import { BobbleDetailToolbar } from '@/src/components/bobbles/bobble-detail-toolbar';
 import { BobbleInsights } from '@/src/components/bobbles/bobble-insights';
@@ -161,8 +163,8 @@ export default function BobbleDetailScreen() {
 
   if (isLoading) {
     return (
-      <View style={[styles.root, { paddingTop: insets.top + 8 }]}>
-        <CaptureHeader onBack={() => router.back()} />
+      <View style={[styles.root, { paddingTop: androidSafeTop(insets.top) + 8 }]}>
+        <CaptureHeader onBack={() => router.back()} safeTop={false} />
         <ScreenLoading label="Loading bobble…" />
       </View>
     );
@@ -170,8 +172,8 @@ export default function BobbleDetailScreen() {
 
   if (deleteBobble.isPending) {
     return (
-      <View style={[styles.root, { paddingTop: insets.top + 8 }]}>
-        <CaptureHeader onBack={() => router.back()} />
+      <View style={[styles.root, { paddingTop: androidSafeTop(insets.top) + 8 }]}>
+        <CaptureHeader onBack={() => router.back()} safeTop={false} />
         <ScreenLoading label="Deleting bobble…" />
       </View>
     );
@@ -179,20 +181,28 @@ export default function BobbleDetailScreen() {
 
   if (isError || !bobble) {
     return (
-      <View style={[styles.root, styles.centered, { paddingTop: insets.top + 8 }]}>
-        <CaptureHeader onBack={() => router.back()} />
+      <View style={[styles.root, styles.centered, { paddingTop: androidSafeTop(insets.top) + 8 }]}>
+        <CaptureHeader onBack={() => router.back()} safeTop={false} />
         <Text style={styles.errorText}>Bobble not found</Text>
       </View>
     );
   }
 
   return (
-    <View style={[styles.root, { paddingTop: insets.top + 8, paddingBottom: insets.bottom + 16 }]}>
+    <View
+      style={[
+        styles.root,
+        {
+          paddingTop: androidSafeTop(insets.top) + 8,
+          paddingBottom: androidSafeBottom(insets.bottom) + 16,
+        },
+      ]}>
       <View style={styles.headerBlock}>
         <CaptureHeader
           onBack={() => router.back()}
           rightIcon={Pencil}
           onRightPress={openRename}
+          safeTop={false}
         />
         <SegmentTabs active={tab} onChange={setTab} />
       </View>

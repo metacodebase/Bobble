@@ -2,6 +2,8 @@ import { ReactNode } from 'react';
 import { ImageBackground, ImageSourcePropType, Platform, StyleSheet, useWindowDimensions, View, ViewStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { androidSafeBottom, androidSafeTop } from '@/src/utils/safe-padding';
+
 export const ONBOARDING_MASCOT_SIZE = 1000 * 0.32;
 
 type OnboardingScreenLayoutProps = {
@@ -33,9 +35,8 @@ export function OnboardingScreenLayout({
   const referenceWidth = Platform.OS === 'android' ? 412 : 390;
   const referenceHeight = Platform.OS === 'android' ? 915 : 844;
   const scale = Math.min(width / referenceWidth, height / referenceHeight);
-  const topPadding = insets.top + Math.round(16 * scale);
-  const androidBottomBuffer = Platform.OS === 'android' ? Math.round(14 * scale) : 0;
-  const bottomPadding = insets.bottom + Math.round(20 * scale) + androidBottomBuffer;
+  const topPadding = androidSafeTop(insets.top) + Math.round(16 * scale);
+  const bottomPadding = androidSafeBottom(insets.bottom) + Math.round(20 * scale);
   const footerGap = Math.round(16 * scale);
 
   return (

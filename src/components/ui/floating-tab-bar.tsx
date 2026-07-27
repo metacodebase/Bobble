@@ -7,12 +7,12 @@ import {
 } from 'expo-glass-effect';
 import { Image } from 'expo-image';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { BobblesTabIcon } from '@/src/components/ui/bobbles-tab-icon';
 import { TAB_ICON_SIZE } from '@/src/components/ui/tab-bar-icons';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { useColorScheme } from '@/src/hooks/use-color-scheme';
+import { useTabBarInsets } from '@/src/hooks/use-tab-bar-insets';
 import { FontFamily } from '@/src/theme/fonts';
 
 const MINDMAP_ACTIVE = require('@/src/assets/images/tab-icons/mindmap-active.png');
@@ -114,11 +114,12 @@ function TabBarSurface({
 }
 
 export function FloatingTabBar({ state, navigation }: BottomTabBarProps) {
-  const insets = useSafeAreaInsets();
+  const { bottomPadding } = useTabBarInsets();
   const scheme = useColorScheme();
   const colors = useBobbleColors();
   const glassEnabled = useLiquidGlassTabBar();
-  const bottom = Math.max(insets.bottom, 10);
+  // Android: bottomPadding includes system nav / gesture inset so the bar clears it.
+  const bottom = bottomPadding;
 
   const tabs: TabConfig[] = [
     {

@@ -13,6 +13,7 @@ import { useNightForeground } from '@/src/hooks/use-night-foreground';
 import { useVoiceRecorder } from '@/src/hooks/use-voice-recorder';
 import { CAPTURE_COPY, useCaptureStore } from '@/src/store/capture-store';
 import { Typography } from '@/src/theme/fonts';
+import { androidSafeBottom, androidSafeTop } from '@/src/utils/safe-padding';
 
 function formatElapsed(seconds: number) {
   const mins = Math.floor(seconds / 60);
@@ -113,8 +114,8 @@ export default function RecordScreen() {
       style={[
         styles.root,
         {
-          paddingTop: insets.top + 8,
-          paddingBottom: insets.bottom + 24,
+          paddingTop: androidSafeTop(insets.top) + 8,
+          paddingBottom: androidSafeBottom(insets.bottom) + 24,
         },
       ]}
     >
@@ -122,6 +123,7 @@ export default function RecordScreen() {
         title={copy.title}
         centered
         onBack={() => router.back()}
+        safeTop={false}
       />
 
       <View style={styles.statusBlock}>
