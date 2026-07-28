@@ -4,7 +4,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { Typography } from '@/src/theme/fonts';
 
-const DEFAULT_ICON_SIZE = 44;
+const DEFAULT_ICON_SIZE = 35;
 
 type QuickActionTileProps = {
   label: string;
@@ -51,8 +51,9 @@ const styles = StyleSheet.create({
   tile: {
     flex: 1,
     alignItems: 'center',
+    justifyContent: 'center',
+    height: 80,
     gap: 8,
-    paddingVertical: 14,
     paddingHorizontal: 6,
     borderRadius: 20,
     borderWidth: 1,
@@ -69,7 +70,7 @@ const styles = StyleSheet.create({
   label: {
     ...Typography.caption,
     fontFamily: Typography.button.fontFamily,
-    fontSize: 12,
+    fontSize: 11,
     lineHeight: 16,
     textAlign: 'center',
   },

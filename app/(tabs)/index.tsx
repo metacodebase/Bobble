@@ -38,7 +38,7 @@ function getHomeMascotVariant(): HomeVariant {
   }
 }
 
-const TODAY_ROW_HEIGHT = Math.round(Dimensions.get('window').height * 0.25);
+const TODAY_ROW_HEIGHT = Math.round(Dimensions.get('window').height * 0.24);
 
 const QUICK_ACTIONS = [
   {
@@ -101,14 +101,15 @@ export default function HomeScreen() {
   };
 
   return (
-    <View style={[styles.root, { paddingTop: androidSafeTop(insets.top) + 20 }]}>
+    <View style={[styles.root, { paddingTop: androidSafeTop(insets.top) + (Platform.OS === 'android' ? 0 : -10) }]}>
       <ScrollView
+
         contentContainerStyle={[
           styles.scrollContent,
           { paddingBottom: tabBarHeight + 24 },
         ]}
         showsVerticalScrollIndicator={false}
-        scrollEnabled={!focusListScrolling}
+        scrollEnabled={false}
       >
         <View style={styles.headerSection}>
           <HomeHeader
@@ -124,7 +125,7 @@ export default function HomeScreen() {
             variant="home"
             homeVariant={homeMascotVariant}
             size={Math.round(
-              Dimensions.get('window').width * (Platform.OS === 'android' ? 1.15 : 1.05),
+              Dimensions.get('window').width * (Platform.OS === 'android' ? 1.05 : 0.95),
             )}
           />
         </View>
@@ -182,8 +183,7 @@ const styles = StyleSheet.create({
   },
   mascotWrap: {
     alignItems: 'center',
-    marginTop: 4,
-    marginBottom: 10,
+    marginBottom: 5
   },
   section: {
     width: '95%',
