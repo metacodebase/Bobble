@@ -4,6 +4,7 @@ import {
   SettingsScreenLayout,
   SettingsSection,
 } from '@/src/components/settings/settings-screen-layout';
+import { router } from 'expo-router';
 import { BUG_REPORT_EMAIL, openEmail, SUPPORT_CONTACT_EMAIL } from '@/src/utils/support-email';
 import { toast } from '@/src/utils/toast';
 
@@ -23,7 +24,7 @@ export default function HelpScreen() {
       </SettingsDescription>
 
       <SettingsSection title="Support">
-        <SettingsLinkRow label="FAQ" />
+        <SettingsLinkRow label="FAQ" onPress={() => router.push('/settings/faq')} />
         <SettingsLinkRow
           label="Contact support"
           onPress={() => void handleEmail(SUPPORT_CONTACT_EMAIL, 'Bobble support request')}

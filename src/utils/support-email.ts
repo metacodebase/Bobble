@@ -1,7 +1,7 @@
 import * as Linking from 'expo-linking';
 
 export const SUPPORT_CONTACT_EMAIL = 'support@bobble.au';
-export const BUG_REPORT_EMAIL = 'Dev@bobble.au';
+export const BUG_REPORT_EMAIL = 'support@bobble.au';
 
 export async function openEmail(
   to: string,

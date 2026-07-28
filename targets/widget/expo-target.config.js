@@ -21,6 +21,6 @@ module.exports = {
     'mascot-done': '../../src/assets/images/mascot/bobble-greet.png',
   },
   entitlements: {
-    'com.apple.security.application-groups': ['group.metadots.bobble.app'],
+    'com.apple.security.application-groups': ['group.com.bobble.au'],
   },
 };

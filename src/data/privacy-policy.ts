@@ -4,7 +4,7 @@ export const PRIVACY_EFFECTIVE_DATE = '22 July 2026';
 export const PRIVACY_VERSION = '1.0';
 export const PRIVACY_OPERATOR =
   'Operator: N2 Therapy Australia PTY LTD T/A Bobble App, ABN/ACN 16633627219';
-export const PRIVACY_CONTACT = 'Privacy Contact: privacy@bobble.au';
+export const PRIVACY_CONTACT = 'Privacy Contact: support@bobble.au';
 export const PRIVACY_ADDRESS = 'Address: 29 Wentworth Street, Shellharbour, NSW, 2529';
 
 export const PRIVACY_INTRO =
@@ -79,7 +79,7 @@ export const PRIVACY_POLICY: LegalSection[] = [
   {
     title: '14. Retention and deletion',
     body:
-      'We retain personal information for as long as reasonably necessary to provide Bobble App, comply with law, resolve disputes, maintain backups, improve the Service, enforce agreements, protect security and maintain business records.\n\nYou may request deletion of your account and personal information using the in-app deletion feature or by contacting us at privacy@bobble.au.\n\nAfter deletion, we may retain limited information where required or permitted by law, including for backups, audit, security, fraud prevention, dispute resolution, legal compliance or enforcement of our Terms of Use.\n\nDe-identified, anonymised or aggregated data may be retained indefinitely where it does not reasonably identify you.',
+      'We retain personal information for as long as reasonably necessary to provide Bobble App, comply with law, resolve disputes, maintain backups, improve the Service, enforce agreements, protect security and maintain business records.\n\nYou may request deletion of your account and personal information using the in-app deletion feature or by contacting us at support@bobble.au.\n\nAfter deletion, we may retain limited information where required or permitted by law, including for backups, audit, security, fraud prevention, dispute resolution, legal compliance or enforcement of our Terms of Use.\n\nDe-identified, anonymised or aggregated data may be retained indefinitely where it does not reasonably identify you.',
   },
   {
     title: '15. Marketing and communications',
@@ -94,7 +94,7 @@ export const PRIVACY_POLICY: LegalSection[] = [
   {
     title: '17. Your rights and choices',
     body:
-      'Depending on where you live, you may have rights to:\n\n• request access to personal information we hold about you;\n• request correction of inaccurate or incomplete information;\n• request deletion of personal information;\n• withdraw consent where processing is based on consent;\n• object to or restrict certain processing;\n• request a copy of your data in a portable format where available;\n• opt out of marketing communications;\n• opt out of sale or sharing of personal information where applicable law gives you that right;\n• complain to us or to a privacy regulator.\n\nRequests can be sent to privacy@bobble.au. We may need to verify your identity before responding. We will respond within the timeframe required by applicable law.',
+      'Depending on where you live, you may have rights to:\n\n• request access to personal information we hold about you;\n• request correction of inaccurate or incomplete information;\n• request deletion of personal information;\n• withdraw consent where processing is based on consent;\n• object to or restrict certain processing;\n• request a copy of your data in a portable format where available;\n• opt out of marketing communications;\n• opt out of sale or sharing of personal information where applicable law gives you that right;\n• complain to us or to a privacy regulator.\n\nRequests can be sent to support@bobble.au. We may need to verify your identity before responding. We will respond within the timeframe required by applicable law.',
   },
   {
     title: '18. Children',
@@ -114,6 +114,6 @@ export const PRIVACY_POLICY: LegalSection[] = [
   {
     title: '21. Contact and complaints',
     body:
-      'For privacy questions, requests or complaints, contact:\n\nN2 Therapy Australia PTY LTD T/A Bobble App\nPrivacy Officer: Steven Body - Director\nEmail: privacy@bobble.au\nAddress: 29 Wentworth Street, Shellharbour, NSW, 2529\n\nWe will take privacy complaints seriously and will respond within a reasonable time. If you are not satisfied with our response, you may have the right to contact your local privacy regulator.',
+      'For privacy questions, requests or complaints, contact:\n\nN2 Therapy Australia PTY LTD T/A Bobble App\nPrivacy Officer: Steven Body - Director\nEmail: support@bobble.au\nAddress: 29 Wentworth Street, Shellharbour, NSW, 2529\n\nWe will take privacy complaints seriously and will respond within a reasonable time. If you are not satisfied with our response, you may have the right to contact your local privacy regulator.',
   },
 ];

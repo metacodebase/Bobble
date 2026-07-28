@@ -1,6 +1,6 @@
 import type { LegalSection } from '@/src/data/legal-types';
 
-export const TERMS_EFFECTIVE_DATE = '22 July 2026';
+export const TERMS_EFFECTIVE_DATE = '28 July 2026';
 export const TERMS_VERSION = '1.0';
 export const TERMS_OPERATOR =
   'Operator: N2 Therapy Australia PTY LTD T/A Bobble App, ABN/ACN 16633627219';
@@ -11,127 +11,77 @@ export const TERMS_GOVERNING_LAW = 'Governing Law: New South Wales, Australia';
 export const TERMS_LAST_UPDATED = TERMS_EFFECTIVE_DATE;
 
 export const TERMS_INTRO =
-  'These Terms of Use apply to your access to and use of Bobble, including our mobile application, website, software, artificial intelligence tools, voice recording, transcription, note organisation, thought organisation and related services (together, the "Service").\n\nIn these Terms, "Bobble", "Bobble App", "we", "us" and "our" means N2 Therapy Australia PTY LTD T/A Bobble App. "You" and "your" means the person using the Service. By creating an account, accessing Bobble App or using the Service, you agree to these Terms and our Privacy Policy.';
+  'WELCOME TO BOBBLE\n\nWe are N2 Therapy Australia Pty Ltd trading as Bobble App, an Australian company with ABN 16 633 627 219 ("we", "our" or "us"). We provide Bobble, an AI-powered voice transcription and personal organisation mobile application that allows users to record voice notes, generate transcripts, summaries, tasks, reminders and goals, and organise and manage that content through the application (App).\n\nThese terms and conditions (Terms) govern your access to and use of the App and any related services we provide through it (Services). The most current version of these Terms is available at [insert URL] (Website).';
 
 export const TERMS_AND_CONDITIONS: LegalSection[] = [
   {
-    title: '1. Acceptance of these Terms',
+    title: '1. Reading and accepting these Terms',
     body:
-      'By creating an account, tapping "I agree", accessing Bobble App or using any part of the Service, you agree to be bound by these Terms and our Privacy Policy.\n\nIf you do not agree to these Terms, you must not create an account or use the Service.\n\nIf you use Bobble App on behalf of a business or organisation, you confirm that you have authority to bind that business or organisation to these Terms.',
+      'By creating an Account, clicking an "I accept" button or similar acceptance mechanism, accessing or using the App, purchasing a Paid Subscription or otherwise receiving the benefit of the Services, you agree to be bound by these Terms.\n\nIf you access or use the App on behalf of a company, organisation or other legal entity, you represent and warrant that you have authority to bind that entity to these Terms.\n\nWe may update these Terms from time to time. We will notify you of any material changes through the App, by email or by another reasonable method before those changes take effect. If a change materially disadvantages you, you may cancel your Account or Paid Subscription before the change takes effect and, where you have prepaid Subscription Fees directly to us, receive a pro rata refund for the unused portion of the current billing period.',
   },
   {
-    title: '2. What Bobble App does',
+    title: '2. Eligibility',
     body:
-      'Bobble App is an AI-powered thought organisation application designed to help users capture, record, transcribe, organise and review their thoughts, ideas, tasks, worries, goals, reminders and related information.\n\nThe Service may allow you to record voice notes, type thoughts, convert audio into text, generate summaries, extract tasks, identify ideas, detect themes, organise projects and save structured thought records.\n\nBobble App is designed for personal clarity, productivity, journaling and knowledge organisation. It does not guarantee any particular outcome.',
+      'By accepting these Terms or using the App, you represent and warrant that you are at least 16 years old, have legal capacity and authority to enter a binding agreement, and that any information you provide is accurate, complete and current.\n\nIf you are under 18 years old, you must have permission from your parent or legal guardian to create an Account and use the App. You must not create an Account or use the App if you are under 16 years old.',
   },
   {
-    title: '3. Bobble App is not a medical, mental health or emergency service',
+    title: '3. Duration of these Terms and Paid Subscriptions',
     body:
-      'Bobble App is not a medical device, mental health service, therapy service, counselling service, crisis service or emergency service.\n\nBobble App does not diagnose, treat, prevent or cure any medical, psychological or mental health condition. AI-generated outputs may be incomplete, inaccurate, inappropriate or unsuitable for your circumstances.\n\nYou must not rely on Bobble App as a substitute for professional medical, legal, financial, psychological or other professional advice.\n\nIf you are in danger, experiencing a crisis, or need urgent support, contact emergency services or an appropriate crisis support provider immediately.',
+      'These Terms commence when you first accept them or access or use the App and continue until your Account is closed or these Terms are otherwise terminated.\n\nIf you select a Paid Subscription, it starts when your purchase is confirmed and renews automatically unless cancelled through your payment provider before renewal. Closing your Account does not automatically cancel a Paid Subscription managed by a third-party provider.',
   },
   {
-    title: '4. Eligibility',
+    title: '4. The App and Services',
     body:
-      'You must be at least 18 years old to use Bobble App unless we expressly allow younger users with legally valid parental or guardian consent.\n\nBy using Bobble App, you confirm that you are legally able to enter into these Terms and that your use of the Service is lawful in your location.',
+      'The Services may include recording voice notes, converting recordings into transcripts, generating summaries, tasks, reminders and goals using automated and AI technologies, and allowing you to organise, edit, export and share content.\n\nAI-generated outputs may be incomplete, inaccurate, delayed or unsuitable. You are responsible for reviewing and verifying outputs before relying on them.\n\nThe App is for personal organisation only and is not legal, financial, medical, psychological, counselling or crisis advice. Do not use the App for emergencies or high-risk scenarios where errors or delays could cause harm.',
   },
   {
-    title: '5. Your account',
+    title: '5. Data hosting',
     body:
-      'You may need to create an account to use some or all features of Bobble App. You must provide accurate account information and keep it up to date.\n\nYou are responsible for keeping your login details secure. You must not share your account or allow another person to access the Service using your account.\n\nYou must notify us promptly if you believe your account has been accessed without permission.\n\nWe may suspend or terminate your account if we reasonably believe you have breached these Terms, misused the Service, created a security risk, created legal risk or used Bobble App unlawfully.',
+      'We may store and process User Data using third-party cloud hosting and technology providers, including Amazon Web Services and providers supporting transcription and AI functionality.\n\nUser Data may be stored or processed in Australia and other countries where we or our providers operate. We take reasonable steps to select reputable providers, but no system is completely secure and we cannot guarantee uninterrupted availability or prevent all loss or corruption.\n\nYou are responsible for exporting or retaining copies of important User Data.',
   },
   {
-    title: '6. User Content',
+    title: '6. User obligations and prohibited conduct',
     body:
-      '"User Content" means anything you record, type, upload, save, submit, generate or make available through Bobble App. This may include voice recordings, audio files, typed thoughts, transcripts, notes, ideas, tasks, worries, goals, projects, summaries, themes, tags, categories and AI-organised outputs.\n\nYou retain ownership of your User Content, subject to the rights you grant us under these Terms and our Privacy Policy.\n\nYou grant Bobble App a worldwide, non-exclusive, royalty-free licence to collect, store, host, copy, process, transcribe, analyse, organise, summarise, display, transmit and otherwise use your User Content for the purposes of providing, maintaining, securing, improving and developing the Service.\n\nThis licence continues for as long as reasonably necessary to provide the Service, comply with legal obligations, maintain backups, improve the Service where permitted, resolve disputes, enforce these Terms and protect the security or integrity of Bobble App.\n\nYou are responsible for your User Content and for ensuring that you have all rights and permissions needed to provide it to Bobble App.',
+      'You must use the App lawfully, provide accurate information, obtain any required permissions and consents for recordings and personal information, and maintain security of your Account credentials.\n\nYou must not use the App for unlawful, harmful, deceptive or unauthorised purposes; infringe others\' rights; misuse accounts or data; introduce malicious code; reverse engineer or scrape the App; or use outputs in high-risk or emergency contexts.',
   },
   {
-    title: '7. Voice recordings and third-party information',
+    title: '7. Fees and payment',
     body:
-      'Some features may allow you to record audio. Laws about recording conversations differ by location. You are responsible for obtaining any consent required before recording another person or uploading information about another person.\n\nYou must not upload, record or submit another person\'s personal information, confidential information or sensitive information unless you have permission and a lawful basis to do so.',
+      'The Free Plan may include advertising and usage limits. Paid Subscriptions have fees, billing periods and features shown before purchase.\n\nPaid Subscriptions renew automatically unless cancelled before renewal. Cancellation generally takes effect at the end of the current billing period. Refunds for app store purchases are handled by the relevant app store.\n\nWe may change Subscription Fees with notice; changes apply from the next renewal and you may cancel before the new fee takes effect.',
   },
   {
-    title: '8. AI processing and outputs',
+    title: '8. Intellectual property and data',
     body:
-      'Bobble App uses artificial intelligence and automated systems to process inputs and generate outputs. Outputs may include transcripts, summaries, tasks, ideas, worries, projects, themes, suggested next steps and other organised information.\n\nAI outputs are generated automatically and may be inaccurate, incomplete, misleading, outdated or unsuitable for your circumstances. You are responsible for reviewing AI outputs before relying on them.\n\nWe do not guarantee that any AI output will be correct, complete, useful, safe, reliable or appropriate for your needs.',
+      'We own or license all Intellectual Property Rights in the App and Services. You retain rights you hold in your User Data.\n\nYou grant us and our service providers a non-exclusive, worldwide, royalty-free licence to process User Data as reasonably necessary to provide, maintain, secure and improve the Services and comply with law.\n\nWe may create de-identified and aggregated data from User Data and use it for analytics, research, product development, service improvement and related lawful purposes as described in our Privacy Policy.',
   },
   {
-    title: '9. Privacy and data consent',
+    title: '9. Third-party services and integrations',
     body:
-      'Our Privacy Policy explains how we collect, store, use, disclose, transfer, retain and delete personal information.\n\nBy using Bobble App, you consent to us collecting, storing and processing the information you provide, including voice recordings, transcripts, typed thoughts, AI-generated outputs and app usage data, so that we can provide the Service.\n\nBobble App does not require you to provide sensitive information. However, because the Service is designed for recording thoughts, you may choose to include sensitive information in your entries. If you choose to include sensitive information, you consent to Bobble App collecting, storing and processing that information for the purposes described in our Privacy Policy.',
+      'The App may rely on third-party providers including app stores, payment providers, cloud hosting providers, transcription and AI providers, analytics providers and integrations such as Google Calendar.\n\nYour use of third-party services is also subject to those providers\' own terms and policies. We are not responsible for third-party systems or services outside our control, except where required by law.',
   },
   {
-    title: '10. Research, analytics and product improvement',
+    title: '10. Confidentiality and privacy',
     body:
-      'We may use information collected through Bobble App to understand how the Service is used, improve features, test and improve AI performance, improve transcription and organisation quality, develop new functionality, fix bugs, conduct analytics and perform product research.\n\nWhere practical, we use de-identified, anonymised or aggregated information for research, analytics and product improvement.\n\nWhere applicable law requires additional consent for a particular use, we will seek that consent or provide any required notice or choice.',
+      'Each party must keep the other party\'s Confidential Information confidential except as permitted by these Terms or required by law.\n\nOur handling of personal information is governed by these Terms and our Privacy Policy, available at [insert URL]. Where applicable law requires consent for specific handling, we will seek it separately.',
   },
   {
-    title: '11. De-identified and aggregated data',
+    title: '11. Liability and consumer rights',
     body:
-      'We may create de-identified, anonymised or aggregated data from information collected through Bobble App. This may include statistics, trends, usage patterns, theme analysis, category frequencies, product insights, benchmark data and other information that does not reasonably identify an individual.\n\nTo the maximum extent permitted by law, Bobble App may use, disclose, license, commercialise or sell de-identified, anonymised or aggregated data for research, analytics, product improvement, benchmarking, commercial partnerships, business development and other lawful purposes.\n\nDe-identified, anonymised or aggregated data may be retained indefinitely where it does not reasonably identify you.',
+      'Nothing in these Terms excludes rights that cannot lawfully be excluded, including rights under the Australian Consumer Law.\n\nTo the maximum extent permitted by law, the App is provided on an "as available" basis, and we do not guarantee uninterrupted or error-free operation or perfect output accuracy.\n\nSubject to law, liability exclusions and limits apply to indirect/consequential loss, and our aggregate liability is limited to the greater of Subscription Fees paid by you in the previous 12 months and AUD $500.',
   },
   {
-    title: '12. Sale or transfer of data and business assets',
+    title: '12. Plan changes, cancellation and termination',
     body:
-      'We may disclose or transfer personal information and other data as part of an actual or proposed merger, acquisition, financing, restructure, sale of assets, sale of business, insolvency, due diligence process or similar corporate transaction.\n\nWe do not sell raw voice recordings, raw typed thoughts, raw transcripts or identifiable personal Bobble App entries as a standard business practice.\n\nIf we ever intend to sell or share identifiable personal information in a way that requires consent, opt-out rights or additional notice under applicable law, we will provide that notice and obtain consent or provide opt-out rights where required.',
+      'You may change your Plan through your payment provider. Cancelling a Paid Subscription generally takes effect at the end of the current billing period.\n\nYou may request Account deletion through the App or by contacting support@bobble.au. We may suspend or terminate access where reasonably necessary for breach, legal, security or operational reasons, as permitted by these Terms.\n\nIf we discontinue a Paid Subscription for reasons not caused by your breach, we will provide a pro rata refund for the unused portion of Subscription Fees paid directly to us, subject to law and payment provider processes.',
   },
   {
-    title: '13. Acceptable use',
+    title: '13. Dispute resolution and general terms',
     body:
-      'You must use Bobble App lawfully and responsibly. You must not use the Service to:\n\n• break any law or regulation;\n• harm, threaten, harass, abuse, defame, exploit or discriminate against another person;\n• upload malware, viruses, harmful code or security threats;\n• attempt to access another user\'s account, data or systems;\n• reverse engineer, scrape, copy, overload or interfere with Bobble App or its systems;\n• upload content that infringes intellectual property, privacy, confidentiality or other rights;\n• record another person without any consent required by law;\n• use Bobble App for emergency, crisis, medical diagnosis, treatment or therapy purposes;\n• misrepresent AI outputs as professional advice or human-authored advice where that would be misleading;\n• use Bobble App in any way that creates legal, safety, privacy, security or reputational risk for us, users or third parties.',
+      'If a dispute arises, parties must first try to resolve it in good faith after written notice. If unresolved after 14 days, either party may commence proceedings or pursue available legal remedies.\n\nThese Terms are governed by the laws of [insert Australian State or Territory], Australia, and parties submit to the non-exclusive jurisdiction of courts in that State or Territory.\n\nStandard terms including force majeure, notices, waiver, severability, assignment, entire agreement and interpretation apply.',
   },
   {
-    title: '14. Subscriptions, payments and refunds',
+    title: '14. Definitions',
     body:
-      'Some features of Bobble App may be free. Other features may require payment, subscription or in-app purchase.\n\nPrices, billing periods, inclusions, renewal terms and cancellation options will be shown before purchase where required.\n\nSubscriptions may renew automatically unless cancelled before the renewal date. Payments processed through Apple App Store, Google Play or another payment provider may be subject to that provider\'s terms, billing rules and refund processes.\n\nNothing in these Terms excludes, restricts or modifies any consumer guarantee, right or remedy that cannot legally be excluded.',
-  },
-  {
-    title: '15. Intellectual property',
-    body:
-      'Bobble App owns or licenses all rights in the Service, including the app, software, systems, workflows, prompts, design, branding, name, logo, interface, documentation, visual assets and related materials.\n\nYou must not copy, modify, distribute, sell, lease, reverse engineer, decompile, extract, scrape or create derivative works from Bobble App unless we give written permission or the law allows it.\n\nYou may use Bobble App only for personal or internal business use in accordance with these Terms.',
-  },
-  {
-    title: '16. Third-party services',
-    body:
-      'Bobble App may rely on third-party providers for hosting, authentication, cloud storage, analytics, crash reporting, transcription, artificial intelligence processing, payments, customer support, email delivery, security and other functions.\n\nWe are not responsible for third-party services except to the extent required by law. Your use of app stores, payment providers or third-party integrations may be subject to separate terms and privacy policies.',
-  },
-  {
-    title: '17. Availability, changes and beta features',
-    body:
-      'We may update, modify, suspend, remove or discontinue Bobble App or any feature at any time.\n\nWe may release new features, test experimental features, change usage limits, modify AI processing, change pricing, remove features or update the design and operation of the Service.\n\nBeta, preview or experimental features may be less reliable and may change or stop without notice.',
-  },
-  {
-    title: '18. Suspension, termination and deletion',
-    body:
-      'You may stop using Bobble App at any time. You may request deletion of your account using the in-app settings or by contacting us at support@bobble.au.\n\nWe may suspend or terminate your access if you breach these Terms, create legal or security risk, misuse the Service, fail to pay applicable fees or engage in conduct that may harm Bobble App, users or third parties.\n\nAfter termination or deletion, we may retain limited information where reasonably necessary for legal compliance, backups, audit, security, fraud prevention, dispute resolution, business records or enforcement of these Terms, subject to our Privacy Policy.',
-  },
-  {
-    title: '19. Disclaimers',
-    body:
-      'Bobble App is provided on an "as is" and "as available" basis.\n\nTo the maximum extent permitted by law, we do not guarantee that Bobble App will be uninterrupted, error-free, secure, accurate, complete, reliable or suitable for your needs.\n\nWe do not guarantee that Bobble App will remove mental clutter, reduce stress, improve productivity, improve mental wellbeing or produce any particular result.',
-  },
-  {
-    title: '20. Limitation of liability',
-    body:
-      'Nothing in these Terms excludes, restricts or modifies any consumer guarantee, right or remedy that cannot legally be excluded.\n\nTo the maximum extent permitted by law, Bobble App is not liable for indirect, incidental, special, consequential, exemplary or loss-of-profit damages, including loss of data, loss of opportunity, business interruption, emotional distress, reputational harm or reliance on AI-generated outputs.\n\nTo the maximum extent permitted by law, our total liability to you arising out of or relating to the Service is limited to the amount you paid to use Bobble App in the 12 months before the event giving rise to the claim, or AUD $100 if you have not paid us anything.',
-  },
-  {
-    title: '21. Indemnity',
-    body:
-      'To the maximum extent permitted by law, you agree to indemnify Bobble App, its officers, employees, contractors and service providers against claims, losses, damages, liabilities, costs and expenses arising from your breach of these Terms, misuse of Bobble App, unlawful conduct, User Content or infringement of another person\'s rights.',
-  },
-  {
-    title: '22. Changes to these Terms',
-    body:
-      'We may update these Terms from time to time. If we make material changes, we will take reasonable steps to notify you, such as through the app, website or email.\n\nThe updated Terms apply from the effective date shown. If you continue using Bobble App after the updated Terms take effect, you agree to the updated Terms.',
-  },
-  {
-    title: '23. Governing law and disputes',
-    body:
-      'These Terms are governed by the laws of New South Wales, Australia.\n\nThe courts of New South Wales, Australia have non-exclusive jurisdiction over disputes relating to these Terms.\n\nBefore starting formal proceedings, you agree to contact us and try to resolve the dispute in good faith, unless urgent relief is required.',
-  },
-  {
-    title: '24. Contact',
-    body:
-      'Questions about these Terms can be sent to N2 Therapy Australia PTY LTD T/A Bobble App at support@bobble.au. Business address: 29 Wentworth Street, Shellharbour, NSW, 2529.',
+      'Account means an account created by you to access and use the App and Services.\n\nApp means the Bobble mobile application provided by us.\n\nFree Plan means the plan that allows access to specified features without Subscription Fees, and which may be supported by advertising or limits.\n\nPaid Subscription means a paid recurring subscription with additional features or ad removal.\n\nPlan means the Free Plan or a Paid Subscription selected by you.\n\nServices means functionality provided through or in connection with the App, including recording, transcription and AI-generated summaries, tasks, reminders and goals.\n\nUser Data means voice recordings, transcripts, text, files, information and other content you submit to, create through or provide in connection with the App.\n\nWebsite means the website available at [insert URL] and any other website operated by us in connection with the App or Services.',
   },
 ];

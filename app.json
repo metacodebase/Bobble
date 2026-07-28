@@ -10,7 +10,7 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "metadots.bobble.app",
+      "bundleIdentifier": "com.bobble.au",
       "buildNumber": "5",
       "usesAppleSignIn": true,
       "googleServicesFile": "./GoogleService-Info.plist",
@@ -40,9 +40,9 @@
           }
         }
       },
-      "appleTeamId": "A9X3L9QMZT",
+      "appleTeamId": "BNV5TR576V",
       "entitlements": {
-        "com.apple.security.application-groups": ["group.metadots.bobble.app"]
+        "com.apple.security.application-groups": ["group.com.bobble.au"]
       }
     },
     "android": {
@@ -55,7 +55,7 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.metacodebase.Bobble",
+      "package": "com.bobble.au",
       "googleServicesFile": "./google-services.json",
       "usesCleartextTraffic": true,
       "permissions": [
