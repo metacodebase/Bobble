@@ -40,7 +40,8 @@ export default function ChangePasswordScreen() {
   return (
     <SettingsScreenLayout title="Change Password">
       <SettingsDescription>
-        Choose a new password for your account. Use at least 8 characters.
+        If you are logged in with Google or Apple, you cannot update your password here.
+        Change it in your social account settings. For email login, use at least 8 characters.
       </SettingsDescription>
 
       <View style={styles.form}>

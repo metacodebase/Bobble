@@ -12,6 +12,7 @@ import {
   Moon,
   Palette,
   ShieldCheck,
+  Trash2,
   User,
 } from 'lucide-react-native';
 import { Pressable, StyleSheet, Switch, Text, View } from 'react-native';
@@ -32,6 +33,7 @@ const ICONS: Record<string, LucideIcon> = {
   download: Download,
   'credit-card': CreditCard,
   moon: Moon,
+  trash: Trash2,
 };
 
 type ProfileMenuRowProps = {

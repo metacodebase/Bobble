@@ -72,6 +72,7 @@ export function DatePickerModal({
 }: DatePickerModalProps) {
   const colors = useBobbleColors();
   const insets = useSafeAreaInsets();
+  const today = new Date();
 
   const initial = value ?? new Date(2000, 0, 1);
   const [viewYear, setViewYear] = useState(initial.getFullYear());
@@ -99,6 +100,8 @@ export function DatePickerModal({
     for (let y = maxYear; y >= minYear; y -= 1) list.push(y);
     return list;
   }, [minYear, maxYear]);
+  const visibleSelectionDate =
+    value ?? new Date(today.getFullYear(), today.getMonth(), today.getDate());
 
   const goPrevMonth = () => {
     setViewMonth((m) => {
@@ -230,8 +233,7 @@ export function DatePickerModal({
                   {week.map((day, dayIndex) => {
                     const selected =
                       day != null &&
-                      value != null &&
-                      isSameDay(value, viewYear, viewMonth, day);
+                      isSameDay(visibleSelectionDate, viewYear, viewMonth, day);
                     return (
                       <View key={dayIndex} style={styles.cell}>
                         {day ? (

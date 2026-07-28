@@ -1,5 +1,5 @@
 import { Check, Search } from 'lucide-react-native';
-import { ReactNode, useMemo, useState } from 'react';
+import { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import {
   FlatList,
   Modal,
@@ -51,6 +51,7 @@ export function PickerModal({
   const colors = useBobbleColors();
   const insets = useSafeAreaInsets();
   const [query, setQuery] = useState('');
+  const listRef = useRef<FlatList<PickerOption>>(null);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -71,6 +72,20 @@ export function PickerModal({
     setQuery('');
     onSelect(id);
   };
+
+  useEffect(() => {
+    if (!visible || !selectedId) return;
+    const selectedIndex = filtered.findIndex((option) => option.id === selectedId);
+    if (selectedIndex < 0) return;
+    const scrollTimer = setTimeout(() => {
+      listRef.current?.scrollToIndex({
+        index: selectedIndex,
+        animated: false,
+        viewPosition: 0.5,
+      });
+    }, 0);
+    return () => clearTimeout(scrollTimer);
+  }, [filtered, selectedId, visible]);
 
   const content = (
     <View style={[styles.root, embedded && [StyleSheet.absoluteFillObject, styles.embeddedOverlay]]}>
@@ -111,6 +126,7 @@ export function PickerModal({
         ) : null}
 
         <FlatList
+          ref={listRef}
           data={filtered}
           keyExtractor={(item) => item.id}
           keyboardShouldPersistTaps="handled"
@@ -120,6 +136,12 @@ export function PickerModal({
           ListEmptyComponent={
             <Text style={[styles.empty, { color: colors.textSecondary }]}>No results</Text>
           }
+          onScrollToIndexFailed={(info) => {
+            listRef.current?.scrollToOffset({
+              offset: info.averageItemLength * info.index,
+              animated: false,
+            });
+          }}
           renderItem={({ item }) => {
             const selected = item.id === selectedId;
             return (

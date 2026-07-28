@@ -49,8 +49,15 @@ function formatTime(date: Date | null): string {
   return date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
 }
 
-const TIME_OPTIONS = Array.from({ length: 24 * 4 }).map((_, i) => {
-  const totalMinutes = i * 15;
+const TIME_INTERVAL_MINUTES = 5;
+
+function snapMinutesToInterval(minutes: number) {
+  const snapped = Math.round(minutes / TIME_INTERVAL_MINUTES) * TIME_INTERVAL_MINUTES;
+  return snapped % (24 * 60);
+}
+
+const TIME_OPTIONS = Array.from({ length: (24 * 60) / TIME_INTERVAL_MINUTES }).map((_, i) => {
+  const totalMinutes = i * TIME_INTERVAL_MINUTES;
   const h = Math.floor(totalMinutes / 60);
   const m = totalMinutes % 60;
   const isPM = h >= 12;
@@ -80,6 +87,12 @@ export function TaskFormSheet({
   const [dueAt, setDueAt] = useState<Date | null>(null);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [timePickerOpen, setTimePickerOpen] = useState(false);
+  const selectedTimeId = dueAt
+    ? (() => {
+        const totalMinutes = snapMinutesToInterval(dueAt.getHours() * 60 + dueAt.getMinutes());
+        return `${Math.floor(totalMinutes / 60)}:${totalMinutes % 60}`;
+      })()
+    : undefined;
 
   useEffect(() => {
     if (!visible) return;
@@ -222,7 +235,7 @@ export function TaskFormSheet({
             title="Select time"
             options={TIME_OPTIONS}
             searchable={false}
-            selectedId={`${dueAt.getHours()}:${dueAt.getMinutes()}`}
+            selectedId={selectedTimeId}
             onSelect={(id) => {
               const [h, m] = id.split(':').map(Number);
               const newDate = new Date(dueAt);

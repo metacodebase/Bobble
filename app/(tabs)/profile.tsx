@@ -1,7 +1,7 @@
 import { Href, router } from 'expo-router';
 import { Settings } from 'lucide-react-native';
 import { useCallback, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 
@@ -12,7 +12,7 @@ import { StatCard } from '@/src/components/profile/stat-card';
 import { ProfileMenuRow } from '@/src/components/ui/profile-menu-row';
 import { ScreenHeader } from '@/src/components/ui/screen-header';
 import { PROFILE_MENU, PROFILE_USER } from '@/src/data/demo-data';
-import { useLogout, useMe } from '@/src/hooks/api';
+import { useDeleteAccount, useLogout, useMe } from '@/src/hooks/api';
 import { useProfile } from '@/src/hooks/profile';
 import { useProfileAvatarPicker } from '@/src/hooks/use-profile-avatar-picker';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
@@ -41,6 +41,7 @@ export default function ProfileScreen() {
   const { data: profile, refetch: refetchProfile } = useProfile();
   const user = fetchedUser ?? storedUser;
   const logout = useLogout();
+  const deleteAccount = useDeleteAccount();
   const { openPicker, isUploading, localPreviewUri, sheetProps } = useProfileAvatarPicker();
   const [viewerOpen, setViewerOpen] = useState(false);
   const rawName = user?.name ?? user?.email?.split('@')[0] ?? PROFILE_USER.name;
@@ -71,6 +72,21 @@ export default function ProfileScreen() {
       void refetchProfile();
     }, [refetchProfile]),
   );
+
+  const confirmDeleteAccount = () => {
+    Alert.alert(
+      'Delete account',
+      'This will permanently delete your account and all your data. This action cannot be undone.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () => deleteAccount.mutate(),
+        },
+      ]
+    );
+  };
 
   return (
     <View style={[styles.root, { paddingTop: androidSafeTop(insets.top) + 12 }]}>
@@ -119,8 +135,18 @@ export default function ProfileScreen() {
             icon="user"
             destructive
             onPress={() => {
-              if (user && !logout.isPending) {
+              if (user && !logout.isPending && !deleteAccount.isPending) {
                 logout.mutate();
+              }
+            }}
+          />
+          <ProfileMenuRow
+            label={deleteAccount.isPending ? 'Deleting account…' : 'Delete my account'}
+            icon="trash"
+            destructive
+            onPress={() => {
+              if (user && !deleteAccount.isPending && !logout.isPending) {
+                confirmDeleteAccount();
               }
             }}
           />

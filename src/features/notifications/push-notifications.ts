@@ -24,6 +24,15 @@ Notifications.setNotificationHandler({
 let cachedPushToken: string | null = null;
 let handledNotificationKey: string | null = null;
 
+function emitPushDebugLog(
+  hypothesisId: string,
+  location: string,
+  message: string,
+  data: Record<string, unknown>,
+): void {
+  fetch('http://127.0.0.1:7896/ingest/6498acde-96c3-4039-baac-430fa4cca5ac',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'814506'},body:JSON.stringify({sessionId:'814506',runId:'initial',hypothesisId,location,message,data,timestamp:Date.now()})}).catch(()=>{});
+}
+
 function notificationResponseKey(response: Notifications.NotificationResponse): string {
   const { identifier } = response.notification.request;
   return `${identifier}:${response.notification.date}`;
@@ -77,6 +86,11 @@ export async function getExpoPushToken(): Promise<string | null> {
 
   const projectId = getEasProjectId();
   if (!projectId) {
+    // #region agent log
+    emitPushDebugLog('H3', 'push-notifications.ts:getExpoPushToken:missingProjectId', 'Expo project ID missing for token request', {
+      platform: Platform.OS,
+    });
+    // #endregion
     console.warn(
       '[push] Missing Expo project ID. Set EXPO_PUBLIC_EAS_PROJECT_ID in .env (Expo push tokens; not EAS Build).',
     );
@@ -92,6 +106,12 @@ export async function getExpoPushToken(): Promise<string | null> {
   }
 
   const token = await Notifications.getExpoPushTokenAsync({ projectId });
+  // #region agent log
+  emitPushDebugLog('H3', 'push-notifications.ts:getExpoPushToken:tokenSuccess', 'Expo push token retrieved', {
+    platform: Platform.OS,
+    hasToken: Boolean(token.data),
+  });
+  // #endregion
   cachedPushToken = token.data;
   return token.data;
 }
@@ -118,18 +138,46 @@ export async function unregisterPushTokenFromBackend(): Promise<void> {
 }
 
 export async function syncPushRegistration(pushEnabled: boolean): Promise<void> {
+  // #region agent log
+  emitPushDebugLog('H1', 'push-notifications.ts:syncPushRegistration:start', 'Sync push registration started', {
+    pushEnabled,
+    platform: Platform.OS,
+    isDevice: Device.isDevice,
+  });
+  // #endregion
   if (!pushEnabled) {
     await unregisterPushTokenFromBackend();
     return;
   }
 
   const granted = await requestNotificationPermissions();
+  // #region agent log
+  emitPushDebugLog('H2', 'push-notifications.ts:syncPushRegistration:permissionResult', 'Notification permission result', {
+    granted,
+  });
+  // #endregion
   if (!granted) return;
 
   const token = await getExpoPushToken();
   if (!token) return;
 
-  await registerPushTokenWithBackend(token);
+  try {
+    await registerPushTokenWithBackend(token);
+    // #region agent log
+    emitPushDebugLog('H4', 'push-notifications.ts:syncPushRegistration:backendRegistered', 'Push token registered with backend', {
+      tokenPrefix: token.slice(0, 12),
+      platform: Platform.OS,
+    });
+    // #endregion
+  } catch (error) {
+    // #region agent log
+    emitPushDebugLog('H4', 'push-notifications.ts:syncPushRegistration:backendRegisterFailed', 'Push token registration failed', {
+      errorMessage: error instanceof Error ? error.message : String(error),
+      platform: Platform.OS,
+    });
+    // #endregion
+    throw error;
+  }
 }
 
 export function handleNotificationResponse(
