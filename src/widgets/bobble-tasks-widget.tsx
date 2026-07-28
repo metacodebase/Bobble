@@ -1,7 +1,7 @@
 'use no memo';
 
 import React from 'react';
-import { FlexWidget, ImageWidget, TextWidget } from 'react-native-android-widget';
+import { FlexWidget, ImageWidget, OverlapWidget, TextWidget } from 'react-native-android-widget';
 
 import {
   WIDGET_DEEP_LINK,
@@ -25,10 +25,16 @@ const GRADIENT = {
   orientation: 'TL_BR',
 } as const;
 
+/** Large enough to fill the lower-right of Android's 2×2 cell (iOS uses 64pt overlay). */
+const SMALL_MASCOT = 96;
+/** Keep subtitle clear of the overlaid mascot. */
+const SMALL_SUBTITLE_TRAILING = 88;
+
 const ROOT_STYLE = {
   height: 'match_parent' as const,
   width: 'match_parent' as const,
   borderRadius: 24,
+  overflow: 'hidden' as const,
   backgroundColor: '#9F52F2' as const,
   backgroundGradient: GRADIENT,
 };
@@ -63,61 +69,77 @@ export function BobbleTasksWidget({ payload, variant }: BobbleTasksWidgetProps) 
 }
 
 /**
- * iOS systemSmall — single column, no OverlapWidget (Android RemoteViews is flaky with overlays).
- * Text top-left, mascot bottom-right, same content as SwiftUI smallView.
+ * Android 2×2 cells are taller than iOS systemSmall, so we cluster copy at the
+ * top (no spacer) and overlay a large mascot to fill the lower-right instead
+ * of leaving a purple void between count and message.
  */
 function SmallWidget({ payload }: { payload: WidgetPayload | null }) {
   const { mascot, headline, subtitle } = derive(payload);
 
   return (
-    <FlexWidget
+    <OverlapWidget
       clickAction="OPEN_URI"
       clickActionData={{ uri: WIDGET_DEEP_LINK }}
       accessibilityLabel="Bobble tasks"
-      style={{
-        ...ROOT_STYLE,
-        flexDirection: 'column',
-        padding: 14,
-      }}
+      style={ROOT_STYLE}
     >
-      <TextWidget
-        text="Today's Tasks"
-        allowFontScaling={false}
-        style={{ fontFamily: WidgetFonts.regular, fontSize: 11, color: '#F3E8FF' }}
-      />
-      <TextWidget
-        text={headline}
-        allowFontScaling={false}
-        style={{
-          fontFamily: WidgetFonts.regular,
-          fontSize: 30,
-          color: '#FFFFFF',
-          marginTop: 2,
-        }}
-      />
-      <FlexWidget style={{ flex: 1, height: 8, width: 'match_parent' }} />
       <FlexWidget
         style={{
+          height: 'match_parent',
           width: 'match_parent',
-          flexDirection: 'row',
-          alignItems: 'flex-end',
-          justifyContent: 'space-between',
+          flexDirection: 'column',
+          paddingTop: 12,
+          paddingHorizontal: 12,
+          paddingBottom: 10,
         }}
       >
         <TextWidget
+          text="Today's Tasks"
+          allowFontScaling={false}
+          style={{ fontFamily: WidgetFonts.regular, fontSize: 20, color: '#F3E8FF' }}
+        />
+        <TextWidget
+          text={headline}
+          allowFontScaling={false}
+          style={{
+            fontFamily: WidgetFonts.regular,
+            fontSize: 30,
+            color: '#FFFFFF',
+            marginTop: 2,
+          }}
+        />
+        <TextWidget
           text={subtitle}
           maxLines={2}
+          truncate="END"
           allowFontScaling={false}
           style={{
             fontFamily: WidgetFonts.regular,
             fontSize: 11,
             color: '#FFFFFF',
-            paddingRight: 8,
+            marginTop: 6,
+            paddingRight: SMALL_SUBTITLE_TRAILING,
           }}
         />
-        <ImageWidget image={mascot} imageWidth={64} imageHeight={64} resizeMode="contain" />
       </FlexWidget>
-    </FlexWidget>
+      <FlexWidget
+        style={{
+          height: 'match_parent',
+          width: 'match_parent',
+          justifyContent: 'flex-end',
+          alignItems: 'flex-end',
+          paddingRight: 2,
+          paddingBottom: 2,
+        }}
+      >
+        <ImageWidget
+          image={mascot}
+          imageWidth={SMALL_MASCOT}
+          imageHeight={SMALL_MASCOT}
+          resizeMode="contain"
+        />
+      </FlexWidget>
+    </OverlapWidget>
   );
 }
 
@@ -153,17 +175,17 @@ function MediumWidget({ payload }: { payload: WidgetPayload | null }) {
         <TextWidget
           text="Today's Tasks"
           allowFontScaling={false}
-          style={{ fontFamily: WidgetFonts.regular, fontSize: 12, color: '#F3E8FF' }}
+          style={{ fontFamily: WidgetFonts.regular, fontSize: 20, color: '#F3E8FF' }}
         />
         <TextWidget
           text={headline}
           allowFontScaling={false}
-        style={{
-          fontFamily: WidgetFonts.regular,
-          fontSize: 28,
-          color: '#FFFFFF',
-          marginTop: 2,
-        }}
+          style={{
+            fontFamily: WidgetFonts.regular,
+            fontSize: 28,
+            color: '#FFFFFF',
+            marginTop: 2,
+          }}
         />
         <TextWidget
           text={subtitle}
@@ -220,7 +242,7 @@ function MediumWidget({ payload }: { payload: WidgetPayload | null }) {
           />
         </FlexWidget>
       </FlexWidget>
-      <ImageWidget image={mascot} imageWidth={92} imageHeight={92} resizeMode="contain" />
+      <ImageWidget image={mascot} imageWidth={84} imageHeight={84} resizeMode="contain" />
     </FlexWidget>
   );
 }
