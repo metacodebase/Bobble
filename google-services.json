@@ -22,47 +22,11 @@
           }
         },
         {
-          "client_id": "1028741562392-cg69nc8g5s7pnpsed7hkrvimp98f5f84.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyD-WdX6mrbsdcKXe7dnTOnY9vaG3EQwsdY"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "1028741562392-cg69nc8g5s7pnpsed7hkrvimp98f5f84.apps.googleusercontent.com",
-              "client_type": 3
-            },
-            {
-              "client_id": "1028741562392-ft0clsr5be90t7ovclfb64uffcu1qrqc.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "metadots.bobble.app"
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:1028741562392:android:ec1d498b30f8e8cc42836d",
-        "android_client_info": {
-          "package_name": "com.metacodebase.Bobble"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "1028741562392-0d13laqdc3gbb9ubqss1n55li28gaf88.apps.googleusercontent.com",
+          "client_id": "1028741562392-6h4atj1mqmnqk5bkslpr72mspuefd3lk.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.metacodebase.Bobble",
-            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+            "package_name": "com.bobble.au",
+            "certificate_hash": "39e1c3312ef189405ce06005f6a0bad734fa8102"
           }
         },
         {
