@@ -1,10 +1,13 @@
 import { Image } from 'expo-image';
+import { Href, router } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { PrimaryButton } from '@/src/components/onboarding/primary-button';
 import { ScreenHeader } from '@/src/components/ui/screen-header';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { useNightForeground } from '@/src/hooks/use-night-foreground';
+import { useIsPro } from '@/src/hooks/use-subscription';
 import { useTabBarInsets } from '@/src/hooks/use-tab-bar-insets';
 import { Typography } from '@/src/theme/fonts';
 
@@ -15,6 +18,7 @@ export default function BrainMapScreen() {
   const colors = useBobbleColors();
   const night = useNightForeground();
   const { height: tabBarHeight } = useTabBarInsets();
+  const isPro = useIsPro();
 
   return (
     <View
@@ -32,10 +36,29 @@ export default function BrainMapScreen() {
         <View style={[styles.iconWrap, { backgroundColor: colors.surface }]}>
           <Image source={MINDMAP_ICON} style={styles.icon} contentFit="contain" />
         </View>
-        <Text style={[styles.title, { color: night.text ?? colors.text }]}>Your Brain Map</Text>
-        <Text style={[styles.subtitle, { color: night.textSecondary ?? colors.textSecondary }]}>
-          Connect ideas, themes, and insights from your Bobbles. Maps will show up here soon.
-        </Text>
+        {isPro ? (
+          <>
+            <Text style={[styles.title, { color: night.text ?? colors.text }]}>Your Brain Map</Text>
+            <Text style={[styles.subtitle, { color: night.textSecondary ?? colors.textSecondary }]}>
+              Connect ideas, themes, and insights from your Bobbles. Maps will show up here soon.
+            </Text>
+          </>
+        ) : (
+          <>
+            <Text style={[styles.title, { color: night.text ?? colors.text }]}>
+              Mind Maps & Insights
+            </Text>
+            <Text style={[styles.subtitle, { color: night.textSecondary ?? colors.textSecondary }]}>
+              Upgrade to Bobble Pro to unlock mind maps and deeper insights from your captures.
+            </Text>
+            <PrimaryButton
+              label="Unlock Bobble Pro"
+              onPress={() => router.push('/paywall' as Href)}
+              style={styles.cta}
+              showChevron={false}
+            />
+          </>
+        )}
       </View>
     </View>
   );
@@ -82,5 +105,9 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     textAlign: 'center',
     maxWidth: 280,
+  },
+  cta: {
+    marginTop: 8,
+    minWidth: 220,
   },
 });

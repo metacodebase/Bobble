@@ -1,3 +1,4 @@
+import { DEFAULT_SUBSCRIPTION } from '@/src/config/subscription';
 import { GAMIFICATION, PROFILE_USER } from '@/src/data/demo-data';
 import type {
   AuthSession,
@@ -27,6 +28,7 @@ function buildDemoUser(overrides: Partial<AuthUser> = {}): AuthUser {
         tone: badge.tone,
       })),
     },
+    subscription: DEFAULT_SUBSCRIPTION,
     ...overrides,
   };
 }

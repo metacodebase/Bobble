@@ -10,14 +10,17 @@ import { TodayFocusCard } from '@/src/components/home/today-focus-card';
 import { TodayProgressCard } from '@/src/components/home/today-progress-card';
 import { BobbleMascot, type HomeVariant } from '@/src/components/onboarding/bobble-mascot';
 import { PrimaryButton } from '@/src/components/onboarding/primary-button';
+import { FREE_BOBBLE_LIMIT } from '@/src/config/subscription';
 import { useProfile } from '@/src/hooks/profile';
 import { useTasks, useToggleTask } from '@/src/hooks/tasks';
+import { useIsPro } from '@/src/hooks/use-subscription';
 import { useTabBarInsets } from '@/src/hooks/use-tab-bar-insets';
 import { useAppStore } from '@/src/store/app-store';
 import { CaptureKind, useCaptureStore } from '@/src/store/capture-store';
 import { resolveAvatarUrl } from '@/src/utils/avatar-url';
 import { getDayPeriod, getGreeting } from '@/src/utils/day-period';
 import { androidSafeTop } from '@/src/utils/safe-padding';
+import { toast } from '@/src/utils/toast';
 
 function getProgressSubtitle(completed: number, total: number) {
   if (total === 0) return 'Your day is just beginning, record your first Bobble.';
@@ -73,6 +76,7 @@ export default function HomeScreen() {
   const setCaptureKind = useCaptureStore((state) => state.setCaptureKind);
   const clearRecording = useCaptureStore((state) => state.clearRecording);
   const storeUser = useAppStore((s) => s.user);
+  const isPro = useIsPro();
   const { data: profile } = useProfile();
   const displayName =
     profile?.user.name?.split(' ')[0] ?? storeUser?.name?.split(' ')[0] ?? 'there';
@@ -95,6 +99,15 @@ export default function HomeScreen() {
   const [focusListScrolling, setFocusListScrolling] = useState(false);
 
   const startCapture = (kind: CaptureKind = 'bobble') => {
+    const bobbleCount =
+      profile?.stats.bobbles ?? storeUser?.gamification?.bobbles ?? 0;
+    if (!isPro && bobbleCount >= FREE_BOBBLE_LIMIT) {
+      toast.error(
+        `Free plan allows up to ${FREE_BOBBLE_LIMIT} Bobbles. Upgrade to Bobble Pro for unlimited captures.`
+      );
+      router.push('/paywall' as Href);
+      return;
+    }
     setCaptureKind(kind);
     clearRecording();
     router.push('/capture/record' as Href);

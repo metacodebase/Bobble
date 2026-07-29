@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { Href, router } from 'expo-router';
 
 import { bobblesApi } from '@/src/api';
 import type {
@@ -10,13 +11,22 @@ import type {
 } from '@/src/features/bobbles/types';
 import { queryKeys } from '@/src/services/query-keys';
 import { useAppStore } from '@/src/store/app-store';
-import { getApiErrorMessage } from '@/src/utils/api-error';
+import { getApiErrorMessage, isProLimitError } from '@/src/utils/api-error';
 import { toast } from '@/src/utils/toast';
 
 type BobblesSnapshot = [readonly unknown[], Bobble[] | undefined][];
 
 function listKey(params: ListBobblesParams = {}) {
   return queryKeys.bobbles.list(JSON.stringify(params));
+}
+
+function handleBobbleLimitError(error: unknown, fallback: string) {
+  if (isProLimitError(error)) {
+    toast.error(getApiErrorMessage(error, fallback));
+    router.push('/paywall' as Href);
+    return;
+  }
+  toast.error(getApiErrorMessage(error, fallback));
 }
 
 export function useBobbles(params: ListBobblesParams = {}, enabled = true) {
@@ -48,7 +58,7 @@ export function useCreateBobble() {
       qc.invalidateQueries({ queryKey: queryKeys.auth.me });
       qc.invalidateQueries({ queryKey: queryKeys.profile.all });
     },
-    onError: (e) => toast.error(getApiErrorMessage(e, 'Could not create bobble')),
+    onError: (e) => handleBobbleLimitError(e, 'Could not create bobble'),
   });
 }
 

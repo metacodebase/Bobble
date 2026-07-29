@@ -29,10 +29,15 @@ expo-env.d.ts
 .kotlin/
 *.orig.*
 *.jks
+*.keystore
 *.p8
 *.p12
 *.key
 *.mobileprovision
+
+# Play upload signing (back up outside git — losing the keystore blocks updates)
+/credentials/android/keystore.properties
+/credentials/android/*.keystore
 
 # Metro
 .metro-health-check*

@@ -1,3 +1,5 @@
+import type { UserSubscription } from '@/src/config/subscription';
+
 export interface ProfileUser {
   _id: string;
   name: string;
@@ -6,6 +8,7 @@ export interface ProfileUser {
   avatarUrl?: string;
   phone?: string;
   address?: string;
+  subscription?: UserSubscription;
 }
 
 export interface ProfilePayload {

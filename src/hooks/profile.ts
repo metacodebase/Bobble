@@ -48,6 +48,7 @@ function applyProfileUser(
     avatarUrl: resolveAvatarUrl(profile.user.avatarUrl) ?? profile.user.avatarUrl,
     phone: profile.user.phone,
     address: profile.user.address,
+    subscription: profile.user.subscription ?? current.subscription,
   });
 }
 

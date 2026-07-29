@@ -10,6 +10,7 @@ import type {
   SocialAuthBody,
 } from '@/src/features/auth/types';
 import { queryKeys } from '@/src/services/query-keys';
+import { loginPurchases, logoutPurchases } from '@/src/services/purchases';
 import { clearTaskWidgets } from '@/src/services/widget-sync';
 import { useAppStore } from '@/src/store/app-store';
 import { getApiErrorMessage } from '@/src/utils/api-error';
@@ -27,9 +28,14 @@ export function useHealth(enabled = true) {
 
 export function useMe(enabled = true) {
   const isAuthenticated = useAppStore((s) => s.isAuthenticated);
+  const setUser = useAppStore((s) => s.setUser);
   return useQuery({
     queryKey: queryKeys.auth.me,
-    queryFn: authApi.fetchMe,
+    queryFn: async () => {
+      const user = await authApi.fetchMe();
+      setUser(user);
+      return user;
+    },
     enabled: enabled && isAuthenticated,
     staleTime: 60_000,
   });
@@ -43,6 +49,7 @@ export function useLogin() {
     onSuccess: (session) => {
       setSession(session);
       qc.setQueryData(queryKeys.auth.me, session.user);
+      void loginPurchases(session.user._id);
       router.replace('/(tabs)');
       toast.success('Welcome back!');
     },
@@ -65,6 +72,7 @@ export function useSocialLogin() {
     onSuccess: (session) => {
       setSession(session);
       qc.setQueryData(queryKeys.auth.me, session.user);
+      void loginPurchases(session.user._id);
       router.replace('/(tabs)');
       toast.success('Welcome to Bobble!');
     },
@@ -86,6 +94,11 @@ export function useLogout() {
         await authApi.logout();
       } catch {
         /* clear locally regardless */
+      }
+      try {
+        await logoutPurchases();
+      } catch {
+        /* best effort */
       }
     },
     onSettled: () => {
@@ -113,6 +126,7 @@ export function useDeleteAccount() {
       clearSession();
       qc.clear();
       void clearTaskWidgets();
+      void logoutPurchases();
       router.replace('/(auth)/splash' as Href);
       toast.success('Your account has been deleted');
     },

@@ -1,7 +1,7 @@
 import { Image } from 'expo-image';
 import { Href, router } from 'expo-router';
 import { X } from 'lucide-react-native';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   ImageBackground,
   Platform,
@@ -22,9 +22,22 @@ import {
   DEFAULT_PAYWALL_PLAN,
   PAYWALL_FEATURES,
   PAYWALL_PLANS,
+  type PaywallPlan,
   type PaywallPlanId,
 } from '@/src/data/paywall';
 import { useNightForeground } from '@/src/hooks/use-night-foreground';
+import { useIsPro, useRefreshSubscription } from '@/src/hooks/use-subscription';
+import {
+  customerHasPro,
+  getOfferings,
+  getPurchaseErrorMessage,
+  isPurchaseCancelled,
+  isPurchasesSupported,
+  priceLabelsFromOfferings,
+  purchasePlan,
+  restorePurchases,
+  type StorePriceLabels,
+} from '@/src/services/purchases';
 import { Typography } from '@/src/theme/fonts';
 import { androidSafeBottom, androidSafeTop } from '@/src/utils/safe-padding';
 import { toast } from '@/src/utils/toast';
@@ -38,28 +51,45 @@ type PaywallScreenProps = {
   onClose?: () => void;
 };
 
+function withStorePrices(priceLabels: StorePriceLabels): readonly PaywallPlan[] {
+  return PAYWALL_PLANS.map((plan) => {
+    const priceLabel = priceLabels[plan.id];
+    if (!priceLabel) return plan;
+    return {
+      ...plan,
+      priceLabel,
+      trialSummary: plan.trialSummary.replace(plan.priceLabel, priceLabel),
+    };
+  });
+}
+
 export function PaywallScreen({ onClose }: PaywallScreenProps) {
   const insets = useSafeAreaInsets();
   const { width, height } = useWindowDimensions();
   const { source, color: backdropColor } = useAppBackdrop();
   const night = useNightForeground();
+  const isPro = useIsPro();
+  const refreshSubscription = useRefreshSubscription();
   const [selectedPlanId, setSelectedPlanId] = useState<PaywallPlanId>(DEFAULT_PAYWALL_PLAN);
   const [isStartingTrial, setIsStartingTrial] = useState(false);
+  const [isRestoring, setIsRestoring] = useState(false);
+  const [priceLabels, setPriceLabels] = useState<StorePriceLabels>({});
 
   const referenceWidth = Platform.OS === 'android' ? 412 : 390;
   const referenceHeight = Platform.OS === 'android' ? 915 : 844;
   const scale = Math.min(width / referenceWidth, height / referenceHeight);
   const mascotSize = Math.round(148 * scale);
 
-  const titleColor =  DAY_TITLE;
-  const subtitleColor =  DAY_SUBTITLE;
+  const titleColor = DAY_TITLE;
+  const subtitleColor = DAY_SUBTITLE;
   const closeIconColor = night.text ?? '#2E2A87';
   const closeButtonBg = night.isNight ? 'rgba(255, 255, 255, 0.18)' : 'rgba(255, 255, 255, 0.72)';
-  const trialBannerBg ='rgba(159, 82, 242, 0.12)';
+  const trialBannerBg = 'rgba(159, 82, 242, 0.12)';
 
+  const plans = useMemo(() => withStorePrices(priceLabels), [priceLabels]);
   const selectedPlan = useMemo(
-    () => PAYWALL_PLANS.find((plan) => plan.id === selectedPlanId) ?? PAYWALL_PLANS[0],
-    [selectedPlanId],
+    () => plans.find((plan) => plan.id === selectedPlanId) ?? plans[0],
+    [plans, selectedPlanId],
   );
 
   const handleClose = () => {
@@ -74,15 +104,75 @@ export function PaywallScreen({ onClose }: PaywallScreenProps) {
     router.replace('/(tabs)' as Href);
   };
 
-  const handleStartTrial = () => {
-    if (isStartingTrial) return;
+  useEffect(() => {
+    if (!isPurchasesSupported()) return;
+    let cancelled = false;
+    void (async () => {
+      const offerings = await getOfferings();
+      if (cancelled) return;
+      setPriceLabels(priceLabelsFromOfferings(offerings));
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (isPro) {
+      handleClose();
+    }
+    // Close once when backend reports Pro.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isPro]);
+
+  const handleStartTrial = async () => {
+    if (isStartingTrial || isRestoring) return;
+    if (!isPurchasesSupported()) {
+      toast.error('Purchases are only available on iOS and Android builds.');
+      return;
+    }
+
     setIsStartingTrial(true);
-    toast.success(`Selected ${selectedPlan.label} plan. Purchases coming soon.`);
-    setIsStartingTrial(false);
+    try {
+      const { customerInfo } = await purchasePlan(selectedPlanId);
+      await refreshSubscription({ pollUntilPro: true });
+      if (customerHasPro(customerInfo)) {
+        toast.success('Welcome to Bobble Pro!');
+        handleClose();
+      } else {
+        toast.success('Purchase complete. Unlocking Pro…');
+      }
+    } catch (error) {
+      if (!isPurchaseCancelled(error)) {
+        toast.error(getPurchaseErrorMessage(error, 'Could not start subscription'));
+      }
+    } finally {
+      setIsStartingTrial(false);
+    }
   };
 
-  const handleRestore = () => {
-    toast.success('No previous purchases found.');
+  const handleRestore = async () => {
+    if (isRestoring || isStartingTrial) return;
+    if (!isPurchasesSupported()) {
+      toast.error('Purchases are only available on iOS and Android builds.');
+      return;
+    }
+
+    setIsRestoring(true);
+    try {
+      const customerInfo = await restorePurchases();
+      const user = await refreshSubscription({ pollUntilPro: true });
+      if (customerHasPro(customerInfo) || user?.subscription?.isPro) {
+        toast.success('Purchases restored. Welcome back to Bobble Pro!');
+        handleClose();
+      } else {
+        toast.success('No previous purchases found.');
+      }
+    } catch (error) {
+      toast.error(getPurchaseErrorMessage(error, 'Could not restore purchases'));
+    } finally {
+      setIsRestoring(false);
+    }
   };
 
   return (
@@ -137,7 +227,7 @@ export function PaywallScreen({ onClose }: PaywallScreenProps) {
         </View>
 
         <View style={styles.plans}>
-          {PAYWALL_PLANS.map((plan) => (
+          {plans.map((plan) => (
             <PlanOption
               key={plan.id}
               plan={plan}
@@ -150,9 +240,11 @@ export function PaywallScreen({ onClose }: PaywallScreenProps) {
         <View style={styles.ctaBlock}>
           <PaywallCtaButton
             label="Start 7-day free trial"
-            onPress={handleStartTrial}
+            onPress={() => {
+              void handleStartTrial();
+            }}
             loading={isStartingTrial}
-            disabled={isStartingTrial}
+            disabled={isStartingTrial || isRestoring}
           />
           <View style={[styles.trialBanner, { backgroundColor: trialBannerBg }]}>
             <Text style={[styles.trialText, { color: titleColor }]}>{selectedPlan.trialSummary}</Text>
@@ -168,8 +260,15 @@ export function PaywallScreen({ onClose }: PaywallScreenProps) {
             <Text style={[styles.footerLink, { color: titleColor }]}>Privacy</Text>
           </Pressable>
           <Text style={[styles.footerDot, { color: titleColor }]}>•</Text>
-          <Pressable onPress={handleRestore}>
-            <Text style={[styles.footerLink, { color: titleColor }]}>Restore</Text>
+          <Pressable
+            onPress={() => {
+              void handleRestore();
+            }}
+            disabled={isRestoring || isStartingTrial}
+          >
+            <Text style={[styles.footerLink, { color: titleColor }]}>
+              {isRestoring ? 'Restoring…' : 'Restore'}
+            </Text>
           </Pressable>
         </View>
       </ScrollView>

@@ -3,6 +3,7 @@
 #
 # You do NOT need EAS credentials / FCM upload for local builds:
 #   npm run android:apk   → release APK on your Mac
+#   npm run android:aab   → Play Console AAB (internal/open testing)
 #   npm run ios:archive   → TestFlight IPA via Xcode
 #
 # This script only creates/links the Expo project ID (free expo.dev account).
@@ -76,4 +77,5 @@ echo "  EXPO_PUBLIC_EAS_PROJECT_ID=$PROJECT_ID"
 echo ""
 echo "Next — local builds (no EAS credentials upload):"
 echo "  npm run android:apk"
+echo "  npm run android:aab"
 echo "  npm run ios:archive"

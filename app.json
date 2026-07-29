@@ -47,7 +47,7 @@
     },
     "android": {
       "icon": "./src/assets/images/bobble-app-icon.png",
-      "versionCode": 4,
+      "versionCode": 5,
       "adaptiveIcon": {
         "foregroundImage": "./src/assets/images/android-icon-foreground.png",
         "monochromeImage": "./src/assets/images/android-icon-monochrome.png",

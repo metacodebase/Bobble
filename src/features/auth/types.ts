@@ -1,3 +1,5 @@
+import type { UserSubscription } from '@/src/config/subscription';
+
 export type BadgeTone = 'blue' | 'yellow' | 'green' | 'purple' | 'red';
 
 export interface Badge {
@@ -25,6 +27,7 @@ export interface AuthUser {
   phone?: string;
   address?: string;
   gamification?: Gamification;
+  subscription?: UserSubscription;
 }
 
 export interface AuthSession {

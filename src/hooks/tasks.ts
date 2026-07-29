@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { Href, router } from 'expo-router';
 import { useEffect } from 'react';
 
 import { tasksApi } from '@/src/api';
@@ -14,7 +15,7 @@ import { queryKeys } from '@/src/services/query-keys';
 import { removeTaskFromCalendar, syncTaskToCalendar } from '@/src/services/calendar-sync';
 import { syncTaskWidgets } from '@/src/services/widget-sync';
 import { useAppStore } from '@/src/store/app-store';
-import { getApiErrorMessage } from '@/src/utils/api-error';
+import { getApiErrorMessage, isProLimitError } from '@/src/utils/api-error';
 import { toast } from '@/src/utils/toast';
 
 type QueryClient = ReturnType<typeof useQueryClient>;
@@ -22,6 +23,15 @@ type QueryClient = ReturnType<typeof useQueryClient>;
 function invalidateUserStats(qc: QueryClient) {
   void qc.invalidateQueries({ queryKey: queryKeys.auth.me });
   void qc.invalidateQueries({ queryKey: queryKeys.profile.all });
+}
+
+function handleTaskLimitError(error: unknown, fallback: string) {
+  if (isProLimitError(error)) {
+    toast.error(getApiErrorMessage(error, fallback));
+    router.push('/paywall' as Href);
+    return;
+  }
+  toast.error(getApiErrorMessage(error, fallback));
 }
 
 export function useTasks(filter: TaskFilterParam = 'all', enabled = true) {
@@ -53,7 +63,7 @@ export function useCreateTask() {
       invalidateUserStats(qc);
       void syncTaskToCalendar(task);
     },
-    onError: (e) => toast.error(getApiErrorMessage(e, 'Could not create task')),
+    onError: (e) => handleTaskLimitError(e, 'Could not create task'),
   });
 }
 
@@ -66,7 +76,7 @@ export function useCreateTasksBulk() {
       invalidateUserStats(qc);
       tasks.forEach((task) => void syncTaskToCalendar(task));
     },
-    onError: (e) => toast.error(getApiErrorMessage(e, 'Could not save tasks')),
+    onError: (e) => handleTaskLimitError(e, 'Could not save tasks'),
   });
 }
 
