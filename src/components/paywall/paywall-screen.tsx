@@ -4,6 +4,7 @@ import { X } from 'lucide-react-native';
 import { useEffect, useMemo, useState } from 'react';
 import {
   ImageBackground,
+  Linking,
   Platform,
   Pressable,
   ScrollView,
@@ -14,6 +15,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { ActiveSubscriptionPanel } from '@/src/components/paywall/active-subscription-panel';
 import { FeatureCard } from '@/src/components/paywall/feature-card';
 import { PaywallCtaButton } from '@/src/components/paywall/paywall-cta-button';
 import { PlanOption } from '@/src/components/paywall/plan-option';
@@ -27,9 +29,15 @@ import {
 } from '@/src/data/paywall';
 import { useNightForeground } from '@/src/hooks/use-night-foreground';
 import {
+  canManageSubscriptionOnDevice,
+  crossStoreManageMessage,
+  type SubscriptionStore,
+} from '@/src/config/subscription';
+import {
   useIsPro,
   usePurchasesIdentityReady,
   useRefreshSubscription,
+  useSubscription,
 } from '@/src/hooks/use-subscription';
 import {
   customerHasPro,
@@ -68,12 +76,29 @@ function withStorePrices(priceLabels: StorePriceLabels): readonly PaywallPlan[] 
   });
 }
 
+async function openManageSubscriptions(store?: SubscriptionStore) {
+  if (!canManageSubscriptionOnDevice(store, Platform.OS)) {
+    toast.error(crossStoreManageMessage(store));
+    return;
+  }
+  const url =
+    Platform.OS === 'ios'
+      ? 'https://apps.apple.com/account/subscriptions'
+      : 'https://play.google.com/store/account/subscriptions?package=com.bobble.au';
+  try {
+    await Linking.openURL(url);
+  } catch {
+    toast.error('Could not open subscription settings');
+  }
+}
+
 export function PaywallScreen({ onClose }: PaywallScreenProps) {
   const insets = useSafeAreaInsets();
   const { width, height } = useWindowDimensions();
   const { source, color: backdropColor } = useAppBackdrop();
   const night = useNightForeground();
   const isPro = useIsPro();
+  const subscription = useSubscription();
   const purchasesReady = usePurchasesIdentityReady();
   const refreshSubscription = useRefreshSubscription();
   const userId = useAppStore((s) => s.user?._id ?? null);
@@ -124,14 +149,6 @@ export function PaywallScreen({ onClose }: PaywallScreenProps) {
     };
   }, [purchasesReady]);
 
-  useEffect(() => {
-    if (isPro) {
-      handleClose();
-    }
-    // Close once when backend reports Pro.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isPro]);
-
   const handleStartTrial = async () => {
     if (isStartingTrial || isRestoring) return;
     if (!isPurchasesSupported()) {
@@ -153,7 +170,6 @@ export function PaywallScreen({ onClose }: PaywallScreenProps) {
       await refreshSubscription({ pollUntilPro: true });
       if (customerHasPro(customerInfo)) {
         toast.success('Welcome to Bobble Pro!');
-        handleClose();
       } else {
         toast.success('Purchase complete. Unlocking Pro...');
       }
@@ -187,7 +203,6 @@ export function PaywallScreen({ onClose }: PaywallScreenProps) {
       const user = await refreshSubscription({ pollUntilPro: true });
       if (customerHasPro(customerInfo) || user?.subscription?.isPro) {
         toast.success('Purchases restored. Welcome back to Bobble Pro!');
-        handleClose();
       } else {
         toast.success('No previous purchases found.');
       }
@@ -237,63 +252,83 @@ export function PaywallScreen({ onClose }: PaywallScreenProps) {
             style={{ width: mascotSize, height: mascotSize }}
             contentFit="contain"
           />
-          <Text style={[styles.title, { color: titleColor }]}>Unlock Bobble Pro</Text>
-          <Text style={[styles.subtitle, { color: subtitleColor }]}>
-            More clarity. Less mental clutter.
-          </Text>
         </View>
 
-        <View style={styles.features}>
-          {PAYWALL_FEATURES.map((feature) => (
-            <FeatureCard key={feature.id} feature={feature} />
-          ))}
-        </View>
-
-        <View style={styles.plans}>
-          {plans.map((plan) => (
-            <PlanOption
-              key={plan.id}
-              plan={plan}
-              selected={plan.id === selectedPlanId}
-              onPress={() => setSelectedPlanId(plan.id)}
-            />
-          ))}
-        </View>
-
-        <View style={styles.ctaBlock}>
-          <PaywallCtaButton
-            label={purchasesReady ? 'Start 7-day free trial' : 'Preparing purchases...'}
-            onPress={() => {
-              void handleStartTrial();
+        {isPro ? (
+          <ActiveSubscriptionPanel
+            subscription={subscription}
+            titleColor={titleColor}
+            subtitleColor={subtitleColor}
+            bannerBg={trialBannerBg}
+            onManage={() => {
+              void openManageSubscriptions(subscription.store);
             }}
-            loading={isStartingTrial}
-            disabled={isStartingTrial || isRestoring || !purchasesReady}
+            onDone={handleClose}
           />
-          <View style={[styles.trialBanner, { backgroundColor: trialBannerBg }]}>
-            <Text style={[styles.trialText, { color: titleColor }]}>{selectedPlan.trialSummary}</Text>
-          </View>
-        </View>
+        ) : (
+          <>
+            <View style={styles.heroCopy}>
+              <Text style={[styles.title, { color: titleColor }]}>Unlock Bobble Pro</Text>
+              <Text style={[styles.subtitle, { color: subtitleColor }]}>
+                More clarity. Less mental clutter.
+              </Text>
+            </View>
 
-        <View style={styles.footerLinks}>
-          <Pressable onPress={() => router.push('/settings/terms-and-conditions' as Href)}>
-            <Text style={[styles.footerLink, { color: titleColor }]}>Terms</Text>
-          </Pressable>
-          <Text style={[styles.footerDot, { color: titleColor }]}>{'\u00B7'}</Text>
-          <Pressable onPress={() => router.push('/settings/privacy-policy' as Href)}>
-            <Text style={[styles.footerLink, { color: titleColor }]}>Privacy</Text>
-          </Pressable>
-          <Text style={[styles.footerDot, { color: titleColor }]}>{'\u00B7'}</Text>
-          <Pressable
-            onPress={() => {
-              void handleRestore();
-            }}
-            disabled={isRestoring || isStartingTrial || !purchasesReady}
-          >
-            <Text style={[styles.footerLink, { color: titleColor }]}>
-              {isRestoring ? 'Restoring...' : 'Restore'}
-            </Text>
-          </Pressable>
-        </View>
+            <View style={styles.features}>
+              {PAYWALL_FEATURES.map((feature) => (
+                <FeatureCard key={feature.id} feature={feature} />
+              ))}
+            </View>
+
+            <View style={styles.plans}>
+              {plans.map((plan) => (
+                <PlanOption
+                  key={plan.id}
+                  plan={plan}
+                  selected={plan.id === selectedPlanId}
+                  onPress={() => setSelectedPlanId(plan.id)}
+                />
+              ))}
+            </View>
+
+            <View style={styles.ctaBlock}>
+              <PaywallCtaButton
+                label={purchasesReady ? 'Start 7-day free trial' : 'Preparing purchases...'}
+                onPress={() => {
+                  void handleStartTrial();
+                }}
+                loading={isStartingTrial}
+                disabled={isStartingTrial || isRestoring || !purchasesReady}
+              />
+              <View style={[styles.trialBanner, { backgroundColor: trialBannerBg }]}>
+                <Text style={[styles.trialText, { color: titleColor }]}>
+                  {selectedPlan.trialSummary}
+                </Text>
+              </View>
+            </View>
+
+            <View style={styles.footerLinks}>
+              <Pressable onPress={() => router.push('/settings/terms-and-conditions' as Href)}>
+                <Text style={[styles.footerLink, { color: titleColor }]}>Terms</Text>
+              </Pressable>
+              <Text style={[styles.footerDot, { color: titleColor }]}>{'\u00B7'}</Text>
+              <Pressable onPress={() => router.push('/settings/privacy-policy' as Href)}>
+                <Text style={[styles.footerLink, { color: titleColor }]}>Privacy</Text>
+              </Pressable>
+              <Text style={[styles.footerDot, { color: titleColor }]}>{'\u00B7'}</Text>
+              <Pressable
+                onPress={() => {
+                  void handleRestore();
+                }}
+                disabled={isRestoring || isStartingTrial || !purchasesReady}
+              >
+                <Text style={[styles.footerLink, { color: titleColor }]}>
+                  {isRestoring ? 'Restoring...' : 'Restore'}
+                </Text>
+              </Pressable>
+            </View>
+          </>
+        )}
       </ScrollView>
     </ImageBackground>
   );
@@ -320,8 +355,11 @@ const styles = StyleSheet.create({
   },
   hero: {
     alignItems: 'center',
-    gap: 4,
     paddingTop: 28,
+  },
+  heroCopy: {
+    alignItems: 'center',
+    gap: 4,
   },
   title: {
     ...Typography.heading,

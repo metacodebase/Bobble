@@ -46,3 +46,86 @@ export function planLabelForProductId(productId?: string): string {
   if (productId) return 'Bobble Pro';
   return 'Free';
 }
+
+export function planPeriodLabelForProductId(productId?: string): string {
+  if (productId === PRODUCT_IDS.annual) return 'Annual';
+  if (productId === PRODUCT_IDS.monthly) return 'Monthly';
+  return 'Pro';
+}
+
+export function subscriptionStatusLabel(status: SubscriptionStatus): string {
+  switch (status) {
+    case 'trialing':
+      return 'Free trial';
+    case 'active':
+      return 'Active';
+    case 'canceled':
+      return 'Canceling';
+    case 'billing_issue':
+      return 'Billing issue';
+    case 'expired':
+      return 'Expired';
+    default:
+      return 'Free';
+  }
+}
+
+export function subscriptionStoreLabel(store?: SubscriptionStore): string | undefined {
+  switch (store) {
+    case 'app_store':
+      return 'App Store';
+    case 'play_store':
+      return 'Google Play';
+    case 'promotional':
+      return 'Promotional';
+    default:
+      return undefined;
+  }
+}
+
+export function formatSubscriptionExpiry(expiresAt?: string): string | undefined {
+  if (!expiresAt) return undefined;
+  const date = new Date(expiresAt);
+  if (Number.isNaN(date.getTime())) return undefined;
+  return date.toLocaleDateString(undefined, {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
+}
+
+type MobilePlatform = 'ios' | 'android' | 'windows' | 'macos' | 'web';
+
+/** Store that bills subscriptions on the given OS. */
+export function platformBillingStore(platform: MobilePlatform): SubscriptionStore | null {
+  if (platform === 'ios') return 'app_store';
+  if (platform === 'android') return 'play_store';
+  return null;
+}
+
+/**
+ * True when this device can change/cancel the subscription in its native store.
+ * Play purchases must be managed on Android / Google Play; App Store on iOS.
+ */
+export function canManageSubscriptionOnDevice(
+  store: SubscriptionStore | undefined,
+  platform: MobilePlatform
+): boolean {
+  if (store === 'promotional') return false;
+  if (store !== 'app_store' && store !== 'play_store') return false;
+  return platformBillingStore(platform) === store;
+}
+
+/** Copy when the user tries to manage a subscription billed on the other store. */
+export function crossStoreManageMessage(store: SubscriptionStore | undefined): string {
+  if (store === 'play_store') {
+    return 'This subscription was purchased on Google Play. Manage or cancel it from an Android device signed into the same Google account.';
+  }
+  if (store === 'app_store') {
+    return 'This subscription was purchased on the App Store. Manage or cancel it from an iPhone or iPad signed into the same Apple ID.';
+  }
+  if (store === 'promotional') {
+    return 'This is a promotional Pro grant. It is not managed through the App Store or Google Play.';
+  }
+  return 'Manage this subscription from the device and store where it was originally purchased.';
+}
