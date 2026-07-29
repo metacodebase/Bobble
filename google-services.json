@@ -30,6 +30,14 @@
           }
         },
         {
+          "client_id": "1028741562392-dj0kghh10uvjcrl2576su90ukafq3j3r.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.bobble.au",
+            "certificate_hash": "ae519aa64f4431534f3440a6b5674127e937d520"
+          }
+        },
+        {
           "client_id": "1028741562392-cg69nc8g5s7pnpsed7hkrvimp98f5f84.apps.googleusercontent.com",
           "client_type": 3
         }

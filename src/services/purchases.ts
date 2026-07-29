@@ -15,6 +15,8 @@ import {
 import type { PaywallPlanId } from '@/src/data/paywall';
 
 let configured = false;
+/** RevenueCat App User ID after a successful configure(appUserID) or logIn. */
+let loggedInUserId: string | null = null;
 
 /**
  * Prefer platform public keys (appl_ / goog_). Fall back to a single Test Store
@@ -35,7 +37,15 @@ export function isPurchasesSupported(): boolean {
   return Platform.OS === 'ios' || Platform.OS === 'android';
 }
 
-export async function configurePurchases(): Promise<void> {
+export function getPurchasesLoggedInUserId(): string | null {
+  return loggedInUserId;
+}
+
+export function isPurchasesIdentityReady(userId: string): boolean {
+  return configured && Boolean(userId) && loggedInUserId === userId;
+}
+
+export async function configurePurchases(appUserID?: string): Promise<void> {
   if (configured || !isPurchasesSupported()) return;
 
   const apiKey = apiKeyForPlatform();
@@ -46,23 +56,64 @@ export async function configurePurchases(): Promise<void> {
     return;
   }
 
+  if (!__DEV__ && apiKey.startsWith('test_')) {
+    console.warn('[purchases] Test Store API key blocked in release builds');
+    return;
+  }
+
   if (__DEV__) {
     Purchases.setLogLevel(LOG_LEVEL.DEBUG);
   }
 
-  Purchases.configure({ apiKey });
+  Purchases.configure({
+    apiKey,
+    ...(appUserID ? { appUserID } : {}),
+  });
   configured = true;
+  if (appUserID) {
+    loggedInUserId = appUserID;
+  }
 }
 
 export async function loginPurchases(userId: string): Promise<CustomerInfo | null> {
-  if (!configured || !userId) return null;
+  if (!userId) return null;
+  if (!configured) {
+    await configurePurchases(userId);
+  }
+  if (!configured) return null;
+
+  if (loggedInUserId === userId) {
+    try {
+      return await Purchases.getCustomerInfo();
+    } catch {
+      return null;
+    }
+  }
+
   try {
     const { customerInfo } = await Purchases.logIn(userId);
+    loggedInUserId = userId;
     return customerInfo;
   } catch (error) {
     console.warn('[purchases] logIn failed', error);
     return null;
   }
+}
+
+/**
+ * Ensures SDK is configured and the App User ID matches our Mongo user before purchase.
+ */
+export async function ensurePurchasesIdentity(userId: string): Promise<boolean> {
+  if (!isPurchasesSupported() || !userId) return false;
+  if (isPurchasesIdentityReady(userId)) return true;
+
+  await configurePurchases(userId);
+  if (!configured) return false;
+
+  if (loggedInUserId === userId) return true;
+
+  const info = await loginPurchases(userId);
+  return isPurchasesIdentityReady(userId) && info != null;
 }
 
 export async function logoutPurchases(): Promise<void> {
@@ -71,6 +122,8 @@ export async function logoutPurchases(): Promise<void> {
     await Purchases.logOut();
   } catch (error) {
     console.warn('[purchases] logOut failed', error);
+  } finally {
+    loggedInUserId = null;
   }
 }
 
@@ -141,12 +194,16 @@ export function priceLabelsFromOfferings(offerings: PurchasesOfferings | null): 
   return labels;
 }
 
-export async function purchasePlan(planId: PaywallPlanId): Promise<{
+export async function purchasePlan(
+  planId: PaywallPlanId,
+  userId: string
+): Promise<{
   customerInfo: CustomerInfo;
   productId?: StoreProductId | string;
 }> {
-  if (!configured) {
-    throw new Error('Purchases are not configured. Add RevenueCat API keys and rebuild.');
+  const ready = await ensurePurchasesIdentity(userId);
+  if (!ready) {
+    throw new Error('Purchases are not ready. Sign in again and try shortly.');
   }
 
   const offerings = await Purchases.getOfferings();
@@ -159,9 +216,10 @@ export async function purchasePlan(planId: PaywallPlanId): Promise<{
   return { customerInfo, productId: pkg.product.identifier };
 }
 
-export async function restorePurchases(): Promise<CustomerInfo> {
-  if (!configured) {
-    throw new Error('Purchases are not configured. Add RevenueCat API keys and rebuild.');
+export async function restorePurchases(userId: string): Promise<CustomerInfo> {
+  const ready = await ensurePurchasesIdentity(userId);
+  if (!ready) {
+    throw new Error('Purchases are not ready. Sign in again and try shortly.');
   }
   return Purchases.restorePurchases();
 }

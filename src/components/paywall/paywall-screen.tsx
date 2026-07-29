@@ -26,7 +26,11 @@ import {
   type PaywallPlanId,
 } from '@/src/data/paywall';
 import { useNightForeground } from '@/src/hooks/use-night-foreground';
-import { useIsPro, useRefreshSubscription } from '@/src/hooks/use-subscription';
+import {
+  useIsPro,
+  usePurchasesIdentityReady,
+  useRefreshSubscription,
+} from '@/src/hooks/use-subscription';
 import {
   customerHasPro,
   getOfferings,
@@ -38,6 +42,7 @@ import {
   restorePurchases,
   type StorePriceLabels,
 } from '@/src/services/purchases';
+import { useAppStore } from '@/src/store/app-store';
 import { Typography } from '@/src/theme/fonts';
 import { androidSafeBottom, androidSafeTop } from '@/src/utils/safe-padding';
 import { toast } from '@/src/utils/toast';
@@ -69,7 +74,9 @@ export function PaywallScreen({ onClose }: PaywallScreenProps) {
   const { source, color: backdropColor } = useAppBackdrop();
   const night = useNightForeground();
   const isPro = useIsPro();
+  const purchasesReady = usePurchasesIdentityReady();
   const refreshSubscription = useRefreshSubscription();
+  const userId = useAppStore((s) => s.user?._id ?? null);
   const [selectedPlanId, setSelectedPlanId] = useState<PaywallPlanId>(DEFAULT_PAYWALL_PLAN);
   const [isStartingTrial, setIsStartingTrial] = useState(false);
   const [isRestoring, setIsRestoring] = useState(false);
@@ -89,7 +96,7 @@ export function PaywallScreen({ onClose }: PaywallScreenProps) {
   const plans = useMemo(() => withStorePrices(priceLabels), [priceLabels]);
   const selectedPlan = useMemo(
     () => plans.find((plan) => plan.id === selectedPlanId) ?? plans[0],
-    [plans, selectedPlanId],
+    [plans, selectedPlanId]
   );
 
   const handleClose = () => {
@@ -105,7 +112,7 @@ export function PaywallScreen({ onClose }: PaywallScreenProps) {
   };
 
   useEffect(() => {
-    if (!isPurchasesSupported()) return;
+    if (!isPurchasesSupported() || !purchasesReady) return;
     let cancelled = false;
     void (async () => {
       const offerings = await getOfferings();
@@ -115,7 +122,7 @@ export function PaywallScreen({ onClose }: PaywallScreenProps) {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [purchasesReady]);
 
   useEffect(() => {
     if (isPro) {
@@ -131,16 +138,24 @@ export function PaywallScreen({ onClose }: PaywallScreenProps) {
       toast.error('Purchases are only available on iOS and Android builds.');
       return;
     }
+    if (!userId) {
+      toast.error('Sign in to subscribe.');
+      return;
+    }
+    if (!purchasesReady) {
+      toast.error('Purchases are still setting up. Try again in a moment.');
+      return;
+    }
 
     setIsStartingTrial(true);
     try {
-      const { customerInfo } = await purchasePlan(selectedPlanId);
+      const { customerInfo } = await purchasePlan(selectedPlanId, userId);
       await refreshSubscription({ pollUntilPro: true });
       if (customerHasPro(customerInfo)) {
         toast.success('Welcome to Bobble Pro!');
         handleClose();
       } else {
-        toast.success('Purchase complete. Unlocking Pro…');
+        toast.success('Purchase complete. Unlocking Pro...');
       }
     } catch (error) {
       if (!isPurchaseCancelled(error)) {
@@ -157,10 +172,18 @@ export function PaywallScreen({ onClose }: PaywallScreenProps) {
       toast.error('Purchases are only available on iOS and Android builds.');
       return;
     }
+    if (!userId) {
+      toast.error('Sign in to restore purchases.');
+      return;
+    }
+    if (!purchasesReady) {
+      toast.error('Purchases are still setting up. Try again in a moment.');
+      return;
+    }
 
     setIsRestoring(true);
     try {
-      const customerInfo = await restorePurchases();
+      const customerInfo = await restorePurchases(userId);
       const user = await refreshSubscription({ pollUntilPro: true });
       if (customerHasPro(customerInfo) || user?.subscription?.isPro) {
         toast.success('Purchases restored. Welcome back to Bobble Pro!');
@@ -239,12 +262,12 @@ export function PaywallScreen({ onClose }: PaywallScreenProps) {
 
         <View style={styles.ctaBlock}>
           <PaywallCtaButton
-            label="Start 7-day free trial"
+            label={purchasesReady ? 'Start 7-day free trial' : 'Preparing purchases...'}
             onPress={() => {
               void handleStartTrial();
             }}
             loading={isStartingTrial}
-            disabled={isStartingTrial || isRestoring}
+            disabled={isStartingTrial || isRestoring || !purchasesReady}
           />
           <View style={[styles.trialBanner, { backgroundColor: trialBannerBg }]}>
             <Text style={[styles.trialText, { color: titleColor }]}>{selectedPlan.trialSummary}</Text>
@@ -255,19 +278,19 @@ export function PaywallScreen({ onClose }: PaywallScreenProps) {
           <Pressable onPress={() => router.push('/settings/terms-and-conditions' as Href)}>
             <Text style={[styles.footerLink, { color: titleColor }]}>Terms</Text>
           </Pressable>
-          <Text style={[styles.footerDot, { color: titleColor }]}>•</Text>
+          <Text style={[styles.footerDot, { color: titleColor }]}>{'\u00B7'}</Text>
           <Pressable onPress={() => router.push('/settings/privacy-policy' as Href)}>
             <Text style={[styles.footerLink, { color: titleColor }]}>Privacy</Text>
           </Pressable>
-          <Text style={[styles.footerDot, { color: titleColor }]}>•</Text>
+          <Text style={[styles.footerDot, { color: titleColor }]}>{'\u00B7'}</Text>
           <Pressable
             onPress={() => {
               void handleRestore();
             }}
-            disabled={isRestoring || isStartingTrial}
+            disabled={isRestoring || isStartingTrial || !purchasesReady}
           >
             <Text style={[styles.footerLink, { color: titleColor }]}>
-              {isRestoring ? 'Restoring…' : 'Restore'}
+              {isRestoring ? 'Restoring...' : 'Restore'}
             </Text>
           </Pressable>
         </View>

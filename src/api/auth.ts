@@ -59,6 +59,13 @@ export async function fetchMe(): Promise<AuthUser> {
   return unwrap(res);
 }
 
+/** Ask the backend to reconcile Pro from RevenueCat REST (after purchase/restore). */
+export async function syncSubscription(): Promise<AuthUser> {
+  if (!BACKEND_ALLOWED) return offlineAuth.fetchMe();
+  const res = await api.post<AuthUser>(API.auth.syncSubscription, {});
+  return unwrap(res);
+}
+
 export async function deleteAccount(): Promise<{ message: string }> {
   if (!BACKEND_ALLOWED) return offlineAuth.deleteAccount();
   const res = await api.delete<{ message: string }>(API.auth.me);

@@ -69,6 +69,10 @@ export default function AuthScreen() {
 
   const handleEmailAuth = () => {
     if (isPending) return;
+    if (mode === 'sign-in') {
+      router.push('/(auth)/email-login' as Href);
+      return;
+    }
     router.push('/(auth)/create-account' as Href);
   };
 
