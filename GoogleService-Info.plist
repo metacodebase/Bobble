@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>1028741562392-ft0clsr5be90t7ovclfb64uffcu1qrqc.apps.googleusercontent.com</string>
+	<string>1028741562392-qfsrgs44qn791fat0669jjlldv6011hn.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.1028741562392-ft0clsr5be90t7ovclfb64uffcu1qrqc</string>
+	<string>com.googleusercontent.apps.1028741562392-qfsrgs44qn791fat0669jjlldv6011hn</string>
 	<key>ANDROID_CLIENT_ID</key>
 	<string>1028741562392-0d13laqdc3gbb9ubqss1n55li28gaf88.apps.googleusercontent.com</string>
 	<key>API_KEY</key>
@@ -15,7 +15,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>metadots.bobble.app</string>
+	<string>com.bobble.au</string>
 	<key>PROJECT_ID</key>
 	<string>bobble-6b0c0</string>
 	<key>STORAGE_BUCKET</key>
@@ -31,6 +31,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:1028741562392:ios:0ef0f659fdb25b5642836d</string>
+	<string>1:1028741562392:ios:ab0de3781455043142836d</string>
 </dict>
 </plist>

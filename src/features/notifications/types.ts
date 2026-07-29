@@ -7,9 +7,12 @@ export interface NotificationPreferences {
 
 export type UpdateNotificationPreferencesBody = Partial<NotificationPreferences>;
 
+export type PushTokenType = 'apns' | 'fcm' | 'expo';
+
 export interface RegisterPushDeviceBody {
   token: string;
   platform: 'ios' | 'android';
+  tokenType: PushTokenType;
   deviceName?: string;
 }
 

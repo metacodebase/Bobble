@@ -1,4 +1,3 @@
-import Constants from 'expo-constants';
 import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 import { Href, router } from 'expo-router';
@@ -22,6 +21,7 @@ Notifications.setNotificationHandler({
 });
 
 let cachedPushToken: string | null = null;
+let cachedTokenType: 'apns' | 'fcm' | null = null;
 let handledNotificationKey: string | null = null;
 
 function emitPushDebugLog(
@@ -38,13 +38,6 @@ function notificationResponseKey(response: Notifications.NotificationResponse): 
   return `${identifier}:${response.notification.date}`;
 }
 
-function getEasProjectId(): string | undefined {
-  return (
-    Constants.expoConfig?.extra?.eas?.projectId ??
-    Constants.easConfig?.projectId ??
-    process.env.EXPO_PUBLIC_EAS_PROJECT_ID
-  );
-}
 
 function routeFromNotificationData(data: Record<string, unknown> | undefined): void {
   if (!data) return;
@@ -81,21 +74,8 @@ export async function requestNotificationPermissions(): Promise<boolean> {
   return requested.granted;
 }
 
-export async function getExpoPushToken(): Promise<string | null> {
+export async function getNativePushToken(): Promise<{ token: string; type: 'apns' | 'fcm' } | null> {
   if (!Device.isDevice) return null;
-
-  const projectId = getEasProjectId();
-  if (!projectId) {
-    // #region agent log
-    emitPushDebugLog('H3', 'push-notifications.ts:getExpoPushToken:missingProjectId', 'Expo project ID missing for token request', {
-      platform: Platform.OS,
-    });
-    // #endregion
-    console.warn(
-      '[push] Missing Expo project ID. Set EXPO_PUBLIC_EAS_PROJECT_ID in .env (Expo push tokens; not EAS Build).',
-    );
-    return null;
-  }
 
   if (Platform.OS === 'android') {
     await Notifications.setNotificationChannelAsync('default', {
@@ -105,23 +85,28 @@ export async function getExpoPushToken(): Promise<string | null> {
     });
   }
 
-  const token = await Notifications.getExpoPushTokenAsync({ projectId });
+  const result = await Notifications.getDevicePushTokenAsync();
+  const type = Platform.OS === 'ios' ? 'apns' : 'fcm';
+  const token = result.data as string;
   // #region agent log
-  emitPushDebugLog('H3', 'push-notifications.ts:getExpoPushToken:tokenSuccess', 'Expo push token retrieved', {
+  emitPushDebugLog('H3', 'push-notifications.ts:getNativePushToken:tokenSuccess', 'Native push token retrieved', {
     platform: Platform.OS,
-    hasToken: Boolean(token.data),
+    type,
+    hasToken: Boolean(token),
   });
   // #endregion
-  cachedPushToken = token.data;
-  return token.data;
+  cachedPushToken = token;
+  cachedTokenType = type;
+  return { token, type };
 }
 
-export async function registerPushTokenWithBackend(token: string): Promise<void> {
+export async function registerPushTokenWithBackend(token: string, tokenType: 'apns' | 'fcm'): Promise<void> {
   if (Platform.OS !== 'ios' && Platform.OS !== 'android') return;
 
   await registerPushDevice({
     token,
     platform: Platform.OS,
+    tokenType,
     deviceName: Device.modelName ?? undefined,
   });
 }
@@ -158,14 +143,15 @@ export async function syncPushRegistration(pushEnabled: boolean): Promise<void> 
   // #endregion
   if (!granted) return;
 
-  const token = await getExpoPushToken();
-  if (!token) return;
+  const result = await getNativePushToken();
+  if (!result) return;
 
   try {
-    await registerPushTokenWithBackend(token);
+    await registerPushTokenWithBackend(result.token, result.type);
     // #region agent log
     emitPushDebugLog('H4', 'push-notifications.ts:syncPushRegistration:backendRegistered', 'Push token registered with backend', {
-      tokenPrefix: token.slice(0, 12),
+      tokenPrefix: result.token.slice(0, 12),
+      tokenType: result.type,
       platform: Platform.OS,
     });
     // #endregion
@@ -210,11 +196,13 @@ export function attachNotificationListeners(): () => void {
     handleNotificationResponse(response);
   });
 
-  const tokenSub = Notifications.addPushTokenListener(({ data }) => {
+  const tokenSub = Notifications.addPushTokenListener(({ data, type }) => {
     const wasRegistered = cachedPushToken !== null;
-    cachedPushToken = data;
+    cachedPushToken = data as string;
+    const tokenType = type === 'ios' ? 'apns' : 'fcm';
+    cachedTokenType = tokenType;
     if (!wasRegistered) return;
-    void registerPushTokenWithBackend(data).catch((error) => {
+    void registerPushTokenWithBackend(data as string, tokenType).catch((error) => {
       if (__DEV__) {
         console.warn('[push] token refresh registration failed', error);
       }
@@ -229,4 +217,8 @@ export function attachNotificationListeners(): () => void {
 
 export function getCachedPushToken(): string | null {
   return cachedPushToken;
+}
+
+export function getCachedTokenType(): 'apns' | 'fcm' | null {
+  return cachedTokenType;
 }

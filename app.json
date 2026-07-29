@@ -42,7 +42,9 @@
       },
       "appleTeamId": "BNV5TR576V",
       "entitlements": {
-        "com.apple.security.application-groups": ["group.com.bobble.au"]
+        "com.apple.security.application-groups": [
+          "group.com.bobble.au"
+        ]
       }
     },
     "android": {
@@ -162,7 +164,7 @@
       [
         "@react-native-google-signin/google-signin",
         {
-          "iosUrlScheme": "com.googleusercontent.apps.1028741562392-ft0clsr5be90t7ovclfb64uffcu1qrqc"
+          "iosUrlScheme": "com.googleusercontent.apps.1028741562392-qfsrgs44qn791fat0669jjlldv6011hn"
         }
       ],
       "expo-apple-authentication",
@@ -208,6 +210,29 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "eas": {
+        "build": {
+          "experimental": {
+            "ios": {
+              "appExtensions": [
+                {
+                  "bundleIdentifier": "com.bobble.au.widget",
+                  "targetName": "BobbleWidget",
+                  "entitlements": {
+                    "com.apple.security.application-groups": [
+                      "group.com.bobble.au"
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "projectId": "81e6a3de-e20f-4a4b-b6de-28e44527dd6c"
+      },
+      "router": {}
     }
   }
 }
