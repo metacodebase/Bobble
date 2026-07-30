@@ -9,9 +9,9 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true,
+      "supportsTablet": false,
       "bundleIdentifier": "com.bobble.au",
-      "buildNumber": "5",
+      "buildNumber": "7",
       "usesAppleSignIn": true,
       "googleServicesFile": "./GoogleService-Info.plist",
       "infoPlist": {
@@ -49,7 +49,7 @@
     },
     "android": {
       "icon": "./src/assets/images/bobble-app-icon.png",
-      "versionCode": 8,
+      "versionCode": 9,
       "adaptiveIcon": {
         "foregroundImage": "./src/assets/images/android-icon-foreground.png",
         "monochromeImage": "./src/assets/images/android-icon-monochrome.png",
@@ -85,7 +85,7 @@
             {
               "name": "BobbleTasksSmall",
               "label": "Bobble Tasks",
-              "description": "Small — today's count and Bobble mood (same as iOS).",
+              "description": "Small \u2014 today's count and Bobble mood (same as iOS).",
               "minWidth": "110dp",
               "minHeight": "110dp",
               "targetCellWidth": 2,
@@ -99,7 +99,7 @@
             {
               "name": "BobbleTasks",
               "label": "Bobble Tasks",
-              "description": "Medium — tasks, next due, and Bobble mood (same as iOS).",
+              "description": "Medium \u2014 tasks, next due, and Bobble mood (same as iOS).",
               "minWidth": "250dp",
               "minHeight": "110dp",
               "targetCellWidth": 4,

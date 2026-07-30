@@ -64,7 +64,7 @@ inject_release_signing() {
   cp "$KEYSTORE" "$ANDROID/app/bobble-upload.keystore"
   cp "$PROPS" "$ANDROID/keystore.properties"
 
-  if grep -q 'bobble-upload' "$build_gradle"; then
+  if grep -q 'bobbleKeystoreProperties\|bobble-upload' "$build_gradle"; then
     echo "==> Release signing already present in build.gradle"
     return
   fi

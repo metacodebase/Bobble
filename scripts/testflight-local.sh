@@ -9,15 +9,15 @@ WORKSPACE="$IOS/Bobble.xcworkspace"
 ARCHIVE="$IOS/build/Bobble.xcarchive"
 EXPORT_DIR="$IOS/build/export"
 EXPORT_PLIST="$IOS/ExportOptions.plist"
-BUNDLE_ID="metadots.bobble.app"
-TEAM_ID="${APPLE_TEAM_ID:-A9X3L9QMZT}"
+BUNDLE_ID="com.bobble.au"
+TEAM_ID="${APPLE_TEAM_ID:-BNV5TR576V}"
 
 cd "$ROOT"
 
 echo "==> Bundle ID: $BUNDLE_ID | Team: $TEAM_ID"
 
-echo "==> Syncing native iOS project (Info.plist privacy strings, plugins, version)..."
-npx expo prebuild --platform ios --no-install
+# Distribution cert fingerprint for N2 Therapy Australia (BNV5TR576V)
+DIST_CERT_SHA1="${APPLE_DIST_CERT_SHA1:-5DF518C89845A30E2374A1ADC1E6A8B57BB51D14}"
 
 echo "==> Installing pods..."
 (cd "$IOS" && pod install)
@@ -30,9 +30,7 @@ xcodebuild \
   -destination "generic/platform=iOS" \
   -archivePath "$ARCHIVE" \
   archive \
-  DEVELOPMENT_TEAM="$TEAM_ID" \
-  CODE_SIGN_STYLE=Automatic \
-  -allowProvisioningUpdates
+  CODE_SIGN_IDENTITY="$DIST_CERT_SHA1"
 
 echo "==> Exporting App Store IPA..."
 rm -rf "$EXPORT_DIR"
@@ -40,13 +38,15 @@ xcodebuild \
   -exportArchive \
   -archivePath "$ARCHIVE" \
   -exportPath "$EXPORT_DIR" \
-  -exportOptionsPlist "$EXPORT_PLIST" \
-  -allowProvisioningUpdates
+  -exportOptionsPlist "$EXPORT_PLIST"
 
 IPA="$(find "$EXPORT_DIR" -name '*.ipa' | head -1)"
 echo "==> IPA: $IPA"
 
-if [[ -n "${ASC_API_KEY_ID:-}" && -n "${ASC_API_KEY_ISSUER_ID:-}" && -n "${ASC_API_KEY_PATH:-}" ]]; then
+ASC_API_KEY_ID="${ASC_API_KEY_ID:-57T5379K75}"
+ASC_API_KEY_ISSUER_ID="${ASC_API_KEY_ISSUER_ID:-78bee2d4-9b99-4719-bacb-604d1c0457f4}"
+
+if [[ -n "${ASC_API_KEY_ID:-}" && -n "${ASC_API_KEY_ISSUER_ID:-}" ]]; then
   echo "==> Uploading via App Store Connect API key..."
   xcrun altool --upload-app \
     --type ios \
@@ -68,7 +68,7 @@ else
   echo "Upload with one of:"
   echo "  1. Transporter app (drag IPA in)"
   echo "  2. export APPLE_ID=... APPLE_APP_SPECIFIC_PASSWORD=... && $0"
-  echo "  3. export ASC_API_KEY_ID=... ASC_API_KEY_ISSUER_ID=... ASC_API_KEY_PATH=... && $0"
+  echo "  3. export ASC_API_KEY_ID=... ASC_API_KEY_ISSUER_ID=... && $0"
   echo ""
   echo "Or open Xcode: Window > Organizer > Archives > Distribute App"
 fi
