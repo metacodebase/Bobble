@@ -63,7 +63,8 @@ export async function resolveBobbleCardFileUri(
 }
 
 export async function saveBobbleCardToPhotos(image: ImageSourcePropType): Promise<void> {
-  const permission = await MediaLibrary.requestPermissionsAsync();
+  // Write-only: avoid READ_MEDIA_IMAGES / READ_MEDIA_VIDEO (Google Play Photo & Video policy).
+  const permission = await MediaLibrary.requestPermissionsAsync(true);
   if (!permission.granted) {
     throw new Error('Photo library access is required to save images.');
   }

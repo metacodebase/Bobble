@@ -18,18 +18,14 @@ const PICKER_OPTIONS: ImagePicker.ImagePickerOptions = {
 async function pickImage(
   source: 'library' | 'camera',
 ): Promise<{ base64: string; mimeType: string; uri: string } | null> {
-  const permission =
-    source === 'camera'
-      ? await ImagePicker.requestCameraPermissionsAsync()
-      : await ImagePicker.requestMediaLibraryPermissionsAsync();
-
-  if (!permission.granted) {
-    toast.error(
-      source === 'camera'
-        ? 'Camera access is required to take a profile photo.'
-        : 'Photo library access is required to choose a profile photo.',
-    );
-    return null;
+  // Library uses the Android system photo picker — no READ_MEDIA_* permission.
+  // Camera still needs CAMERA permission.
+  if (source === 'camera') {
+    const permission = await ImagePicker.requestCameraPermissionsAsync();
+    if (!permission.granted) {
+      toast.error('Camera access is required to take a profile photo.');
+      return null;
+    }
   }
 
   const result =
