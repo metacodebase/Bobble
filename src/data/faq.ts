@@ -1,7 +1,7 @@
 import type { LegalSection } from '@/src/data/legal-types';
 
-export const FAQ_EFFECTIVE_DATE = '28 July 2026';
-export const FAQ_VERSION = '1.0';
+export const FAQ_EFFECTIVE_DATE = '30 July 2026';
+export const FAQ_VERSION = '1.1';
 export const FAQ_OPERATOR = 'Bobble App FAQs';
 export const FAQ_INTRO =
   'These frequently asked questions explain how Bobble works and where to get support.';
