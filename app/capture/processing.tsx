@@ -14,7 +14,7 @@ import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { useNightForeground } from '@/src/hooks/use-night-foreground';
 import { CAPTURE_COPY, useCaptureStore } from '@/src/store/capture-store';
 import { Typography } from '@/src/theme/fonts';
-import { getApiErrorMessage, logApiError } from '@/src/utils/api-error';
+import { getApiErrorCode, getApiErrorMessage, logApiError } from '@/src/utils/api-error';
 import { readRecordingAsBase64 } from '@/src/utils/recording-base64';
 import { normalizeSuggestedTasks } from '@/src/utils/suggested-tasks';
 
@@ -30,6 +30,25 @@ const STEPS = [
 const STEP_REVEAL_DELAY_MS = 700;
 
 type ProcessPhase = 'running' | 'ready' | 'error';
+
+const TRANSCRIPTION_ERROR_FALLBACK =
+  'Could not transcribe your recording. It may be silent or too short. Please record a little longer and try again.';
+
+function formatProcessingError(error: unknown): string {
+  const code = getApiErrorCode(error);
+  const raw = getApiErrorMessage(error, 'Could not process your recording');
+  const message = raw.replace(/\s*\[\d{3}\]\s*$/g, '').trim();
+
+  if (code === 'TRANSCRIPTION_EMPTY_OR_SILENT') {
+    return TRANSCRIPTION_ERROR_FALLBACK;
+  }
+
+  if (/empty transcript|silent|too short|no spoken audio|language_detection cannot be performed/i.test(message)) {
+    return TRANSCRIPTION_ERROR_FALLBACK;
+  }
+
+  return message;
+}
 
 function deleteOrphanBobble(id: string) {
   bobblesApi.deleteBobble(id).catch((error) => {
@@ -185,7 +204,7 @@ export default function ProcessingScreen() {
         processingSucceeded = true;
         orphanBobbleId = null;
       } catch (error) {
-        const message = getApiErrorMessage(error, 'Could not process your recording');
+        const message = formatProcessingError(error);
         logApiError('capture process failed', error);
         if (!cancelled) {
           setErrorMessage(message);
