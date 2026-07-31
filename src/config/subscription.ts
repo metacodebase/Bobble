@@ -7,15 +7,54 @@ export const FREE_TASK_CREATE_LIMIT = 25;
 /** RevenueCat entitlement — must match the dashboard and backend. */
 export const BOBBLE_PRO_ENTITLEMENT = 'bobble_pro';
 
-/** Store product IDs — must match Play Console + App Store Connect + RevenueCat. */
+/**
+ * Store subscription product IDs — must match App Store Connect + Play Console
+ * + RevenueCat. On Play, each has exactly one auto-renewing base plan (below).
+ */
 export const PRODUCT_IDS = {
   monthly: 'bobble_pro_monthly',
   annual: 'bobble_pro_annual',
 } as const;
 
+/**
+ * Play Console base plan IDs (one per subscription). RevenueCat Android products
+ * use `subscriptionId:basePlanId`. Prefer modern Billing / RC Android SDK v6+
+ * ("Only Android SDK v6+" in RC app settings); still mark each base plan
+ * "Use for deprecated billing methods" as a one-time Play Console safety net.
+ */
+export const PLAY_BASE_PLAN_IDS = {
+  monthly: 'monthly',
+  annual: 'annual',
+} as const;
+
+/** Full Play / RevenueCat product identifiers (subscriptionId:basePlanId). */
+export const PLAY_STORE_PRODUCT_IDS = {
+  monthly: `${PRODUCT_IDS.monthly}:${PLAY_BASE_PLAN_IDS.monthly}`,
+  annual: `${PRODUCT_IDS.annual}:${PLAY_BASE_PLAN_IDS.annual}`,
+} as const;
+
 export type StoreProductId = (typeof PRODUCT_IDS)[keyof typeof PRODUCT_IDS];
 
 export const RC_OFFERING_ID = 'default';
+
+/** Strip Play `:basePlanId` so iOS and Android IDs compare as the same plan. */
+export function canonicalProductId(productId?: string): string | undefined {
+  if (!productId) return undefined;
+  const colon = productId.indexOf(':');
+  return colon === -1 ? productId : productId.slice(0, colon);
+}
+
+export function isMonthlyProductId(productId?: string): boolean {
+  return canonicalProductId(productId) === PRODUCT_IDS.monthly;
+}
+
+export function isAnnualProductId(productId?: string): boolean {
+  return canonicalProductId(productId) === PRODUCT_IDS.annual;
+}
+
+export function isBobbleProProductId(productId?: string): boolean {
+  return isMonthlyProductId(productId) || isAnnualProductId(productId);
+}
 
 export type SubscriptionStore = 'app_store' | 'play_store' | 'promotional' | 'unknown';
 export type SubscriptionStatus =
@@ -41,15 +80,15 @@ export const DEFAULT_SUBSCRIPTION: UserSubscription = {
 };
 
 export function planLabelForProductId(productId?: string): string {
-  if (productId === PRODUCT_IDS.annual) return 'Bobble Pro (Annual)';
-  if (productId === PRODUCT_IDS.monthly) return 'Bobble Pro (Monthly)';
+  if (isAnnualProductId(productId)) return 'Bobble Pro (Annual)';
+  if (isMonthlyProductId(productId)) return 'Bobble Pro (Monthly)';
   if (productId) return 'Bobble Pro';
   return 'Free';
 }
 
 export function planPeriodLabelForProductId(productId?: string): string {
-  if (productId === PRODUCT_IDS.annual) return 'Annual';
-  if (productId === PRODUCT_IDS.monthly) return 'Monthly';
+  if (isAnnualProductId(productId)) return 'Annual';
+  if (isMonthlyProductId(productId)) return 'Monthly';
   return 'Pro';
 }
 

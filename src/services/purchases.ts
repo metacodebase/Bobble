@@ -8,8 +8,10 @@ import Purchases, {
 
 import {
   BOBBLE_PRO_ENTITLEMENT,
-  PRODUCT_IDS,
   RC_OFFERING_ID,
+  canonicalProductId,
+  isAnnualProductId,
+  isMonthlyProductId,
   type StoreProductId,
 } from '@/src/config/subscription';
 import type { PaywallPlanId } from '@/src/data/paywall';
@@ -165,7 +167,7 @@ function packageForPlan(
       offering.availablePackages.find(
         (pkg) =>
           pkg.packageType === Purchases.PACKAGE_TYPE.ANNUAL ||
-          pkg.product.identifier === PRODUCT_IDS.annual
+          isAnnualProductId(pkg.product.identifier)
       ) ??
       null
     );
@@ -176,7 +178,7 @@ function packageForPlan(
     offering.availablePackages.find(
       (pkg) =>
         pkg.packageType === Purchases.PACKAGE_TYPE.MONTHLY ||
-        pkg.product.identifier === PRODUCT_IDS.monthly
+        isMonthlyProductId(pkg.product.identifier)
     ) ??
     null
   );
@@ -213,7 +215,11 @@ export async function purchasePlan(
   }
 
   const { customerInfo } = await Purchases.purchasePackage(pkg);
-  return { customerInfo, productId: pkg.product.identifier };
+  // Prefer subscription id (strip Play base plan) so app + backend stay aligned with iOS.
+  const productId =
+    (canonicalProductId(pkg.product.identifier) as StoreProductId | undefined) ??
+    pkg.product.identifier;
+  return { customerInfo, productId };
 }
 
 export async function restorePurchases(userId: string): Promise<CustomerInfo> {
