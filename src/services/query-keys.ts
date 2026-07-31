@@ -8,6 +8,10 @@ export const queryKeys = {
     all: ['tasks'] as const,
     list: (filter: string) => ['tasks', 'list', filter] as const,
   },
+  mindMap: {
+    all: ['mindMap'] as const,
+    list: ['mindMap', 'list'] as const,
+  },
   bobbles: {
     all: ['bobbles'] as const,
     list: (params: string) => ['bobbles', 'list', params] as const,

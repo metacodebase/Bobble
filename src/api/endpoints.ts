@@ -16,6 +16,9 @@ export const API = {
     byId: (id: string) => `/api/tasks/${id}`,
     toggle: (id: string) => `/api/tasks/${id}/toggle`,
   },
+  mindMap: {
+    root: '/api/mind-map',
+  },
   bobbles: {
     root: '/api/bobbles',
     byId: (id: string) => `/api/bobbles/${id}`,

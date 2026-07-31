@@ -25,6 +25,10 @@ function invalidateUserStats(qc: QueryClient) {
   void qc.invalidateQueries({ queryKey: queryKeys.profile.all });
 }
 
+function invalidateMindMap(qc: QueryClient) {
+  void qc.invalidateQueries({ queryKey: queryKeys.mindMap.all });
+}
+
 function handleTaskLimitError(error: unknown, fallback: string) {
   if (isProLimitError(error)) {
     toast.error(getApiErrorMessage(error, fallback));
@@ -61,6 +65,7 @@ export function useCreateTask() {
     onSuccess: (task) => {
       qc.invalidateQueries({ queryKey: queryKeys.tasks.all });
       invalidateUserStats(qc);
+      if (task.bobble) invalidateMindMap(qc);
       void syncTaskToCalendar(task);
     },
     onError: (e) => handleTaskLimitError(e, 'Could not create task'),
@@ -74,6 +79,7 @@ export function useCreateTasksBulk() {
     onSuccess: (tasks) => {
       qc.invalidateQueries({ queryKey: queryKeys.tasks.all });
       invalidateUserStats(qc);
+      if (tasks.some((task) => task.bobble)) invalidateMindMap(qc);
       tasks.forEach((task) => void syncTaskToCalendar(task));
     },
     onError: (e) => handleTaskLimitError(e, 'Could not save tasks'),
