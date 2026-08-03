@@ -3,7 +3,6 @@ import { useMemo, useState } from 'react';
 import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
-import { useNightForeground } from '@/src/hooks/use-night-foreground';
 import { Typography } from '@/src/theme/fonts';
 
 export type MindMapDateFilter = 'week' | 'month' | 'all' | 'custom';
@@ -46,7 +45,6 @@ function monthDays(month: Date) {
 
 export function DateRangeFilter({ value, customRange, onChange }: Props) {
   const colors = useBobbleColors();
-  const night = useNightForeground();
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [visibleMonth, setVisibleMonth] = useState(() => {
     const date = customRange?.start ?? new Date();
@@ -55,8 +53,10 @@ export function DateRangeFilter({ value, customRange, onChange }: Props) {
   const [draftStart, setDraftStart] = useState<Date | null>(customRange?.start ?? null);
   const [draftEnd, setDraftEnd] = useState<Date | null>(customRange?.end ?? null);
   const days = useMemo(() => monthDays(visibleMonth), [visibleMonth]);
-  const foreground = night.text ?? colors.text;
-  const secondary = night.textSecondary ?? colors.textSecondary;
+  // Chips and the calendar are rendered on opaque surfaces, so their copy
+  // must use surface text colors instead of the night-background foreground.
+  const foreground = colors.text;
+  const secondary = colors.textSecondary;
 
   const openCalendar = () => {
     setDraftStart(customRange?.start ?? null);
@@ -102,7 +102,12 @@ export function DateRangeFilter({ value, customRange, onChange }: Props) {
                 pressed && styles.pressed,
               ]}
             >
-              <Text style={[styles.chipText, { color: selected ? '#FFFFFF' : foreground }]}>
+              <Text
+                style={[
+                  styles.chipText,
+                  { color: selected ? colors.textOnPrimary : foreground },
+                ]}
+              >
                 {filter[0].toUpperCase() + filter.slice(1)}
               </Text>
             </Pressable>
@@ -124,7 +129,10 @@ export function DateRangeFilter({ value, customRange, onChange }: Props) {
         >
           <CalendarDays size={17} color={value === 'custom' ? '#FFFFFF' : colors.primary} />
           {value === 'custom' && customRange ? (
-            <Text style={[styles.rangeLabel, { color: '#FFFFFF' }]} numberOfLines={1}>
+            <Text
+              style={[styles.rangeLabel, { color: colors.textOnPrimary }]}
+              numberOfLines={1}
+            >
               {formatShortDate(customRange.start)}–{formatShortDate(customRange.end)}
             </Text>
           ) : null}
@@ -213,7 +221,12 @@ export function DateRangeFilter({ value, customRange, onChange }: Props) {
                       selected && { backgroundColor: colors.primary, borderRadius: 18 },
                     ]}
                   >
-                    <Text style={[styles.dayText, { color: selected ? '#FFFFFF' : foreground }]}>
+                    <Text
+                      style={[
+                        styles.dayText,
+                        { color: selected ? colors.textOnPrimary : foreground },
+                      ]}
+                    >
                       {date.getDate()}
                     </Text>
                   </Pressable>

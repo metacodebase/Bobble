@@ -206,18 +206,20 @@ export default function BrainMapScreen() {
     >
       <View style={styles.header}>
         <Text style={[styles.headerTitle, { color: night.text ?? colors.text }]}>Brain Map</Text>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Show a mind map demo"
-          onPress={() => setShowDemo(true)}
-          style={({ pressed }) => [
-            styles.demoButton,
-            { backgroundColor: colors.surface, borderColor: colors.border },
-            pressed && styles.pressed,
-          ]}
-        >
-          <Text style={[styles.demoButtonText, { color: colors.primary }]}>Check the demo</Text>
-        </Pressable>
+        {!isPro ? (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Show a mind map demo"
+            onPress={() => setShowDemo(true)}
+            style={({ pressed }) => [
+              styles.demoButton,
+              { backgroundColor: colors.surface, borderColor: colors.border },
+              pressed && styles.pressed,
+            ]}
+          >
+            <Text style={[styles.demoButtonText, { color: colors.primary }]}>Check the demo</Text>
+          </Pressable>
+        ) : null}
       </View>
 
       {!isPro ? (
