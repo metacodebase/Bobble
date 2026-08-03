@@ -161,7 +161,7 @@ export default function BrainMapScreen() {
             pressed && styles.pressed,
           ]}
         >
-          <Text style={[styles.demoButtonText, { color: colors.primary }]}>Demo</Text>
+          <Text style={[styles.demoButtonText, { color: colors.primary }]}>Check how it looks</Text>
         </Pressable>
       </View>
 
@@ -269,7 +269,6 @@ export default function BrainMapScreen() {
                 <MindMapClusterView
                   key={cluster._id}
                   cluster={cluster}
-                  showConnectorAbove={index > 0}
                   showConnectorBelow={index < DEMO_CLUSTERS.length - 1}
                 />
               ))}
