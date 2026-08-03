@@ -6,6 +6,7 @@ import {
   SettingsSection,
 } from '@/src/components/settings/settings-screen-layout';
 import { SettingsToggleRow } from '@/src/components/settings/settings-toggle-row';
+import { SettingsLinkRow } from '@/src/components/settings/settings-link-row';
 import {
   useNotificationPreferences,
   useUpdateNotificationPreferences,
@@ -51,12 +52,28 @@ export default function NotificationsScreen() {
         />
         <SettingsToggleRow
           label="Email digest"
-          description="Weekly summary of your Bobbles (coming soon)."
+          description="A recurring activity summary for Bobble Pro members."
           value={prefs.emailDigest}
           onValueChange={(emailDigest) => update({ emailDigest })}
           isLast
         />
       </SettingsSection>
+
+      {prefs.emailDigest ? (
+        <SettingsSection title="Email frequency">
+          <SettingsLinkRow
+            label="Summary cadence"
+            value={prefs.emailDigestFrequency === 'quarterly' ? 'Quarterly' : 'Monthly'}
+            onPress={() =>
+              update({
+                emailDigestFrequency:
+                  prefs.emailDigestFrequency === 'quarterly' ? 'monthly' : 'quarterly',
+              })
+            }
+            isLast
+          />
+        </SettingsSection>
+      ) : null}
 
       <SettingsSection title="Reminders">
         <SettingsToggleRow

@@ -1,6 +1,7 @@
 export interface NotificationPreferences {
   pushEnabled: boolean;
   emailDigest: boolean;
+  emailDigestFrequency: 'monthly' | 'quarterly';
   taskReminders: boolean;
   streakReminders: boolean;
 }

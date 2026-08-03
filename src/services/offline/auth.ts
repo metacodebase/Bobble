@@ -6,7 +6,11 @@ import type {
   ChangePasswordBody,
   LoginBody,
   RegisterBody,
+  RegisterResult,
+  ResendVerificationBody,
+  ResendVerificationResult,
   SocialAuthBody,
+  VerifyEmailBody,
 } from '@/src/features/auth/types';
 import { useAppStore } from '@/src/store/app-store';
 
@@ -50,8 +54,18 @@ export async function login(body: LoginBody): Promise<AuthSession> {
   });
 }
 
-export async function register(_body: RegisterBody): Promise<{ message: string }> {
-  return { message: 'Account created' };
+export async function register(body: RegisterBody): Promise<RegisterResult> {
+  return { email: body.email, expiresInSeconds: 600 };
+}
+
+export async function verifyEmail(body: VerifyEmailBody): Promise<AuthSession> {
+  return buildSession({ email: body.email });
+}
+
+export async function resendVerification(
+  _body: ResendVerificationBody
+): Promise<ResendVerificationResult> {
+  return { expiresInSeconds: 600, retryAfterSeconds: 60 };
 }
 
 export async function social(body: SocialAuthBody): Promise<AuthSession> {

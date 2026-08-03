@@ -1,13 +1,6 @@
-import { useNavigation } from 'expo-router';
+import { router, useNavigation } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
-import {
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 
 import { CalendarProviderIcon } from '@/src/components/create-account/calendar-brand-icons';
@@ -89,8 +82,14 @@ function StepHeading({ step }: { step: number }) {
     case 4:
       return (
         <CreateAccountHeader>
-          Connect your <Text style={{ fontFamily: FontFamily.bold, color: BobbleColors.primary }}>Calendars</Text>{'\n'}
-          <AccentText textStyle={{ fontFamily: FontFamily.bold, color: BobbleColors.text }}>Sync to never Miss What Matters</AccentText>
+          Connect your{' '}
+          <Text style={{ fontFamily: FontFamily.bold, color: BobbleColors.primary }}>
+            Calendars
+          </Text>
+          {'\n'}
+          <AccentText textStyle={{ fontFamily: FontFamily.bold, color: BobbleColors.text }}>
+            Sync to never Miss What Matters
+          </AccentText>
         </CreateAccountHeader>
       );
     default:
@@ -143,9 +142,7 @@ export default function CreateAccountScreen() {
     const unsubscribe = navigation.addListener('beforeRemove', (event) => {
       const actionType = event.data.action?.type;
       const isBackAction =
-        actionType === 'GO_BACK' ||
-        actionType === 'POP' ||
-        actionType === 'POP_TO_TOP';
+        actionType === 'GO_BACK' || actionType === 'POP' || actionType === 'POP_TO_TOP';
       if (!isBackAction || !hasPreviousStep) return;
       event.preventDefault();
       goToPreviousStep();
@@ -208,9 +205,7 @@ export default function CreateAccountScreen() {
     setStep((prev) => prev + 1);
   };
 
-  // Create the account on the backend, then log in to establish a session.
-  // useLogin's onSuccess handles navigation into the app; errors from either
-  // mutation are surfaced as toasts by the hooks.
+  // Create a pending account, then verify ownership before establishing a session.
   const handleFinish = async () => {
     if (submitting) return;
 
@@ -242,7 +237,13 @@ export default function CreateAccountScreen() {
       !acceptedTerms
     ) {
       toast.error('Please complete all required fields');
-      if (!fullName.trim() || !dob || !EMAIL_REGEX.test(email.trim()) || !phone.trim() || !acceptedTerms) {
+      if (
+        !fullName.trim() ||
+        !dob ||
+        !EMAIL_REGEX.test(email.trim()) ||
+        !phone.trim() ||
+        !acceptedTerms
+      ) {
         setStep(0);
       } else {
         setStep(1);
@@ -250,12 +251,15 @@ export default function CreateAccountScreen() {
       return;
     }
     try {
-      await register.mutateAsync({
+      const result = await register.mutateAsync({
         name: fullName.trim(),
         email: email.trim(),
         password,
       });
-      await login.mutateAsync({ email: email.trim(), password });
+      router.replace({
+        pathname: '/(auth)/verify-email',
+        params: { email: result.email, cooldown: '60' },
+      });
     } catch {
       // Errors are already reported via the mutation onError toasts.
     }
@@ -394,18 +398,13 @@ export default function CreateAccountScreen() {
       contentStyle={styles.content}
       footer={
         <View style={styles.footerGroup}>
-
           {isLast ? (
             <>
               <TermsAcceptance
                 accepted={acceptedTerms}
                 onToggle={() => setAcceptedTerms((value) => !value)}
               />
-              <PrimaryButton
-                label="Create Account"
-                onPress={handleFinish}
-                loading={submitting}
-              />
+              <PrimaryButton label="Create Account" onPress={handleFinish} loading={submitting} />
               {/* <TextLinkButton label="Skip for now" onPress={handleFinish} /> */}
             </>
           ) : (
@@ -415,10 +414,7 @@ export default function CreateAccountScreen() {
       }
     >
       <GestureDetector gesture={swipeBackGesture}>
-        <KeyboardAvoidingView
-          style={styles.flex}
-          behavior="padding"
-        >
+        <KeyboardAvoidingView style={styles.flex} behavior="padding">
           <ScrollView
             style={styles.flex}
             contentContainerStyle={styles.scrollContent}

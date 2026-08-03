@@ -7,8 +7,11 @@ import type {
   ChangePasswordBody,
   LoginBody,
   RegisterBody,
+  ResendVerificationBody,
   SocialAuthBody,
+  VerifyEmailBody,
 } from '@/src/features/auth/types';
+import type { ApiError } from '@/src/types/api';
 import { queryKeys } from '@/src/services/query-keys';
 import { loginPurchases, logoutPurchases } from '@/src/services/purchases';
 import { clearTaskWidgets } from '@/src/services/widget-sync';
@@ -53,7 +56,17 @@ export function useLogin() {
       router.replace('/(tabs)');
       toast.success('Welcome back!');
     },
-    onError: (e) => toast.error(getApiErrorMessage(e, 'Sign in failed')),
+    onError: (e, variables) => {
+      if ((e as unknown as ApiError).code === 'EMAIL_NOT_VERIFIED') {
+        router.push({
+          pathname: '/(auth)/verify-email',
+          params: { email: variables.email.trim().toLowerCase() },
+        });
+        toast.error('Enter the verification code sent to your email');
+        return;
+      }
+      toast.error(getApiErrorMessage(e, 'Sign in failed'));
+    },
   });
 }
 
@@ -61,6 +74,30 @@ export function useRegister() {
   return useMutation({
     mutationFn: (body: RegisterBody) => authApi.register(body),
     onError: (e) => toast.error(getApiErrorMessage(e, 'Registration failed')),
+  });
+}
+
+export function useVerifyEmail() {
+  const setSession = useAppStore((s) => s.setSession);
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (body: VerifyEmailBody) => authApi.verifyEmail(body),
+    onSuccess: (session) => {
+      setSession(session);
+      qc.setQueryData(queryKeys.auth.me, session.user);
+      void loginPurchases(session.user._id);
+      router.replace('/(tabs)');
+      toast.success('Your email is verified. Welcome to Bobble!');
+    },
+    onError: (e) => toast.error(getApiErrorMessage(e, 'Verification failed')),
+  });
+}
+
+export function useResendVerification() {
+  return useMutation({
+    mutationFn: (body: ResendVerificationBody) => authApi.resendVerification(body),
+    onSuccess: () => toast.success('A new verification code was sent'),
+    onError: (e) => toast.error(getApiErrorMessage(e, 'Could not resend code')),
   });
 }
 

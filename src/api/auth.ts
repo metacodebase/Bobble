@@ -6,7 +6,11 @@ import type {
   ChangePasswordBody,
   LoginBody,
   RegisterBody,
+  RegisterResult,
+  ResendVerificationBody,
+  ResendVerificationResult,
   SocialAuthBody,
+  VerifyEmailBody,
 } from '@/src/features/auth/types';
 import { api, getApiBaseUrl, unwrap } from '@/src/services/api';
 import { offlineAuth } from '@/src/services/offline';
@@ -42,9 +46,25 @@ export async function social(body: SocialAuthBody): Promise<AuthSession> {
   return unwrap(res);
 }
 
-export async function register(body: RegisterBody): Promise<{ message: string }> {
+export async function register(body: RegisterBody): Promise<RegisterResult> {
   if (!BACKEND_ALLOWED) return offlineAuth.register(body);
-  const res = await api.post<{ message: string }>(API.auth.register, body, { skipAuth: true });
+  const res = await api.post<RegisterResult>(API.auth.register, body, { skipAuth: true });
+  return unwrap(res);
+}
+
+export async function verifyEmail(body: VerifyEmailBody): Promise<AuthSession> {
+  if (!BACKEND_ALLOWED) return offlineAuth.verifyEmail(body);
+  const res = await api.post<AuthSession>(API.auth.verifyEmail, body, { skipAuth: true });
+  return unwrap(res);
+}
+
+export async function resendVerification(
+  body: ResendVerificationBody
+): Promise<ResendVerificationResult> {
+  if (!BACKEND_ALLOWED) return offlineAuth.resendVerification(body);
+  const res = await api.post<ResendVerificationResult>(API.auth.resendVerification, body, {
+    skipAuth: true,
+  });
   return unwrap(res);
 }
 

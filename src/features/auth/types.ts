@@ -47,6 +47,25 @@ export interface RegisterBody {
   password: string;
 }
 
+export interface RegisterResult {
+  email: string;
+  expiresInSeconds: number;
+}
+
+export interface VerifyEmailBody {
+  email: string;
+  code: string;
+}
+
+export interface ResendVerificationBody {
+  email: string;
+}
+
+export interface ResendVerificationResult {
+  expiresInSeconds: number;
+  retryAfterSeconds: number;
+}
+
 export interface ChangePasswordBody {
   currentPassword: string;
   newPassword: string;
