@@ -1,4 +1,9 @@
-import { EncodingType, cacheDirectory, copyAsync, writeAsStringAsync } from 'expo-file-system/legacy';
+import {
+  EncodingType,
+  cacheDirectory,
+  copyAsync,
+  writeAsStringAsync,
+} from 'expo-file-system/legacy';
 import * as Sharing from 'expo-sharing';
 import Share from 'react-native-share';
 
@@ -7,6 +12,7 @@ import type { Bobble } from '@/src/features/bobbles/types';
 import { bobbleDurationMin, formatBobbleDateLabel } from '@/src/features/bobbles/format';
 import type { ProfilePayload } from '@/src/features/profile/types';
 import type { Task } from '@/src/features/tasks/types';
+import { useAppStore } from '@/src/store/app-store';
 
 const CSV_HEADERS = [
   'type',
@@ -54,6 +60,9 @@ async function fetchExportData(): Promise<{
   tasks: Task[];
   profile: ProfilePayload | null;
 }> {
+  if (useAppStore.getState().user?.subscription?.isPro !== true) {
+    throw new Error('Bobble Pro is required to export PDF or CSV files.');
+  }
   const [bobbles, tasks, profile] = await Promise.all([
     bobblesApi.listAllBobbles(),
     tasksApi.listTasks('all'),
@@ -88,7 +97,7 @@ function buildUnifiedCsv(bobbles: Bobble[], tasks: Task[]): string {
         formatBobbleDateLabel(bobble.createdAt),
       ]
         .map(escapeCsv)
-        .join(','),
+        .join(',')
     );
   }
 
@@ -108,18 +117,14 @@ function buildUnifiedCsv(bobbles: Bobble[], tasks: Task[]): string {
         task.createdAt,
       ]
         .map(escapeCsv)
-        .join(','),
+        .join(',')
     );
   }
 
   return rows.join('\n');
 }
 
-function buildExportHtml(
-  bobbles: Bobble[],
-  tasks: Task[],
-  userName?: string,
-): string {
+function buildExportHtml(bobbles: Bobble[], tasks: Task[], userName?: string): string {
   const exportedAt = new Date().toLocaleString();
   const bobbleRows = bobbles
     .map(
@@ -131,7 +136,7 @@ function buildExportHtml(
           <td>${bobbleDurationMin(bobble)} min</td>
           <td>${escapeHtml(formatBobbleDateLabel(bobble.createdAt))}</td>
         </tr>
-        ${bobbleSummary(bobble) ? `<tr><td colspan="5" class="summary">${escapeHtml(bobbleSummary(bobble))}</td></tr>` : ''}`,
+        ${bobbleSummary(bobble) ? `<tr><td colspan="5" class="summary">${escapeHtml(bobbleSummary(bobble))}</td></tr>` : ''}`
     )
     .join('');
 
@@ -144,7 +149,7 @@ function buildExportHtml(
           <td>${escapeHtml(task.dueAt ? formatBobbleDateLabel(task.dueAt) : '—')}</td>
           <td>${escapeHtml(task.priority)}</td>
           <td>${escapeHtml(task.notes ?? '')}</td>
-        </tr>`,
+        </tr>`
     )
     .join('');
 
@@ -237,7 +242,7 @@ async function printHtmlToPdf(html: string): Promise<string> {
     const message = error instanceof Error ? error.message : String(error);
     if (message.includes('ExpoPrint') || message.includes('native module')) {
       throw new Error(
-        'PDF export requires a new native build. Run: npx expo run:ios (or run:android)',
+        'PDF export requires a new native build. Run: npx expo run:ios (or run:android)'
       );
     }
     throw error;

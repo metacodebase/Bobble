@@ -20,18 +20,15 @@ import {
   formatBobbleDateLabel,
   formatTimestampLabel,
 } from '@/src/features/bobbles/format';
-import {
-  useBobble,
-  useCreateBobble,
-  useDeleteBobble,
-  useUpdateBobble,
-} from '@/src/hooks/bobbles';
+import { useBobble, useCreateBobble, useDeleteBobble, useUpdateBobble } from '@/src/hooks/bobbles';
 import { useBobbleToolbarActions } from '@/src/hooks/use-bobble-toolbar-actions';
 import { useCaptureStore } from '@/src/store/capture-store';
 import { Typography } from '@/src/theme/fonts';
 import { buildDuplicateBobbleBody } from '@/src/utils/bobble-actions';
 import { exportBobbleSummary } from '@/src/utils/export-bobble-summary';
 import { toast } from '@/src/utils/toast';
+import { useIsPro } from '@/src/hooks/use-subscription';
+import { PRO_RECORDING_PLAYBACK_DAYS } from '@/src/config/subscription';
 
 export default function BobbleDetailScreen() {
   const insets = useSafeAreaInsets();
@@ -49,6 +46,7 @@ export default function BobbleDetailScreen() {
   const [renameVisible, setRenameVisible] = useState(false);
   const recordingUri = useCaptureStore((state) => state.recordingUri);
   const recordingDurationSeconds = useCaptureStore((state) => state.recordingDurationSeconds);
+  const isPro = useIsPro();
 
   const title = bobble?.title ?? 'Bobble';
   const isTranscript = tab === 'transcript';
@@ -56,6 +54,10 @@ export default function BobbleDetailScreen() {
   const showToolbar = !isTranscript;
   const dateLabel = bobble ? formatBobbleDateLabel(bobble.createdAt) : undefined;
   const durationMin = bobble ? bobbleDurationMin(bobble) : undefined;
+  const recordingIsWithinPlaybackWindow = bobble
+    ? Date.now() - new Date(bobble.createdAt).getTime() <=
+      PRO_RECORDING_PLAYBACK_DAYS * 24 * 60 * 60 * 1000
+    : false;
 
   const transcriptSegments = useMemo(() => {
     return (bobble?.transcriptSegments ?? []).map((segment) => ({
@@ -80,10 +82,10 @@ export default function BobbleDetailScreen() {
             setRenameVisible(false);
             toast.success('Bobble renamed');
           },
-        },
+        }
       );
     },
-    [id, updateBobble],
+    [id, updateBobble]
   );
 
   const handleDuplicate = useCallback(() => {
@@ -126,7 +128,7 @@ export default function BobbleDetailScreen() {
             });
           },
         },
-      ],
+      ]
     );
   }, [deleteBobble, id]);
 
@@ -158,7 +160,7 @@ export default function BobbleDetailScreen() {
         onPress: confirmDelete,
       },
     ],
-    [confirmDelete, handleDuplicate, handleExportSummary, openRename],
+    [confirmDelete, handleDuplicate, handleExportSummary, openRename]
   );
 
   if (isLoading) {
@@ -196,7 +198,8 @@ export default function BobbleDetailScreen() {
           paddingTop: androidSafeTop(insets.top) + 8,
           paddingBottom: androidSafeBottom(insets.bottom) + 16,
         },
-      ]}>
+      ]}
+    >
       <View style={styles.headerBlock}>
         <CaptureHeader
           onBack={() => router.back()}
@@ -209,10 +212,10 @@ export default function BobbleDetailScreen() {
 
       {isTranscript ? (
         <BobbleTranscript
-          bobbleId={bobble._id}
+          bobbleId={isPro && recordingIsWithinPlaybackWindow ? bobble._id : null}
           segments={transcriptSegments}
           localRecordingUri={recordingUri}
-          remoteAudioUrl={bobble.audioUrl}
+          remoteAudioUrl={isPro && recordingIsWithinPlaybackWindow ? bobble.audioUrl : undefined}
           durationSeconds={
             recordingDurationSeconds > 0 ? recordingDurationSeconds : bobble.durationSec
           }

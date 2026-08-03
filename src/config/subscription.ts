@@ -4,6 +4,9 @@ export const FREE_BOBBLE_LIMIT = 10;
 /** Manual free-tier task create cap — keep in sync with backend FREE_TASK_CREATE_LIMIT. */
 export const FREE_TASK_CREATE_LIMIT = 25;
 
+/** Pro voice recordings can be played for this many days after capture. */
+export const PRO_RECORDING_PLAYBACK_DAYS = 60;
+
 /** RevenueCat entitlement — must match the dashboard and backend. */
 export const BOBBLE_PRO_ENTITLEMENT = 'bobble_pro';
 
