@@ -1,30 +1,17 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import Svg, { Line, Path } from 'react-native-svg';
 
 import type { MindMapCluster, MindMapTaskNode } from '@/src/features/mind-map/types';
-import { Typography } from '@/src/theme/fonts';
+import { FontFamily, Typography } from '@/src/theme/fonts';
 
-const CLUSTER_WIDTH = 340;
+const MAX_CLUSTER_WIDTH = 360;
 const CLUSTER_HEIGHT = 280;
-const CENTER_W = 120;
+const CENTER_W = 112;
 const CENTER_H = 72;
-const NODE_W = 108;
+const NODE_W = 96;
 const NODE_H = 64;
 
 type LayoutPoint = { x: number; y: number };
-
-const POSITION_LAYOUT: Record<MindMapTaskNode['position'], LayoutPoint> = {
-  top: { x: (CLUSTER_WIDTH - NODE_W) / 2, y: 8 },
-  left: { x: 8, y: (CLUSTER_HEIGHT - NODE_H) / 2 - 8 },
-  right: { x: CLUSTER_WIDTH - NODE_W - 8, y: (CLUSTER_HEIGHT - NODE_H) / 2 - 8 },
-  'bottom-left': { x: 28, y: CLUSTER_HEIGHT - NODE_H - 16 },
-  'bottom-right': { x: CLUSTER_WIDTH - NODE_W - 28, y: CLUSTER_HEIGHT - NODE_H - 16 },
-};
-
-const CENTER_POS = {
-  x: (CLUSTER_WIDTH - CENTER_W) / 2,
-  y: (CLUSTER_HEIGHT - CENTER_H) / 2,
-};
 
 function nodeCenter(pos: LayoutPoint, w: number, h: number) {
   return { x: pos.x + w / 2, y: pos.y + h / 2 };
@@ -32,15 +19,38 @@ function nodeCenter(pos: LayoutPoint, w: number, h: number) {
 
 type MindMapClusterViewProps = {
   cluster: MindMapCluster;
+  showConnectorAbove?: boolean;
   showConnectorBelow?: boolean;
 };
 
-export function MindMapClusterView({ cluster, showConnectorBelow }: MindMapClusterViewProps) {
-  const center = nodeCenter(CENTER_POS, CENTER_W, CENTER_H);
+export function MindMapClusterView({
+  cluster,
+  showConnectorAbove,
+  showConnectorBelow,
+}: MindMapClusterViewProps) {
+  const { width: screenWidth } = useWindowDimensions();
+  const clusterWidth = Math.min(MAX_CLUSTER_WIDTH, screenWidth - 32);
+  const sideInset = 4;
+  const bottomInset = 18;
+  const positionLayout: Record<MindMapTaskNode['position'], LayoutPoint> = {
+    top: { x: (clusterWidth - NODE_W) / 2, y: 8 },
+    left: { x: sideInset, y: (CLUSTER_HEIGHT - NODE_H) / 2 - 8 },
+    right: { x: clusterWidth - NODE_W - sideInset, y: (CLUSTER_HEIGHT - NODE_H) / 2 - 8 },
+    'bottom-left': { x: 20, y: CLUSTER_HEIGHT - NODE_H - bottomInset },
+    'bottom-right': {
+      x: clusterWidth - NODE_W - 20,
+      y: CLUSTER_HEIGHT - NODE_H - bottomInset,
+    },
+  };
+  const centerPos = {
+    x: (clusterWidth - CENTER_W) / 2,
+    y: (CLUSTER_HEIGHT - CENTER_H) / 2,
+  };
+  const center = nodeCenter(centerPos, CENTER_W, CENTER_H);
 
   // Deduplicate positions if more than 5 nodes share slots — offset slightly by index.
   const placed = cluster.taskNodes.map((node, index) => {
-    const base = POSITION_LAYOUT[node.position] ?? POSITION_LAYOUT.top;
+    const base = positionLayout[node.position] ?? positionLayout.top;
     const slotIndex = cluster.taskNodes
       .slice(0, index)
       .filter((n) => n.position === node.position).length;
@@ -53,11 +63,21 @@ export function MindMapClusterView({ cluster, showConnectorBelow }: MindMapClust
 
   return (
     <View style={styles.wrap}>
-      <Text style={styles.bobbleTitle} numberOfLines={1}>
-        {cluster.bobbleTitleSnapshot}
-      </Text>
-      <View style={styles.canvas}>
-        <Svg width={CLUSTER_WIDTH} height={CLUSTER_HEIGHT} style={StyleSheet.absoluteFill}>
+      {showConnectorAbove ? (
+        <View style={[styles.incomingConnector, { height: centerPos.y + 22 }]} />
+      ) : null}
+
+      <View style={{
+        backgroundColor: 'white',
+        paddingHorizontal: 20, paddingVertical: 10, borderRadius: 10,
+        alignSelf:"center",
+      }}>
+        <Text style={styles.bobbleTitle}>
+          {cluster.bobbleTitleSnapshot}
+        </Text>
+      </View>
+      <View style={[styles.canvas, { width: clusterWidth }]}>
+        <Svg width={clusterWidth} height={CLUSTER_HEIGHT} style={StyleSheet.absoluteFill}>
           {placed.map(({ node, pos }) => {
             const tip = nodeCenter(pos, NODE_W, NODE_H);
             const lineColor = node.lineColor ?? '#C4B5FD';
@@ -74,14 +94,25 @@ export function MindMapClusterView({ cluster, showConnectorBelow }: MindMapClust
               />
             );
           })}
+          {showConnectorBelow ? (
+            <Line
+              x1={center.x}
+              y1={centerPos.y + CENTER_H}
+              x2={center.x}
+              y2={CLUSTER_HEIGHT}
+              stroke="#A78BFA"
+              strokeWidth={4}
+              strokeLinecap="round"
+            />
+          ) : null}
         </Svg>
 
         <View
           style={[
             styles.centerNode,
             {
-              left: CENTER_POS.x,
-              top: CENTER_POS.y,
+              left: centerPos.x,
+              top: centerPos.y,
               width: CENTER_W,
               height: CENTER_H,
             },
@@ -121,14 +152,15 @@ export function MindMapClusterView({ cluster, showConnectorBelow }: MindMapClust
       {showConnectorBelow ? (
         <View style={styles.connector}>
           <Svg width={24} height={36}>
+            <Path d="M12 0 V30" stroke="#A78BFA" strokeWidth={4} strokeLinecap="round" />
             <Path
-              d="M12 0 V28"
-              stroke="#C4B5FD"
-              strokeWidth={2}
+              d="M5 23 L12 31 L19 23"
+              stroke="#A78BFA"
+              strokeWidth={3.5}
               strokeLinecap="round"
-              strokeDasharray="4 4"
+              strokeLinejoin="round"
+              fill="none"
             />
-            <Path d="M6 22 L12 30 L18 22" stroke="#C4B5FD" strokeWidth={2} fill="none" />
           </Svg>
         </View>
       ) : null}
@@ -140,18 +172,28 @@ const styles = StyleSheet.create({
   wrap: {
     alignItems: 'center',
     width: '100%',
+    position: 'relative',
+  },
+  incomingConnector: {
+    position: 'absolute',
+    top: 0,
+    left: '50%',
+    width: 4,
+    marginLeft: -2,
+    borderRadius: 2,
+    backgroundColor: '#A78BFA',
   },
   bobbleTitle: {
-    ...Typography.body,
-    fontSize: 13,
-    lineHeight: 18,
-    color: '#7C6A9A',
+    ...Typography.heading,
+    fontFamily: FontFamily.bold,
+    fontSize: 15,
+    lineHeight: 20,
+    color: '#111111',
     marginBottom: 4,
-    maxWidth: CLUSTER_WIDTH - 24,
+    maxWidth: MAX_CLUSTER_WIDTH - 24,
     textAlign: 'center',
   },
   canvas: {
-    width: CLUSTER_WIDTH,
     height: CLUSTER_HEIGHT,
     position: 'relative',
   },
@@ -202,7 +244,5 @@ const styles = StyleSheet.create({
   },
   connector: {
     alignItems: 'center',
-    marginTop: 4,
-    marginBottom: 4,
   },
 });

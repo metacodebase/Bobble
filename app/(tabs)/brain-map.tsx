@@ -1,12 +1,16 @@
 import { Image } from 'expo-image';
 import { Href, router } from 'expo-router';
-import { RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { X } from 'lucide-react-native';
+import { useState } from 'react';
+import { Modal, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { MindMapClusterView } from '@/src/components/brain-map/mind-map-cluster';
 import { PrimaryButton } from '@/src/components/onboarding/primary-button';
-import { ScreenHeader } from '@/src/components/ui/screen-header';
+import { AppBackground } from '@/src/components/ui/app-background';
 import { ScreenLoading } from '@/src/components/ui/screen-loading';
+import { DEMO_MIND_MAP } from '@/src/data/demo-data';
+import type { MindMapCluster } from '@/src/features/mind-map/types';
 import { useMindMapClusters } from '@/src/hooks/mind-map';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { useNightForeground } from '@/src/hooks/use-night-foreground';
@@ -16,10 +20,121 @@ import { Typography } from '@/src/theme/fonts';
 
 const MINDMAP_ICON = require('@/src/assets/images/tab-icons/mindmap-active.png');
 
+const DEMO_CLUSTERS: MindMapCluster[] = [
+  {
+    _id: 'mind-map-demo-day-1',
+    user: 'demo',
+    sourceBobbleId: 'demo-bobble-day-1',
+    captureAt: '',
+    centerTitle: 'Jul 21',
+    bobbleTitleSnapshot: 'Fitness goals & first steps',
+    taskNodes: DEMO_MIND_MAP.nodes.slice(0, 3),
+    createdAt: '',
+    updatedAt: '',
+  },
+  {
+    _id: 'mind-map-demo-day-2',
+    user: 'demo',
+    sourceBobbleId: 'demo-bobble-day-2',
+    captureAt: '',
+    centerTitle: 'Jul 24',
+    bobbleTitleSnapshot: 'Building a consistent routine',
+    taskNodes: [
+      {
+        id: 'schedule',
+        title: 'Schedule',
+        subtitle: 'Morning workouts',
+        backgroundColor: '#EDE9FE',
+        lineColor: '#C4B5FD',
+        position: 'top',
+      },
+      {
+        id: 'meal-prep',
+        title: 'Meal prep',
+        subtitle: 'Plan balanced meals',
+        backgroundColor: '#DCFCE7',
+        lineColor: '#86EFAC',
+        position: 'left',
+      },
+      {
+        id: 'progress',
+        title: 'Progress',
+        subtitle: 'Track each session',
+        backgroundColor: '#DBEAFE',
+        lineColor: '#93C5FD',
+        position: 'right',
+      },
+      {
+        id: 'rest',
+        title: 'Recovery',
+        subtitle: 'Sleep & stretching',
+        backgroundColor: '#FCE7F3',
+        lineColor: '#F9A8D4',
+        position: 'bottom-right',
+      },
+    ],
+    createdAt: '',
+    updatedAt: '',
+  },
+  {
+    _id: 'mind-map-demo-day-3',
+    user: 'demo',
+    sourceBobbleId: 'demo-bobble-day-3',
+    captureAt: '',
+    centerTitle: 'Aug 2',
+    bobbleTitleSnapshot: 'Reviewing progress & staying motivated',
+    taskNodes: [
+      {
+        id: 'wins',
+        title: 'Wins',
+        subtitle: 'Celebrate progress',
+        backgroundColor: '#EDE9FE',
+        lineColor: '#C4B5FD',
+        position: 'top',
+      },
+      {
+        id: 'energy',
+        title: 'Energy',
+        subtitle: 'Notice how you feel',
+        backgroundColor: '#FEF9C3',
+        lineColor: '#FDE047',
+        position: 'left',
+      },
+      {
+        id: 'adjustments',
+        title: 'Adjustments',
+        subtitle: 'Refine the routine',
+        backgroundColor: '#DBEAFE',
+        lineColor: '#93C5FD',
+        position: 'right',
+      },
+      {
+        id: 'next-goal',
+        title: 'Next goal',
+        subtitle: 'Plan the next step',
+        backgroundColor: '#DCFCE7',
+        lineColor: '#86EFAC',
+        position: 'bottom-left',
+      },
+      {
+        id: 'reflection',
+        title: 'Reflection',
+        subtitle: 'Keep what works',
+        backgroundColor: '#FCE7F3',
+        lineColor: '#F9A8D4',
+        position: 'bottom-right',
+      },
+    ],
+    createdAt: '',
+    updatedAt: '',
+  },
+];
+
 export default function BrainMapScreen() {
   const insets = useSafeAreaInsets();
   const colors = useBobbleColors();
   const night = useNightForeground();
+  const [showDemo, setShowDemo] = useState(false);
   const { height: tabBarHeight } = useTabBarInsets();
   const isPro = useIsPro();
   const { data: clusters, isLoading, isRefetching, refetch } = useMindMapClusters(isPro);
@@ -34,7 +149,21 @@ export default function BrainMapScreen() {
         },
       ]}
     >
-      <ScreenHeader title="Brain Map" />
+      <View style={styles.header}>
+        <Text style={[styles.headerTitle, { color: night.text ?? colors.text }]}>Brain Map</Text>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Show a mind map demo"
+          onPress={() => setShowDemo(true)}
+          style={({ pressed }) => [
+            styles.demoButton,
+            { backgroundColor: colors.surface, borderColor: colors.border },
+            pressed && styles.pressed,
+          ]}
+        >
+          <Text style={[styles.demoButtonText, { color: colors.primary }]}>Demo</Text>
+        </Pressable>
+      </View>
 
       {!isPro ? (
         <View style={styles.empty}>
@@ -88,6 +217,66 @@ export default function BrainMapScreen() {
           ))}
         </ScrollView>
       )}
+
+      <Modal visible={showDemo} animationType="slide" onRequestClose={() => setShowDemo(false)}>
+        <AppBackground>
+          <View
+            style={[
+              styles.modalRoot,
+              {
+                paddingTop: insets.top + 12,
+                paddingBottom: insets.bottom,
+              },
+            ]}
+          >
+            <View style={styles.demoHeader}>
+              <View style={styles.demoHeaderCopy}>
+                <Text style={[styles.demoTitle, { color: night.text ?? colors.text }]}>
+                  Mind map demo
+                </Text>
+                <Text
+                  style={[
+                    styles.demoSubtitle,
+                    { color: night.textSecondary ?? colors.textSecondary },
+                  ]}
+                >
+                  See how your ideas grow and connect across days.
+                </Text>
+              </View>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Close mind map demo"
+                hitSlop={10}
+                onPress={() => setShowDemo(false)}
+                style={({ pressed }) => [
+                  styles.closeButton,
+                  { backgroundColor: night.isNight ? 'rgba(255, 255, 255, 0.16)' : colors.surface },
+                  pressed && styles.pressed,
+                ]}
+              >
+                <X
+                  size={20}
+                  color={night.textSecondary ?? colors.textSecondary}
+                  strokeWidth={2.2}
+                />
+              </Pressable>
+            </View>
+            <ScrollView
+              contentContainerStyle={styles.demoContent}
+              showsVerticalScrollIndicator={false}
+            >
+              {DEMO_CLUSTERS.map((cluster, index) => (
+                <MindMapClusterView
+                  key={cluster._id}
+                  cluster={cluster}
+                  showConnectorAbove={index > 0}
+                  showConnectorBelow={index < DEMO_CLUSTERS.length - 1}
+                />
+              ))}
+            </ScrollView>
+          </View>
+        </AppBackground>
+      </Modal>
     </View>
   );
 }
@@ -96,6 +285,29 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
     paddingHorizontal: 16,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 16,
+  },
+  headerTitle: {
+    ...Typography.heading,
+    fontSize: 28,
+    lineHeight: 36,
+  },
+  demoButton: {
+    minHeight: 38,
+    justifyContent: 'center',
+    borderRadius: 19,
+    borderWidth: StyleSheet.hairlineWidth,
+    paddingHorizontal: 16,
+  },
+  demoButtonText: {
+    ...Typography.button,
+    fontSize: 14,
+    lineHeight: 18,
   },
   scrollContent: {
     alignItems: 'center',
@@ -144,5 +356,44 @@ const styles = StyleSheet.create({
   cta: {
     marginTop: 8,
     minWidth: 220,
+  },
+  modalRoot: {
+    flex: 1,
+  },
+  demoHeader: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    paddingHorizontal: 20,
+    paddingBottom: 12,
+    gap: 12,
+  },
+  demoHeaderCopy: {
+    flex: 1,
+    gap: 3,
+  },
+  demoTitle: {
+    ...Typography.heading,
+    fontSize: 22,
+    lineHeight: 28,
+  },
+  demoSubtitle: {
+    ...Typography.body,
+    fontSize: 13,
+    lineHeight: 18,
+  },
+  closeButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  demoContent: {
+    alignItems: 'center',
+    paddingTop: 12,
+    paddingBottom: 32,
+  },
+  pressed: {
+    opacity: 0.72,
   },
 });
