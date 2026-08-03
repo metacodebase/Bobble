@@ -1,4 +1,3 @@
-
 import { OnboardingScreenLayout } from '@/src/components/onboarding/onboarding-screen-layout';
 import { PrimaryButton } from '@/src/components/onboarding/primary-button';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
@@ -33,14 +32,14 @@ export default function AuthSplashScreen() {
       backgroundImage={require('@/src/assets/images/background/two.png')}
       contentStyle={styles.content}
       footer={
-        <View style={{ width: '100%',paddingTop:10,gap:10}}>
+        <View style={{ width: '100%', paddingTop: 10, gap: 10 }}>
           <PrimaryButton
             label="Get Started"
             onPress={() => router.push('/(auth)/onboarding' as Href)}
           />
           <View style={styles.footer}>
             <Text style={[styles.footerText, { color: colors.text }]}>
-              Don't have an account?{' '}
+              Don’t have an account?{' '}
               <Text
                 style={[styles.footerLink, { color: colors.textAccent }]}
                 onPress={() => router.push('/(auth)/sign-in' as Href)}
@@ -52,17 +51,31 @@ export default function AuthSplashScreen() {
         </View>
       }
     >
-
       <View style={styles.splashBody} onLayout={revealAppSplash}>
         <View style={[styles.header, { marginBottom: headerBottomSpacing }]}>
-          <Text style={[styles.title, { color: '#0B0944', fontSize: titleFontSize, lineHeight: titleFontSize + 4 }]}>
+          <Text
+            style={[
+              styles.title,
+              { color: '#0B0944', fontSize: titleFontSize, lineHeight: titleFontSize + 4 },
+            ]}
+          >
             Bobble
           </Text>
-          <Text style={[styles.subtitle, { color: colors.textAccent, fontSize: subtitleFontSize, lineHeight: subtitleLineHeight }]}>
+          <Text
+            style={[
+              styles.subtitle,
+              {
+                color: colors.textAccent,
+                fontSize: subtitleFontSize,
+                lineHeight: subtitleLineHeight,
+              },
+            ]}
+          >
             Unwind your messy mind
           </Text>
         </View>
-        <Image source={require('../../src/assets/images/bobble-splash.png')}
+        <Image
+          source={require('../../src/assets/images/bobble-splash.png')}
           style={{ width: '90%', height: 300, borderRadius: 20 }}
           contentFit="contain"
         />
@@ -72,18 +85,47 @@ export default function AuthSplashScreen() {
           contentFit="contain"
         />
         <View style={styles.tagline}>
-          <Text style={[styles.taglineLine, { color: colors.textAccent, fontSize: taglineFontSize, lineHeight: taglineLineHeight }]}>
-            Dream. <Text style={[styles.taglineLine, { color: '#0B0944', fontSize: taglineFontSize, lineHeight: taglineLineHeight }]}>
+          <Text
+            style={[
+              styles.taglineLine,
+              {
+                color: colors.textAccent,
+                fontSize: taglineFontSize,
+                lineHeight: taglineLineHeight,
+              },
+            ]}
+          >
+            Dream.{' '}
+            <Text
+              style={[
+                styles.taglineLine,
+                { color: '#0B0944', fontSize: taglineFontSize, lineHeight: taglineLineHeight },
+              ]}
+            >
               Believe.
             </Text>
           </Text>
 
-          <Text style={[styles.taglineLine, { color: colors.textAccent, fontSize: taglineFontSize, lineHeight: taglineLineHeight }]}>
-            Bobble. <Text style={[styles.taglineLine, { color: colors.text, fontSize: taglineFontSize, lineHeight: taglineLineHeight }]}>
+          <Text
+            style={[
+              styles.taglineLine,
+              {
+                color: colors.textAccent,
+                fontSize: taglineFontSize,
+                lineHeight: taglineLineHeight,
+              },
+            ]}
+          >
+            Bobble.{' '}
+            <Text
+              style={[
+                styles.taglineLine,
+                { color: colors.text, fontSize: taglineFontSize, lineHeight: taglineLineHeight },
+              ]}
+            >
               Achieve.
             </Text>
           </Text>
-
         </View>
       </View>
     </OnboardingScreenLayout>

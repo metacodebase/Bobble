@@ -36,7 +36,7 @@ function renderSubtitle(subtitle: string) {
       </Text>
     ) : (
       part
-    ),
+    )
   );
 }
 
@@ -62,15 +62,13 @@ export function TodayProgressCard({
       style={styles.card}
     >
       <View style={styles.top}>
-        <Text style={[styles.title, { color: BobbleColors.textOnPrimary }]}>Today's Progress</Text>
+        <Text style={[styles.title, { color: BobbleColors.textOnPrimary }]}>Today’s Progress</Text>
         <View style={styles.body}>
           <View style={styles.countWrap}>
             <Text style={[styles.count, { color: BobbleColors.textOnPrimary }]}>
               {completed}/{total}
             </Text>
-            <Text style={[styles.subtitle, { color: BobbleColors.textOnPrimary }]}>
-              Tasks done
-            </Text>
+            <Text style={[styles.subtitle, { color: BobbleColors.textOnPrimary }]}>Tasks done</Text>
           </View>
         </View>
       </View>

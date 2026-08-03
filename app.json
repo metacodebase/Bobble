@@ -25,9 +25,7 @@
         "NSRemindersUsageDescription": "Bobble uses your reminders to sync tasks from your Bobbles.",
         "NSRemindersFullAccessUsageDescription": "Bobble uses your reminders to sync tasks from your Bobbles.",
         "NSUserNotificationsUsageDescription": "Bobble sends task reminders and streak alerts.",
-        "UIBackgroundModes": [
-          "remote-notification"
-        ],
+        "UIBackgroundModes": ["remote-notification"],
         "NSAppTransportSecurity": {
           "NSAllowsArbitraryLoads": true,
           "NSAllowsLocalNetworking": true,
@@ -42,14 +40,12 @@
       },
       "appleTeamId": "BNV5TR576V",
       "entitlements": {
-        "com.apple.security.application-groups": [
-          "group.com.bobble.au"
-        ]
+        "com.apple.security.application-groups": ["group.com.bobble.au"]
       }
     },
     "android": {
       "icon": "./src/assets/images/bobble-app-icon.png",
-      "versionCode": 10,
+      "versionCode": 11,
       "adaptiveIcon": {
         "foregroundImage": "./src/assets/images/android-icon-foreground.png",
         "monochromeImage": "./src/assets/images/android-icon-monochrome.png",
@@ -82,9 +78,7 @@
       [
         "react-native-android-widget",
         {
-          "fonts": [
-            "./node_modules/@expo-google-fonts/sniglet/400Regular/Sniglet_400Regular.ttf"
-          ],
+          "fonts": ["./node_modules/@expo-google-fonts/sniglet/400Regular/Sniglet_400Regular.ttf"],
           "widgets": [
             {
               "name": "BobbleTasksSmall",
@@ -201,12 +195,8 @@
       [
         "react-native-share",
         {
-          "ios": [
-            "fb"
-          ],
-          "android": [
-            "com.facebook.katana"
-          ],
+          "ios": ["fb"],
+          "android": ["com.facebook.katana"],
           "enableBase64ShareAndroid": true
         }
       ],
@@ -226,9 +216,7 @@
                   "bundleIdentifier": "com.bobble.au.widget",
                   "targetName": "BobbleWidget",
                   "entitlements": {
-                    "com.apple.security.application-groups": [
-                      "group.com.bobble.au"
-                    ]
+                    "com.apple.security.application-groups": ["group.com.bobble.au"]
                   }
                 }
               ]

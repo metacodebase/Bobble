@@ -1,9 +1,5 @@
 import { useAppStore } from '@/src/store/app-store';
-import type {
-  ApiError,
-  ApiPaginatedResponse,
-  ApiSuccessResponse,
-} from '@/src/types/api';
+import type { ApiError, ApiPaginatedResponse, ApiSuccessResponse } from '@/src/types/api';
 
 import { getConfiguredApiUrl } from '@/src/config/api';
 import { BACKEND_ALLOWED } from '@/src/config/backend';
@@ -36,9 +32,15 @@ async function refreshAccessToken(): Promise<string | null> {
       body: JSON.stringify({ refreshToken }),
     })
       .then(async (res) => {
-        const json = (await res.json()) as { data?: { accessToken?: string } };
+        const json = (await res.json()) as {
+          data?: { accessToken?: string; refreshToken?: string };
+        };
         if (res.ok && json.data?.accessToken) {
-          useAppStore.getState().setAuthToken(json.data.accessToken);
+          if (json.data.refreshToken) {
+            useAppStore.getState().setTokens(json.data.accessToken, json.data.refreshToken);
+          } else {
+            useAppStore.getState().setAuthToken(json.data.accessToken);
+          }
           return json.data.accessToken;
         }
         useAppStore.getState().clearSession();
@@ -111,15 +113,16 @@ async function request<TResponse, TBody = unknown>(
       code: payload?.code,
       errors: payload?.errors,
     };
-    console.error('[API] request failed', {
-      method,
-      url,
-      status: res.status,
-      message: error.message,
-      code: error.code,
-      errors: error.errors,
-      body,
-    });
+    if (__DEV__) {
+      console.error('[API] request failed', {
+        method,
+        url,
+        status: res.status,
+        message: error.message,
+        code: error.code,
+        errors: error.errors,
+      });
+    }
     throw error;
   }
 

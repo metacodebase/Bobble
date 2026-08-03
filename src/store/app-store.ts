@@ -21,6 +21,7 @@ interface AppState {
 
   setSession: (session: AuthSession) => void;
   setAuthToken: (token: string | null) => void;
+  setTokens: (accessToken: string, refreshToken: string) => void;
   setUser: (user: AuthUser | null) => void;
   setHasOnboarded: (value: boolean) => void;
   setHasHydrated: (value: boolean) => void;
@@ -57,6 +58,8 @@ const createAppState: StateCreator<AppState> = (set) => ({
       isAuthenticated: token !== null,
       ...(token === null ? { refreshToken: null, user: null } : {}),
     }),
+
+  setTokens: (authToken, refreshToken) => set({ authToken, refreshToken, isAuthenticated: true }),
 
   setUser: (user) => set({ user }),
 

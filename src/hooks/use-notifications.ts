@@ -5,7 +5,10 @@ import {
   fetchNotificationPreferences,
   updateNotificationPreferences,
 } from '@/src/api/notifications';
-import type { NotificationPreferences, UpdateNotificationPreferencesBody } from '@/src/features/notifications/types';
+import type {
+  NotificationPreferences,
+  UpdateNotificationPreferencesBody,
+} from '@/src/features/notifications/types';
 import {
   attachNotificationListeners,
   handleColdStartNotificationTap,
@@ -15,15 +18,6 @@ import { queryKeys } from '@/src/services/query-keys';
 import { useAppStore } from '@/src/store/app-store';
 import { getApiErrorMessage } from '@/src/utils/api-error';
 import { toast } from '@/src/utils/toast';
-
-function emitNotificationDebugLog(
-  hypothesisId: string,
-  location: string,
-  message: string,
-  data: Record<string, unknown>,
-): void {
-  fetch('http://127.0.0.1:7896/ingest/6498acde-96c3-4039-baac-430fa4cca5ac',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'814506'},body:JSON.stringify({sessionId:'814506',runId:'initial',hypothesisId,location,message,data,timestamp:Date.now()})}).catch(()=>{});
-}
 
 export function useNotificationPreferences(enabled = true) {
   const isAuthenticated = useAppStore((s) => s.isAuthenticated);
@@ -38,8 +32,7 @@ export function useNotificationPreferences(enabled = true) {
 export function useUpdateNotificationPreferences() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (body: UpdateNotificationPreferencesBody) =>
-      updateNotificationPreferences(body),
+    mutationFn: (body: UpdateNotificationPreferencesBody) => updateNotificationPreferences(body),
     onSuccess: async (preferences: NotificationPreferences) => {
       qc.setQueryData(queryKeys.notifications.preferences, preferences);
       try {
@@ -58,14 +51,6 @@ export function usePushNotificationsBootstrap(enabled = true) {
   const preferences = useNotificationPreferences(enabled && isAuthenticated);
 
   useEffect(() => {
-    // #region agent log
-    emitNotificationDebugLog('H5', 'use-notifications.ts:bootstrapEffect:state', 'Push bootstrap effect evaluated', {
-      enabled,
-      isAuthenticated,
-      hasPreferences: Boolean(preferences.data),
-      pushEnabled: preferences.data?.pushEnabled ?? null,
-    });
-    // #endregion
     if (!enabled || !isAuthenticated || !preferences.data?.pushEnabled) return;
 
     void syncPushRegistration(true).catch((error) => {

@@ -29,16 +29,14 @@ function parseTimeOnDay(time: string, dayOffset: number): Date {
   return date;
 }
 
-function groupToDayOffset(group: 'today' | 'tomorrow' | 'upcoming'): number {
+function groupToDayOffset(group: 'overdue' | 'today' | 'tomorrow' | 'upcoming'): number {
+  if (group === 'overdue') return -1;
   if (group === 'tomorrow') return 1;
   if (group === 'upcoming') return 7;
   return 0;
 }
 
-function toTask(
-  item: (typeof DEMO_TASKS)[number],
-  overrides: Partial<Task> = {},
-): Task {
+function toTask(item: (typeof DEMO_TASKS)[number], overrides: Partial<Task> = {}): Task {
   const now = new Date().toISOString();
   const dueAt = parseTimeOnDay(item.time, groupToDayOffset(item.group)).toISOString();
 
@@ -85,7 +83,9 @@ export async function createTask(body: CreateTaskBody): Promise<Task> {
 }
 
 export async function createTasksBulk(body: CreateTasksBulkBody): Promise<Task[]> {
-  const created = await Promise.all(body.tasks.map((task) => createTask({ ...task, bobble: body.bobble })));
+  const created = await Promise.all(
+    body.tasks.map((task) => createTask({ ...task, bobble: body.bobble }))
+  );
   return created;
 }
 
