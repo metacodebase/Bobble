@@ -66,6 +66,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 32,
     lineHeight: 24,
+    letterSpacing: 0,
   },
   inputWithToggle: {
     paddingRight: 52,

@@ -470,6 +470,7 @@ export default function CreateAccountScreen() {
             <StepHeading step={1} />
             <View style={styles.formGroup}>
               <LabeledTextInput
+                key="signup-verification-code"
                 label="Verification code"
                 placeholder="000000"
                 value={verificationCode}
@@ -504,6 +505,7 @@ export default function CreateAccountScreen() {
             <StepHeading step={2} />
             <View style={styles.formGroup}>
               <LabeledTextInput
+                key="signup-password"
                 label="Password"
                 placeholder="At least 8 characters"
                 value={password}
@@ -512,6 +514,7 @@ export default function CreateAccountScreen() {
                 autoCapitalize="none"
                 autoComplete="password-new"
                 textContentType="newPassword"
+                style={styles.passwordInput}
               />
             </View>
           </>
@@ -668,6 +671,10 @@ const styles = StyleSheet.create({
   otpInput: {
     textAlign: 'center',
     letterSpacing: 10,
+  },
+  passwordInput: {
+    letterSpacing: 0,
+    textAlign: 'left',
   },
   verificationHelp: {
     color: BobbleColors.textSecondary,
