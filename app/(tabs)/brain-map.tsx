@@ -1,11 +1,16 @@
 import { Image } from 'expo-image';
 import { Href, router } from 'expo-router';
-import { X } from 'lucide-react-native';
-import { useState } from 'react';
+import { CalendarDays, X } from 'lucide-react-native';
+import { useMemo, useState } from 'react';
 import { Modal, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { MindMapClusterView } from '@/src/components/brain-map/mind-map-cluster';
+import { DateRangeFilter } from '@/src/components/brain-map/date-range-filter';
+import type {
+  CustomDateRange,
+  MindMapDateFilter,
+} from '@/src/components/brain-map/date-range-filter';
 import { PrimaryButton } from '@/src/components/onboarding/primary-button';
 import { AppBackground } from '@/src/components/ui/app-background';
 import { ScreenLoading } from '@/src/components/ui/screen-loading';
@@ -19,6 +24,40 @@ import { useTabBarInsets } from '@/src/hooks/use-tab-bar-insets';
 import { Typography } from '@/src/theme/fonts';
 
 const MINDMAP_ICON = require('@/src/assets/images/tab-icons/mindmap-active.png');
+
+function clusterDate(cluster: MindMapCluster) {
+  const rawDate = cluster.captureAt || cluster.createdAt;
+  if (!rawDate) return null;
+  const date = new Date(rawDate);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function startOfDay(date: Date) {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
+function dateBounds(filter: MindMapDateFilter, customRange: CustomDateRange) {
+  const today = startOfDay(new Date());
+  if (filter === 'week') {
+    const start = new Date(today);
+    start.setDate(today.getDate() - today.getDay());
+    const end = new Date(start);
+    end.setDate(start.getDate() + 7);
+    return { start, end };
+  }
+  if (filter === 'month') {
+    return {
+      start: new Date(today.getFullYear(), today.getMonth(), 1),
+      end: new Date(today.getFullYear(), today.getMonth() + 1, 1),
+    };
+  }
+  if (filter === 'custom' && customRange) {
+    const end = new Date(customRange.end);
+    end.setDate(end.getDate() + 1);
+    return { start: customRange.start, end };
+  }
+  return null;
+}
 
 const DEMO_CLUSTERS: MindMapCluster[] = [
   {
@@ -135,9 +174,25 @@ export default function BrainMapScreen() {
   const colors = useBobbleColors();
   const night = useNightForeground();
   const [showDemo, setShowDemo] = useState(false);
+  const [dateFilter, setDateFilter] = useState<MindMapDateFilter>('all');
+  const [customRange, setCustomRange] = useState<CustomDateRange>(null);
   const { height: tabBarHeight } = useTabBarInsets();
   const isPro = useIsPro();
   const { data: clusters, isLoading, isRefetching, refetch } = useMindMapClusters(isPro);
+  const filteredClusters = useMemo(() => {
+    if (!clusters || dateFilter === 'all') return clusters ?? [];
+    const bounds = dateBounds(dateFilter, customRange);
+    if (!bounds) return clusters;
+    return clusters.filter((cluster) => {
+      const date = clusterDate(cluster);
+      return date ? date >= bounds.start && date < bounds.end : false;
+    });
+  }, [clusters, customRange, dateFilter]);
+
+  const changeDateFilter = (filter: MindMapDateFilter, range?: CustomDateRange) => {
+    setDateFilter(filter);
+    if (range !== undefined) setCustomRange(range);
+  };
 
   return (
     <View
@@ -161,7 +216,7 @@ export default function BrainMapScreen() {
             pressed && styles.pressed,
           ]}
         >
-          <Text style={[styles.demoButtonText, { color: colors.primary }]}>Check how it looks</Text>
+          <Text style={[styles.demoButtonText, { color: colors.primary }]}>Check the demo</Text>
         </Pressable>
       </View>
 
@@ -197,25 +252,53 @@ export default function BrainMapScreen() {
           </Text>
         </View>
       ) : (
-        <ScrollView
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-          refreshControl={
-            <RefreshControl
-              refreshing={isRefetching && !isLoading}
-              onRefresh={() => void refetch()}
-              tintColor={colors.primary}
-            />
-          }
-        >
-          {clusters.map((cluster, index) => (
-            <MindMapClusterView
-              key={cluster._id}
-              cluster={cluster}
-              showConnectorBelow={index < clusters.length - 1}
-            />
-          ))}
-        </ScrollView>
+        <View style={styles.mapContent}>
+          <DateRangeFilter
+            value={dateFilter}
+            customRange={customRange}
+            onChange={changeDateFilter}
+          />
+          {filteredClusters.length ? (
+            <ScrollView
+              contentContainerStyle={styles.scrollContent}
+              showsVerticalScrollIndicator={false}
+              refreshControl={
+                <RefreshControl
+                  refreshing={isRefetching && !isLoading}
+                  onRefresh={() => void refetch()}
+                  tintColor={colors.primary}
+                />
+              }
+            >
+              {filteredClusters.map((cluster, index) => (
+                <MindMapClusterView
+                  key={cluster._id}
+                  cluster={cluster}
+                  showConnectorBelow={index < filteredClusters.length - 1}
+                />
+              ))}
+            </ScrollView>
+          ) : (
+            <View style={styles.filteredEmpty}>
+              <CalendarDays size={40} color={colors.primary} />
+              <Text style={[styles.title, { color: night.text ?? colors.text }]}>
+                No bobbles here
+              </Text>
+              <Text
+                style={[styles.subtitle, { color: night.textSecondary ?? colors.textSecondary }]}
+              >
+                Try another time period or choose different dates.
+              </Text>
+              <Pressable
+                accessibilityRole="button"
+                onPress={() => setDateFilter('all')}
+                style={[styles.showAllButton, { backgroundColor: colors.primary }]}
+              >
+                <Text style={styles.showAllText}>Show all bobbles</Text>
+              </Pressable>
+            </View>
+          )}
+        </View>
       )}
 
       <Modal visible={showDemo} animationType="slide" onRequestClose={() => setShowDemo(false)}>
@@ -313,6 +396,29 @@ const styles = StyleSheet.create({
     paddingTop: 8,
     paddingBottom: 24,
     gap: 4,
+  },
+  mapContent: {
+    flex: 1,
+  },
+  filteredEmpty: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+    paddingBottom: 60,
+  },
+  showAllButton: {
+    minHeight: 42,
+    justifyContent: 'center',
+    borderRadius: 21,
+    marginTop: 4,
+    paddingHorizontal: 18,
+  },
+  showAllText: {
+    ...Typography.button,
+    color: '#FFFFFF',
+    fontSize: 13,
+    lineHeight: 17,
   },
   empty: {
     flex: 1,
