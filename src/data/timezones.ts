@@ -32,5 +32,52 @@ export const TIME_ZONES: TimeZoneOption[] = [
   { id: 'Pacific/Auckland', label: '(GMT+12:00) Auckland' },
 ];
 
-export const DEFAULT_TIME_ZONE: TimeZoneOption =
-  TIME_ZONES.find((t) => t.id === 'Asia/Kolkata') ?? TIME_ZONES[0];
+function getUtcOffsetMinutes(timeZoneId: string, at: Date = new Date()): number {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: timeZoneId,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hourCycle: 'h23',
+  }).formatToParts(at);
+
+  const value = (type: Intl.DateTimeFormatPartTypes) =>
+    Number(parts.find((part) => part.type === type)?.value);
+
+  const asUtc = Date.UTC(
+    value('year'),
+    value('month') - 1,
+    value('day'),
+    value('hour'),
+    value('minute'),
+    value('second'),
+  );
+
+  return (asUtc - at.getTime()) / 60_000;
+}
+
+/**
+ * Resolves the device timezone to the closest curated option.
+ * Prefers an exact IANA match, then falls back to matching the current UTC offset.
+ */
+export function getDeviceTimeZone(): TimeZoneOption {
+  const deviceId = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+  const exact = TIME_ZONES.find((tz) => tz.id === deviceId);
+  if (exact) return exact;
+
+  try {
+    const deviceOffset = getUtcOffsetMinutes(deviceId);
+    const byOffset = TIME_ZONES.find((tz) => getUtcOffsetMinutes(tz.id) === deviceOffset);
+    if (byOffset) return byOffset;
+  } catch {
+    // Invalid/unknown timezone ids fall through to the default below.
+  }
+
+  return TIME_ZONES[0];
+}
+
+export const DEFAULT_TIME_ZONE: TimeZoneOption = getDeviceTimeZone();

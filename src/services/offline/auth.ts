@@ -6,11 +6,14 @@ import type {
   ChangePasswordBody,
   LoginBody,
   RegisterBody,
-  RegisterResult,
+  RequestSignupVerificationBody,
   ResendVerificationBody,
   ResendVerificationResult,
   SocialAuthBody,
+  SignupVerificationResult,
   VerifyEmailBody,
+  VerifySignupEmailBody,
+  VerifySignupEmailResult,
 } from '@/src/features/auth/types';
 import { useAppStore } from '@/src/store/app-store';
 
@@ -54,8 +57,24 @@ export async function login(body: LoginBody): Promise<AuthSession> {
   });
 }
 
-export async function register(body: RegisterBody): Promise<RegisterResult> {
-  return { email: body.email, expiresInSeconds: 600 };
+export async function register(body: RegisterBody): Promise<AuthSession> {
+  return buildSession({ email: body.email, name: body.name });
+}
+
+export async function requestSignupVerification(
+  body: RequestSignupVerificationBody
+): Promise<SignupVerificationResult> {
+  return { email: body.email, expiresInSeconds: 600, retryAfterSeconds: 60 };
+}
+
+export async function verifySignupEmail(
+  body: VerifySignupEmailBody
+): Promise<VerifySignupEmailResult> {
+  return {
+    email: body.email,
+    emailVerificationToken: 'offline-verification-token-000000000000',
+    verificationExpiresInSeconds: 7 * 24 * 60 * 60,
+  };
 }
 
 export async function verifyEmail(body: VerifyEmailBody): Promise<AuthSession> {

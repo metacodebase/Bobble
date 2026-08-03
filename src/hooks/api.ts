@@ -7,9 +7,11 @@ import type {
   ChangePasswordBody,
   LoginBody,
   RegisterBody,
+  RequestSignupVerificationBody,
   ResendVerificationBody,
   SocialAuthBody,
   VerifyEmailBody,
+  VerifySignupEmailBody,
 } from '@/src/features/auth/types';
 import type { ApiError } from '@/src/types/api';
 import { queryKeys } from '@/src/services/query-keys';
@@ -71,9 +73,32 @@ export function useLogin() {
 }
 
 export function useRegister() {
+  const setSession = useAppStore((s) => s.setSession);
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: (body: RegisterBody) => authApi.register(body),
+    onSuccess: (session) => {
+      setSession(session);
+      qc.setQueryData(queryKeys.auth.me, session.user);
+      void loginPurchases(session.user._id);
+      router.replace('/(tabs)');
+      toast.success('Welcome to Bobble!');
+    },
     onError: (e) => toast.error(getApiErrorMessage(e, 'Registration failed')),
+  });
+}
+
+export function useRequestSignupVerification() {
+  return useMutation({
+    mutationFn: (body: RequestSignupVerificationBody) => authApi.requestSignupVerification(body),
+    onError: (e) => toast.error(getApiErrorMessage(e, 'Could not send verification code')),
+  });
+}
+
+export function useVerifySignupEmail() {
+  return useMutation({
+    mutationFn: (body: VerifySignupEmailBody) => authApi.verifySignupEmail(body),
+    onError: (e) => toast.error(getApiErrorMessage(e, 'Verification failed')),
   });
 }
 

@@ -45,11 +45,29 @@ export interface RegisterBody {
   name: string;
   email: string;
   password: string;
+  emailVerificationToken: string;
 }
 
-export interface RegisterResult {
+export interface RequestSignupVerificationBody {
+  name: string;
+  email: string;
+}
+
+export interface SignupVerificationResult {
   email: string;
   expiresInSeconds: number;
+  retryAfterSeconds: number;
+}
+
+export interface VerifySignupEmailBody {
+  email: string;
+  code: string;
+}
+
+export interface VerifySignupEmailResult {
+  email: string;
+  emailVerificationToken: string;
+  verificationExpiresInSeconds: number;
 }
 
 export interface VerifyEmailBody {

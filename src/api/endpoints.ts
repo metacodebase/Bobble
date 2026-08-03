@@ -2,6 +2,8 @@ export const API = {
   health: '/api/health',
   auth: {
     register: '/api/auth/register',
+    requestSignupVerification: '/api/auth/request-signup-verification',
+    verifySignupEmail: '/api/auth/verify-signup-email',
     login: '/api/auth/login',
     verifyEmail: '/api/auth/verify-email',
     resendVerification: '/api/auth/resend-verification',

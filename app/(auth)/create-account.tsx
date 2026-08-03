@@ -1,6 +1,6 @@
-import { router, useNavigation } from 'expo-router';
-import { useCallback, useEffect, useState } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useNavigation } from 'expo-router';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { KeyboardAvoidingView, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 
 import { CalendarProviderIcon } from '@/src/components/create-account/calendar-brand-icons';
@@ -21,14 +21,26 @@ import { GoalIconId } from '@/src/components/onboarding/ui-icons';
 import { isDemoMode } from '@/src/config/backend';
 import { COUNTRIES, DEFAULT_COUNTRY, type Country } from '@/src/data/countries';
 import { PROFILE_USER } from '@/src/data/demo-data';
-import { DEFAULT_TIME_ZONE, TIME_ZONES } from '@/src/data/timezones';
-import { useLogin, useRegister } from '@/src/hooks/api';
+import { getDeviceTimeZone, TIME_ZONES } from '@/src/data/timezones';
+import {
+  useLogin,
+  useRegister,
+  useRequestSignupVerification,
+  useVerifySignupEmail,
+} from '@/src/hooks/api';
 import { useAppStore } from '@/src/store/app-store';
+import {
+  clearSignupDraft,
+  loadSignupDraft,
+  saveSignupDraft,
+  type SignupDraft,
+} from '@/src/services/signup-draft';
 import { BobbleColors } from '@/src/theme/colors';
 import { FontFamily } from '@/src/theme/fonts';
 import { toast } from '@/src/utils/toast';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const DEVICE_TIME_ZONE = getDeviceTimeZone();
 
 function formatDate(date: Date): string {
   return date.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' });
@@ -61,25 +73,32 @@ function StepHeading({ step }: { step: number }) {
     case 1:
       return (
         <CreateAccountHeader>
-          Create your account{'\n'}
-          <AccentText>Almost there!</AccentText>
+          Check your inbox{'\n'}
+          <AccentText>Verify your email</AccentText>
         </CreateAccountHeader>
       );
     case 2:
       return (
         <CreateAccountHeader>
           Create your account{'\n'}
-          <AccentText>Tell us a bit more</AccentText>
+          <AccentText>Almost there!</AccentText>
         </CreateAccountHeader>
       );
     case 3:
+      return (
+        <CreateAccountHeader>
+          Create your account{'\n'}
+          <AccentText>Tell us a bit more</AccentText>
+        </CreateAccountHeader>
+      );
+    case 4:
       return (
         <CreateAccountHeader>
           Choose your goals{'\n'}
           <AccentText>What&apos;s most important to you?</AccentText>
         </CreateAccountHeader>
       );
-    case 4:
+    case 5:
       return (
         <CreateAccountHeader>
           Connect your{' '}
@@ -102,23 +121,35 @@ export default function CreateAccountScreen() {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [verificationCode, setVerificationCode] = useState('');
+  const [emailVerificationToken, setEmailVerificationToken] = useState('');
+  const [verificationExpiresAt, setVerificationExpiresAt] = useState('');
+  const [resendCountdown, setResendCountdown] = useState(0);
   const [phone, setPhone] = useState('');
   const [country, setCountry] = useState<Country>(DEFAULT_COUNTRY);
   const [dob, setDob] = useState<Date | null>(null);
-  const [timeZoneId, setTimeZoneId] = useState<string>(DEFAULT_TIME_ZONE.id);
+  const [timeZoneId, setTimeZoneId] = useState<string>(DEVICE_TIME_ZONE.id);
   const [selectedGoals, setSelectedGoals] = useState<Set<string>>(new Set(['productive']));
   const [datePickerVisible, setDatePickerVisible] = useState(false);
   const [countryPickerVisible, setCountryPickerVisible] = useState(false);
   const [timeZonePickerVisible, setTimeZonePickerVisible] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [savedDraft, setSavedDraft] = useState<SignupDraft | null>(null);
+  const restoredDraft = useRef(false);
 
   const navigation = useNavigation();
   const register = useRegister();
   const login = useLogin();
-  const submitting = register.isPending || login.isPending;
-  const timeZone = TIME_ZONES.find((tz) => tz.id === timeZoneId) ?? DEFAULT_TIME_ZONE;
+  const requestVerification = useRequestSignupVerification();
+  const verifySignupEmail = useVerifySignupEmail();
+  const submitting =
+    register.isPending ||
+    login.isPending ||
+    requestVerification.isPending ||
+    verifySignupEmail.isPending;
+  const timeZone = TIME_ZONES.find((tz) => tz.id === timeZoneId) ?? DEVICE_TIME_ZONE;
 
-  const isLast = step === 4;
+  const isLast = step === 5;
   const hasPreviousStep = step > 0;
 
   const goToPreviousStep = useCallback(() => {
@@ -132,6 +163,18 @@ export default function CreateAccountScreen() {
   useEffect(() => {
     navigation.setOptions({ gestureEnabled: !hasPreviousStep });
   }, [navigation, hasPreviousStep]);
+
+  useEffect(() => {
+    void loadSignupDraft().then(setSavedDraft);
+  }, []);
+
+  useEffect(() => {
+    if (resendCountdown <= 0) return;
+    const timer = setInterval(() => {
+      setResendCountdown((current) => Math.max(0, current - 1));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [resendCountdown]);
 
   // Intercept only *back* actions (Android hardware back / pop) so they step
   // backwards instead of leaving the screen. Programmatic navigation such as
@@ -164,6 +207,50 @@ export default function CreateAccountScreen() {
       }
     });
 
+  const persistDraft = async (
+    nextStep: number,
+    verification?: { token: string; expiresAt: string }
+  ) => {
+    await saveSignupDraft({
+      step: nextStep,
+      fullName: fullName.trim(),
+      email: email.trim().toLowerCase(),
+      phone,
+      countryCode: country.code,
+      dobIso: dob?.toISOString() ?? '',
+      timeZoneId,
+      selectedGoals: [...selectedGoals],
+      acceptedTerms,
+      emailVerificationToken: verification?.token ?? (emailVerificationToken || undefined),
+      verificationExpiresAt: verification?.expiresAt ?? (verificationExpiresAt || undefined),
+    });
+  };
+
+  const handleEmailChange = (value: string) => {
+    setEmail(value);
+    if (restoredDraft.current || !savedDraft) return;
+    if (value.trim().toLowerCase() !== savedDraft.email.trim().toLowerCase()) return;
+
+    restoredDraft.current = true;
+    const savedCountry = COUNTRIES.find((item) => item.code === savedDraft.countryCode);
+    const tokenIsValid =
+      !!savedDraft.emailVerificationToken &&
+      !!savedDraft.verificationExpiresAt &&
+      new Date(savedDraft.verificationExpiresAt).getTime() > Date.now();
+    setFullName(savedDraft.fullName);
+    setEmail(savedDraft.email);
+    setPhone(savedDraft.phone);
+    if (savedCountry) setCountry(savedCountry);
+    setDob(savedDraft.dobIso ? new Date(savedDraft.dobIso) : null);
+    setTimeZoneId(savedDraft.timeZoneId);
+    setSelectedGoals(new Set(savedDraft.selectedGoals));
+    setAcceptedTerms(savedDraft.acceptedTerms);
+    setEmailVerificationToken(tokenIsValid ? savedDraft.emailVerificationToken! : '');
+    setVerificationExpiresAt(tokenIsValid ? savedDraft.verificationExpiresAt! : '');
+    setStep(tokenIsValid ? Math.max(2, savedDraft.step) : 1);
+    toast.success('Your signup progress has been restored');
+  };
+
   // Validate the current step's inputs before advancing. Returns false (and
   // surfaces a toast) when the step is incomplete. Skipped in demo mode so
   // clients can browse the full onboarding UI without filling every field.
@@ -192,20 +279,74 @@ export default function CreateAccountScreen() {
         return false;
       }
     }
-    if (current === 1 && password.length < 8) {
+    if (current === 1 && verificationCode.length !== 6) {
+      toast.error('Please enter the six-digit verification code');
+      return false;
+    }
+    if (current === 2 && password.length < 8) {
       toast.error('Password must be at least 8 characters');
       return false;
     }
     return true;
   };
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
     if (!validateStep(step)) return;
     if (isLast) return;
-    setStep((prev) => prev + 1);
+    if (!isDemoMode && step === 0) {
+      try {
+        const result = await requestVerification.mutateAsync({
+          name: fullName.trim(),
+          email: email.trim().toLowerCase(),
+        });
+        setVerificationCode('');
+        setEmailVerificationToken('');
+        setVerificationExpiresAt('');
+        setResendCountdown(result.retryAfterSeconds);
+        await persistDraft(1);
+      } catch {
+        return;
+      }
+    }
+    if (!isDemoMode && step === 1) {
+      try {
+        const result = await verifySignupEmail.mutateAsync({
+          email: email.trim().toLowerCase(),
+          code: verificationCode,
+        });
+        setEmailVerificationToken(result.emailVerificationToken);
+        const expiresAt = new Date(
+          Date.now() + result.verificationExpiresInSeconds * 1000
+        ).toISOString();
+        setVerificationExpiresAt(expiresAt);
+        await persistDraft(2, {
+          token: result.emailVerificationToken,
+          expiresAt,
+        });
+      } catch {
+        return;
+      }
+    }
+    const nextStep = step + 1;
+    if (!isDemoMode && step >= 2) await persistDraft(nextStep);
+    setStep(nextStep);
   };
 
-  // Create a pending account, then verify ownership before establishing a session.
+  const handleResendCode = async () => {
+    if (resendCountdown > 0 || requestVerification.isPending) return;
+    try {
+      const result = await requestVerification.mutateAsync({
+        name: fullName.trim(),
+        email: email.trim().toLowerCase(),
+      });
+      setVerificationCode('');
+      setResendCountdown(result.retryAfterSeconds);
+    } catch {
+      // Mutation displays the backend error.
+    }
+  };
+
+  // Email ownership was already verified before the password/onboarding steps.
   const handleFinish = async () => {
     if (submitting) return;
 
@@ -234,6 +375,7 @@ export default function CreateAccountScreen() {
       !EMAIL_REGEX.test(email.trim()) ||
       !phone.trim() ||
       password.length < 8 ||
+      !emailVerificationToken ||
       !acceptedTerms
     ) {
       toast.error('Please complete all required fields');
@@ -246,20 +388,18 @@ export default function CreateAccountScreen() {
       ) {
         setStep(0);
       } else {
-        setStep(1);
+        setStep(emailVerificationToken ? 2 : 1);
       }
       return;
     }
     try {
-      const result = await register.mutateAsync({
+      await register.mutateAsync({
         name: fullName.trim(),
         email: email.trim(),
         password,
+        emailVerificationToken,
       });
-      router.replace({
-        pathname: '/(auth)/verify-email',
-        params: { email: result.email, cooldown: '60' },
-      });
+      await clearSignupDraft();
     } catch {
       // Errors are already reported via the mutation onError toasts.
     }
@@ -303,7 +443,7 @@ export default function CreateAccountScreen() {
                 label="Email"
                 placeholder="you@example.com"
                 value={email}
-                onChangeText={setEmail}
+                onChangeText={handleEmailChange}
                 keyboardType="email-address"
                 autoCapitalize="none"
                 autoCorrect={false}
@@ -330,6 +470,40 @@ export default function CreateAccountScreen() {
             <StepHeading step={1} />
             <View style={styles.formGroup}>
               <LabeledTextInput
+                label="Verification code"
+                placeholder="000000"
+                value={verificationCode}
+                onChangeText={(value) => setVerificationCode(value.replace(/\D/g, '').slice(0, 6))}
+                keyboardType="number-pad"
+                autoComplete="one-time-code"
+                textContentType="oneTimeCode"
+                maxLength={6}
+                autoFocus
+                style={styles.otpInput}
+              />
+              <Text style={styles.verificationHelp}>
+                We sent a six-digit code to {email.trim().toLowerCase()}. It expires in 10 minutes.
+              </Text>
+              <Text
+                style={styles.resendLink}
+                onPress={() => void handleResendCode()}
+                suppressHighlighting
+              >
+                {resendCountdown > 0
+                  ? `Resend code in ${resendCountdown}s`
+                  : requestVerification.isPending
+                    ? 'Sending…'
+                    : 'Resend code'}
+              </Text>
+            </View>
+          </>
+        );
+      case 2:
+        return (
+          <>
+            <StepHeading step={2} />
+            <View style={styles.formGroup}>
+              <LabeledTextInput
                 label="Password"
                 placeholder="At least 8 characters"
                 value={password}
@@ -342,10 +516,10 @@ export default function CreateAccountScreen() {
             </View>
           </>
         );
-      case 2:
+      case 3:
         return (
           <>
-            <StepHeading step={2} />
+            <StepHeading step={3} />
             <View style={styles.formGroup}>
               <SelectField
                 label="Time Zone"
@@ -356,10 +530,10 @@ export default function CreateAccountScreen() {
             </View>
           </>
         );
-      case 3:
+      case 4:
         return (
           <>
-            <StepHeading step={3} />
+            <StepHeading step={4} />
             <View style={styles.goalList}>
               {GOALS.map((goal) => (
                 <GoalCard
@@ -373,10 +547,10 @@ export default function CreateAccountScreen() {
             </View>
           </>
         );
-      case 4:
+      case 5:
         return (
           <>
-            <StepHeading step={4} />
+            <StepHeading step={5} />
             <View style={styles.calendarList}>
               {CALENDARS.map((calendar) => (
                 <CalendarRow
@@ -408,7 +582,11 @@ export default function CreateAccountScreen() {
               {/* <TextLinkButton label="Skip for now" onPress={handleFinish} /> */}
             </>
           ) : (
-            <PrimaryButton label="Continue" onPress={handleContinue} />
+            <PrimaryButton
+              label={step === 1 ? 'Verify Email' : 'Continue'}
+              onPress={() => void handleContinue()}
+              loading={requestVerification.isPending || verifySignupEmail.isPending}
+            />
           )}
         </View>
       }
@@ -486,6 +664,18 @@ const styles = StyleSheet.create({
     gap: 20,
     width: '90%',
     alignSelf: 'center',
+  },
+  otpInput: {
+    textAlign: 'center',
+    letterSpacing: 10,
+  },
+  verificationHelp: {
+    color: BobbleColors.textSecondary,
+    textAlign: 'center',
+  },
+  resendLink: {
+    color: BobbleColors.primary,
+    textAlign: 'center',
   },
   goalList: {
     marginTop: 28,
