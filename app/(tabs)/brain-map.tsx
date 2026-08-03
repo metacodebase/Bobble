@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { MindMapClusterView } from '@/src/components/brain-map/mind-map-cluster';
 import { DateRangeFilter } from '@/src/components/brain-map/date-range-filter';
+import { PinchZoomMindMap } from '@/src/components/brain-map/pinch-zoom-mind-map';
 import type {
   CustomDateRange,
   MindMapDateFilter,
@@ -272,13 +273,15 @@ export default function BrainMapScreen() {
                 />
               }
             >
-              {filteredClusters.map((cluster, index) => (
-                <MindMapClusterView
-                  key={cluster._id}
-                  cluster={cluster}
-                  showConnectorBelow={index < filteredClusters.length - 1}
-                />
-              ))}
+              <PinchZoomMindMap>
+                {filteredClusters.map((cluster, index) => (
+                  <MindMapClusterView
+                    key={cluster._id}
+                    cluster={cluster}
+                    showConnectorBelow={index < filteredClusters.length - 1}
+                  />
+                ))}
+              </PinchZoomMindMap>
             </ScrollView>
           ) : (
             <View style={styles.filteredEmpty}>
@@ -350,13 +353,15 @@ export default function BrainMapScreen() {
               contentContainerStyle={styles.demoContent}
               showsVerticalScrollIndicator={false}
             >
-              {DEMO_CLUSTERS.map((cluster, index) => (
-                <MindMapClusterView
-                  key={cluster._id}
-                  cluster={cluster}
-                  showConnectorBelow={index < DEMO_CLUSTERS.length - 1}
-                />
-              ))}
+              <PinchZoomMindMap>
+                {DEMO_CLUSTERS.map((cluster, index) => (
+                  <MindMapClusterView
+                    key={cluster._id}
+                    cluster={cluster}
+                    showConnectorBelow={index < DEMO_CLUSTERS.length - 1}
+                  />
+                ))}
+              </PinchZoomMindMap>
             </ScrollView>
           </View>
         </AppBackground>
