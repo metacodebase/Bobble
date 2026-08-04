@@ -1,5 +1,5 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { Calendar, CheckCircle, Clock } from 'lucide-react-native';
+import { AlertCircle, Calendar, CheckCircle, Clock } from 'lucide-react-native';
 import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -26,6 +26,7 @@ import { Typography } from '@/src/theme/fonts';
 
 const FILTER_PARAM: Record<TaskFilter, TaskFilterParam> = {
   All: 'all',
+  Overdue: 'overdue',
   Today: 'today',
   Upcoming: 'upcoming',
   Done: 'done',
@@ -114,6 +115,7 @@ export default function TasksScreen() {
           onChange={setFilter}
           compact
           icons={{
+            Overdue: AlertCircle,
             Today: Calendar,
             Upcoming: Clock,
             Done: CheckCircle,

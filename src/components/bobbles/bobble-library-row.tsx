@@ -73,7 +73,7 @@ export function BobbleLibraryRow({
     onDelete ? (
       <Pressable
         onPress={confirmDelete}
-        style={[styles.action, { backgroundColor: colors.error }]}
+        style={[styles.action, styles.rightAction, { backgroundColor: colors.error }]}
       >
         <Trash2 size={20} color={colors.textOnPrimary} strokeWidth={2} />
         <Text style={[styles.actionText, { color: colors.textOnPrimary }]}>Delete</Text>
@@ -84,7 +84,7 @@ export function BobbleLibraryRow({
     onArchive ? (
       <Pressable
         onPress={confirmArchive}
-        style={[styles.action, { backgroundColor: colors.warning }]}
+        style={[styles.action, styles.leftAction, { backgroundColor: colors.warning }]}
       >
         <Archive size={20} color={colors.textOnPrimary} strokeWidth={2} />
         <Text style={[styles.actionText, { color: colors.textOnPrimary }]}>Archive</Text>
@@ -223,6 +223,12 @@ const styles = StyleSheet.create({
     gap: 4,
     borderRadius: 16,
     marginVertical: 1,
+  },
+  rightAction: {
+    marginLeft: 8,
+  },
+  leftAction: {
+    marginRight: 8,
   },
   actionText: {
     ...Typography.caption,

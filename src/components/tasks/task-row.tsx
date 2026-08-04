@@ -144,6 +144,7 @@ const styles = StyleSheet.create({
     gap: 4,
     borderRadius: 16,
     marginVertical: 1,
+    marginLeft: 8,
   },
   deleteText: {
     ...Typography.caption,

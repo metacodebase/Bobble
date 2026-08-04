@@ -48,6 +48,8 @@ export function mapTaskToItem(task: Task): TaskItem {
 /** Filter by the device's local calendar day (not the server timezone). */
 export function filterTasksByParam(tasks: Task[], filter: TaskFilterParam): Task[] {
   switch (filter) {
+    case 'overdue':
+      return tasks.filter((task) => deriveGroup(task.dueAt) === 'overdue');
     case 'today':
       return tasks.filter((task) => isTodayFilterMatch(task.dueAt));
     case 'upcoming':

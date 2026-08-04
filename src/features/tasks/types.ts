@@ -1,6 +1,6 @@
 export type TaskPriority = 'low' | 'medium' | 'high';
 
-export type TaskFilterParam = 'all' | 'today' | 'upcoming' | 'done';
+export type TaskFilterParam = 'all' | 'overdue' | 'today' | 'upcoming' | 'done';
 
 export interface Task {
   _id: string;

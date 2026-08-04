@@ -213,7 +213,7 @@ export const DEMO_TRANSCRIPT_SEGMENTS: TranscriptSegment[] = [
   },
 ];
 
-export const TASK_FILTERS = ['All', 'Today', 'Upcoming', 'Done'] as const;
+export const TASK_FILTERS = ['All', 'Today', 'Overdue', 'Upcoming', 'Done'] as const;
 export type TaskFilter = (typeof TASK_FILTERS)[number];
 
 export type TaskItem = {
@@ -314,6 +314,7 @@ export function filterBobbles(filter: BobbleFilter, query: string): BobbleItem[]
 
 export function filterTasks(filter: TaskFilter): { label: string; tasks: TaskItem[] }[] {
   const groups: { label: string; key: TaskItem['group'] }[] = [
+    { label: 'Overdue', key: 'overdue' },
     { label: 'Today', key: 'today' },
     { label: 'Tomorrow', key: 'tomorrow' },
   ];
@@ -321,6 +322,7 @@ export function filterTasks(filter: TaskFilter): { label: string; tasks: TaskIte
   return groups
     .map(({ label, key }) => {
       let tasks = DEMO_TASKS.filter((t) => t.group === key);
+      if (filter === 'Overdue') tasks = tasks.filter((t) => t.group === 'overdue');
       if (filter === 'Today') tasks = tasks.filter((t) => t.group === 'today');
       if (filter === 'Upcoming') tasks = tasks.filter((t) => t.group !== 'today');
       if (filter === 'Done') tasks = tasks.filter((t) => t.done);
