@@ -1,9 +1,37 @@
 import { GAMIFICATION, PROFILE_USER } from '@/src/data/demo-data';
 import type { ProfilePayload, UpdateProfileBody } from '@/src/features/profile/types';
+import { getGuestBobbleCount } from '@/src/services/offline/bobbles';
+import { getGuestTaskCount } from '@/src/services/offline/tasks';
 import { useAppStore } from '@/src/store/app-store';
 
 function buildProfile(overrides: UpdateProfileBody = {}): ProfilePayload {
-  const sessionUser = useAppStore.getState().user;
+  const { isGuest, user: sessionUser } = useAppStore.getState();
+  if (isGuest) {
+    const bobbles = getGuestBobbleCount();
+    const tasks = getGuestTaskCount();
+    return {
+      user: {
+        _id: 'offline-guest-user',
+        name: overrides.name ?? 'Guest',
+        email: '',
+        handle: overrides.handle,
+        avatarUrl: overrides.avatarUrl,
+        phone: overrides.phone,
+        address: overrides.address,
+      },
+      gamification: {
+        level: 1,
+        title: 'Getting Started',
+        xp: 0,
+        streak: 0,
+        bobbles,
+        tasks,
+        badges: [],
+      },
+      stats: { streak: 0, bobbles, tasks, xp: 0 },
+    };
+  }
+
   return {
     user: {
       _id: sessionUser?._id ?? 'offline-demo-user',

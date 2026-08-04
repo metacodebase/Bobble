@@ -17,6 +17,7 @@ import type {
 } from '@/src/features/auth/types';
 import { api, getApiBaseUrl, unwrap } from '@/src/services/api';
 import { offlineAuth } from '@/src/services/offline';
+import { shouldUseOfflineData } from '@/src/services/offline/mode';
 
 export async function login(body: LoginBody): Promise<AuthSession> {
   if (!BACKEND_ALLOWED) return offlineAuth.login(body);
@@ -26,7 +27,8 @@ export async function login(body: LoginBody): Promise<AuthSession> {
 
 /**
  * Social sign-in — must be POST /api/auth/social (GET returns 404).
- * Body: { provider: 'google' | 'apple', idToken: string, name?: string }
+ * Body: { provider: 'google' | 'apple' | 'x', idToken: string, name?: string }
+ * For X, `idToken` carries the OAuth access token.
  */
 export async function social(body: SocialAuthBody): Promise<AuthSession> {
   if (!BACKEND_ALLOWED) return offlineAuth.social(body);
@@ -92,31 +94,31 @@ export async function resendVerification(
 }
 
 export async function logout(): Promise<void> {
-  if (!BACKEND_ALLOWED) return offlineAuth.logout();
+  if (shouldUseOfflineData()) return offlineAuth.logout();
   await api.post(API.auth.logout, {});
 }
 
 export async function fetchMe(): Promise<AuthUser> {
-  if (!BACKEND_ALLOWED) return offlineAuth.fetchMe();
+  if (shouldUseOfflineData()) return offlineAuth.fetchMe();
   const res = await api.get<AuthUser>(API.auth.me);
   return unwrap(res);
 }
 
 /** Ask the backend to reconcile Pro from RevenueCat REST (after purchase/restore). */
 export async function syncSubscription(): Promise<AuthUser> {
-  if (!BACKEND_ALLOWED) return offlineAuth.fetchMe();
+  if (shouldUseOfflineData()) return offlineAuth.fetchMe();
   const res = await api.post<AuthUser>(API.auth.syncSubscription, {});
   return unwrap(res);
 }
 
 export async function deleteAccount(): Promise<{ message: string }> {
-  if (!BACKEND_ALLOWED) return offlineAuth.deleteAccount();
+  if (shouldUseOfflineData()) return offlineAuth.deleteAccount();
   const res = await api.delete<{ message: string }>(API.auth.me);
   return unwrap(res);
 }
 
 export async function changePassword(body: ChangePasswordBody): Promise<{ message: string }> {
-  if (!BACKEND_ALLOWED) return offlineAuth.changePassword(body);
+  if (shouldUseOfflineData()) return offlineAuth.changePassword(body);
   const res = await api.post<{ message: string }, ChangePasswordBody>(
     API.auth.changePassword,
     body

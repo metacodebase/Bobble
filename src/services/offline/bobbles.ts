@@ -12,8 +12,10 @@ import type {
   UpdateBobbleBody,
   UploadAudioBody,
 } from '@/src/features/bobbles/types';
+import { useAppStore } from '@/src/store/app-store';
 
 const OFFLINE_USER_ID = 'offline-demo-user';
+const GUEST_USER_ID = 'offline-guest-user';
 
 function newId(): string {
   return `offline-bobble-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -66,10 +68,32 @@ function demoToBobble(item: (typeof DEMO_BOBBLES)[number]): Bobble {
   };
 }
 
-let store: Bobble[] = DEMO_BOBBLES.map(demoToBobble);
+let demoStore: Bobble[] = DEMO_BOBBLES.map(demoToBobble);
+let guestStore: Bobble[] = [];
+
+function getStore(): Bobble[] {
+  return useAppStore.getState().isGuest ? guestStore : demoStore;
+}
+
+function setStore(bobbles: Bobble[]): void {
+  if (useAppStore.getState().isGuest) {
+    guestStore = bobbles;
+    return;
+  }
+  demoStore = bobbles;
+}
+
+/** Start a new guest session without carrying data from an earlier guest. */
+export function resetGuestBobbles(): void {
+  guestStore = [];
+}
+
+export function getGuestBobbleCount(): number {
+  return guestStore.filter((bobble) => !bobble.archived).length;
+}
 
 export async function listBobbles(params: ListBobblesParams = {}): Promise<Bobble[]> {
-  let items = [...store];
+  let items = [...getStore()];
   items = items.filter((b) => !b.archived);
   if (params.category) {
     items = items.filter((b) => b.category === params.category);
@@ -85,6 +109,7 @@ export async function listBobbles(params: ListBobblesParams = {}): Promise<Bobbl
 }
 
 export async function getBobble(id: string): Promise<Bobble> {
+  const store = getStore();
   const bobble = store.find((b) => b._id === id);
   if (!bobble) notFound();
   return bobble;
@@ -94,7 +119,7 @@ export async function createBobble(body: CreateBobbleBody): Promise<Bobble> {
   const now = new Date().toISOString();
   const bobble: Bobble = {
     _id: newId(),
-    user: OFFLINE_USER_ID,
+    user: useAppStore.getState().isGuest ? GUEST_USER_ID : OFFLINE_USER_ID,
     title: body.title,
     category: body.category ?? 'tasks',
     status: 'ready',
@@ -132,11 +157,12 @@ export async function createBobble(body: CreateBobbleBody): Promise<Bobble> {
     createdAt: now,
     updatedAt: now,
   };
-  store = [bobble, ...store];
+  setStore([bobble, ...getStore()]);
   return bobble;
 }
 
 export async function updateBobble(id: string, body: UpdateBobbleBody): Promise<Bobble> {
+  const store = getStore();
   const index = store.findIndex((b) => b._id === id);
   if (index < 0) notFound();
   const updated: Bobble = {
@@ -144,18 +170,18 @@ export async function updateBobble(id: string, body: UpdateBobbleBody): Promise<
     ...body,
     updatedAt: new Date().toISOString(),
   };
-  store = store.map((b, i) => (i === index ? updated : b));
+  setStore(store.map((b, i) => (i === index ? updated : b)));
   return updated;
 }
 
 export async function deleteBobble(id: string): Promise<{ id: string }> {
-  store = store.filter((b) => b._id !== id);
+  setStore(getStore().filter((b) => b._id !== id));
   return { id };
 }
 
 export async function deleteBobblesBulk(ids: string[]): Promise<void> {
   const idSet = new Set(ids);
-  store = store.filter((b) => !idSet.has(b._id));
+  setStore(getStore().filter((b) => !idSet.has(b._id)));
 }
 
 export async function archiveBobble(id: string): Promise<Bobble> {

@@ -89,10 +89,11 @@ export interface ChangePasswordBody {
   newPassword: string;
 }
 
-export type SocialProvider = 'google' | 'apple';
+export type SocialProvider = 'google' | 'apple' | 'x';
 
 export interface SocialAuthBody {
   provider: SocialProvider;
+  /** ID token for Google/Apple, OAuth access token for X. */
   idToken: string;
   /** Optional display name (Apple only returns it on first authorization). */
   name?: string;

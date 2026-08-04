@@ -31,20 +31,22 @@ function handleBobbleLimitError(error: unknown, fallback: string) {
 
 export function useBobbles(params: ListBobblesParams = {}, enabled = true) {
   const isAuthenticated = useAppStore((s) => s.isAuthenticated);
+  const isGuest = useAppStore((s) => s.isGuest);
   return useQuery({
     queryKey: listKey(params),
     queryFn: () => bobblesApi.listBobbles(params),
-    enabled: enabled && isAuthenticated,
+    enabled: enabled && (isAuthenticated || isGuest),
     staleTime: 30_000,
   });
 }
 
 export function useBobble(id: string | undefined, enabled = true) {
   const isAuthenticated = useAppStore((s) => s.isAuthenticated);
+  const isGuest = useAppStore((s) => s.isGuest);
   return useQuery({
     queryKey: queryKeys.bobbles.detail(id ?? ''),
     queryFn: () => bobblesApi.getBobble(id!),
-    enabled: enabled && isAuthenticated && Boolean(id),
+    enabled: enabled && (isAuthenticated || isGuest) && Boolean(id),
     staleTime: 30_000,
   });
 }

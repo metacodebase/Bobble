@@ -7,8 +7,10 @@ import type {
   TaskFilterParam,
   UpdateTaskBody,
 } from '@/src/features/tasks/types';
+import { useAppStore } from '@/src/store/app-store';
 
 const OFFLINE_USER_ID = 'offline-demo-user';
+const GUEST_USER_ID = 'offline-guest-user';
 
 function parseTimeOnDay(time: string, dayOffset: number): Date {
   const date = new Date();
@@ -54,21 +56,43 @@ function toTask(item: (typeof DEMO_TASKS)[number], overrides: Partial<Task> = {}
   };
 }
 
-let taskStore: Task[] = DEMO_TASKS.map((item) => toTask(item));
+let demoTaskStore: Task[] = DEMO_TASKS.map((item) => toTask(item));
+let guestTaskStore: Task[] = [];
+
+function getTaskStore(): Task[] {
+  return useAppStore.getState().isGuest ? guestTaskStore : demoTaskStore;
+}
+
+function setTaskStore(tasks: Task[]): void {
+  if (useAppStore.getState().isGuest) {
+    guestTaskStore = tasks;
+    return;
+  }
+  demoTaskStore = tasks;
+}
+
+/** Start a new guest session without carrying data from an earlier guest. */
+export function resetGuestTasks(): void {
+  guestTaskStore = [];
+}
+
+export function getGuestTaskCount(): number {
+  return guestTaskStore.length;
+}
 
 function nextId(): string {
   return `offline-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
 export async function listTasks(filter: TaskFilterParam = 'all'): Promise<Task[]> {
-  return filterTasksByParam(taskStore, filter);
+  return filterTasksByParam(getTaskStore(), filter);
 }
 
 export async function createTask(body: CreateTaskBody): Promise<Task> {
   const now = new Date().toISOString();
   const task: Task = {
     _id: nextId(),
-    user: OFFLINE_USER_ID,
+    user: useAppStore.getState().isGuest ? GUEST_USER_ID : OFFLINE_USER_ID,
     title: body.title,
     notes: body.notes,
     done: body.done ?? false,
@@ -78,7 +102,7 @@ export async function createTask(body: CreateTaskBody): Promise<Task> {
     createdAt: now,
     updatedAt: now,
   };
-  taskStore = [task, ...taskStore];
+  setTaskStore([task, ...getTaskStore()]);
   return task;
 }
 
@@ -90,6 +114,7 @@ export async function createTasksBulk(body: CreateTasksBulkBody): Promise<Task[]
 }
 
 export async function updateTask(id: string, body: UpdateTaskBody): Promise<Task> {
+  const taskStore = getTaskStore();
   const index = taskStore.findIndex((task) => task._id === id);
   if (index === -1) throw new Error('Task not found');
 
@@ -98,17 +123,18 @@ export async function updateTask(id: string, body: UpdateTaskBody): Promise<Task
     ...body,
     updatedAt: new Date().toISOString(),
   };
-  taskStore = taskStore.map((task) => (task._id === id ? updated : task));
+  setTaskStore(taskStore.map((task) => (task._id === id ? updated : task)));
   return updated;
 }
 
 export async function toggleTask(id: string): Promise<Task> {
+  const taskStore = getTaskStore();
   const task = taskStore.find((item) => item._id === id);
   if (!task) throw new Error('Task not found');
   return updateTask(id, { done: !task.done });
 }
 
 export async function deleteTask(id: string): Promise<{ id: string }> {
-  taskStore = taskStore.filter((task) => task._id !== id);
+  setTaskStore(getTaskStore().filter((task) => task._id !== id));
   return { id };
 }

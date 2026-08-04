@@ -16,7 +16,7 @@ import type {
 import type { ApiError } from '@/src/types/api';
 import { queryKeys } from '@/src/services/query-keys';
 import { loginPurchases, logoutPurchases } from '@/src/services/purchases';
-import { clearTaskWidgets } from '@/src/services/widget-sync';
+import { clearSessionData } from '@/src/services/session-data';
 import { useAppStore } from '@/src/store/app-store';
 import { getApiErrorMessage } from '@/src/utils/api-error';
 import { toast } from '@/src/utils/toast';
@@ -52,6 +52,7 @@ export function useLogin() {
   return useMutation({
     mutationFn: (body: LoginBody) => authApi.login(body),
     onSuccess: (session) => {
+      clearSessionData();
       setSession(session);
       qc.setQueryData(queryKeys.auth.me, session.user);
       void loginPurchases(session.user._id);
@@ -78,6 +79,7 @@ export function useRegister() {
   return useMutation({
     mutationFn: (body: RegisterBody) => authApi.register(body),
     onSuccess: (session) => {
+      clearSessionData();
       setSession(session);
       qc.setQueryData(queryKeys.auth.me, session.user);
       void loginPurchases(session.user._id);
@@ -108,6 +110,7 @@ export function useVerifyEmail() {
   return useMutation({
     mutationFn: (body: VerifyEmailBody) => authApi.verifyEmail(body),
     onSuccess: (session) => {
+      clearSessionData();
       setSession(session);
       qc.setQueryData(queryKeys.auth.me, session.user);
       void loginPurchases(session.user._id);
@@ -132,6 +135,7 @@ export function useSocialLogin() {
   return useMutation({
     mutationFn: (body: SocialAuthBody) => authApi.social(body),
     onSuccess: (session) => {
+      clearSessionData();
       setSession(session);
       qc.setQueryData(queryKeys.auth.me, session.user);
       void loginPurchases(session.user._id);
@@ -144,7 +148,6 @@ export function useSocialLogin() {
 
 export function useLogout() {
   const clearSession = useAppStore((s) => s.clearSession);
-  const qc = useQueryClient();
   return useMutation({
     mutationFn: async () => {
       try {
@@ -165,8 +168,7 @@ export function useLogout() {
     },
     onSettled: () => {
       clearSession();
-      qc.clear();
-      void clearTaskWidgets();
+      clearSessionData();
       router.replace('/(auth)/splash' as Href);
     },
   });
@@ -174,7 +176,6 @@ export function useLogout() {
 
 export function useDeleteAccount() {
   const clearSession = useAppStore((s) => s.clearSession);
-  const qc = useQueryClient();
   return useMutation({
     mutationFn: async () => {
       try {
@@ -186,8 +187,7 @@ export function useDeleteAccount() {
     },
     onSuccess: () => {
       clearSession();
-      qc.clear();
-      void clearTaskWidgets();
+      clearSessionData();
       void logoutPurchases();
       router.replace('/(auth)/splash' as Href);
       toast.success('Your account has been deleted');

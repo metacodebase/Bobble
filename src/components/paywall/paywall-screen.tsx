@@ -102,6 +102,8 @@ export function PaywallScreen({ onClose }: PaywallScreenProps) {
   const purchasesReady = usePurchasesIdentityReady();
   const refreshSubscription = useRefreshSubscription();
   const userId = useAppStore((s) => s.user?._id ?? null);
+  const isGuest = useAppStore((s) => s.isGuest);
+  const clearSession = useAppStore((s) => s.clearSession);
   const [selectedPlanId, setSelectedPlanId] = useState<PaywallPlanId>(DEFAULT_PAYWALL_PLAN);
   const [isStartingTrial, setIsStartingTrial] = useState(false);
   const [isRestoring, setIsRestoring] = useState(false);
@@ -135,6 +137,13 @@ export function PaywallScreen({ onClose }: PaywallScreenProps) {
     }
     router.replace('/(tabs)' as Href);
   };
+
+  useEffect(() => {
+    if (!isGuest) return;
+    clearSession();
+    toast.error('Sign in or create an account to access Bobble Pro.');
+    router.replace('/(auth)/sign-in' as Href);
+  }, [clearSession, isGuest]);
 
   useEffect(() => {
     if (!isPurchasesSupported() || !purchasesReady) return;

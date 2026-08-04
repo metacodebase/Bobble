@@ -3,6 +3,7 @@ import type { ApiError, ApiPaginatedResponse, ApiSuccessResponse } from '@/src/t
 
 import { getConfiguredApiUrl } from '@/src/config/api';
 import { BACKEND_ALLOWED } from '@/src/config/backend';
+import { clearSessionData } from '@/src/services/session-data';
 
 /** Resolve on each call so URL flips (e.g. remove :8000) take effect without a full Metro restart. */
 export function getApiBaseUrl(): string {
@@ -44,10 +45,12 @@ async function refreshAccessToken(): Promise<string | null> {
           return json.data.accessToken;
         }
         useAppStore.getState().clearSession();
+        clearSessionData();
         return null;
       })
       .catch(() => {
         useAppStore.getState().clearSession();
+        clearSessionData();
         return null;
       })
       .finally(() => {

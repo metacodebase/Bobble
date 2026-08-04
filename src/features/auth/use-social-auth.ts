@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Platform, TurboModuleRegistry } from 'react-native';
 
 import { isDemoMode } from '@/src/config/backend';
@@ -7,6 +7,9 @@ import { toast } from '@/src/utils/toast';
 
 const GOOGLE_WEB_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID;
 const GOOGLE_IOS_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID;
+const X_CLIENT_ID =
+  process.env.EXPO_PUBLIC_X_CLIENT_ID || process.env.EXPO_PUBLIC_TWITTER_CLIENT_ID;
+const X_REDIRECT_URI = process.env.EXPO_PUBLIC_X_REDIRECT_URI;
 
 let googleConfigured = false;
 
@@ -97,12 +100,20 @@ function getGoogleSignInErrorMessage(
   return 'Google sign-in failed, please try again';
 }
 
-type SocialPendingProvider = 'google' | 'apple';
+type SocialPendingProvider = 'google' | 'apple' | 'x';
 
 export function useSocialAuth() {
   const socialLogin = useSocialLogin();
   const [appleAvailable, setAppleAvailable] = useState(false);
   const [oauthProvider, setOauthProvider] = useState<SocialPendingProvider | null>(null);
+  const isMountedRef = useRef(true);
+  const xAuthInFlightRef = useRef(false);
+
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
   useEffect(() => {
     if (Platform.OS !== 'ios') return;
@@ -235,6 +246,87 @@ export function useSocialAuth() {
     }
   }, [socialLogin]);
 
+  const signInWithX = useCallback(async () => {
+    if (xAuthInFlightRef.current) return;
+    if (isDemoMode) {
+      socialLogin.mutate({ provider: 'x', idToken: 'offline-demo' });
+      return;
+    }
+    if (!X_CLIENT_ID) {
+      toast.error('Set EXPO_PUBLIC_X_CLIENT_ID in .env and restart the app');
+      return;
+    }
+
+    setOauthProvider('x');
+    xAuthInFlightRef.current = true;
+    let submitted = false;
+    try {
+      const AuthSession = await import('expo-auth-session');
+      // Prefer app deep link. Ignore Firebase HTTPS handler — it cannot return to the native app.
+      const envRedirect = X_REDIRECT_URI?.trim();
+      const redirectUri =
+        envRedirect && !/^https?:\/\//i.test(envRedirect)
+          ? envRedirect
+          : AuthSession.makeRedirectUri({ scheme: 'bobble', path: 'auth/x' });
+
+      // X OAuth 2.0 requires authorization code + PKCE (not implicit token).
+      const request = new AuthSession.AuthRequest({
+        clientId: X_CLIENT_ID,
+        redirectUri,
+        scopes: ['tweet.read', 'users.read', 'offline.access'],
+        responseType: AuthSession.ResponseType.Code,
+        usePKCE: true,
+      });
+      const discovery = {
+        authorizationEndpoint: 'https://twitter.com/i/oauth2/authorize',
+        tokenEndpoint: 'https://api.twitter.com/2/oauth2/token',
+      };
+      const result = await request.promptAsync(discovery);
+
+      if (result.type !== 'success') {
+        return;
+      }
+
+      const code = typeof result.params.code === 'string' ? result.params.code : undefined;
+      if (!code || !request.codeVerifier) {
+        toast.error('X did not return an auth code, please try again');
+        return;
+      }
+
+      const tokenResult = await AuthSession.exchangeCodeAsync(
+        {
+          clientId: X_CLIENT_ID,
+          code,
+          redirectUri,
+          extraParams: {
+            code_verifier: request.codeVerifier,
+          },
+        },
+        discovery
+      );
+
+      const accessToken = tokenResult.accessToken;
+      if (!accessToken) {
+        toast.error('X did not return a token, please try again');
+        return;
+      }
+
+      socialLogin.mutate({
+        provider: 'x',
+        // Backend social endpoint reuses `idToken` payload key for provider tokens.
+        idToken: accessToken,
+      });
+      submitted = true;
+    } catch {
+      if (isMountedRef.current) {
+        toast.error('X sign-in failed, please try again');
+      }
+    } finally {
+      xAuthInFlightRef.current = false;
+      if (!submitted && isMountedRef.current) setOauthProvider(null);
+    }
+  }, [socialLogin]);
+
   const pendingProvider: SocialPendingProvider | null = oauthProvider
     ?? (socialLogin.isPending
       ? ((socialLogin.variables?.provider as SocialPendingProvider | undefined) ?? null)
@@ -243,6 +335,7 @@ export function useSocialAuth() {
   return {
     signInWithGoogle,
     signInWithApple,
+    signInWithX,
     signInDemo: () => socialLogin.mutate({ provider: 'google', idToken: 'offline-demo' }),
     appleAvailable,
     pendingProvider,

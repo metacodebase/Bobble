@@ -40,10 +40,11 @@ function handleTaskLimitError(error: unknown, fallback: string) {
 
 export function useTasks(filter: TaskFilterParam = 'all', enabled = true) {
   const isAuthenticated = useAppStore((s) => s.isAuthenticated);
+  const isGuest = useAppStore((s) => s.isGuest);
   const query = useQuery({
     queryKey: queryKeys.tasks.list(filter),
     queryFn: () => tasksApi.listTasks(filter),
-    enabled: enabled && isAuthenticated,
+    enabled: enabled && (isAuthenticated || isGuest),
     staleTime: 30_000,
   });
 

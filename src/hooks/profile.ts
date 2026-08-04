@@ -10,10 +10,11 @@ import { toast } from '@/src/utils/toast';
 
 export function useProfile(enabled = true) {
   const isAuthenticated = useAppStore((s) => s.isAuthenticated);
+  const isGuest = useAppStore((s) => s.isGuest);
   return useQuery({
     queryKey: queryKeys.profile.me,
     queryFn: profileApi.fetchProfile,
-    enabled: enabled && isAuthenticated,
+    enabled: enabled && (isAuthenticated || isGuest),
     staleTime: 60_000,
   });
 }

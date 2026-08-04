@@ -19,13 +19,20 @@ import { toast } from '@/src/utils/toast';
 
 export default function EditProfileScreen() {
   const storedUser = useAppStore((s) => s.user);
+  const isGuest = useAppStore((s) => s.isGuest);
   const { data: fetchedUser } = useMe();
   const { data: profile } = useProfile();
   const user = fetchedUser ?? storedUser;
 
-  const initialName = user?.name ?? profile?.user.name ?? PROFILE_USER.name;
-  const initialPhone = user?.phone ?? profile?.user.phone ?? PROFILE_USER.phone;
-  const initialAddress = user?.address ?? profile?.user.address ?? PROFILE_USER.address;
+  const initialName = isGuest
+    ? (profile?.user.name ?? 'Guest')
+    : (user?.name ?? profile?.user.name ?? PROFILE_USER.name);
+  const initialPhone = isGuest
+    ? (profile?.user.phone ?? '')
+    : (user?.phone ?? profile?.user.phone ?? PROFILE_USER.phone);
+  const initialAddress = isGuest
+    ? (profile?.user.address ?? '')
+    : (user?.address ?? profile?.user.address ?? PROFILE_USER.address);
   const parsedPhone = parseStoredPhone(initialPhone);
 
   const [name, setName] = useState(initialName);
@@ -72,9 +79,7 @@ export default function EditProfileScreen() {
 
   return (
     <SettingsScreenLayout title="Edit Profile">
-      <SettingsDescription>
-        Update the details shown on your profile.
-      </SettingsDescription>
+      <SettingsDescription>Update the details shown on your profile.</SettingsDescription>
 
       <View style={styles.form}>
         <LabeledTextInput

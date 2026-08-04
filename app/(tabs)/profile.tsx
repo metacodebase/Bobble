@@ -37,6 +37,7 @@ export default function ProfileScreen() {
   const { height: tabBarHeight } = useTabBarInsets();
   const colors = useBobbleColors();
   const storedUser = useAppStore((s) => s.user);
+  const isGuest = useAppStore((s) => s.isGuest);
   const { data: fetchedUser } = useMe();
   const { data: profile, refetch: refetchProfile } = useProfile();
   const user = fetchedUser ?? storedUser;
@@ -44,12 +45,14 @@ export default function ProfileScreen() {
   const deleteAccount = useDeleteAccount();
   const { openPicker, isUploading, localPreviewUri, sheetProps } = useProfileAvatarPicker();
   const [viewerOpen, setViewerOpen] = useState(false);
-  const rawName = user?.name ?? user?.email?.split('@')[0] ?? PROFILE_USER.name;
+  const rawName = isGuest
+    ? (profile?.user.name ?? 'Guest')
+    : (user?.name ?? user?.email?.split('@')[0] ?? profile?.user.name ?? PROFILE_USER.name);
   const displayName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
   const avatarUrl = resolveAvatarUrl(
     profile?.user.avatarUrl,
     storedUser?.avatarUrl,
-    user?.avatarUrl,
+    user?.avatarUrl
   );
   const avatarSource = localPreviewUri
     ? { uri: localPreviewUri }
@@ -70,7 +73,7 @@ export default function ProfileScreen() {
   useFocusEffect(
     useCallback(() => {
       void refetchProfile();
-    }, [refetchProfile]),
+    }, [refetchProfile])
   );
 
   const confirmDeleteAccount = () => {
@@ -99,10 +102,7 @@ export default function ProfileScreen() {
       </View>
 
       <ScrollView
-        contentContainerStyle={[
-          styles.content,
-          { paddingBottom: tabBarHeight + 24 },
-        ]}
+        contentContainerStyle={[styles.content, { paddingBottom: tabBarHeight + 24 }]}
         showsVerticalScrollIndicator={false}
       >
         <View style={[styles.heroCard, { backgroundColor: colors.surface }]}>
@@ -121,7 +121,9 @@ export default function ProfileScreen() {
             <StatCard compact label="Tasks" value={gamification?.tasks ?? 0} />
           </View>
         </View>
-        <View style={[styles.menu, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+        <View
+          style={[styles.menu, { backgroundColor: colors.surface, borderColor: colors.border }]}
+        >
           {PROFILE_MENU.map((item) => (
             <ProfileMenuRow
               key={item.id}
@@ -130,26 +132,36 @@ export default function ProfileScreen() {
               onPress={() => router.push(SETTINGS_ROUTES[item.id])}
             />
           ))}
-          <ProfileMenuRow
-            label={logout.isPending ? 'Signing out…' : 'Log Out'}
-            icon="user"
-            destructive
-            onPress={() => {
-              if (user && !logout.isPending && !deleteAccount.isPending) {
-                logout.mutate();
-              }
-            }}
-          />
-          <ProfileMenuRow
-            label={deleteAccount.isPending ? 'Deleting account…' : 'Delete my account'}
-            icon="trash"
-            destructive
-            onPress={() => {
-              if (user && !deleteAccount.isPending && !logout.isPending) {
-                confirmDeleteAccount();
-              }
-            }}
-          />
+          {isGuest ? (
+            <ProfileMenuRow
+              label="Sign in or create account"
+              icon="user"
+              onPress={() => logout.mutate()}
+            />
+          ) : (
+            <>
+              <ProfileMenuRow
+                label={logout.isPending ? 'Signing out…' : 'Log Out'}
+                icon="user"
+                destructive
+                onPress={() => {
+                  if (user && !logout.isPending && !deleteAccount.isPending) {
+                    logout.mutate();
+                  }
+                }}
+              />
+              <ProfileMenuRow
+                label={deleteAccount.isPending ? 'Deleting account…' : 'Delete my account'}
+                icon="trash"
+                destructive
+                onPress={() => {
+                  if (user && !deleteAccount.isPending && !logout.isPending) {
+                    confirmDeleteAccount();
+                  }
+                }}
+              />
+            </>
+          )}
         </View>
       </ScrollView>
 

@@ -1,5 +1,6 @@
 import { OnboardingScreenLayout } from '@/src/components/onboarding/onboarding-screen-layout';
 import { PrimaryButton } from '@/src/components/onboarding/primary-button';
+import { useContinueAsGuest } from '@/src/features/auth/use-continue-as-guest';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { Typography } from '@/src/theme/fonts';
 import { Image } from 'expo-image';
@@ -13,6 +14,7 @@ const SPLASH_TITLE_COLOR = '#2E2A87';
 export default function AuthSplashScreen() {
   const { width, height } = useWindowDimensions();
   const colors = useBobbleColors();
+  const continueAsGuest = useContinueAsGuest();
   const referenceWidth = Platform.OS === 'android' ? 412 : 390;
   const referenceHeight = Platform.OS === 'android' ? 915 : 844;
   const scale = Math.min(width / referenceWidth, height / referenceHeight);
@@ -32,11 +34,18 @@ export default function AuthSplashScreen() {
       backgroundImage={require('@/src/assets/images/background/two.png')}
       contentStyle={styles.content}
       footer={
-        <View style={{ width: '100%', paddingTop: 10, gap: 10 }}>
+        <View style={{ width: '100%', paddingTop: 10, gap: Platform.OS === 'android' ? 5 : 0 }}>
           <PrimaryButton
             label="Get Started"
             onPress={() => router.push('/(auth)/onboarding' as Href)}
           />
+          <Text
+            accessibilityRole="button"
+            style={[styles.guestLink, { color: colors.textAccent }]}
+            onPress={continueAsGuest}
+          >
+            Continue as Guest
+          </Text>
           <View style={styles.footer}>
             <Text style={[styles.footerText, { color: colors.text }]}>
               Don’t have an account?{' '}
@@ -167,6 +176,13 @@ const styles = StyleSheet.create({
   footer: {
     alignItems: 'center',
     // paddingVertical: 8,/
+  },
+  guestLink: {
+    ...Typography.caption,
+    fontSize: 16,
+    fontWeight: '700',
+    paddingVertical: 8,
+    textAlign: 'center',
   },
   footerText: {
     ...Typography.caption,

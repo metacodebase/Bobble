@@ -6,6 +6,7 @@ import { TermsNotice } from '@/src/components/create-account/terms-notice';
 import { OnboardingScreenLayout } from '@/src/components/onboarding/onboarding-screen-layout';
 import { SocialButton } from '@/src/components/onboarding/social-button';
 import { isDemoMode } from '@/src/config/backend';
+import { useContinueAsGuest } from '@/src/features/auth/use-continue-as-guest';
 import { useSocialAuth } from '@/src/features/auth/use-social-auth';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { Typography } from '@/src/theme/fonts';
@@ -56,11 +57,13 @@ function AuthHeading({ mode }: { mode: AuthMode }) {
 
 export default function AuthScreen() {
   const colors = useBobbleColors();
+  const continueAsGuest = useContinueAsGuest();
   const [mode, setMode] = useState<AuthMode>('sign-in');
   const copy = AUTH_COPY[mode];
   const {
     signInWithGoogle,
     signInWithApple,
+    signInWithX,
     signInDemo,
     appleAvailable,
     isPending,
@@ -79,6 +82,9 @@ export default function AuthScreen() {
   const handleSocialPress = (provider: (typeof SOCIAL_PROVIDERS)[number]['provider']) => {
     if (isPending) return;
     switch (provider) {
+      case 'x':
+        void signInWithX();
+        break;
       case 'google':
         void signInWithGoogle();
         break;
@@ -86,7 +92,7 @@ export default function AuthScreen() {
         void signInWithApple();
         break;
       default:
-        // Facebook, X and Microsoft are not wired up yet.
+        // Facebook and Microsoft are not wired up yet.
         if (isDemoMode) {
           signInDemo();
           return;
@@ -97,7 +103,7 @@ export default function AuthScreen() {
 
   const visibleProviders = SOCIAL_PROVIDERS.filter(
     // "Sign in with Apple" is only offered where it's actually available (iOS 13+).
-    (item) => item.provider !== 'apple' || (Platform.OS === 'ios' && appleAvailable),
+    (item) => item.provider !== 'apple' || (Platform.OS === 'ios' && appleAvailable)
   );
 
   const toggleMode = () => {
@@ -150,6 +156,14 @@ export default function AuthScreen() {
           onPress={handleEmailAuth}
           disabled={isPending}
         />
+
+        <Text
+          accessibilityRole="button"
+          style={[styles.guestLink, { color: colors.textAccent }]}
+          onPress={continueAsGuest}
+        >
+          Continue as Guest
+        </Text>
       </View>
     </OnboardingScreenLayout>
   );
@@ -185,10 +199,17 @@ const styles = StyleSheet.create({
     width: '100%',
     gap: Platform.OS === 'ios' ? 10 : 18,
     alignItems: 'center',
-    alignSelf: "center",
+    alignSelf: 'center',
   },
   dividerText: {
     ...Typography.divider,
+    textAlign: 'center',
+  },
+  guestLink: {
+    ...Typography.caption,
+    fontSize: 15,
+    fontWeight: '700',
+    paddingVertical: 6,
     textAlign: 'center',
   },
   footerStack: {

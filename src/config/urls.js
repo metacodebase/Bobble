@@ -15,7 +15,7 @@ export const USE_PROD = true;
 export const URLS = {
   development: 'http://localhost:8000',
   /** Override in EAS with EXPO_PUBLIC_API_URL when using a different API hostname. */
-  production: process.env.EXPO_PUBLIC_API_URL || 'http://34.204.180.53',
+  production: process.env.EXPO_PUBLIC_API_URL || 'https://api.bobble.au',
 };
 
 /** Active API origin based on `USE_PROD`. */

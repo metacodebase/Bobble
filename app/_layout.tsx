@@ -76,6 +76,8 @@ function NavigationThemeProvider({ children }: { children: ReactNode }) {
 function AppShell() {
   const hasHydrated = useAppStore((s) => s.hasHydrated);
   const isAuthenticated = useAppStore((s) => s.isAuthenticated);
+  const isGuest = useAppStore((s) => s.isGuest);
+  const hasAppAccess = isAuthenticated || isGuest;
   const { color: backdropColor } = useAppBackdrop();
   const router = useRouter();
   const segments = useSegments();
@@ -91,9 +93,9 @@ function AppShell() {
   }, [hasHydrated, backdropColor]);
 
   useEffect(() => {
-    if (!hasHydrated || !fontsLoaded || !isAuthenticated) return;
+    if (!hasHydrated || !fontsLoaded || !hasAppAccess) return;
     void SplashScreen.hideAsync();
-  }, [hasHydrated, fontsLoaded, isAuthenticated]);
+  }, [hasHydrated, fontsLoaded, hasAppAccess]);
 
   // Store-driven auth guard: the persisted `isAuthenticated` flag is the single
   // source of truth for access. Signed-in users are kept out of the auth flow,
@@ -106,12 +108,12 @@ function AppShell() {
     const inAuthGroup = segmentList[0] === '(auth)';
     const atRootIndex = segmentList.length === 0;
 
-    if (isAuthenticated && inAuthGroup) {
+    if (hasAppAccess && inAuthGroup) {
       router.replace('/(tabs)' as Href);
-    } else if (!isAuthenticated && !inAuthGroup && !atRootIndex) {
+    } else if (!hasAppAccess && !inAuthGroup && !atRootIndex) {
       router.replace('/(auth)/splash' as Href);
     }
-  }, [hasHydrated, fontsLoaded, isAuthenticated, segments, router]);
+  }, [hasHydrated, fontsLoaded, hasAppAccess, segments, router]);
 
   if (!hasHydrated || !fontsLoaded) {
     return null;

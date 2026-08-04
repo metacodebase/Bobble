@@ -21,15 +21,22 @@ export default function SettingsAccountScreen() {
   const colors = useBobbleColors();
   const night = useNightForeground();
   const storedUser = useAppStore((s) => s.user);
+  const isGuest = useAppStore((s) => s.isGuest);
   const { data: fetchedUser } = useMe();
   const { data: profile } = useProfile();
   const user = fetchedUser ?? storedUser;
   const logout = useLogout();
   const deleteAccount = useDeleteAccount();
-  const rawName = user?.name ?? user?.email?.split('@')[0] ?? PROFILE_USER.name;
+  const rawName = isGuest
+    ? (profile?.user.name ?? 'Guest')
+    : (user?.name ?? user?.email?.split('@')[0] ?? PROFILE_USER.name);
   const displayName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
-  const displayEmail = user?.email ?? PROFILE_USER.email;
-  const avatarUrl = resolveAvatarUrl(profile?.user.avatarUrl, storedUser?.avatarUrl, user?.avatarUrl);
+  const displayEmail = isGuest ? '' : (user?.email ?? PROFILE_USER.email);
+  const avatarUrl = resolveAvatarUrl(
+    profile?.user.avatarUrl,
+    storedUser?.avatarUrl,
+    user?.avatarUrl
+  );
   const avatarSource = avatarUrl ? { uri: avatarUrl } : undefined;
 
   const confirmDeleteAccount = () => {
@@ -78,9 +85,7 @@ export default function SettingsAccountScreen() {
           label={deleteAccount.isPending ? 'Deleting account…' : 'Delete account'}
           destructive
           isLast
-          onPress={
-            deleteAccount.isPending || logout.isPending ? undefined : confirmDeleteAccount
-          }
+          onPress={deleteAccount.isPending || logout.isPending ? undefined : confirmDeleteAccount}
         />
       </SettingsSection>
 
