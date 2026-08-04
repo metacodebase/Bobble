@@ -61,6 +61,18 @@ export function filterTasksByParam(tasks: Task[], filter: TaskFilterParam): Task
   }
 }
 
+/** Unfinished tasks due before the device's current local calendar day, oldest first. */
+export function getIncompleteOverdueTasks(tasks: Task[]): Task[] {
+  const today = startOfDay(new Date());
+  return tasks
+    .filter((task) => {
+      if (task.done || !task.dueAt) return false;
+      const due = new Date(task.dueAt);
+      return !Number.isNaN(due.getTime()) && startOfDay(due) < today;
+    })
+    .sort((a, b) => new Date(a.dueAt!).getTime() - new Date(b.dueAt!).getTime());
+}
+
 const GROUP_ORDER: { label: string; key: TaskGroup }[] = [
   { label: 'Overdue', key: 'overdue' },
   { label: 'Today', key: 'today' },

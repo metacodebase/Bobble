@@ -14,12 +14,12 @@ import { useEffect, useLayoutEffect, type ReactNode } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import 'react-native-reanimated';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import Toast from 'react-native-toast-message';
 
 import { ApiBootstrap } from '@/src/components/api-bootstrap';
 import { PurchasesBootstrap } from '@/src/components/purchases-bootstrap';
 import { PushBootstrap } from '@/src/components/push-bootstrap';
 import { AppBackground, useAppBackdrop } from '@/src/components/ui/app-background';
+import { BobbleToastHost } from '@/src/components/ui/bobble-toast';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { useColorScheme } from '@/src/hooks/use-color-scheme';
 import { queryClient } from '@/src/services/query-client';
@@ -167,7 +167,7 @@ export default function RootLayout() {
         <QueryClientProvider client={queryClient}>
           <AppShell />
         </QueryClientProvider>
-        <Toast />
+        <BobbleToastHost />
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );

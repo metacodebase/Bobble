@@ -42,9 +42,18 @@ export default function TasksScreen() {
   const night = useNightForeground();
   const { height: tabBarHeight } = useTabBarInsets();
   const fabBottom = tabBarHeight + 16;
-  const { taskId: taskIdParam } = useLocalSearchParams<{ taskId?: string }>();
+  const { taskId: taskIdParam, filter: filterParam } = useLocalSearchParams<{
+    taskId?: string;
+    filter?: string;
+  }>();
   const [filter, setFilter] = useState<TaskFilter>('All');
   const [sheet, setSheet] = useState<SheetState | null>(null);
+
+  useEffect(() => {
+    if (filterParam !== 'overdue') return;
+    setFilter('Overdue');
+    router.setParams({ filter: undefined });
+  }, [filterParam]);
 
   const { data: tasks = [], isLoading, isError, refetch, isRefetching } = useTasks(
     FILTER_PARAM[filter],
