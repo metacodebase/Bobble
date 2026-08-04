@@ -1,4 +1,4 @@
-import { Check, Clock, MoreHorizontal, Trash2 } from 'lucide-react-native';
+import { CalendarDays, Check, Clock, MoreHorizontal, Trash2 } from 'lucide-react-native';
 import { useRef } from 'react';
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Swipeable } from 'react-native-gesture-handler';
@@ -17,6 +17,7 @@ type TaskRowProps = {
 export function TaskRow({ task, onToggle, onPress, onDelete }: TaskRowProps) {
   const colors = useBobbleColors();
   const swipeableRef = useRef<Swipeable>(null);
+  const DueIcon = task.group === 'today' ? Clock : CalendarDays;
 
   const confirmDelete = () => {
     if (!onDelete) return;
@@ -70,7 +71,7 @@ export function TaskRow({ task, onToggle, onPress, onDelete }: TaskRowProps) {
           </Text>
           {task.time ? (
             <View style={styles.timeRow}>
-              <Clock size={12} color={colors.primaryLight} />
+              <DueIcon size={13} color={colors.primaryLight} />
               <Text style={[styles.time, { color: colors.primaryLight }]}>{task.time}</Text>
             </View>
           ) : null}

@@ -27,18 +27,27 @@ function isTodayFilterMatch(dueAt?: string | null): boolean {
   return group === 'today' || group === 'overdue';
 }
 
-function formatTime(dueAt?: string | null): string {
+function formatDueLabel(dueAt?: string | null): string {
   if (!dueAt) return '';
   const date = new Date(dueAt);
   if (Number.isNaN(date.getTime())) return '';
-  return date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+
+  const time = date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+  if (deriveGroup(dueAt) === 'today') return time;
+
+  const calendarDate = date.toLocaleDateString([], {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  });
+  return `${calendarDate} • ${time}`;
 }
 
 export function mapTaskToItem(task: Task): TaskItem {
   return {
     id: task._id,
     title: task.title,
-    time: formatTime(task.dueAt),
+    time: formatDueLabel(task.dueAt),
     done: task.done,
     group: deriveGroup(task.dueAt),
     notes: task.notes,
