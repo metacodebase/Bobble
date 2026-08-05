@@ -1,19 +1,22 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 import * as Calendar from 'expo-calendar';
 import { RefreshCw } from 'lucide-react-native';
 
 import { CalendarRow } from '@/src/components/create-account/calendar-row';
-import { CalendarProviderIcon, type CalendarProvider } from '@/src/components/create-account/calendar-brand-icons';
+import {
+  CalendarProviderIcon,
+  type CalendarProvider,
+} from '@/src/components/create-account/calendar-brand-icons';
 import { PickerModal } from '@/src/components/create-account/picker-modal';
 import { SecondaryButton } from '@/src/components/home/secondary-button';
 import {
-    SettingsDescription,
-    SettingsScreenLayout,
+  SettingsDescription,
+  SettingsScreenLayout,
 } from '@/src/components/settings/settings-screen-layout';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { PrimaryButton } from '@/src/components/onboarding/primary-button';
-import { resyncAllTasksToCalendar } from '@/src/services/calendar-sync';
+import { resyncAllTasksToCalendar, validateCalendarConnection } from '@/src/services/calendar-sync';
 import { Typography } from '@/src/theme/fonts';
 import { useAppStore } from '@/src/store/app-store';
 
@@ -30,7 +33,7 @@ export default function CalendarSyncScreen() {
   const colors = useBobbleColors();
   const syncCalendarId = useAppStore((state) => state.syncCalendarId);
   const setSyncCalendarId = useAppStore((state) => state.setSyncCalendarId);
-  
+
   const [permissionStatus, setPermissionStatus] = useState<Calendar.PermissionStatus | null>(null);
   const [calendars, setCalendars] = useState<Calendar.Calendar[]>([]);
   const [loading, setLoading] = useState(true);
@@ -38,53 +41,55 @@ export default function CalendarSyncScreen() {
 
   // Picker State
   const [pickerVisible, setPickerVisible] = useState(false);
-  const [activeProvider, setActiveProvider] = useState<typeof PROVIDERS[0] | null>(null);
+  const [activeProvider, setActiveProvider] = useState<(typeof PROVIDERS)[0] | null>(null);
 
   // Missing Calendars Alert State
   const [missingAlertVisible, setMissingAlertVisible] = useState(false);
-  const [missingProvider, setMissingProvider] = useState<typeof PROVIDERS[0] | null>(null);
+  const [missingProvider, setMissingProvider] = useState<(typeof PROVIDERS)[0] | null>(null);
 
-  useEffect(() => {
-    checkPermissions();
-  }, []);
-
-  const checkPermissions = async () => {
-    const { status } = await Calendar.getCalendarPermissionsAsync();
-    setPermissionStatus(status);
-    if (status === 'granted') {
-      fetchCalendars();
-    } else {
-      setLoading(false);
-    }
-  };
-
-  const requestPermissions = async () => {
-    const { status } = await Calendar.requestCalendarPermissionsAsync();
-    setPermissionStatus(status);
-    if (status === 'granted') {
-      fetchCalendars();
-    } else {
-      Alert.alert('Permission Denied', 'You need to grant calendar access in your device settings.');
-    }
-  };
-
-  const fetchCalendars = async () => {
+  const fetchCalendars = useCallback(async () => {
     setLoading(true);
     try {
       const deviceCalendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
-      // Filter out read-only calendars on iOS, but on Android allowsModifications is often false or undefined for local calendars
-      // depending on the provider, so we'll be more permissive on Android.
-      const writableCalendars = deviceCalendars.filter(cal => 
-        cal.allowsModifications || cal.accessLevel === Calendar.CalendarAccessLevel.OWNER || cal.accessLevel === Calendar.CalendarAccessLevel.CONTRIBUTOR
+      const writableCalendars = deviceCalendars.filter(
+        (calendar) =>
+          calendar.allowsModifications ||
+          calendar.accessLevel === Calendar.CalendarAccessLevel.OWNER ||
+          calendar.accessLevel === Calendar.CalendarAccessLevel.CONTRIBUTOR
       );
-      
-      // If we still get nothing, just show all calendars so the user has something to pick
-      setCalendars(writableCalendars.length > 0 ? writableCalendars : deviceCalendars);
+      setCalendars(writableCalendars);
     } catch (error) {
       console.error('Failed to fetch calendars:', error);
       Alert.alert('Error', 'Failed to load calendars.');
     } finally {
       setLoading(false);
+    }
+  }, []);
+
+  const checkPermissions = useCallback(async () => {
+    const { status } = await Calendar.getCalendarPermissionsAsync();
+    setPermissionStatus(status);
+    if (status === 'granted') {
+      await fetchCalendars();
+    } else {
+      setLoading(false);
+    }
+  }, [fetchCalendars]);
+
+  useEffect(() => {
+    void checkPermissions();
+  }, [checkPermissions]);
+
+  const requestPermissions = async () => {
+    const { status } = await Calendar.requestCalendarPermissionsAsync();
+    setPermissionStatus(status);
+    if (status === 'granted') {
+      await fetchCalendars();
+    } else {
+      Alert.alert(
+        'Permission Denied',
+        'You need to grant calendar access in your device settings.'
+      );
     }
   };
 
@@ -92,13 +97,26 @@ export default function CalendarSyncScreen() {
     const sourceName = (calendar.source?.name || '').toLowerCase();
     const sourceType = (calendar.source?.type || '').toString().toLowerCase();
 
-    if (sourceName.includes('google') || sourceName.includes('gmail') || sourceType.includes('google')) {
+    if (
+      sourceName.includes('google') ||
+      sourceName.includes('gmail') ||
+      sourceType.includes('google')
+    ) {
       return 'google';
     }
-    if (sourceName.includes('icloud') || sourceName.includes('apple') || sourceType.includes('caldav')) {
+    if (
+      sourceName.includes('icloud') ||
+      sourceName.includes('apple') ||
+      sourceType.includes('caldav')
+    ) {
       return 'apple';
     }
-    if (sourceName.includes('outlook') || sourceName.includes('exchange') || sourceName.includes('hotmail') || sourceType.includes('exchange')) {
+    if (
+      sourceName.includes('outlook') ||
+      sourceName.includes('exchange') ||
+      sourceName.includes('hotmail') ||
+      sourceType.includes('exchange')
+    ) {
       return 'outlook';
     }
     return null;
@@ -108,11 +126,28 @@ export default function CalendarSyncScreen() {
     if (!syncCalendarId || resyncing) return;
     setResyncing(true);
     try {
-      const { synced } = await resyncAllTasksToCalendar();
-      if (synced === 0) {
+      const connection = await validateCalendarConnection();
+      if (connection !== 'ready') {
+        toast.error(
+          connection === 'permission_denied'
+            ? 'Calendar permission is no longer available.'
+            : 'The connected calendar is unavailable or read-only.',
+          'Calendar sync failed'
+        );
+        return;
+      }
+      const result = await resyncAllTasksToCalendar();
+      if (result.total === 0) {
         toast.success('Only tasks with a due date are synced', 'Nothing to sync');
+      } else if (result.failed > 0) {
+        toast.error(
+          `${result.failed} of ${result.total} tasks could not be synced. Check the selected calendar and permission.`,
+          'Calendar sync incomplete'
+        );
       } else {
-        toast.success(`Synced ${synced} task${synced === 1 ? '' : 's'} to your calendar`);
+        toast.success(
+          `Synced ${result.synced} task${result.synced === 1 ? '' : 's'} to your calendar`
+        );
       }
     } catch (error) {
       console.error('Calendar re-sync failed:', error);
@@ -126,14 +161,33 @@ export default function CalendarSyncScreen() {
     setSyncCalendarId(id);
     setPickerVisible(false);
     const selectedCal = calendars.find((c) => c.id === id);
-    if (selectedCal) {
-      toast.success(`Tasks will now sync to ${selectedCal.title}`);
-    }
     setResyncing(true);
     try {
-      const { synced } = await resyncAllTasksToCalendar();
-      if (synced > 0) {
-        toast.success(`Synced ${synced} existing task${synced === 1 ? '' : 's'} to your calendar`);
+      const connection = await validateCalendarConnection();
+      if (connection !== 'ready') {
+        setSyncCalendarId(null);
+        toast.error(
+          connection === 'permission_denied'
+            ? 'Calendar permission is no longer available.'
+            : 'The selected calendar is unavailable or read-only.',
+          'Calendar connection failed'
+        );
+        return;
+      }
+
+      if (selectedCal) {
+        toast.success(`Tasks will now sync to ${selectedCal.title}`);
+      }
+      const result = await resyncAllTasksToCalendar();
+      if (result.failed > 0) {
+        toast.error(
+          `${result.failed} existing task${result.failed === 1 ? '' : 's'} could not be synced. Try Re-sync all tasks.`,
+          'Calendar sync incomplete'
+        );
+      } else if (result.synced > 0) {
+        toast.success(
+          `Synced ${result.synced} existing task${result.synced === 1 ? '' : 's'} to your calendar`
+        );
       }
     } catch (error) {
       console.error('Initial calendar sync failed:', error);
@@ -142,9 +196,11 @@ export default function CalendarSyncScreen() {
     }
   };
 
-  const handleProviderPress = (providerItem: typeof PROVIDERS[0]) => {
-    const matchingCalendars = calendars.filter(c => getCalendarProvider(c) === providerItem.provider);
-    
+  const handleProviderPress = (providerItem: (typeof PROVIDERS)[0]) => {
+    const matchingCalendars = calendars.filter(
+      (c) => getCalendarProvider(c) === providerItem.provider
+    );
+
     if (matchingCalendars.length === 0) {
       setMissingProvider(providerItem);
       setMissingAlertVisible(true);
@@ -156,10 +212,10 @@ export default function CalendarSyncScreen() {
   };
 
   // Prepare picker options based on the active provider
-  const pickerOptions = activeProvider 
+  const pickerOptions = activeProvider
     ? calendars
-        .filter(c => getCalendarProvider(c) === activeProvider.provider)
-        .map(c => ({
+        .filter((c) => getCalendarProvider(c) === activeProvider.provider)
+        .map((c) => ({
           id: c.id,
           label: c.source?.name || c.title,
           sublabel: c.source?.name && c.source.name !== c.title ? c.title : undefined,
@@ -187,9 +243,11 @@ export default function CalendarSyncScreen() {
         <ScrollView style={styles.list} contentContainerStyle={styles.listContent}>
           {PROVIDERS.map((providerItem) => {
             // Check if any calendar belonging to this provider is currently selected
-            const providerCalendars = calendars.filter(c => getCalendarProvider(c) === providerItem.provider);
-            const isConnected = providerCalendars.some(c => c.id === syncCalendarId);
-            
+            const providerCalendars = calendars.filter(
+              (c) => getCalendarProvider(c) === providerItem.provider
+            );
+            const isConnected = providerCalendars.some((c) => c.id === syncCalendarId);
+
             return (
               <CalendarRow
                 key={providerItem.id}

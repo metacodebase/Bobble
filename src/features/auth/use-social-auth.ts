@@ -56,7 +56,7 @@ function isGoogleNativeError(error: unknown): boolean {
   if (!(error instanceof Error)) return false;
   return (
     error.message === 'GOOGLE_NATIVE_UNAVAILABLE' ||
-    error.message.includes("RNGoogleSignin") ||
+    error.message.includes('RNGoogleSignin') ||
     error.message.includes('TurboModuleRegistry.getEnforcing')
   );
 }
@@ -79,7 +79,7 @@ function isGoogleDeveloperError(error: unknown): boolean {
 
 function getGoogleSignInErrorMessage(
   error: unknown,
-  statusCodes?: { PLAY_SERVICES_NOT_AVAILABLE: string },
+  statusCodes?: { PLAY_SERVICES_NOT_AVAILABLE: string }
 ): string {
   if (isGoogleDeveloperError(error)) {
     return Platform.OS === 'android'
@@ -273,7 +273,7 @@ export function useSocialAuth() {
       const request = new AuthSession.AuthRequest({
         clientId: X_CLIENT_ID,
         redirectUri,
-        scopes: ['tweet.read', 'users.read', 'offline.access'],
+        scopes: ['tweet.read', 'users.read', 'users.email', 'offline.access'],
         responseType: AuthSession.ResponseType.Code,
         usePKCE: true,
       });
@@ -327,8 +327,9 @@ export function useSocialAuth() {
     }
   }, [socialLogin]);
 
-  const pendingProvider: SocialPendingProvider | null = oauthProvider
-    ?? (socialLogin.isPending
+  const pendingProvider: SocialPendingProvider | null =
+    oauthProvider ??
+    (socialLogin.isPending
       ? ((socialLogin.variables?.provider as SocialPendingProvider | undefined) ?? null)
       : null);
 

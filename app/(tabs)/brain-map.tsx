@@ -5,13 +5,13 @@ import { useMemo, useState } from 'react';
 import { Modal, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { MindMapClusterView } from '@/src/components/brain-map/mind-map-cluster';
-import { DateRangeFilter } from '@/src/components/brain-map/date-range-filter';
-import { PinchZoomMindMap } from '@/src/components/brain-map/pinch-zoom-mind-map';
 import type {
   CustomDateRange,
   MindMapDateFilter,
 } from '@/src/components/brain-map/date-range-filter';
+import { DateRangeFilter } from '@/src/components/brain-map/date-range-filter';
+import { MindMapClusterView } from '@/src/components/brain-map/mind-map-cluster';
+import { PinchZoomMindMap } from '@/src/components/brain-map/pinch-zoom-mind-map';
 import { PrimaryButton } from '@/src/components/onboarding/primary-button';
 import { AppBackground } from '@/src/components/ui/app-background';
 import { ScreenLoading } from '@/src/components/ui/screen-loading';
@@ -228,10 +228,10 @@ export default function BrainMapScreen() {
           <View style={[styles.iconWrap, { backgroundColor: colors.surface }]}>
             <Image source={MINDMAP_ICON} style={styles.icon} contentFit="contain" />
           </View>
-          <Text style={[styles.title, { color: night.text ?? colors.text }]}>
+          <Text style={[styles.title, { color: colors.text }]}>
             Mind Maps & Insights
           </Text>
-          <Text style={[styles.subtitle, { color: night.textSecondary ?? colors.textSecondary }]}>
+          <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
             Upgrade to Bobble Pro to unlock mind maps and deeper insights from your captures.
           </Text>
           <PrimaryButton

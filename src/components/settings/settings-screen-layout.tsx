@@ -46,9 +46,11 @@ export function SettingsDescription({ children }: { children: ReactNode }) {
   const night = useNightForeground();
 
   return (
-    <Text style={[styles.description, { color: night.textSecondary ?? colors.textSecondary }]}>
-      {children}
-    </Text>
+    <View style={{ backgroundColor: night.isNight ? '#rgba(0,0,0,0.05)' : '#rgba(0,0,0,0.05)' ,padding: 16, borderRadius: 16}}>
+      <Text style={[styles.description, { color: night.isNight ? 'black' : 'grey' }]}>
+        {children}
+      </Text>
+    </View>
   );
 }
 
@@ -64,7 +66,7 @@ export function SettingsSection({ title, children }: SettingsSectionProps) {
   return (
     <View style={styles.section}>
       {title ? (
-        <Text style={[styles.sectionTitle, { color: night.text ?? colors.textSecondary }]}>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>
           {title}
         </Text>
       ) : null}

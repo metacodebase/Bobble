@@ -12,14 +12,13 @@ import { PROFILE_USER } from '@/src/data/demo-data';
 import { useDeleteAccount, useLogout, useMe } from '@/src/hooks/api';
 import { useProfile } from '@/src/hooks/profile';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
-import { useNightForeground } from '@/src/hooks/use-night-foreground';
 import { useAppStore } from '@/src/store/app-store';
 import { Typography } from '@/src/theme/fonts';
+import { visibleAccountEmail, xAccountLabel } from '@/src/utils/account-identity';
 import { resolveAvatarUrl } from '@/src/utils/avatar-url';
 
 export default function SettingsAccountScreen() {
   const colors = useBobbleColors();
-  const night = useNightForeground();
   const storedUser = useAppStore((s) => s.user);
   const isGuest = useAppStore((s) => s.isGuest);
   const { data: fetchedUser } = useMe();
@@ -31,7 +30,12 @@ export default function SettingsAccountScreen() {
     ? (profile?.user.name ?? 'Guest')
     : (user?.name ?? user?.email?.split('@')[0] ?? PROFILE_USER.name);
   const displayName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
-  const displayEmail = isGuest ? '' : (user?.email ?? PROFILE_USER.email);
+  const accountEmail = isGuest
+    ? undefined
+    : visibleAccountEmail(user?.email ?? profile?.user.email);
+  const accountHandle = user?.handle ?? profile?.user.handle;
+  const accountValue = isGuest ? '' : (accountEmail ?? xAccountLabel(accountHandle));
+  const accountLabel = accountEmail ? 'Email' : 'X account';
   const avatarUrl = resolveAvatarUrl(
     profile?.user.avatarUrl,
     storedUser?.avatarUrl,
@@ -58,10 +62,8 @@ export default function SettingsAccountScreen() {
     <SettingsScreenLayout title="Account">
       <View style={styles.avatarWrap}>
         <ProfileAvatar centered={false} showCamera={false} size={100} imageSource={avatarSource} />
-        <Text style={[styles.name, { color: night.text ?? colors.text }]}>{displayName}</Text>
-        <Text style={[styles.email, { color: night.textSecondary ?? colors.textSecondary }]}>
-          {displayEmail}
-        </Text>
+        <Text style={[styles.name, { color: colors.text }]}>{displayName}</Text>
+        <Text style={[styles.email, { color: colors.textSecondary }]}>{accountValue}</Text>
       </View>
 
       <SettingsSection title="Profile">
@@ -73,7 +75,7 @@ export default function SettingsAccountScreen() {
           label="Change password"
           onPress={() => router.push('/settings/change-password' as Href)}
         />
-        <SettingsLinkRow label="Email" value={displayEmail} isLast />
+        <SettingsLinkRow label={accountLabel} value={accountValue} isLast />
       </SettingsSection>
 
       <SettingsSection title="Data">

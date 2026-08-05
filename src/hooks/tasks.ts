@@ -12,7 +12,12 @@ import type {
   UpdateTaskBody,
 } from '@/src/features/tasks/types';
 import { queryKeys } from '@/src/services/query-keys';
-import { removeTaskFromCalendar, syncTaskToCalendar } from '@/src/services/calendar-sync';
+import {
+  removeTaskFromCalendar,
+  syncTasksToCalendar,
+  syncTaskToCalendar,
+  type CalendarSyncResult,
+} from '@/src/services/calendar-sync';
 import { syncTaskWidgets } from '@/src/services/widget-sync';
 import { useAppStore } from '@/src/store/app-store';
 import { getApiErrorMessage, isProLimitError } from '@/src/utils/api-error';
@@ -36,6 +41,19 @@ function handleTaskLimitError(error: unknown, fallback: string) {
     return;
   }
   toast.error(getApiErrorMessage(error, fallback));
+}
+
+function notifyCalendarSyncFailure(result: CalendarSyncResult, task: Task) {
+  if (result.status !== 'failed') return;
+  const message =
+    result.reason === 'permission_denied'
+      ? 'Task saved, but calendar permission is no longer available.'
+      : result.reason === 'calendar_unavailable'
+        ? 'Task saved, but the connected calendar is unavailable or read-only.'
+        : task.done || !task.dueAt
+          ? 'Task saved, but its calendar event could not be removed.'
+        : 'Task saved, but it could not be added to your calendar.';
+  toast.error(message, 'Calendar sync failed');
 }
 
 export function useTasks(filter: TaskFilterParam = 'all', enabled = true) {
@@ -63,11 +81,11 @@ export function useCreateTask() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (body: CreateTaskBody) => tasksApi.createTask(body),
-    onSuccess: (task) => {
+    onSuccess: async (task) => {
       qc.invalidateQueries({ queryKey: queryKeys.tasks.all });
       invalidateUserStats(qc);
       if (task.bobble) invalidateMindMap(qc);
-      void syncTaskToCalendar(task);
+      notifyCalendarSyncFailure(await syncTaskToCalendar(task), task);
     },
     onError: (e) => handleTaskLimitError(e, 'Could not create task'),
   });
@@ -77,11 +95,17 @@ export function useCreateTasksBulk() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (body: CreateTasksBulkBody) => tasksApi.createTasksBulk(body),
-    onSuccess: (tasks) => {
+    onSuccess: async (tasks) => {
       qc.invalidateQueries({ queryKey: queryKeys.tasks.all });
       invalidateUserStats(qc);
       if (tasks.some((task) => task.bobble)) invalidateMindMap(qc);
-      tasks.forEach((task) => void syncTaskToCalendar(task));
+      const result = await syncTasksToCalendar(tasks);
+      if (result.failed > 0) {
+        toast.error(
+          `${result.failed} task${result.failed === 1 ? '' : 's'} could not be added to your calendar.`,
+          'Calendar sync incomplete'
+        );
+      }
     },
     onError: (e) => handleTaskLimitError(e, 'Could not save tasks'),
   });
@@ -92,10 +116,10 @@ export function useUpdateTask() {
   return useMutation({
     mutationFn: ({ id, body }: { id: string; body: UpdateTaskBody }) =>
       tasksApi.updateTask(id, body),
-    onSuccess: (task) => {
+    onSuccess: async (task) => {
       qc.invalidateQueries({ queryKey: queryKeys.tasks.all });
       invalidateUserStats(qc);
-      void syncTaskToCalendar(task);
+      notifyCalendarSyncFailure(await syncTaskToCalendar(task), task);
     },
     onError: (e) => toast.error(getApiErrorMessage(e, 'Could not update task')),
   });
@@ -111,7 +135,7 @@ export function useToggleTask() {
       await qc.cancelQueries({ queryKey: queryKeys.tasks.all });
       const snapshot = qc.getQueriesData<Task[]>({ queryKey: queryKeys.tasks.all });
       qc.setQueriesData<Task[]>({ queryKey: queryKeys.tasks.all }, (prev) =>
-        prev?.map((task) => (task._id === id ? { ...task, done: !task.done } : task)),
+        prev?.map((task) => (task._id === id ? { ...task, done: !task.done } : task))
       );
       return { snapshot } as { snapshot: TasksSnapshot };
     },
@@ -119,11 +143,11 @@ export function useToggleTask() {
       context?.snapshot.forEach(([key, data]) => qc.setQueryData(key, data));
       toast.error(getApiErrorMessage(e, 'Could not update task'));
     },
-    onSuccess: (updated: Task) => {
+    onSuccess: async (updated: Task) => {
       qc.setQueriesData<Task[]>({ queryKey: queryKeys.tasks.all }, (prev) =>
-        prev?.map((task) => (task._id === updated._id ? updated : task)),
+        prev?.map((task) => (task._id === updated._id ? updated : task))
       );
-      void syncTaskToCalendar(updated);
+      notifyCalendarSyncFailure(await syncTaskToCalendar(updated), updated);
     },
     onSettled: () => {
       qc.invalidateQueries({ queryKey: queryKeys.tasks.all });
@@ -140,7 +164,7 @@ export function useDeleteTask() {
       await qc.cancelQueries({ queryKey: queryKeys.tasks.all });
       const snapshot = qc.getQueriesData<Task[]>({ queryKey: queryKeys.tasks.all });
       qc.setQueriesData<Task[]>({ queryKey: queryKeys.tasks.all }, (prev) =>
-        prev?.filter((task) => task._id !== id),
+        prev?.filter((task) => task._id !== id)
       );
       return { snapshot } as { snapshot: TasksSnapshot };
     },
@@ -148,10 +172,18 @@ export function useDeleteTask() {
       context?.snapshot.forEach(([key, data]) => qc.setQueryData(key, data));
       toast.error(getApiErrorMessage(e, 'Could not delete task'));
     },
-    onSettled: (_data, _error, id) => {
+    onSuccess: async (_data, id) => {
+      const result = await removeTaskFromCalendar(id);
+      if (result.status === 'failed') {
+        toast.error(
+          'Task deleted, but its calendar event could not be removed.',
+          'Calendar sync failed'
+        );
+      }
+    },
+    onSettled: () => {
       qc.invalidateQueries({ queryKey: queryKeys.tasks.all });
       invalidateUserStats(qc);
-      void removeTaskFromCalendar(id);
     },
   });
 }

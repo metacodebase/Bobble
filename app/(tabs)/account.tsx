@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLogout } from '@/src/hooks/api';
 import { useThemeColor } from '@/src/hooks/use-theme-color';
 import { useAppStore } from '@/src/store/app-store';
+import { visibleAccountEmail, xAccountLabel } from '@/src/utils/account-identity';
 
 export default function AccountScreen() {
   const insets = useSafeAreaInsets();
@@ -12,12 +13,15 @@ export default function AccountScreen() {
   const primary = useThemeColor({}, 'primary');
   const user = useAppStore((s) => s.user);
   const logout = useLogout();
+  const accountIdentity = user
+    ? (visibleAccountEmail(user.email) ?? xAccountLabel(user.handle))
+    : undefined;
 
   return (
     <View style={[styles.root, { paddingTop: insets.top + 16 }]}>
       <Text style={[styles.title, { color: text }]}>Account</Text>
       <Text style={[styles.subtitle, { color: textSecondary }]}>
-        {user ? `Signed in as ${user.email}` : 'Guest mode'}
+        {accountIdentity ? `Signed in as ${accountIdentity}` : 'Guest mode'}
       </Text>
 
       {user ? (

@@ -21,7 +21,7 @@ export interface Gamification {
 export interface AuthUser {
   _id: string;
   name: string;
-  email: string;
+  email?: string;
   handle?: string;
   avatarUrl?: string;
   phone?: string;

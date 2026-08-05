@@ -3,7 +3,7 @@ import type { UserSubscription } from '@/src/config/subscription';
 export interface ProfileUser {
   _id: string;
   name: string;
-  email: string;
+  email?: string;
   handle?: string;
   avatarUrl?: string;
   phone?: string;

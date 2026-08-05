@@ -117,7 +117,10 @@ export default function SuggestionsScreen() {
 
       try {
         const updated = await tasksApi.updateTask(task.persistedId, { title: trimmed });
-        void syncTaskToCalendar(updated);
+        const calendarResult = await syncTaskToCalendar(updated);
+        if (calendarResult.status === 'failed') {
+          toast.error('Task updated, but calendar sync failed', 'Calendar sync');
+        }
         syncTasksToStore(next);
       } catch (error) {
         setTasks(previous);
@@ -140,7 +143,10 @@ export default function SuggestionsScreen() {
 
       try {
         await tasksApi.deleteTask(task.persistedId);
-        void removeTaskFromCalendar(task.persistedId);
+        const calendarResult = await removeTaskFromCalendar(task.persistedId);
+        if (calendarResult.status === 'failed') {
+          toast.error('Task deleted, but its calendar event could not be removed', 'Calendar sync');
+        }
         syncTasksToStore(next);
       } catch (error) {
         setTasks(previous);
@@ -183,7 +189,13 @@ export default function SuggestionsScreen() {
           dueAt: task.dueAt ?? null,
         })),
       });
-      void syncTasksToCalendar(created);
+      const calendarResult = await syncTasksToCalendar(created);
+      if (calendarResult.failed > 0) {
+        toast.error(
+          `${calendarResult.failed} task${calendarResult.failed === 1 ? '' : 's'} could not be added to your calendar`,
+          'Calendar sync incomplete',
+        );
+      }
 
       const generatedTasks: SuggestionTask[] = created.map((task) => ({
         id: task._id,

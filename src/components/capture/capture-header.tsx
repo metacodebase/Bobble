@@ -39,9 +39,9 @@ export function CaptureHeader({
   const colors = useBobbleColors();
   const night = useNightForeground();
   const insets = useSafeAreaInsets();
-  const iconColor = night.text ?? colors.text;
-  const mutedIconColor = night.textSecondary ?? colors.textSecondary;
-  const discardColor = night.isNight ? DISCARD_COLOR : mutedIconColor;
+  const iconColor = colors.text;
+  const mutedIconColor =  colors.textSecondary;
+  const discardColor = mutedIconColor;
 
   // Only add the inset when the parent did not already — parents typically use
   // `paddingTop: insets.top + N`. On Android, if that value was 0/too small,
@@ -71,14 +71,14 @@ export function CaptureHeader({
       {title ? (
         centered ? (
           <Text
-            style={[styles.titleCentered, { color: night.text ?? titleColor ?? colors.text }]}
+            style={[styles.titleCentered, { color:  colors.text }]}
             numberOfLines={1}
             pointerEvents="none"
           >
             {title}
           </Text>
         ) : (
-          <Text style={[styles.title, { color: night.text ?? titleColor ?? colors.text }]} numberOfLines={1}>
+          <Text style={[styles.title, { color:  colors.text }]} numberOfLines={1}>
             {title}
           </Text>
         )
