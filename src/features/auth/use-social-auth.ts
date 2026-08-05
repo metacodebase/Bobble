@@ -337,7 +337,6 @@ export function useSocialAuth() {
     signInWithGoogle,
     signInWithApple,
     signInWithX,
-    signInDemo: () => socialLogin.mutate({ provider: 'google', idToken: 'offline-demo' }),
     appleAvailable,
     pendingProvider,
     isPending: pendingProvider !== null,

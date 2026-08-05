@@ -1,17 +1,11 @@
 import { Ionicons } from '@expo/vector-icons';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 
-import {
-  AppleIcon,
-  FacebookIcon,
-  GoogleIcon,
-  MicrosoftIcon,
-  XIcon,
-} from '@/src/components/onboarding/social-icons';
+import { AppleIcon, GoogleIcon, XIcon } from '@/src/components/onboarding/social-icons';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { Typography } from '@/src/theme/fonts';
 
-type SocialProvider = 'google' | 'apple' | 'facebook' | 'x' | 'microsoft' | 'email';
+type SocialProvider = 'google' | 'apple' | 'x' | 'email';
 
 type SocialButtonProps = {
   provider: SocialProvider;
@@ -29,12 +23,8 @@ function renderSocialIcon(provider: Exclude<SocialProvider, 'email'>, color: str
       return <GoogleIcon size={ICON_SIZE} />;
     case 'apple':
       return <AppleIcon size={ICON_SIZE} color={color} />;
-    case 'facebook':
-      return <FacebookIcon size={ICON_SIZE} />;
     case 'x':
       return <XIcon size={ICON_SIZE} color={color} />;
-    case 'microsoft':
-      return <MicrosoftIcon size={ICON_SIZE} />;
   }
 }
 

@@ -5,18 +5,14 @@ import { Platform, StyleSheet, Text, View } from 'react-native';
 import { TermsNotice } from '@/src/components/create-account/terms-notice';
 import { OnboardingScreenLayout } from '@/src/components/onboarding/onboarding-screen-layout';
 import { SocialButton } from '@/src/components/onboarding/social-button';
-import { isDemoMode } from '@/src/config/backend';
 import { useContinueAsGuest } from '@/src/features/auth/use-continue-as-guest';
 import { useSocialAuth } from '@/src/features/auth/use-social-auth';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { FontFamily, Typography } from '@/src/theme/fonts';
-import { toast } from '@/src/utils/toast';
 
 const SOCIAL_PROVIDERS = [
   { provider: 'x' as const, label: 'Continue with X' },
-  { provider: 'facebook' as const, label: 'Continue with Facebook' },
   { provider: 'google' as const, label: 'Continue with Google' },
-  { provider: 'microsoft' as const, label: 'Continue with Microsoft' },
   { provider: 'apple' as const, label: 'Continue with Apple' },
 ];
 
@@ -64,7 +60,6 @@ export default function AuthScreen() {
     signInWithGoogle,
     signInWithApple,
     signInWithX,
-    signInDemo,
     appleAvailable,
     isPending,
     pendingProvider,
@@ -91,13 +86,6 @@ export default function AuthScreen() {
       case 'apple':
         void signInWithApple();
         break;
-      default:
-        // Facebook and Microsoft are not wired up yet.
-        if (isDemoMode) {
-          signInDemo();
-          return;
-        }
-        toast.success('This sign-in option is coming soon');
     }
   };
 
