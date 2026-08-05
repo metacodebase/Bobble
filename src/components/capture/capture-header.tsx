@@ -39,17 +39,15 @@ export function CaptureHeader({
   const colors = useBobbleColors();
   const night = useNightForeground();
   const insets = useSafeAreaInsets();
-  const iconColor = colors.text;
-  const mutedIconColor =  colors.textSecondary;
-  const discardColor = mutedIconColor;
+  const iconColor = night.text ?? colors.text;
+  const mutedIconColor = night.textSecondary ?? colors.textSecondary;
+  const discardColor = night.isNight ? DISCARD_COLOR : mutedIconColor;
 
   // Only add the inset when the parent did not already — parents typically use
   // `paddingTop: insets.top + N`. On Android, if that value was 0/too small,
   // give the back button its own clearance without double-padding common cases.
   const topPad =
-    safeTop && Platform.OS === 'android' && insets.top <= 0
-      ? androidSafeTop(insets.top)
-      : 0;
+    safeTop && Platform.OS === 'android' && insets.top <= 0 ? androidSafeTop(insets.top) : 0;
 
   return (
     <View style={[styles.root, topPad > 0 && { paddingTop: topPad }]}>
@@ -71,14 +69,17 @@ export function CaptureHeader({
       {title ? (
         centered ? (
           <Text
-            style={[styles.titleCentered, { color:  colors.text }]}
+            style={[styles.titleCentered, { color: titleColor ?? night.text ?? colors.text }]}
             numberOfLines={1}
             pointerEvents="none"
           >
             {title}
           </Text>
         ) : (
-          <Text style={[styles.title, { color:  colors.text }]} numberOfLines={1}>
+          <Text
+            style={[styles.title, { color: titleColor ?? night.text ?? colors.text }]}
+            numberOfLines={1}
+          >
             {title}
           </Text>
         )

@@ -47,7 +47,7 @@ export function SettingsDescription({ children }: { children: ReactNode }) {
 
   return (
     <View style={{ backgroundColor: night.isNight ? '#rgba(0,0,0,0.05)' : '#rgba(0,0,0,0.05)' ,padding: 16, borderRadius: 16}}>
-      <Text style={[styles.description, { color: night.isNight ? 'black' : 'grey' }]}>
+      <Text style={[styles.description, { color: night.isNight ? 'white' : 'grey' }]}>
         {children}
       </Text>
     </View>
