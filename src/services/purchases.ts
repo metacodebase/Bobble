@@ -12,13 +12,18 @@ import {
   canonicalProductId,
   isAnnualProductId,
   isMonthlyProductId,
+  type SubscriptionStatus,
+  type SubscriptionStore,
   type StoreProductId,
+  type UserSubscription,
 } from '@/src/config/subscription';
 import type { PaywallPlanId } from '@/src/data/paywall';
 
 let configured = false;
 /** RevenueCat App User ID after a successful configure(appUserID) or logIn. */
 let loggedInUserId: string | null = null;
+/** Shared by repeated auth-state cleanup so RevenueCat is logged out only once. */
+let logoutPromise: Promise<void> | null = null;
 
 /**
  * Prefer platform public keys (appl_ / goog_). Fall back to a single Test Store
@@ -119,18 +124,83 @@ export async function ensurePurchasesIdentity(userId: string): Promise<boolean> 
 }
 
 export async function logoutPurchases(): Promise<void> {
-  if (!configured) return;
+  if (!configured || !loggedInUserId) return;
+  if (logoutPromise) return logoutPromise;
+
+  logoutPromise = (async () => {
+    try {
+      // logOut() itself changes an identified customer into an anonymous one.
+      // The auth mutation and PurchasesBootstrap can both reach this cleanup,
+      // so re-check native state before calling it.
+      if (!(await Purchases.isAnonymous())) {
+        await Purchases.logOut();
+      }
+    } catch (error) {
+      const code =
+        error && typeof error === 'object' && 'code' in error
+          ? String((error as { code: unknown }).code)
+          : undefined;
+      if (code !== Purchases.PURCHASES_ERROR_CODE.LOG_OUT_ANONYMOUS_USER_ERROR) {
+        console.warn('[purchases] logOut failed', error);
+      }
+    } finally {
+      loggedInUserId = null;
+    }
+  })();
+
   try {
-    await Purchases.logOut();
-  } catch (error) {
-    console.warn('[purchases] logOut failed', error);
+    await logoutPromise;
   } finally {
-    loggedInUserId = null;
+    logoutPromise = null;
   }
 }
 
 export function customerHasPro(info: CustomerInfo | null | undefined): boolean {
   return info?.entitlements.active[BOBBLE_PRO_ENTITLEMENT] != null;
+}
+
+function subscriptionStoreFromRevenueCat(store: string): SubscriptionStore {
+  switch (store) {
+    case 'APP_STORE':
+    case 'MAC_APP_STORE':
+      return 'app_store';
+    case 'PLAY_STORE':
+      return 'play_store';
+    case 'PROMOTIONAL':
+      return 'promotional';
+    default:
+      return 'unknown';
+  }
+}
+
+/**
+ * Convert the entitlement returned by the native SDK into the app's UI model.
+ * This lets a completed purchase unlock the UI immediately while the backend
+ * independently reconciles the same RevenueCat customer.
+ */
+export function subscriptionFromCustomerInfo(
+  info: CustomerInfo | null | undefined
+): UserSubscription | null {
+  const entitlement = info?.entitlements.active[BOBBLE_PRO_ENTITLEMENT];
+  if (!entitlement) return null;
+
+  let status: SubscriptionStatus = 'active';
+  if (entitlement.billingIssueDetectedAt) {
+    status = 'billing_issue';
+  } else if (entitlement.unsubscribeDetectedAt) {
+    status = 'canceled';
+  } else if (entitlement.periodType.toUpperCase() === 'TRIAL') {
+    status = 'trialing';
+  }
+
+  return {
+    isPro: true,
+    productId: canonicalProductId(entitlement.productIdentifier) ?? entitlement.productIdentifier,
+    store: subscriptionStoreFromRevenueCat(entitlement.store),
+    status,
+    expiresAt: entitlement.expirationDate ?? undefined,
+    willRenew: entitlement.willRenew,
+  };
 }
 
 export async function getCustomerInfo(): Promise<CustomerInfo | null> {

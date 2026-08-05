@@ -176,7 +176,7 @@ export function PaywallScreen({ onClose }: PaywallScreenProps) {
     setIsStartingTrial(true);
     try {
       const { customerInfo } = await purchasePlan(selectedPlanId, userId);
-      await refreshSubscription({ pollUntilPro: true });
+      await refreshSubscription({ pollUntilPro: true, customerInfo });
       if (customerHasPro(customerInfo)) {
         toast.success('Welcome to Bobble Pro!');
       } else {
@@ -209,7 +209,7 @@ export function PaywallScreen({ onClose }: PaywallScreenProps) {
     setIsRestoring(true);
     try {
       const customerInfo = await restorePurchases(userId);
-      const user = await refreshSubscription({ pollUntilPro: true });
+      const user = await refreshSubscription({ pollUntilPro: true, customerInfo });
       if (customerHasPro(customerInfo) || user?.subscription?.isPro) {
         toast.success('Purchases restored. Welcome back to Bobble Pro!');
       } else {

@@ -9,7 +9,7 @@ import { isDemoMode } from '@/src/config/backend';
 import { useContinueAsGuest } from '@/src/features/auth/use-continue-as-guest';
 import { useSocialAuth } from '@/src/features/auth/use-social-auth';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
-import { Typography } from '@/src/theme/fonts';
+import { FontFamily, Typography } from '@/src/theme/fonts';
 import { toast } from '@/src/utils/toast';
 
 const SOCIAL_PROVIDERS = [
@@ -207,8 +207,8 @@ const styles = StyleSheet.create({
   },
   guestLink: {
     ...Typography.caption,
+    fontFamily: FontFamily.bold,
     fontSize: 15,
-    fontWeight: '700',
     paddingVertical: 6,
     textAlign: 'center',
   },

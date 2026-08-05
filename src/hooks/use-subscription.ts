@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
+import type { CustomerInfo } from 'react-native-purchases';
 
 import {
   DEFAULT_SUBSCRIPTION,
@@ -13,6 +14,7 @@ import {
   ensurePurchasesIdentity,
   isPurchasesIdentityReady,
   isPurchasesSupported,
+  subscriptionFromCustomerInfo,
 } from '@/src/services/purchases';
 import { useAppStore } from '@/src/store/app-store';
 
@@ -82,34 +84,55 @@ export function useRefreshSubscription() {
       intervalMs?: number;
       /** Call POST /auth/sync-subscription before polling /me (default true). */
       syncFromRevenueCat?: boolean;
+      /** Native SDK result used to update the UI while backend sync catches up. */
+      customerInfo?: CustomerInfo;
     }) => {
       const attempts = opts?.attempts ?? (opts?.pollUntilPro ? 6 : 1);
       const intervalMs = opts?.intervalMs ?? 800;
       const syncFromRevenueCat = opts?.syncFromRevenueCat !== false;
+      const nativeSubscription = subscriptionFromCustomerInfo(opts?.customerInfo);
 
-      if (syncFromRevenueCat) {
-        try {
-          const user = await authApi.syncSubscription();
-          setUser(user);
-          qc.setQueryData(queryKeys.auth.me, user);
-          if (!opts?.pollUntilPro || user.subscription?.isPro) {
-            return user;
-          }
-        } catch {
-          /* fall through to /me polling */
+      // RevenueCat's purchase/restore result is authoritative for client access.
+      // Keep server-side enforcement separate and reconcile it below.
+      if (nativeSubscription) {
+        const currentUser = useAppStore.getState().user;
+        if (currentUser) {
+          const optimisticUser = { ...currentUser, subscription: nativeSubscription };
+          setUser(optimisticUser);
+          qc.setQueryData(queryKeys.auth.me, optimisticUser);
         }
       }
 
       for (let i = 0; i < attempts; i += 1) {
         try {
-          const user = await authApi.fetchMe();
-          setUser(user);
-          qc.setQueryData(queryKeys.auth.me, user);
+          // Retry the reconciliation itself. Polling /me alone cannot change a
+          // stale subscription when the webhook or Play propagation is delayed.
+          const user = syncFromRevenueCat
+            ? await authApi.syncSubscription()
+            : await authApi.fetchMe();
+          const keepNativePro = nativeSubscription?.isPro && !user.subscription?.isPro;
+          if (!keepNativePro) {
+            setUser(user);
+            qc.setQueryData(queryKeys.auth.me, user);
+          }
           if (!opts?.pollUntilPro || user.subscription?.isPro) {
-            return user;
+            return keepNativePro
+              ? { ...user, subscription: nativeSubscription }
+              : user;
           }
         } catch {
-          /* keep polling */
+          // A webhook may still update /me even if direct reconciliation failed.
+          try {
+            const user = await authApi.fetchMe();
+            const keepNativePro = nativeSubscription?.isPro && !user.subscription?.isPro;
+            if (!keepNativePro) {
+              setUser(user);
+              qc.setQueryData(queryKeys.auth.me, user);
+            }
+            if (!opts?.pollUntilPro || user.subscription?.isPro) return user;
+          } catch {
+            /* keep polling */
+          }
         }
         if (i < attempts - 1) {
           await new Promise((resolve) => setTimeout(resolve, intervalMs));

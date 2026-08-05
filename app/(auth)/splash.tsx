@@ -2,7 +2,7 @@ import { OnboardingScreenLayout } from '@/src/components/onboarding/onboarding-s
 import { PrimaryButton } from '@/src/components/onboarding/primary-button';
 import { useContinueAsGuest } from '@/src/features/auth/use-continue-as-guest';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
-import { Typography } from '@/src/theme/fonts';
+import { FontFamily, Typography } from '@/src/theme/fonts';
 import { Image } from 'expo-image';
 import { Href, router } from 'expo-router';
 import * as ExpoSplashScreen from 'expo-splash-screen';
@@ -179,8 +179,8 @@ const styles = StyleSheet.create({
   },
   guestLink: {
     ...Typography.caption,
+    fontFamily: FontFamily.bold,
     fontSize: 16,
-    fontWeight: '700',
     paddingVertical: 8,
     textAlign: 'center',
   },

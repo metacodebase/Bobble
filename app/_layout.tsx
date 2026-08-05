@@ -106,11 +106,12 @@ function AppShell() {
 
     const segmentList = segments as string[];
     const inAuthGroup = segmentList[0] === '(auth)';
+    const inXAuthCallback = segmentList[0] === 'auth' && segmentList[1] === 'x';
     const atRootIndex = segmentList.length === 0;
 
     if (hasAppAccess && inAuthGroup) {
       router.replace('/(tabs)' as Href);
-    } else if (!hasAppAccess && !inAuthGroup && !atRootIndex) {
+    } else if (!hasAppAccess && !inAuthGroup && !inXAuthCallback && !atRootIndex) {
       router.replace('/(auth)/splash' as Href);
     }
   }, [hasHydrated, fontsLoaded, hasAppAccess, segments, router]);
@@ -131,6 +132,7 @@ function AppShell() {
         >
           <Stack.Screen name="index" options={{ headerShown: false }} />
           <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+          <Stack.Screen name="auth/x" options={{ headerShown: false, animation: 'none' }} />
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen
             name="capture"
