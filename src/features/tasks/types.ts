@@ -29,5 +29,7 @@ export type UpdateTaskBody = Partial<CreateTaskBody>;
 
 export interface CreateTasksBulkBody {
   bobble?: string;
+  /** Stable per-action key so retries return the original tasks instead of duplicating them. */
+  idempotencyKey?: string;
   tasks: CreateTaskBody[];
 }

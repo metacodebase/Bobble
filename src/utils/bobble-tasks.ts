@@ -28,6 +28,7 @@ export function taskTitlesFromBobble(bobble: Bobble): string[] {
 export function buildTasksBulkFromBobble(bobble: Bobble): CreateTasksBulkBody {
   return {
     bobble: bobble._id,
+    idempotencyKey: `bobble-toolbar:${bobble._id}`,
     tasks: tasksFromBobble(bobble).map((task) => ({
       title: task.title,
       dueAt: task.dueAt ?? null,

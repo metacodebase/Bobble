@@ -58,6 +58,7 @@ function toTask(item: (typeof DEMO_TASKS)[number], overrides: Partial<Task> = {}
 
 let demoTaskStore: Task[] = DEMO_TASKS.map((item) => toTask(item));
 let guestTaskStore: Task[] = [];
+const bulkRequests = new Map<string, Promise<Task[]>>();
 
 function getTaskStore(): Task[] {
   return useAppStore.getState().isGuest ? guestTaskStore : demoTaskStore;
@@ -74,6 +75,9 @@ function setTaskStore(tasks: Task[]): void {
 /** Start a new guest session without carrying data from an earlier guest. */
 export function resetGuestTasks(): void {
   guestTaskStore = [];
+  for (const key of bulkRequests.keys()) {
+    if (key.startsWith('guest:')) bulkRequests.delete(key);
+  }
 }
 
 export function getGuestTaskCount(): number {
@@ -107,10 +111,24 @@ export async function createTask(body: CreateTaskBody): Promise<Task> {
 }
 
 export async function createTasksBulk(body: CreateTasksBulkBody): Promise<Task[]> {
-  const created = await Promise.all(
+  const requestKey = body.idempotencyKey
+    ? `${useAppStore.getState().isGuest ? 'guest' : 'demo'}:${body.idempotencyKey}`
+    : undefined;
+  if (requestKey) {
+    const existingRequest = bulkRequests.get(requestKey);
+    if (existingRequest) return existingRequest;
+  }
+
+  const request = Promise.all(
     body.tasks.map((task) => createTask({ ...task, bobble: body.bobble }))
   );
-  return created;
+  if (requestKey) bulkRequests.set(requestKey, request);
+  try {
+    return await request;
+  } catch (error) {
+    if (requestKey) bulkRequests.delete(requestKey);
+    throw error;
+  }
 }
 
 export async function updateTask(id: string, body: UpdateTaskBody): Promise<Task> {

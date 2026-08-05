@@ -1,7 +1,7 @@
 import { Image } from 'expo-image';
 import { Href, router } from 'expo-router';
 import { Check } from 'lucide-react-native';
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -68,8 +68,9 @@ export default function SuggestionsScreen() {
     }));
   });
   const [isGenerating, setIsGenerating] = useState(false);
-  const [tasksGenerated, setTasksGenerated] = useState(
-    () => Boolean(useCaptureStore.getState().pendingBobbleSave?.tasksGenerated),
+  const generateInFlightRef = useRef(false);
+  const [tasksGenerated, setTasksGenerated] = useState(() =>
+    Boolean(useCaptureStore.getState().pendingBobbleSave?.tasksGenerated)
   );
 
   const selectedCount = tasks.filter((task) => task.selected).length;
@@ -97,7 +98,7 @@ export default function SuggestionsScreen() {
 
   const toggleTask = useCallback((id: string) => {
     setTasks((prev) =>
-      prev.map((task) => (task.id === id ? { ...task, selected: !task.selected } : task)),
+      prev.map((task) => (task.id === id ? { ...task, selected: !task.selected } : task))
     );
   }, []);
 
@@ -111,7 +112,7 @@ export default function SuggestionsScreen() {
 
       const previous = tasks;
       const next = previous.map((entry) =>
-        entry.id === id ? { ...entry, title: trimmed } : entry,
+        entry.id === id ? { ...entry, title: trimmed } : entry
       );
       setTasks(next);
 
@@ -129,7 +130,7 @@ export default function SuggestionsScreen() {
         toast.error(message, 'Update failed');
       }
     },
-    [syncTasksToStore, tasks],
+    [syncTasksToStore, tasks]
   );
 
   const handleDeleteTask = useCallback(
@@ -155,7 +156,7 @@ export default function SuggestionsScreen() {
         toast.error(message, 'Delete failed');
       }
     },
-    [syncTasksToStore, tasks],
+    [syncTasksToStore, tasks]
   );
 
   const handleDiscard = useCallback(() => {
@@ -172,7 +173,7 @@ export default function SuggestionsScreen() {
 
   const handleGenerateTasks = useCallback(async () => {
     const bobbleId = pendingSave?.createdBobbleId;
-    if (!bobbleId || isGenerating || tasksGenerated) return;
+    if (!bobbleId || generateInFlightRef.current || isGenerating || tasksGenerated) return;
 
     const selected = tasks.filter((task) => task.selected && task.title.trim());
     if (selected.length === 0) {
@@ -180,10 +181,12 @@ export default function SuggestionsScreen() {
       return;
     }
 
+    generateInFlightRef.current = true;
     setIsGenerating(true);
     try {
       const created = await tasksApi.createTasksBulk({
         bobble: bobbleId,
+        idempotencyKey: `capture-suggestions:${bobbleId}`,
         tasks: selected.map((task) => ({
           title: task.title.trim(),
           dueAt: task.dueAt ?? null,
@@ -193,7 +196,7 @@ export default function SuggestionsScreen() {
       if (calendarResult.failed > 0) {
         toast.error(
           `${calendarResult.failed} task${calendarResult.failed === 1 ? '' : 's'} could not be added to your calendar`,
-          'Calendar sync incomplete',
+          'Calendar sync incomplete'
         );
       }
 
@@ -222,13 +225,14 @@ export default function SuggestionsScreen() {
       setTasksGenerated(true);
       toast.success(
         selected.length === 1 ? '1 task created' : `${selected.length} tasks created`,
-        'Tasks ready',
+        'Tasks ready'
       );
     } catch (error) {
       const message = getApiErrorMessage(error, 'Could not create tasks');
       logApiError('capture generate tasks failed', error);
       toast.error(message, 'Generate failed');
     } finally {
+      generateInFlightRef.current = false;
       setIsGenerating(false);
     }
   }, [isGenerating, pendingSave?.createdBobbleId, tasks, tasksGenerated]);
@@ -341,10 +345,7 @@ export default function SuggestionsScreen() {
                     <Pressable
                       key={task.id}
                       onPress={() => toggleTask(task.id)}
-                      style={({ pressed }) => [
-                        styles.taskRow,
-                        pressed && styles.pressed,
-                      ]}
+                      style={({ pressed }) => [styles.taskRow, pressed && styles.pressed]}
                     >
                       <View
                         style={[
