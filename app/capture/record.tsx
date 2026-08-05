@@ -1,5 +1,4 @@
-import { useFocusEffect } from '@react-navigation/native';
-import { Href, router } from 'expo-router';
+import { Href, router, useFocusEffect, useNavigation } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -25,6 +24,7 @@ export default function RecordScreen() {
   const colors = useBobbleColors();
   const night = useNightForeground();
   const insets = useSafeAreaInsets();
+  const navigation = useNavigation();
   const [elapsed, setElapsed] = useState(0);
   const [paused, setPaused] = useState(false);
   const [autoStart, setAutoStart] = useState(() => !useCaptureStore.getState().recordingUri);
@@ -39,6 +39,7 @@ export default function RecordScreen() {
   const isActiveRef = useRef(isActive);
   const stopRecordingRef = useRef(stopRecording);
   const setRecordingRef = useRef(setRecording);
+  const navigationCleanupRef = useRef(false);
   const copy = CAPTURE_COPY[captureKind];
 
   const canContinue = Boolean(recordingUri) && !isActive;
@@ -71,17 +72,29 @@ export default function RecordScreen() {
         setAutoStart(true);
       }
       setPaused(false);
+    }, [])
+  );
 
-      return () => {
-        void (async () => {
-          if (!isActiveRef.current) return;
+  useEffect(() => {
+    return navigation.addListener('beforeRemove', (event) => {
+      if (!isActiveRef.current || navigationCleanupRef.current) return;
 
+      event.preventDefault();
+      navigationCleanupRef.current = true;
+
+      void (async () => {
+        try {
           const uri = await stopRecordingRef.current();
           setRecordingRef.current(uri ?? '', Math.max(elapsedRef.current, 1));
-        })();
-      };
-    }, []),
-  );
+        } catch (error) {
+          console.warn('[recording] could not save recording before leaving', error);
+        } finally {
+          navigationCleanupRef.current = false;
+          navigation.dispatch(event.data.action);
+        }
+      })();
+    });
+  }, [navigation]);
 
   useEffect(() => {
     if (paused || !isActive) {
@@ -119,22 +132,15 @@ export default function RecordScreen() {
         },
       ]}
     >
-      <CaptureHeader
-        title={copy.title}
-        centered
-        onBack={() => router.back()}
-        safeTop={false}
-      />
+      <CaptureHeader title={copy.title} centered onBack={() => router.back()} safeTop={false} />
 
       <View style={styles.statusBlock}>
         <Text style={[styles.status, { color: colors.primary }]}>
-          {!isActive && canContinue
-            ? 'Paused'
-            : paused
-              ? 'Paused'
-              : copy.listening}
+          {!isActive && canContinue ? 'Paused' : paused ? 'Paused' : copy.listening}
         </Text>
-        <Text style={[styles.timer, { color: night.text ?? colors.text }]}>{formatElapsed(elapsed)}</Text>
+        <Text style={[styles.timer, { color: night.text ?? colors.text }]}>
+          {formatElapsed(elapsed)}
+        </Text>
       </View>
 
       <View style={styles.visualBlock}>

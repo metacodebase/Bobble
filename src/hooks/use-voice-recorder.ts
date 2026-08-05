@@ -32,16 +32,19 @@ export function useVoiceRecorder(paused: boolean, options: UseVoiceRecorderOptio
   const recorderState = useAudioRecorderState(audioRecorder, 50);
   const startedRef = useRef(false);
   const preparedRef = useRef(false);
+  const mountedRef = useRef(true);
+  const stopPromiseRef = useRef<Promise<string | null> | null>(null);
   const [isActive, setIsActive] = useState(false);
 
   const prepare = useCallback(async () => {
     const { granted } = await AudioModule.requestRecordingPermissionsAsync();
-    if (!granted) return false;
+    if (!granted || !mountedRef.current) return false;
 
     await setAudioModeAsync({
       allowsRecording: true,
       playsInSilentMode: true,
     });
+    if (!mountedRef.current) return false;
 
     if (!preparedRef.current) {
       await audioRecorder.prepareToRecordAsync();
@@ -66,13 +69,19 @@ export function useVoiceRecorder(paused: boolean, options: UseVoiceRecorderOptio
 
     let cancelled = false;
 
-    (async () => {
-      const ready = await prepare();
-      if (!ready || cancelled) return;
+    void (async () => {
+      try {
+        const ready = await prepare();
+        if (!ready || cancelled || !mountedRef.current) return;
 
-      audioRecorder.record();
-      startedRef.current = true;
-      setIsActive(true);
+        audioRecorder.record();
+        startedRef.current = true;
+        setIsActive(true);
+      } catch (error) {
+        if (!cancelled && mountedRef.current) {
+          console.warn('[recording] auto-start failed', error);
+        }
+      }
     })();
 
     return () => {
@@ -94,29 +103,45 @@ export function useVoiceRecorder(paused: boolean, options: UseVoiceRecorderOptio
   }, [paused, audioRecorder, recorderState.canRecord, recorderState.isRecording]);
 
   const stopRecording = useCallback(async () => {
+    if (stopPromiseRef.current) return stopPromiseRef.current;
     if (!startedRef.current) return null;
 
-    await audioRecorder.stop();
+    // Claim the recorder before awaiting so navigation cleanup and button taps
+    // cannot issue a second native stop against the same SharedObject.
     startedRef.current = false;
     setIsActive(false);
-    preparedRef.current = false;
+    const stopPromise = (async () => {
+      try {
+        await audioRecorder.stop();
+        preparedRef.current = false;
 
-    await releaseAudioSession();
+        // Copy out of cache before this hook unmounts (which can delete the temp file).
+        return await persistRecordingUri(audioRecorder.uri);
+      } finally {
+        await releaseAudioSession().catch((error) => {
+          console.warn('[recording] audio session cleanup failed', error);
+        });
+      }
+    })();
+    stopPromiseRef.current = stopPromise;
 
-    const rawUri = audioRecorder.uri ?? audioRecorder.getStatus().url ?? null;
-    // Copy out of cache before this hook unmounts (which can delete the temp file).
-    return persistRecordingUri(rawUri);
+    try {
+      return await stopPromise;
+    } finally {
+      if (stopPromiseRef.current === stopPromise) stopPromiseRef.current = null;
+    }
   }, [audioRecorder]);
 
   useEffect(() => {
+    mountedRef.current = true;
     return () => {
-      if (startedRef.current) {
-        void audioRecorder.stop();
-        startedRef.current = false;
-      }
-      void releaseAudioSession();
+      mountedRef.current = false;
+      startedRef.current = false;
+      // useAudioRecorder owns and releases its SharedObject on unmount. Calling
+      // recorder.stop() here races that release and causes the native cast error.
+      void releaseAudioSession().catch(() => undefined);
     };
-  }, [audioRecorder]);
+  }, []);
 
   return {
     metering: paused || !isActive ? undefined : recorderState.metering,
