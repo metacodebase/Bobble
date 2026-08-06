@@ -69,6 +69,7 @@ export default function ProfileScreen() {
   }, [avatarUrl, openPicker]);
 
   const gamification = user?.gamification;
+  const profileStats = profile?.stats;
 
   useFocusEffect(
     useCallback(() => {
@@ -117,8 +118,16 @@ export default function ProfileScreen() {
           <Text style={[styles.name, { color: colors.text }]}>{displayName}</Text>
 
           <View style={styles.statsRow}>
-            <StatCard compact label="Bobbles" value={gamification?.bobbles ?? 0} />
-            <StatCard compact label="Tasks" value={gamification?.tasks ?? 0} />
+            <StatCard
+              compact
+              label="Bobbles"
+              value={profileStats?.bobbles ?? gamification?.bobbles ?? 0}
+            />
+            <StatCard
+              compact
+              label="Tasks"
+              value={profileStats?.tasks ?? gamification?.tasks ?? 0}
+            />
           </View>
         </View>
         <View

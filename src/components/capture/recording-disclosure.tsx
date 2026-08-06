@@ -42,8 +42,9 @@ export function RecordingDisclosure({
             How your recording is processed
           </Text>
           <Text style={[styles.message, { color: colors.textSecondary }]}>
-            Your voice recording is sent to AssemblyAI for transcription. Your transcript and
-            related content are sent to OpenAI to provide the AI features you request.
+            Your voice recording is sent to our Speech-to-Text service for transcription. Your
+            transcript and related content are sent to our AI service to provide the features you
+            request.
           </Text>
 
           <Pressable
