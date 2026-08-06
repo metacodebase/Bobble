@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Calendar from 'expo-calendar';
 
 import { tasksApi } from '@/src/api';
@@ -5,7 +6,9 @@ import type { Task } from '@/src/features/tasks/types';
 import { secureStorage } from '@/src/services/secure-storage';
 import { useAppStore } from '@/src/store/app-store';
 
-const EVENT_MAPPING_KEY = 'calendar-event-mapping';
+const LEGACY_EVENT_MAPPING_KEY = 'calendar-event-mapping';
+const EVENT_MAPPING_KEY = '@bobble/calendar-event-mapping';
+const EXISTING_EVENT_TIME_TOLERANCE_MS = 60_000;
 
 function eventMappingKey(): string {
   const state = useAppStore.getState();
@@ -52,14 +55,16 @@ function enqueueCalendarWrite<T>(operation: () => Promise<T>): Promise<T> {
 async function getEventMapping(): Promise<Record<string, string>> {
   try {
     const key = eventMappingKey();
-    const data = await secureStorage.getItem(key);
+    const data = await AsyncStorage.getItem(key);
     if (data) return JSON.parse(data);
 
-    // One-time migration from the original device-wide mapping.
-    const legacyData = await secureStorage.getItem(EVENT_MAPPING_KEY);
+    // One-time migration from the original device-wide SecureStore mapping.
+    // The later per-user SecureStore key used a colon, which SecureStore
+    // rejects, so valid mappings can only exist under this legacy key.
+    const legacyData = await secureStorage.getItem(LEGACY_EVENT_MAPPING_KEY);
     if (!legacyData) return {};
-    await secureStorage.setItem(key, legacyData);
-    await secureStorage.removeItem(EVENT_MAPPING_KEY);
+    await AsyncStorage.setItem(key, legacyData);
+    await secureStorage.removeItem(LEGACY_EVENT_MAPPING_KEY);
     return JSON.parse(legacyData);
   } catch {
     return {};
@@ -68,7 +73,7 @@ async function getEventMapping(): Promise<Record<string, string>> {
 
 async function saveEventMapping(mapping: Record<string, string>): Promise<boolean> {
   try {
-    await secureStorage.setItem(eventMappingKey(), JSON.stringify(mapping));
+    await AsyncStorage.setItem(eventMappingKey(), JSON.stringify(mapping));
     return true;
   } catch (error) {
     console.error('Failed to save calendar event mapping:', error);
@@ -92,6 +97,36 @@ async function selectedCalendarIsAvailable(calendarId: string): Promise<boolean>
   } catch (error) {
     console.error('Failed to validate selected calendar:', error);
     return false;
+  }
+}
+
+async function findUnmappedExistingEvent(
+  calendarId: string,
+  title: string,
+  startDate: Date,
+  endDate: Date,
+  mapping: Record<string, string>
+): Promise<string | undefined> {
+  try {
+    const events = await Calendar.getEventsAsync(
+      [calendarId],
+      new Date(startDate.getTime() - EXISTING_EVENT_TIME_TOLERANCE_MS),
+      new Date(endDate.getTime() + EXISTING_EVENT_TIME_TOLERANCE_MS)
+    );
+    const mappedEventIds = new Set(Object.values(mapping));
+    const matches = events.filter((event) => {
+      const eventStart = new Date(event.startDate).getTime();
+      return (
+        event.id &&
+        !mappedEventIds.has(event.id) &&
+        event.title === title &&
+        Math.abs(eventStart - startDate.getTime()) <= EXISTING_EVENT_TIME_TOLERANCE_MS
+      );
+    });
+    return matches.length === 1 ? matches[0]?.id : undefined;
+  } catch (error) {
+    if (__DEV__) console.warn('[calendar-sync] existing event recovery failed', error);
+    return undefined;
   }
 }
 
@@ -185,6 +220,23 @@ async function syncTaskToCalendarNow(task: Task): Promise<CalendarSyncResult> {
     notes: task.notes || 'Synced from Bobble',
     alarms: [{ relativeOffset: -15 }],
   };
+
+  if (!existingEventId) {
+    const recoveredEventId = await findUnmappedExistingEvent(
+      calendarId,
+      eventDetails.title,
+      startDate,
+      endDate,
+      mapping
+    );
+    if (recoveredEventId) {
+      mapping[task._id] = recoveredEventId;
+      if (!(await saveEventMapping(mapping))) {
+        return { taskId: task._id, status: 'failed', reason: 'write_failed' };
+      }
+      existingEventId = recoveredEventId;
+    }
+  }
 
   if (existingEventId) {
     try {

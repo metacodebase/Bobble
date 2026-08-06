@@ -1,7 +1,7 @@
 import { Image } from 'expo-image';
 import { Href, router } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { bobblesApi } from '@/src/api';
@@ -60,6 +60,7 @@ export default function ProcessingScreen() {
   const colors = useBobbleColors();
   const night = useNightForeground();
   const insets = useSafeAreaInsets();
+  const { width: screenWidth } = useWindowDimensions();
   const [completedCount, setCompletedCount] = useState(0);
   const [revealedCount, setRevealedCount] = useState(0);
   const [phase, setPhase] = useState<ProcessPhase>('running');
@@ -71,6 +72,8 @@ export default function ProcessingScreen() {
   const clearRecording = useCaptureStore((state) => state.clearRecording);
   const textColor = night.text ?? colors.text;
   const secondaryColor = night.textSecondary ?? colors.textSecondary;
+  const mascotWidth = Math.min(screenWidth * 0.78, 350);
+  const mascotHeight = mascotWidth / 1.4;
 
   const isComplete = phase === 'ready' && revealedCount >= STEPS.length;
 
@@ -252,7 +255,11 @@ export default function ProcessingScreen() {
         </View>
 
         <View style={styles.mascotWrap}>
-          <Image source={PROCESSING_MASCOT} style={styles.mascot} contentFit="contain" />
+          <Image
+            source={PROCESSING_MASCOT}
+            style={[styles.mascot, { width: mascotWidth, height: mascotHeight }]}
+            contentFit="contain"
+          />
         </View>
 
         {phase !== 'error' ? (
@@ -321,8 +328,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   mascot: {
-    width: 350,
-    height: 250,
     backgroundColor: 'transparent',
   },
   actions: {

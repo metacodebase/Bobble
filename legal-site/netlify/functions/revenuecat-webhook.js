@@ -1,10 +1,10 @@
 /**
- * Netlify HTTPS proxy for RevenueCat webhooks → Bobble API (HTTP on EC2).
- * RevenueCat requires HTTPS; this terminates TLS and forwards the POST.
+ * Compatibility proxy for RevenueCat webhooks → Bobble's HTTPS API.
+ * New integrations should call api.bobble.au directly.
  */
 const UPSTREAM =
   process.env.REVENUECAT_WEBHOOK_UPSTREAM ||
-  'http://34.204.180.53/api/webhooks/revenuecat';
+  'https://api.bobble.au/api/webhooks/revenuecat';
 
 exports.handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') {
@@ -21,6 +21,10 @@ exports.handler = async (event) => {
 
   const auth =
     event.headers.authorization || event.headers.Authorization || '';
+  const signature =
+    event.headers['x-revenuecat-webhook-signature'] ||
+    event.headers['X-RevenueCat-Webhook-Signature'] ||
+    '';
 
   let body = event.body || '';
   if (event.isBase64Encoded && body) {
@@ -33,6 +37,9 @@ exports.handler = async (event) => {
       headers: {
         'Content-Type': 'application/json',
         ...(auth ? { Authorization: auth } : {}),
+        ...(signature
+          ? { 'X-RevenueCat-Webhook-Signature': signature }
+          : {}),
       },
       body,
     });

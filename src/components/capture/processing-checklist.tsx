@@ -1,6 +1,6 @@
 import { Image } from 'expo-image';
 import { Check, Ear, Lightbulb, List } from 'lucide-react-native';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { Typography } from '@/src/theme/fonts';
@@ -22,31 +22,66 @@ type ProcessingChecklistProps = {
   revealedCount: number;
 };
 
-const ICON_BOX = 36;
-const CHECK_BOX = 26;
+type ChecklistSizing = {
+  iconBox: number;
+  checkBox: number;
+  iconSize: number;
+  checkSize: number;
+  bobbleIcon: number;
+};
 
-function StepIcon({ type }: { type: ProcessingStep['icon'] }) {
+function StepIcon({
+  type,
+  sizing,
+}: {
+  type: ProcessingStep['icon'];
+  sizing: ChecklistSizing;
+}) {
   const colors = useBobbleColors();
 
   return (
-    <View style={[styles.iconBox, { backgroundColor: `${colors.primary}18` }]}>
+    <View
+      style={[
+        styles.iconBox,
+        {
+          width: sizing.iconBox,
+          height: sizing.iconBox,
+          borderRadius: 100,
+          backgroundColor: `${colors.primary}18`,
+          overflow: 'hidden',
+        },
+      ]}
+    >
       {type === 'ear' ? (
-        <Ear size={18} color={colors.primaryLight} strokeWidth={2.2} />
+        <Ear size={sizing.iconSize} color={colors.primaryLight} strokeWidth={2.2} />
       ) : type === 'list' ? (
-        <List size={18} color={colors.primaryLight} strokeWidth={2.2} />
+        <List size={sizing.iconSize} color={colors.primaryLight} strokeWidth={2.2} />
       ) : type === 'lightbulb' ? (
-        <Lightbulb size={18} color={colors.primaryLight} strokeWidth={2.2} />
+        <Lightbulb size={sizing.iconSize} color={colors.primaryLight} strokeWidth={2.2} />
       ) : (
-        <Image source={BOBBLE_ICON} style={styles.bobbleIcon} contentFit="contain" />
+        <Image
+          source={BOBBLE_ICON}
+          style={{ width: sizing.bobbleIcon, height: sizing.bobbleIcon }}
+          contentFit="contain"
+        />
       )}
     </View>
   );
 }
 
-function CompletedCheck() {
+function CompletedCheck({ sizing }: { sizing: ChecklistSizing }) {
   return (
-    <View style={styles.checkCircle}>
-      <Check size={13} color={CHECK_GREEN} strokeWidth={3} />
+    <View
+      style={[
+        styles.checkCircle,
+        {
+          width: sizing.checkBox,
+          height: sizing.checkBox,
+          borderRadius: sizing.checkBox / 2,
+        },
+      ]}
+    >
+      <Check size={sizing.checkSize} color={CHECK_GREEN} strokeWidth={3} />
     </View>
   );
 }
@@ -57,6 +92,15 @@ export function ProcessingChecklist({
   revealedCount,
 }: ProcessingChecklistProps) {
   const colors = useBobbleColors();
+  const { width: screenWidth } = useWindowDimensions();
+  const scale = Math.min(1.12, Math.max(0.9, screenWidth / 390));
+  const sizing: ChecklistSizing = {
+    iconBox: Math.round(36 * scale),
+    checkBox: Math.round(26 * scale),
+    iconSize: Math.round(18 * scale),
+    checkSize: Math.round(13 * scale),
+    bobbleIcon: Math.round(22 * scale),
+  };
 
   return (
     <View style={[styles.container, { backgroundColor: `${colors.primary}14` }]}>
@@ -67,7 +111,7 @@ export function ProcessingChecklist({
 
         return (
           <View key={step.id} style={[styles.card, pending && styles.cardPending]}>
-            <StepIcon type={step.icon} />
+            <StepIcon type={step.icon} sizing={sizing} />
             <Text
               style={[
                 styles.label,
@@ -79,7 +123,11 @@ export function ProcessingChecklist({
             >
               {step.label}
             </Text>
-            {done ? <CompletedCheck /> : <View style={styles.checkPlaceholder} />}
+            {done ? (
+              <CompletedCheck sizing={sizing} />
+            ) : (
+              <View style={{ width: sizing.checkBox, height: sizing.checkBox }} />
+            )}
           </View>
         );
       })}
@@ -101,7 +149,7 @@ const styles = StyleSheet.create({
     gap: 12,
     backgroundColor: '#FFFFFF',
     borderRadius: 16,
-    paddingVertical: 14,
+    paddingVertical: 10,
     paddingHorizontal: 14,
     shadowColor: '#9F52F2',
     shadowOffset: { width: 0, height: 2 },
@@ -113,27 +161,13 @@ const styles = StyleSheet.create({
     opacity: 0.42,
   },
   iconBox: {
-    width: ICON_BOX,
-    height: ICON_BOX,
-    borderRadius: ICON_BOX / 2,
     alignItems: 'center',
     justifyContent: 'center',
   },
   checkCircle: {
-    width: CHECK_BOX,
-    height: CHECK_BOX,
-    borderRadius: CHECK_BOX / 2,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: CHECK_GREEN_LIGHT,
-  },
-  checkPlaceholder: {
-    width: CHECK_BOX,
-    height: CHECK_BOX,
-  },
-  bobbleIcon: {
-    width: 22,
-    height: 22,
   },
   label: {
     ...Typography.body,

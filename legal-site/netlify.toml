@@ -2,7 +2,7 @@
   publish = "."
   functions = "netlify/functions"
 
-# HTTPS front door for RevenueCat → HTTP EC2 API
+# Compatibility route for the previous RevenueCat webhook URL.
 [[redirects]]
   from = "/api/webhooks/revenuecat"
   to = "/.netlify/functions/revenuecat-webhook"
