@@ -1,9 +1,3 @@
-import { Href, router } from 'expo-router';
-import { Mic } from 'lucide-react-native';
-import { useMemo, useState } from 'react';
-import { Dimensions, Platform, ScrollView, StyleSheet, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-
 import { HomeHeader } from '@/src/components/home/home-header';
 import { QuickActionTile } from '@/src/components/home/quick-action-tile';
 import { TodayFocusCard } from '@/src/components/home/today-focus-card';
@@ -23,6 +17,11 @@ import { resolveAvatarUrl } from '@/src/utils/avatar-url';
 import { getDayPeriod, getGreeting } from '@/src/utils/day-period';
 import { androidSafeTop } from '@/src/utils/safe-padding';
 import { toast } from '@/src/utils/toast';
+import { Href, router } from 'expo-router';
+import { Mic } from 'lucide-react-native';
+import { useMemo, useState } from 'react';
+import { Dimensions, Platform, ScrollView, StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 function getProgressSubtitle(completed: number, total: number) {
   if (total === 0) return 'Your day is just beginning, record your first Bobble.';
@@ -151,7 +150,8 @@ export default function HomeScreen() {
             variant="home"
             homeVariant={homeMascotVariant}
             size={Math.round(
-              Dimensions.get('window').width * (Platform.OS === 'android' ? 1.05 : 0.95),
+              Dimensions.get('window').width *
+                (Platform.OS === 'android' ? (insets.bottom === 0 ? 1.05 : 0.98) : 0.95),
             )}
           />
         </View>

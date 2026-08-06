@@ -6,14 +6,16 @@ import {
 } from '@expo-google-fonts/sniglet';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { QueryClientProvider } from '@tanstack/react-query';
+import * as NavigationBar from 'expo-navigation-bar';
 import { Href, Stack, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import * as SystemUI from 'expo-system-ui';
 import { StatusBar } from 'expo-status-bar';
+import * as SystemUI from 'expo-system-ui';
 import { useEffect, useLayoutEffect, type ReactNode } from 'react';
+import { Platform, StyleSheet, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import 'react-native-reanimated';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ApiBootstrap } from '@/src/components/api-bootstrap';
 import { CalendarSyncBootstrap } from '@/src/components/calendar-sync-bootstrap';
@@ -32,9 +34,28 @@ SplashScreen.preventAutoHideAsync();
 
 void SystemUI.setBackgroundColorAsync(DEFAULT_APP_BACKGROUND_COLOR);
 
+if (Platform.OS === 'android') {
+  // Edge-to-edge keeps the system bar transparent; style buttons for a dark bar.
+  NavigationBar.setStyle('dark');
+  void NavigationBar.setButtonStyleAsync('dark');
+}
+
 export const unstable_settings = {
   initialRouteName: 'index',
 };
+
+/** Paints behind Android's system nav (back / home / recents) under edge-to-edge. */
+function AndroidSystemNavBackground() {
+  const insets = useSafeAreaInsets();
+  if (Platform.OS !== 'android' || insets.bottom <= 0) return null;
+
+  return (
+    <View
+      pointerEvents="none"
+      style={[styles.androidSystemNavBackground, { height: insets.bottom }]}
+    />
+  );
+}
 
 function NavigationThemeProvider({ children }: { children: ReactNode }) {
   const colorScheme = useColorScheme();
@@ -174,7 +195,18 @@ export default function RootLayout() {
           <AppShell />
         </QueryClientProvider>
         <BobbleToastHost />
+        <AndroidSystemNavBackground />
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );
 }
+
+const styles = StyleSheet.create({
+  androidSystemNavBackground: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'transparent',
+  },
+});
