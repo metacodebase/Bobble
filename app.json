@@ -45,7 +45,7 @@
     },
     "android": {
       "icon": "./src/assets/images/bobble-app-icon.png",
-      "versionCode": 12,
+      "versionCode": 13,
       "adaptiveIcon": {
         "foregroundImage": "./src/assets/images/android-icon-foreground.png",
         "monochromeImage": "./src/assets/images/android-icon-monochrome.png",
@@ -74,6 +74,7 @@
     "plugins": [
       "./plugins/with-bobble-ios-privacy.js",
       "./plugins/with-bobble-native-splash.js",
+      "./plugins/with-android-purchase-launch-mode.js",
       "@bacons/apple-targets",
       [
         "react-native-android-widget",

@@ -12,6 +12,7 @@ type RecordingControlsProps = {
   onStop: () => void;
   stopLabel?: string;
   pauseDisabled?: boolean;
+  stopDisabled?: boolean;
 };
 
 export function RecordingControls({
@@ -20,6 +21,7 @@ export function RecordingControls({
   onStop,
   stopLabel = 'Stop',
   pauseDisabled = false,
+  stopDisabled = false,
 }: RecordingControlsProps) {
   const colors = useBobbleColors();
 
@@ -41,10 +43,12 @@ export function RecordingControls({
 
       <Pressable
         onPress={onStop}
+        disabled={stopDisabled}
         style={({ pressed }) => [
           styles.button,
           { backgroundColor: CONTROL_BG },
-          pressed && styles.pressed,
+          stopDisabled && styles.disabled,
+          pressed && !stopDisabled && styles.pressed,
         ]}
       >
         <Square size={16} color={colors.error} fill={colors.error} strokeWidth={0} />

@@ -6,10 +6,15 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AudioWaveform } from '@/src/components/capture/audio-waveform';
 import { CaptureHeader } from '@/src/components/capture/capture-header';
 import { RecordingControls } from '@/src/components/capture/recording-controls';
+import { RecordingDisclosure } from '@/src/components/capture/recording-disclosure';
 import { RecordingVisualizer } from '@/src/components/capture/recording-visualizer';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { useNightForeground } from '@/src/hooks/use-night-foreground';
 import { useVoiceRecorder } from '@/src/hooks/use-voice-recorder';
+import {
+  acknowledgeRecordingDisclosure,
+  hasAcknowledgedRecordingDisclosure,
+} from '@/src/services/recording-disclosure';
 import { CAPTURE_COPY, useCaptureStore } from '@/src/store/capture-store';
 import { Typography } from '@/src/theme/fonts';
 import { androidSafeBottom, androidSafeTop } from '@/src/utils/safe-padding';
@@ -28,13 +33,17 @@ export default function RecordScreen() {
   const [elapsed, setElapsed] = useState(0);
   const [paused, setPaused] = useState(false);
   const [autoStart, setAutoStart] = useState(() => !useCaptureStore.getState().recordingUri);
+  const [disclosureState, setDisclosureState] = useState<
+    'loading' | 'required' | 'viewing-policy' | 'acknowledged'
+  >('loading');
+  const [acknowledgingDisclosure, setAcknowledgingDisclosure] = useState(false);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const elapsedRef = useRef(0);
   const captureKind = useCaptureStore((state) => state.captureKind);
   const recordingUri = useCaptureStore((state) => state.recordingUri);
   const setRecording = useCaptureStore((state) => state.setRecording);
   const { metering, isActive, startRecording, stopRecording } = useVoiceRecorder(paused, {
-    autoStart,
+    autoStart: autoStart && disclosureState === 'acknowledged',
   });
   const isActiveRef = useRef(isActive);
   const stopRecordingRef = useRef(stopRecording);
@@ -43,6 +52,18 @@ export default function RecordScreen() {
   const copy = CAPTURE_COPY[captureKind];
 
   const canContinue = Boolean(recordingUri) && !isActive;
+
+  useEffect(() => {
+    let cancelled = false;
+
+    void hasAcknowledgedRecordingDisclosure().then((acknowledged) => {
+      if (!cancelled) setDisclosureState(acknowledged ? 'acknowledged' : 'required');
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     isActiveRef.current = isActive;
@@ -63,6 +84,8 @@ export default function RecordScreen() {
   useFocusEffect(
     useCallback(() => {
       const { recordingUri: savedUri, recordingDurationSeconds } = useCaptureStore.getState();
+
+      setDisclosureState((current) => (current === 'viewing-policy' ? 'required' : current));
 
       if (savedUri) {
         setElapsed(recordingDurationSeconds);
@@ -112,6 +135,8 @@ export default function RecordScreen() {
   }, [paused, isActive]);
 
   const handleStop = async () => {
+    if (disclosureState !== 'acknowledged') return;
+
     if (!isActive) {
       await startRecording();
       return;
@@ -120,6 +145,28 @@ export default function RecordScreen() {
     const uri = await stopRecording();
     setRecording(uri ?? '', Math.max(elapsed, 1));
     router.push('/capture/processing' as Href);
+  };
+
+  const handleDisclosureContinue = async () => {
+    if (acknowledgingDisclosure) return;
+    setAcknowledgingDisclosure(true);
+
+    try {
+      await acknowledgeRecordingDisclosure();
+    } catch (error) {
+      // The user acknowledged the notice for this session. If persistence fails,
+      // show it again next time rather than blocking recording entirely.
+      console.warn('[recording] could not save processing disclosure preference', error);
+    } finally {
+      setDisclosureState('acknowledged');
+      setAcknowledgingDisclosure(false);
+    }
+  };
+
+  const handlePrivacyPolicy = () => {
+    // Dismiss the native modal before pushing so the policy is not hidden behind it.
+    setDisclosureState('viewing-policy');
+    requestAnimationFrame(() => router.push('/settings/privacy-policy' as Href));
   };
 
   return (
@@ -136,7 +183,15 @@ export default function RecordScreen() {
 
       <View style={styles.statusBlock}>
         <Text style={[styles.status, { color: colors.primary }]}>
-          {!isActive && canContinue ? 'Paused' : paused ? 'Paused' : copy.listening}
+          {disclosureState === 'loading'
+            ? 'Getting ready...'
+            : disclosureState === 'required'
+              ? 'Ready when you are'
+              : !isActive && canContinue
+                ? 'Paused'
+                : paused
+                  ? 'Paused'
+                  : copy.listening}
         </Text>
         <Text style={[styles.timer, { color: night.text ?? colors.text }]}>
           {formatElapsed(elapsed)}
@@ -154,6 +209,15 @@ export default function RecordScreen() {
         onStop={handleStop}
         stopLabel={canContinue ? 'Continue recording' : 'Stop'}
         pauseDisabled={!isActive}
+        stopDisabled={disclosureState !== 'acknowledged'}
+      />
+
+      <RecordingDisclosure
+        visible={disclosureState === 'required'}
+        continuing={acknowledgingDisclosure}
+        onContinue={handleDisclosureContinue}
+        onNotNow={() => router.back()}
+        onPrivacyPolicy={handlePrivacyPolicy}
       />
     </View>
   );

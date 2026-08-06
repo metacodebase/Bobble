@@ -3,12 +3,7 @@ import * as Notifications from 'expo-notifications';
 import { Href, router } from 'expo-router';
 import { Platform } from 'react-native';
 
-import {
-  fetchNotificationPreferences,
-  registerPushDevice,
-  unregisterPushDevice,
-  updateNotificationPreferences,
-} from '@/src/api/notifications';
+import { registerPushDevice, unregisterPushDevice } from '@/src/api/notifications';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -24,20 +19,10 @@ let cachedPushToken: string | null = null;
 let cachedTokenType: 'apns' | 'fcm' | null = null;
 let handledNotificationKey: string | null = null;
 
-function emitPushDebugLog(
-  hypothesisId: string,
-  location: string,
-  message: string,
-  data: Record<string, unknown>,
-): void {
-  fetch('http://127.0.0.1:7896/ingest/6498acde-96c3-4039-baac-430fa4cca5ac',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'814506'},body:JSON.stringify({sessionId:'814506',runId:'initial',hypothesisId,location,message,data,timestamp:Date.now()})}).catch(()=>{});
-}
-
 function notificationResponseKey(response: Notifications.NotificationResponse): string {
   const { identifier } = response.notification.request;
   return `${identifier}:${response.notification.date}`;
 }
-
 
 function routeFromNotificationData(data: Record<string, unknown> | undefined): void {
   if (!data) return;
@@ -74,7 +59,10 @@ export async function requestNotificationPermissions(): Promise<boolean> {
   return requested.granted;
 }
 
-export async function getNativePushToken(): Promise<{ token: string; type: 'apns' | 'fcm' } | null> {
+export async function getNativePushToken(): Promise<{
+  token: string;
+  type: 'apns' | 'fcm';
+} | null> {
   if (!Device.isDevice) return null;
 
   if (Platform.OS === 'android') {
@@ -88,19 +76,15 @@ export async function getNativePushToken(): Promise<{ token: string; type: 'apns
   const result = await Notifications.getDevicePushTokenAsync();
   const type = Platform.OS === 'ios' ? 'apns' : 'fcm';
   const token = result.data as string;
-  // #region agent log
-  emitPushDebugLog('H3', 'push-notifications.ts:getNativePushToken:tokenSuccess', 'Native push token retrieved', {
-    platform: Platform.OS,
-    type,
-    hasToken: Boolean(token),
-  });
-  // #endregion
   cachedPushToken = token;
   cachedTokenType = type;
   return { token, type };
 }
 
-export async function registerPushTokenWithBackend(token: string, tokenType: 'apns' | 'fcm'): Promise<void> {
+export async function registerPushTokenWithBackend(
+  token: string,
+  tokenType: 'apns' | 'fcm'
+): Promise<void> {
   if (Platform.OS !== 'ios' && Platform.OS !== 'android') return;
 
   await registerPushDevice({
@@ -123,51 +107,22 @@ export async function unregisterPushTokenFromBackend(): Promise<void> {
 }
 
 export async function syncPushRegistration(pushEnabled: boolean): Promise<void> {
-  // #region agent log
-  emitPushDebugLog('H1', 'push-notifications.ts:syncPushRegistration:start', 'Sync push registration started', {
-    pushEnabled,
-    platform: Platform.OS,
-    isDevice: Device.isDevice,
-  });
-  // #endregion
   if (!pushEnabled) {
     await unregisterPushTokenFromBackend();
     return;
   }
 
   const granted = await requestNotificationPermissions();
-  // #region agent log
-  emitPushDebugLog('H2', 'push-notifications.ts:syncPushRegistration:permissionResult', 'Notification permission result', {
-    granted,
-  });
-  // #endregion
   if (!granted) return;
 
   const result = await getNativePushToken();
   if (!result) return;
 
-  try {
-    await registerPushTokenWithBackend(result.token, result.type);
-    // #region agent log
-    emitPushDebugLog('H4', 'push-notifications.ts:syncPushRegistration:backendRegistered', 'Push token registered with backend', {
-      tokenPrefix: result.token.slice(0, 12),
-      tokenType: result.type,
-      platform: Platform.OS,
-    });
-    // #endregion
-  } catch (error) {
-    // #region agent log
-    emitPushDebugLog('H4', 'push-notifications.ts:syncPushRegistration:backendRegisterFailed', 'Push token registration failed', {
-      errorMessage: error instanceof Error ? error.message : String(error),
-      platform: Platform.OS,
-    });
-    // #endregion
-    throw error;
-  }
+  await registerPushTokenWithBackend(result.token, result.type);
 }
 
 export function handleNotificationResponse(
-  response: Notifications.NotificationResponse | null | undefined,
+  response: Notifications.NotificationResponse | null | undefined
 ): void {
   if (!response) return;
 
@@ -175,9 +130,7 @@ export function handleNotificationResponse(
   if (handledNotificationKey === key) return;
   handledNotificationKey = key;
 
-  routeFromNotificationData(
-    response.notification.request.content.data as Record<string, unknown>,
-  );
+  routeFromNotificationData(response.notification.request.content.data as Record<string, unknown>);
 }
 
 export async function handleColdStartNotificationTap(): Promise<void> {
@@ -197,16 +150,20 @@ export function attachNotificationListeners(): () => void {
   });
 
   const tokenSub = Notifications.addPushTokenListener(({ data, type }) => {
-    const wasRegistered = cachedPushToken !== null;
-    cachedPushToken = data as string;
+    const previousToken = cachedPushToken;
+    const nextToken = data as string;
+    cachedPushToken = nextToken;
     const tokenType = type === 'ios' ? 'apns' : 'fcm';
     cachedTokenType = tokenType;
-    if (!wasRegistered) return;
-    void registerPushTokenWithBackend(data as string, tokenType).catch((error) => {
-      if (__DEV__) {
-        console.warn('[push] token refresh registration failed', error);
-      }
-    });
+    if (!previousToken || previousToken === nextToken) return;
+
+    void registerPushTokenWithBackend(nextToken, tokenType)
+      .then(() => unregisterPushDevice({ token: previousToken }))
+      .catch((error) => {
+        if (__DEV__) {
+          console.warn('[push] token refresh registration failed', error);
+        }
+      });
   });
 
   return () => {

@@ -1,11 +1,13 @@
 import { useEffect, useRef } from 'react';
-import { Platform } from 'react-native';
+import { AppState, Platform } from 'react-native';
+import Purchases, { type CustomerInfo } from 'react-native-purchases';
 
 import { authApi } from '@/src/api';
 import {
   configurePurchases,
   loginPurchases,
   logoutPurchases,
+  subscriptionFromCustomerInfo,
 } from '@/src/services/purchases';
 import { queryClient } from '@/src/services/query-client';
 import { queryKeys } from '@/src/services/query-keys';
@@ -27,6 +29,8 @@ export function PurchasesBootstrap() {
     if (Platform.OS !== 'ios' && Platform.OS !== 'android') return;
 
     let cancelled = false;
+    let removeCustomerInfoListener: (() => void) | null = null;
+    let removeAppStateListener: (() => void) | null = null;
 
     void (async () => {
       const knownUserId = isAuthenticated && userId ? userId : undefined;
@@ -34,18 +38,73 @@ export function PurchasesBootstrap() {
       if (cancelled) return;
 
       if (knownUserId) {
-        await loginPurchases(knownUserId);
+        const applyCustomerInfo = (customerInfo: CustomerInfo | null) => {
+          if (cancelled) return null;
+          const nativeSubscription = subscriptionFromCustomerInfo(customerInfo);
+          if (!nativeSubscription) return null;
+
+          const currentUser = useAppStore.getState().user;
+          if (!currentUser || currentUser._id !== knownUserId) return nativeSubscription;
+
+          const nextUser = { ...currentUser, subscription: nativeSubscription };
+          useAppStore.getState().setUser(nextUser);
+          queryClient.setQueryData(queryKeys.auth.me, nextUser);
+          return nativeSubscription;
+        };
+
+        const reconcileSubscription = async (customerInfo: CustomerInfo | null) => {
+          const nativeSubscription = applyCustomerInfo(customerInfo);
+          try {
+            const serverUser = await authApi.syncSubscription();
+            if (cancelled) return;
+
+            // RevenueCat's active native entitlement unlocks immediately. A
+            // delayed webhook/REST sync must not overwrite it with stale Free.
+            const nextUser =
+              nativeSubscription?.isPro && !serverUser.subscription?.isPro
+                ? { ...serverUser, subscription: nativeSubscription }
+                : serverUser;
+            useAppStore.getState().setUser(nextUser);
+            queryClient.setQueryData(queryKeys.auth.me, nextUser);
+          } catch {
+            // Native CustomerInfo remains available while backend reconciliation
+            // catches up through REST or the RevenueCat webhook.
+          }
+        };
+
+        const customerInfo = await loginPurchases(knownUserId);
         if (cancelled) return;
         lastUserIdRef.current = knownUserId;
-        try {
-          const user = await authApi.syncSubscription();
-          if (!cancelled) {
-            useAppStore.getState().setUser(user);
-            queryClient.setQueryData(queryKeys.auth.me, user);
-          }
-        } catch {
-          /* webhook/REST may be temporarily unavailable */
-        }
+
+        const customerInfoListener = (updatedInfo: CustomerInfo) => {
+          void reconcileSubscription(updatedInfo);
+        };
+        Purchases.addCustomerInfoUpdateListener(customerInfoListener);
+        removeCustomerInfoListener = () => {
+          Purchases.removeCustomerInfoUpdateListener(customerInfoListener);
+        };
+
+        let previousAppState = AppState.currentState;
+        const appStateSubscription = AppState.addEventListener('change', (nextState) => {
+          const returnedToForeground = previousAppState !== 'active' && nextState === 'active';
+          previousAppState = nextState;
+          if (!returnedToForeground || cancelled) return;
+
+          void (async () => {
+            try {
+              // Purchases made or changed in Apple's/Google's external UI can
+              // otherwise remain behind RevenueCat's cached CustomerInfo.
+              await Purchases.invalidateCustomerInfoCache();
+              const refreshedInfo = await Purchases.getCustomerInfo();
+              await reconcileSubscription(refreshedInfo);
+            } catch (error) {
+              if (__DEV__) console.warn('[purchases] foreground refresh failed', error);
+            }
+          })();
+        });
+        removeAppStateListener = () => appStateSubscription.remove();
+
+        await reconcileSubscription(customerInfo);
         return;
       }
 
@@ -57,6 +116,8 @@ export function PurchasesBootstrap() {
 
     return () => {
       cancelled = true;
+      removeCustomerInfoListener?.();
+      removeAppStateListener?.();
     };
   }, [hasHydrated, isAuthenticated, userId]);
 
