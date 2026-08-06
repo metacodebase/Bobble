@@ -7,7 +7,7 @@ import { Image } from 'expo-image';
 import { Href, router } from 'expo-router';
 import * as ExpoSplashScreen from 'expo-splash-screen';
 import { useCallback } from 'react';
-import { Platform, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { Platform, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 
 const SPLASH_TITLE_COLOR = '#2E2A87';
 
@@ -18,13 +18,17 @@ export default function AuthSplashScreen() {
   const referenceWidth = Platform.OS === 'android' ? 412 : 390;
   const referenceHeight = Platform.OS === 'android' ? 915 : 844;
   const scale = Math.min(width / referenceWidth, height / referenceHeight);
-  const mascotSize = Math.round(width * 0.75);
-  const titleFontSize = Math.round(78 * scale);
-  const subtitleFontSize = Math.max(22, Math.round(14 * scale));
-  const subtitleLineHeight = subtitleFontSize + 6;
-  const taglineFontSize = Math.max(24, Math.round(14 * scale));
-  const taglineLineHeight = taglineFontSize + 7;
-  const headerBottomSpacing = Math.round(18 * scale);
+  const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
+  const titleFontSize = clamp(Math.round(78 * scale), 44, 78);
+  const subtitleFontSize = clamp(Math.round(22 * scale), 10, 20);
+  const subtitleLineHeight = subtitleFontSize + 8;
+  const taglineFontSize = clamp(Math.round(20 * scale), 18, 26);
+  const taglineLineHeight = taglineFontSize + 8;
+  const heroImageWidth = clamp(Math.round(width * 0.9), 180, 440);
+  const heroImageHeight = clamp(Math.round(height * 0.32), 180, 320);
+  const supportImageHeight = clamp(Math.round(height * 0.1), 56, 110);
+  const verticalGap = clamp(Math.round(18 * scale), 10, 22);
+  const horizontalPadding = clamp(Math.round(width * 0.06), 16, 26);
   const revealAppSplash = useCallback(() => {
     void ExpoSplashScreen.hideAsync();
   }, []);
@@ -32,7 +36,11 @@ export default function AuthSplashScreen() {
   return (
     <OnboardingScreenLayout
       backgroundImage={require('@/src/assets/images/background/two.png')}
-      contentStyle={styles.content}
+      contentStyle={{
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingHorizontal: horizontalPadding,
+      }}
       footer={
         <View style={{ width: '100%', paddingTop: 10, gap: Platform.OS === 'android' ? 5 : 0 }}>
           <PrimaryButton
@@ -60,83 +68,90 @@ export default function AuthSplashScreen() {
         </View>
       }
     >
-      <View style={styles.splashBody} onLayout={revealAppSplash}>
-        <View style={[styles.header, { marginBottom: headerBottomSpacing }]}>
-          <Text
-            style={[
-              styles.title,
-              { color: '#0B0944', fontSize: titleFontSize, lineHeight: titleFontSize + 4 },
-            ]}
-          >
-            Bobble
-          </Text>
-          <Text
-            style={[
-              styles.subtitle,
-              {
-                color: colors.textAccent,
-                fontSize: subtitleFontSize,
-                lineHeight: subtitleLineHeight,
-              },
-            ]}
-          >
-            Unwind your messy mind
-          </Text>
-        </View>
-        <Image
-          source={require('../../src/assets/images/bobble-splash.png')}
-          style={{ width: '90%', height: 300, borderRadius: 20 }}
-          contentFit="contain"
-        />
-        <Image
-          source={require('@/src/assets/images/bobble-splash-support.png')}
-          style={[{ width: '90%', height: 100, borderRadius: 20 }]}
-          contentFit="contain"
-        />
-        <View style={styles.tagline}>
-          <Text
-            style={[
-              styles.taglineLine,
-              {
-                color: colors.textAccent,
-                fontSize: taglineFontSize,
-                lineHeight: taglineLineHeight,
-              },
-            ]}
-          >
-            Dream.{' '}
+      <ScrollView
+        style={styles.scrollBody}
+        contentContainerStyle={[styles.splashBody, { gap: verticalGap }]}
+        showsVerticalScrollIndicator={false}
+        bounces={false}
+      >
+        <View style={styles.splashInner} onLayout={revealAppSplash}>
+          <View style={styles.header}>
+            <Text
+              style={[
+                styles.title,
+                { color: SPLASH_TITLE_COLOR, fontSize: titleFontSize, lineHeight: titleFontSize + 4 },
+              ]}
+            >
+              Bobble
+            </Text>
+            <Text
+              style={[
+                styles.subtitle,
+                {
+                  color: colors.textAccent,
+                  fontSize: subtitleFontSize,
+                  lineHeight: subtitleLineHeight,
+                },
+              ]}
+            >
+              Unwind your messy mind
+            </Text>
+          </View>
+          <Image
+            source={require('../../src/assets/images/bobble-splash.png')}
+            style={{ width: heroImageWidth, height: heroImageHeight }}
+            contentFit="contain"
+          />
+          <Image
+            source={require('@/src/assets/images/bobble-splash-support.png')}
+            style={{ width: heroImageWidth, height: supportImageHeight }}
+            contentFit="contain"
+          />
+          <View style={[styles.tagline, { marginTop: Math.round(verticalGap * 0.35) }]}>
             <Text
               style={[
                 styles.taglineLine,
-                { color: '#0B0944', fontSize: taglineFontSize, lineHeight: taglineLineHeight },
+                {
+                  color: colors.textAccent,
+                  fontSize: taglineFontSize,
+                  lineHeight: taglineLineHeight,
+                },
               ]}
             >
-              Believe.
+              Dream.{' '}
+              <Text
+                style={[
+                  styles.taglineLine,
+                  { color: '#0B0944', fontSize: taglineFontSize, lineHeight: taglineLineHeight },
+                ]}
+              >
+                Believe.
+              </Text>
             </Text>
-          </Text>
 
-          <Text
-            style={[
-              styles.taglineLine,
-              {
-                color: colors.textAccent,
-                fontSize: taglineFontSize,
-                lineHeight: taglineLineHeight,
-              },
-            ]}
-          >
-            Bobble.{' '}
             <Text
               style={[
                 styles.taglineLine,
-                { color: colors.text, fontSize: taglineFontSize, lineHeight: taglineLineHeight },
+                {
+                  color: colors.textAccent,
+                  fontSize: taglineFontSize,
+                  lineHeight: taglineLineHeight,
+                },
               ]}
             >
-              Achieve.
+              Bobble.{' '}
+              <Text
+                style={[
+                  styles.taglineLine,
+                  { color: colors.text, fontSize: taglineFontSize, lineHeight: taglineLineHeight },
+                ]}
+              >
+                Achieve.
+              </Text>
             </Text>
-          </Text>
+          </View>
         </View>
-      </View>
+      </ScrollView>
     </OnboardingScreenLayout>
   );
 }
@@ -146,11 +161,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  splashBody: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'space-evenly',
+  scrollBody: {
     width: '100%',
+  },
+  splashBody: {
+    flexGrow: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+    paddingVertical: 8,
+  },
+  splashInner: {
+    width: '100%',
+    alignItems: 'center',
   },
   header: {
     alignItems: 'center',
