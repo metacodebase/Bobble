@@ -1,7 +1,7 @@
 import { Href, router } from 'expo-router';
 import { Mic } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
-import { Platform, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { Dimensions, Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { HomeHeader } from '@/src/components/home/home-header';
@@ -43,6 +43,8 @@ function getHomeMascotVariant(): HomeVariant {
   }
 }
 
+const TODAY_ROW_HEIGHT = Math.round(Dimensions.get('window').height * 0.24);
+
 const QUICK_ACTIONS = [
   {
     id: 'idea',
@@ -72,7 +74,6 @@ const QUICK_ACTIONS = [
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
-  const { height: windowHeight, width: windowWidth } = useWindowDimensions();
   const { height: tabBarHeight } = useTabBarInsets();
   const setCaptureKind = useCaptureStore((state) => state.setCaptureKind);
   const clearRecording = useCaptureStore((state) => state.clearRecording);
@@ -105,8 +106,6 @@ export default function HomeScreen() {
   const totalCount = todayTasks.length;
   const homeMascotVariant = getHomeMascotVariant();
   const [focusListScrolling, setFocusListScrolling] = useState(false);
-  const todayRowHeight = Math.max(172, Math.min(Math.round(windowHeight * 0.24), 240));
-  const bottomPadding = tabBarHeight + 24;
 
   const startCapture = (kind: CaptureKind = 'bobble') => {
     if (incompleteOverdueTasks.length > 0) {
@@ -130,13 +129,13 @@ export default function HomeScreen() {
   return (
     <View style={[styles.root, { paddingTop: androidSafeTop(insets.top) + (Platform.OS === 'android' ? 0 : -10) }]}>
       <ScrollView
-        style={styles.scroll}
+
         contentContainerStyle={[
           styles.scrollContent,
-          { flexGrow: 1, paddingBottom: bottomPadding },
+          { paddingBottom: tabBarHeight + 24 },
         ]}
         showsVerticalScrollIndicator={false}
-        scrollEnabled={!focusListScrolling}
+        scrollEnabled={false}
       >
         <View style={styles.headerSection}>
           <HomeHeader
@@ -151,7 +150,9 @@ export default function HomeScreen() {
           <BobbleMascot
             variant="home"
             homeVariant={homeMascotVariant}
-            size={Math.round(windowWidth * (Platform.OS === 'android' ? 1.05 : 0.95))}
+            size={Math.round(
+              Dimensions.get('window').width * (Platform.OS === 'android' ? 1.05 : 0.95),
+            )}
           />
         </View>
 
@@ -177,9 +178,7 @@ export default function HomeScreen() {
           ))}
         </View>
 
-        <View style={styles.flexSpacer} />
-
-        <View style={[styles.todayRow, { minHeight: todayRowHeight }]}>
+        <View style={[styles.todayRow, { height: TODAY_ROW_HEIGHT }]}>
           <TodayFocusCard
             tasks={focusTasks}
             onToggle={(id) => toggleTask.mutate(id)}
@@ -213,13 +212,6 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: 10,
-  },
-  scroll: {
-    flex: 1,
-  },
-  flexSpacer: {
-    flex: 1,
-    minHeight: 16,
   },
   headerSection: {
     width: '95%',

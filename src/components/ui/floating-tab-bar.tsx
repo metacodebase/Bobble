@@ -64,11 +64,13 @@ function TabBarSurface({
   glassEnabled,
   colorScheme,
   isDark,
+  surfaceColor,
 }: {
   children: React.ReactNode;
   glassEnabled: boolean;
   colorScheme: 'light' | 'dark';
   isDark: boolean;
+  surfaceColor: string;
 }) {
   return (
     <View style={[styles.bar, isDark ? styles.barBorderDark : styles.barBorderLight]}>
@@ -89,14 +91,22 @@ function TabBarSurface({
             style={[
               styles.barGlass,
               isDark ? styles.barShadowDark : styles.barShadowLight,
+              { backgroundColor: 'rgba(255,255,255,0.4)' },
             ]}
             tint={colorScheme}
-            intensity={20}
+            intensity={0}
             pointerEvents="none"
           />
         )
       ) : (
-        <View style={styles.barGlass} pointerEvents="none" />
+        <View
+          style={[
+            styles.barGlass,
+            { backgroundColor: surfaceColor },
+            isDark ? styles.barShadowDark : styles.barShadowLight,
+          ]}
+          pointerEvents="none"
+        />
       )}
       <View style={styles.barContent}>{children}</View>
     </View>
@@ -186,6 +196,7 @@ export function FloatingTabBar({ state, navigation }: BottomTabBarProps) {
         glassEnabled={glassEnabled}
         colorScheme={scheme === 'dark' ? 'dark' : 'light'}
         isDark={scheme === 'dark'}
+        surfaceColor={colors.surface}
       >
         {tabs.map((tab) => {
           const isFocused = activeRoute === tab.name;
@@ -227,7 +238,6 @@ const styles = StyleSheet.create({
     minHeight: 64,
     borderRadius: 32,
     overflow: 'hidden',
-    backgroundColor: 'transparent',
   },
   barBorderLight: {
     borderWidth: 1,
