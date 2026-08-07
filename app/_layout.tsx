@@ -6,7 +6,6 @@ import {
 } from '@expo-google-fonts/sniglet';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { QueryClientProvider } from '@tanstack/react-query';
-import * as NavigationBar from 'expo-navigation-bar';
 import { Href, Stack, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
@@ -34,11 +33,22 @@ SplashScreen.preventAutoHideAsync();
 
 void SystemUI.setBackgroundColorAsync(DEFAULT_APP_BACKGROUND_COLOR);
 
-if (Platform.OS === 'android') {
-  // Edge-to-edge keeps the system bar transparent; style buttons for a dark bar.
-  NavigationBar.setStyle('dark');
-  void NavigationBar.setButtonStyleAsync('dark');
+/** Android-only; never block root layout / QueryClientProvider if native module is missing. */
+function configureAndroidNavigationBar() {
+  if (Platform.OS !== 'android') return;
+  try {
+    // Dynamic require: a static import throws at module load when ExpoNavigationBar is absent.
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const NavigationBar = require('expo-navigation-bar') as typeof import('expo-navigation-bar');
+    // Light chrome → dark buttons over the light app backdrop (edge-to-edge).
+    NavigationBar.setStyle('light');
+    void NavigationBar.setButtonStyleAsync('dark');
+  } catch {
+    // Stale binary / Expo Go without the native module — config plugin still applies at build time.
+  }
 }
+
+configureAndroidNavigationBar();
 
 export const unstable_settings = {
   initialRouteName: 'index',
