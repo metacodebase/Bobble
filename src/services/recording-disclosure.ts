@@ -1,7 +1,7 @@
 import { secureStorage } from '@/src/services/secure-storage';
 
 const RECORDING_DISCLOSURE_KEY = 'recording-processing-disclosure';
-const RECORDING_DISCLOSURE_VERSION = '1';
+const RECORDING_DISCLOSURE_VERSION = '2';
 
 export async function hasAcknowledgedRecordingDisclosure(): Promise<boolean> {
   try {

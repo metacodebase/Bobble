@@ -1,13 +1,13 @@
 import type { LegalSection } from '@/src/data/legal-types';
 
-export const PRIVACY_EFFECTIVE_DATE = '30 July 2026';
-export const PRIVACY_VERSION = '1.1';
+export const PRIVACY_EFFECTIVE_DATE = '11 August 2026';
+export const PRIVACY_VERSION = '1.2';
 export const PRIVACY_OPERATOR =
   'Operator: N2 Therapy Australia PTY LTD T/A Bobble App, ABN/ACN 16633627219';
 export const PRIVACY_CONTACT = 'Privacy Contact: support@bobble.au';
 export const PRIVACY_ADDRESS = 'Address: 29 Wentworth Street, Shellharbour, NSW, 2529';
 
-export const PRIVACY_INTRO = 'PRIVACY POLICY\nLast updated: 30/07/2026\nEffective date: 30/07/2026';
+export const PRIVACY_INTRO = 'PRIVACY POLICY\nLast updated: 11/08/2026\nEffective date: 11/08/2026';
 
 export const PRIVACY_POLICY: LegalSection[] = [
   {

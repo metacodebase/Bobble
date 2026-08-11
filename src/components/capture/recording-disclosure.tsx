@@ -39,12 +39,14 @@ export function RecordingDisclosure({
           </View>
 
           <Text style={[styles.title, { color: colors.text }]}>
-            How your recording is processed
+            Permission to process your recording
           </Text>
           <Text style={[styles.message, { color: colors.textSecondary }]}>
-            Your voice recording is sent to our Speech-to-Text service for transcription. Your
-            transcript and related content are sent to our AI service to provide the features you
-            request.
+            To create your transcript, your voice recording and its audio data are sent to
+            AssemblyAI, our third-party speech-to-text provider. To create summaries, tasks,
+            reminders and goals, your transcript and related content are sent to OpenAI, our
+            third-party AI provider. Bobble and these providers process this data to provide the
+            features you request.
           </Text>
 
           <Pressable
@@ -65,7 +67,9 @@ export function RecordingDisclosure({
               pressed && !continuing && styles.continuePressed,
             ]}
           >
-            <Text style={styles.continueLabel}>{continuing ? 'Getting ready...' : 'Continue'}</Text>
+            <Text style={styles.continueLabel}>
+              {continuing ? 'Getting ready...' : 'Allow and continue'}
+            </Text>
           </Pressable>
 
           <Pressable
