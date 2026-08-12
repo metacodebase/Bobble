@@ -11,6 +11,7 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.bobble.au",
+      "associatedDomains": ["applinks:bobble.au", "applinks:www.bobble.au"],
       "buildNumber": "7",
       "usesAppleSignIn": true,
       "googleServicesFile": "./GoogleService-Info.plist",
@@ -54,6 +55,35 @@
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
       "package": "com.bobble.au",
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "https",
+              "host": "bobble.au",
+              "pathPrefix": "/share"
+            },
+            {
+              "scheme": "https",
+              "host": "bobble.au",
+              "pathPrefix": "/bobble"
+            },
+            {
+              "scheme": "https",
+              "host": "www.bobble.au",
+              "pathPrefix": "/share"
+            },
+            {
+              "scheme": "https",
+              "host": "www.bobble.au",
+              "pathPrefix": "/bobble"
+            }
+          ],
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
+      ],
       "googleServicesFile": "./google-services.json",
       "usesCleartextTraffic": true,
       "permissions": [

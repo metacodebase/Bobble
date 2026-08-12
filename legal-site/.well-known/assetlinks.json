@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.bobble.au",
+      "sha256_cert_fingerprints": [
+        "31:0B:A6:92:89:49:FE:61:38:08:84:20:0C:F1:B6:C9:8C:C6:E1:7F:DC:4B:9D:EB:D9:A2:34:B1:79:A4:4A:9C"
+      ]
+    }
+  }
+]

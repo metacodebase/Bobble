@@ -1,12 +1,14 @@
 import { Href, router } from 'expo-router';
+import { Image } from 'expo-image';
 import { Check } from 'lucide-react-native';
 import { ImageBackground, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { BobbleDetailToolbar } from '@/src/components/bobbles/bobble-detail-toolbar';
 import { SecondaryButton } from '@/src/components/home/secondary-button';
-import { BobbleMascot } from '@/src/components/onboarding/bobble-mascot';
 import { PrimaryButton } from '@/src/components/onboarding/primary-button';
+import { getClosestBobbleCard } from '@/src/data/bobble-cards';
+import type { BobbleCategory } from '@/src/features/bobbles/types';
 import { useBobbleToolbarActions } from '@/src/hooks/use-bobble-toolbar-actions';
 import { Typography } from '@/src/theme/fonts';
 import { androidSafeBottom, androidSafeTop } from '@/src/utils/safe-padding';
@@ -18,6 +20,8 @@ type BobbleSaveSuccessProps = {
   title: string;
   dateLabel: string;
   durationMin: number;
+  category: BobbleCategory;
+  tasks: { title: string }[];
   bobbleId?: string;
   onViewBobble: () => void;
   onHome: () => void;
@@ -27,6 +31,8 @@ export function BobbleSaveSuccess({
   title,
   dateLabel,
   durationMin,
+  category,
+  tasks,
   bobbleId,
   onViewBobble,
   onHome,
@@ -35,6 +41,7 @@ export function BobbleSaveSuccess({
   const { handleAddTasks, handlePin, isAddingTasks, isPinning, bobble } = useBobbleToolbarActions({
     bobbleId,
   });
+  const card = getClosestBobbleCard({ title, tasks, category });
 
   return (
     <ImageBackground
@@ -49,7 +56,7 @@ export function BobbleSaveSuccess({
         </View>
 
         <View style={styles.visual}>
-          <BobbleMascot variant="greet" size={300} playAnimation />
+          <Image source={card.image} style={styles.cardImage} contentFit="contain" />
         </View>
 
         <View style={styles.card}>
@@ -85,7 +92,10 @@ export function BobbleSaveSuccess({
           onShare={() =>
             router.push({
               pathname: '/share',
-              params: bobbleId ? { bobbleId } : undefined,
+              params: {
+                cardId: card.id,
+                ...(bobbleId ? { bobbleId } : {}),
+              },
             } as Href)
           }
           onAddTask={handleAddTasks}
@@ -139,6 +149,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     flexShrink: 1,
     minHeight: 180,
+  },
+  cardImage: {
+    width: 170,
+    aspectRatio: 4096 / 5300,
+    borderRadius: 16,
   },
   card: {
     flexDirection: 'row',

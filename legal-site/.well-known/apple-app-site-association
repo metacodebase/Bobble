@@ -1,0 +1,14 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appIDs": ["BNV5TR576V.com.bobble.au"],
+        "components": [
+          { "/": "/share", "comment": "Shared Bobble achievement" },
+          { "/": "/bobble/*", "comment": "Direct Bobble link" }
+        ]
+      }
+    ]
+  }
+}

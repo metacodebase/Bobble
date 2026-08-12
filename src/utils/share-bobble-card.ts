@@ -15,6 +15,10 @@ export type BobbleShareContentParams = BobbleShareLinkParams & {
   cardLabel: string;
 };
 
+const BOBBLE_SHARE_ORIGIN = (
+  process.env.EXPO_PUBLIC_SHARE_URL?.trim() || 'https://bobble.au'
+).replace(/\/$/, '');
+
 function isShareCancelled(error: unknown): boolean {
   if (!(error instanceof Error)) return false;
 
@@ -28,12 +32,9 @@ function isShareCancelled(error: unknown): boolean {
 }
 
 export function buildBobbleShareLink({ cardId, bobbleId }: BobbleShareLinkParams): string {
-  return Linking.createURL('share', {
-    queryParams: {
-      cardId,
-      ...(bobbleId ? { bobbleId } : {}),
-    },
-  });
+  const params = new URLSearchParams({ cardId });
+  if (bobbleId) params.set('bobbleId', bobbleId);
+  return `${BOBBLE_SHARE_ORIGIN}/share?${params.toString()}`;
 }
 
 export async function copyBobbleShareLink(params: BobbleShareLinkParams): Promise<string> {
@@ -44,7 +45,7 @@ export async function copyBobbleShareLink(params: BobbleShareLinkParams): Promis
 
 export async function resolveBobbleCardFileUri(
   image: ImageSourcePropType,
-  filename: string,
+  filename: string
 ): Promise<string> {
   if (typeof image !== 'number') {
     throw new Error('Only bundled bobble cards can be shared.');
@@ -80,7 +81,7 @@ async function openFacebookLinkShare(link: string): Promise<void> {
 
 export async function shareBobbleCardOnFacebook(
   image: ImageSourcePropType,
-  params: BobbleShareContentParams,
+  params: BobbleShareContentParams
 ): Promise<'facebook-app' | 'facebook-web'> {
   const link = buildBobbleShareLink(params);
   const localUri = await resolveBobbleCardFileUri(image, params.cardId);

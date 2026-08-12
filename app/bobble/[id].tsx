@@ -15,6 +15,7 @@ import { CaptureHeader } from '@/src/components/capture/capture-header';
 import { SegmentTabs, SummaryTab } from '@/src/components/capture/segment-tabs';
 import { ActionSheet } from '@/src/components/ui/action-sheet';
 import { ScreenLoading } from '@/src/components/ui/screen-loading';
+import { getClosestBobbleCard } from '@/src/data/bobble-cards';
 import {
   bobbleDurationMin,
   formatBobbleDateLabel,
@@ -54,6 +55,13 @@ export default function BobbleDetailScreen() {
   const showToolbar = !isTranscript;
   const dateLabel = bobble ? formatBobbleDateLabel(bobble.createdAt) : undefined;
   const durationMin = bobble ? bobbleDurationMin(bobble) : undefined;
+  const shareCard = bobble
+    ? getClosestBobbleCard({
+        title: bobble.title,
+        category: bobble.category,
+        tasks: bobble.suggestedTasks,
+      })
+    : undefined;
   const recordingIsWithinPlaybackWindow = bobble
     ? Date.now() - new Date(bobble.createdAt).getTime() <=
       PRO_RECORDING_PLAYBACK_DAYS * 24 * 60 * 60 * 1000
@@ -247,7 +255,7 @@ export default function BobbleDetailScreen() {
           onShare={() =>
             router.push({
               pathname: '/share',
-              params: { bobbleId: id },
+              params: { bobbleId: id, cardId: shareCard?.id },
             } as Href)
           }
           onAddTask={handleAddTasks}

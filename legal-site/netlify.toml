@@ -18,3 +18,23 @@
   from = "/terms-and-conditions"
   to = "/terms-and-conditions.html"
   status = 200
+
+[[redirects]]
+  from = "/share"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/bobble/*"
+  to = "/index.html"
+  status = 200
+
+[[headers]]
+  for = "/.well-known/apple-app-site-association"
+  [headers.values]
+    Content-Type = "application/json"
+
+[[headers]]
+  for = "/.well-known/assetlinks.json"
+  [headers.values]
+    Content-Type = "application/json"
