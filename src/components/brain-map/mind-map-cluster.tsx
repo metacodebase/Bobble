@@ -1,6 +1,8 @@
-import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { useState } from 'react';
+import { Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import Svg, { Line, Path } from 'react-native-svg';
 
+import { MindMapNodeDetailModal } from '@/src/components/brain-map/mind-map-node-detail-modal';
 import type { MindMapCluster, MindMapTaskNode } from '@/src/features/mind-map/types';
 import { FontFamily, Typography } from '@/src/theme/fonts';
 
@@ -24,6 +26,7 @@ type MindMapClusterViewProps = {
 };
 
 export function MindMapClusterView({ cluster, showConnectorBelow }: MindMapClusterViewProps) {
+  const [selectedNode, setSelectedNode] = useState<MindMapTaskNode | null>(null);
   const { width: screenWidth } = useWindowDimensions();
   const clusterWidth = Math.min(MAX_CLUSTER_WIDTH, screenWidth - 32);
   const hasBottomNodes = cluster.taskNodes.some(
@@ -126,8 +129,12 @@ export function MindMapClusterView({ cluster, showConnectorBelow }: MindMapClust
         </View>
 
         {placed.map(({ node, pos }) => (
-          <View
+          <Pressable
             key={node.id}
+            accessibilityRole="button"
+            accessibilityLabel={`${node.title}. ${node.subtitle}`}
+            accessibilityHint="Shows the full node text"
+            onPress={() => setSelectedNode(node)}
             style={[
               styles.taskNode,
               {
@@ -147,7 +154,7 @@ export function MindMapClusterView({ cluster, showConnectorBelow }: MindMapClust
                 {node.subtitle}
               </Text>
             ) : null}
-          </View>
+          </Pressable>
         ))}
       </View>
 
@@ -166,6 +173,7 @@ export function MindMapClusterView({ cluster, showConnectorBelow }: MindMapClust
           </Svg>
         </View>
       ) : null}
+      <MindMapNodeDetailModal node={selectedNode} onClose={() => setSelectedNode(null)} />
     </View>
   );
 }
