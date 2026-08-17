@@ -2,6 +2,7 @@ import { create, type StateCreator } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
 import { isDemoMode } from '@/src/config/backend';
+import type { UserSubscription } from '@/src/config/subscription';
 import type { AuthSession, AuthUser } from '@/src/features/auth/types';
 import { secureStorage } from '@/src/services/secure-storage';
 
@@ -9,6 +10,7 @@ interface AppState {
   authToken: string | null;
   refreshToken: string | null;
   user: AuthUser | null;
+  guestSubscription: UserSubscription | null;
   isAuthenticated: boolean;
   isGuest: boolean;
   hasOnboarded: boolean;
@@ -25,6 +27,7 @@ interface AppState {
   setAuthToken: (token: string | null) => void;
   setTokens: (accessToken: string, refreshToken: string) => void;
   setUser: (user: AuthUser | null) => void;
+  setGuestSubscription: (subscription: UserSubscription | null) => void;
   setHasOnboarded: (value: boolean) => void;
   setHasHydrated: (value: boolean) => void;
   setThemeOverride: (theme: 'light' | 'dark' | null) => void;
@@ -39,6 +42,7 @@ const createAppState: StateCreator<AppState> = (set) => ({
   authToken: null,
   refreshToken: null,
   user: null,
+  guestSubscription: null,
   isAuthenticated: false,
   isGuest: false,
   hasOnboarded: false,
@@ -79,6 +83,8 @@ const createAppState: StateCreator<AppState> = (set) => ({
 
   setUser: (user) => set({ user }),
 
+  setGuestSubscription: (guestSubscription) => set({ guestSubscription }),
+
   setHasOnboarded: (value) => set({ hasOnboarded: value }),
 
   setHasHydrated: (value) => set({ hasHydrated: value }),
@@ -94,6 +100,7 @@ const createAppState: StateCreator<AppState> = (set) => ({
       authToken: null,
       refreshToken: null,
       user: null,
+      guestSubscription: null,
       isAuthenticated: false,
       isGuest: false,
       avatarCacheKey: 0,

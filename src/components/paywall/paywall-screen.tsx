@@ -102,8 +102,6 @@ export function PaywallScreen({ onClose }: PaywallScreenProps) {
   const purchasesReady = usePurchasesIdentityReady();
   const refreshSubscription = useRefreshSubscription();
   const userId = useAppStore((s) => s.user?._id ?? null);
-  const isGuest = useAppStore((s) => s.isGuest);
-  const clearSession = useAppStore((s) => s.clearSession);
   const [selectedPlanId, setSelectedPlanId] = useState<PaywallPlanId>(DEFAULT_PAYWALL_PLAN);
   const [isStartingTrial, setIsStartingTrial] = useState(false);
   const [isRestoring, setIsRestoring] = useState(false);
@@ -139,13 +137,6 @@ export function PaywallScreen({ onClose }: PaywallScreenProps) {
   };
 
   useEffect(() => {
-    if (!isGuest) return;
-    clearSession();
-    toast.error('Sign in or create an account to access Bobble Pro.');
-    router.replace('/(auth)/sign-in' as Href);
-  }, [clearSession, isGuest]);
-
-  useEffect(() => {
     if (!isPurchasesSupported() || !purchasesReady) return;
     let cancelled = false;
     void (async () => {
@@ -164,10 +155,6 @@ export function PaywallScreen({ onClose }: PaywallScreenProps) {
       toast.error('Purchases are only available on iOS and Android builds.');
       return;
     }
-    if (!userId) {
-      toast.error('Sign in to subscribe.');
-      return;
-    }
     if (!purchasesReady) {
       toast.error('Purchases are still setting up. Try again in a moment.');
       return;
@@ -175,7 +162,7 @@ export function PaywallScreen({ onClose }: PaywallScreenProps) {
 
     setIsStartingTrial(true);
     try {
-      const { customerInfo } = await purchasePlan(selectedPlanId, userId);
+      const { customerInfo } = await purchasePlan(selectedPlanId, userId ?? undefined);
       await refreshSubscription({ pollUntilPro: true, customerInfo });
       if (customerHasPro(customerInfo)) {
         toast.success('Welcome to Bobble Pro!');
@@ -197,10 +184,6 @@ export function PaywallScreen({ onClose }: PaywallScreenProps) {
       toast.error('Purchases are only available on iOS and Android builds.');
       return;
     }
-    if (!userId) {
-      toast.error('Sign in to restore purchases.');
-      return;
-    }
     if (!purchasesReady) {
       toast.error('Purchases are still setting up. Try again in a moment.');
       return;
@@ -208,7 +191,7 @@ export function PaywallScreen({ onClose }: PaywallScreenProps) {
 
     setIsRestoring(true);
     try {
-      const customerInfo = await restorePurchases(userId);
+      const customerInfo = await restorePurchases(userId ?? undefined);
       const user = await refreshSubscription({ pollUntilPro: true, customerInfo });
       if (customerHasPro(customerInfo) || user?.subscription?.isPro) {
         toast.success('Purchases restored. Welcome back to Bobble Pro!');

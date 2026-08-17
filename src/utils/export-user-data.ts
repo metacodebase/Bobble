@@ -60,7 +60,9 @@ async function fetchExportData(): Promise<{
   tasks: Task[];
   profile: ProfilePayload | null;
 }> {
-  if (useAppStore.getState().user?.subscription?.isPro !== true) {
+  const { guestSubscription, isGuest, user } = useAppStore.getState();
+  const isPro = isGuest ? guestSubscription?.isPro : user?.subscription?.isPro;
+  if (isPro !== true) {
     throw new Error('Bobble Pro is required to export PDF or CSV files.');
   }
   const [bobbles, tasks, profile] = await Promise.all([

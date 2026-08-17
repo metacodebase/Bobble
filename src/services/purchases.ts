@@ -24,6 +24,7 @@ let configured = false;
 let loggedInUserId: string | null = null;
 /** Shared by repeated auth-state cleanup so RevenueCat is logged out only once. */
 let logoutPromise: Promise<void> | null = null;
+let anonymousIdentityPromise: Promise<boolean> | null = null;
 
 /**
  * Prefer platform public keys (appl_ / goog_). Fall back to a single Test Store
@@ -50,6 +51,10 @@ export function getPurchasesLoggedInUserId(): string | null {
 
 export function isPurchasesIdentityReady(userId: string): boolean {
   return configured && Boolean(userId) && loggedInUserId === userId;
+}
+
+export function isAnonymousPurchasesReady(): boolean {
+  return configured && loggedInUserId === null;
 }
 
 export async function configurePurchases(appUserID?: string): Promise<void> {
@@ -121,6 +126,32 @@ export async function ensurePurchasesIdentity(userId: string): Promise<boolean> 
 
   const info = await loginPurchases(userId);
   return isPurchasesIdentityReady(userId) && info != null;
+}
+
+export async function ensureAnonymousPurchasesIdentity(): Promise<boolean> {
+  if (!isPurchasesSupported()) return false;
+  await configurePurchases();
+  if (!configured) return false;
+  if (anonymousIdentityPromise) return anonymousIdentityPromise;
+
+  anonymousIdentityPromise = (async () => {
+    try {
+      if (!(await Purchases.isAnonymous())) {
+        await Purchases.logOut();
+      }
+      loggedInUserId = null;
+      return true;
+    } catch (error) {
+      console.warn('[purchases] anonymous identity setup failed', error);
+      return false;
+    }
+  })();
+
+  try {
+    return await anonymousIdentityPromise;
+  } finally {
+    anonymousIdentityPromise = null;
+  }
 }
 
 export async function logoutPurchases(): Promise<void> {
@@ -268,14 +299,16 @@ export function priceLabelsFromOfferings(offerings: PurchasesOfferings | null): 
 
 export async function purchasePlan(
   planId: PaywallPlanId,
-  userId: string
+  userId?: string
 ): Promise<{
   customerInfo: CustomerInfo;
   productId?: StoreProductId | string;
 }> {
-  const ready = await ensurePurchasesIdentity(userId);
+  const ready = userId
+    ? await ensurePurchasesIdentity(userId)
+    : await ensureAnonymousPurchasesIdentity();
   if (!ready) {
-    throw new Error('Purchases are not ready. Sign in again and try shortly.');
+    throw new Error('Purchases are not ready. Try again shortly.');
   }
 
   const offerings = await Purchases.getOfferings();
@@ -292,10 +325,12 @@ export async function purchasePlan(
   return { customerInfo, productId };
 }
 
-export async function restorePurchases(userId: string): Promise<CustomerInfo> {
-  const ready = await ensurePurchasesIdentity(userId);
+export async function restorePurchases(userId?: string): Promise<CustomerInfo> {
+  const ready = userId
+    ? await ensurePurchasesIdentity(userId)
+    : await ensureAnonymousPurchasesIdentity();
   if (!ready) {
-    throw new Error('Purchases are not ready. Sign in again and try shortly.');
+    throw new Error('Purchases are not ready. Try again shortly.');
   }
   return Purchases.restorePurchases();
 }

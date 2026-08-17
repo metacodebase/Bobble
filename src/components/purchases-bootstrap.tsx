@@ -5,6 +5,7 @@ import Purchases, { type CustomerInfo } from 'react-native-purchases';
 import { authApi } from '@/src/api';
 import {
   configurePurchases,
+  ensureAnonymousPurchasesIdentity,
   loginPurchases,
   logoutPurchases,
   subscriptionFromCustomerInfo,
@@ -13,14 +14,46 @@ import { queryClient } from '@/src/services/query-client';
 import { queryKeys } from '@/src/services/query-keys';
 import { useAppStore } from '@/src/store/app-store';
 
+function listenForForegroundRefresh(
+  reconcile: (customerInfo: CustomerInfo) => Promise<void>,
+  isCancelled: () => boolean,
+) {
+  let previousAppState = AppState.currentState;
+  const subscription = AppState.addEventListener('change', (nextState) => {
+    const returnedToForeground = previousAppState !== 'active' && nextState === 'active';
+    previousAppState = nextState;
+    if (!returnedToForeground || isCancelled()) return;
+    void (async () => {
+      try {
+        await Purchases.invalidateCustomerInfoCache();
+        await reconcile(await Purchases.getCustomerInfo());
+      } catch (error) {
+        if (__DEV__) console.warn('[purchases] foreground refresh failed', error);
+      }
+    })();
+  });
+  return () => subscription.remove();
+}
+
+async function setupGuestPurchases(isCancelled: () => boolean) {
+  if (!(await ensureAnonymousPurchasesIdentity()) || isCancelled()) return null;
+  const applyCustomerInfo = (customerInfo: CustomerInfo) => {
+    if (isCancelled()) return;
+    useAppStore.getState().setGuestSubscription(subscriptionFromCustomerInfo(customerInfo));
+  };
+  applyCustomerInfo(await Purchases.getCustomerInfo());
+  Purchases.addCustomerInfoUpdateListener(applyCustomerInfo);
+  return () => Purchases.removeCustomerInfoUpdateListener(applyCustomerInfo);
+}
+
 /**
- * Configures RevenueCat once (preferring known App User ID) and keeps identity
- * synced with auth so purchases never attach to an anonymous RC user.
- * After identity is ready, pulls authoritative Pro status/store into backend + app.
+ * Keeps RevenueCat anonymous for guests and identifies account users. Active
+ * account subscriptions are also reconciled with the backend.
  */
 export function PurchasesBootstrap() {
   const hasHydrated = useAppStore((s) => s.hasHydrated);
   const isAuthenticated = useAppStore((s) => s.isAuthenticated);
+  const isGuest = useAppStore((s) => s.isGuest);
   const userId = useAppStore((s) => s.user?._id ?? null);
   const lastUserIdRef = useRef<string | null>(null);
 
@@ -84,27 +117,17 @@ export function PurchasesBootstrap() {
           Purchases.removeCustomerInfoUpdateListener(customerInfoListener);
         };
 
-        let previousAppState = AppState.currentState;
-        const appStateSubscription = AppState.addEventListener('change', (nextState) => {
-          const returnedToForeground = previousAppState !== 'active' && nextState === 'active';
-          previousAppState = nextState;
-          if (!returnedToForeground || cancelled) return;
-
-          void (async () => {
-            try {
-              // Purchases made or changed in Apple's/Google's external UI can
-              // otherwise remain behind RevenueCat's cached CustomerInfo.
-              await Purchases.invalidateCustomerInfoCache();
-              const refreshedInfo = await Purchases.getCustomerInfo();
-              await reconcileSubscription(refreshedInfo);
-            } catch (error) {
-              if (__DEV__) console.warn('[purchases] foreground refresh failed', error);
-            }
-          })();
-        });
-        removeAppStateListener = () => appStateSubscription.remove();
+        removeAppStateListener = listenForForegroundRefresh(
+          reconcileSubscription,
+          () => cancelled,
+        );
 
         await reconcileSubscription(customerInfo);
+        return;
+      }
+
+      if (isGuest) {
+        removeCustomerInfoListener = await setupGuestPurchases(() => cancelled);
         return;
       }
 
@@ -119,7 +142,7 @@ export function PurchasesBootstrap() {
       removeCustomerInfoListener?.();
       removeAppStateListener?.();
     };
-  }, [hasHydrated, isAuthenticated, userId]);
+  }, [hasHydrated, isAuthenticated, isGuest, userId]);
 
   return null;
 }

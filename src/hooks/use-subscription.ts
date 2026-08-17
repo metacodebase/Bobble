@@ -12,6 +12,8 @@ import { authApi } from '@/src/api';
 import { queryKeys } from '@/src/services/query-keys';
 import {
   ensurePurchasesIdentity,
+  ensureAnonymousPurchasesIdentity,
+  isAnonymousPurchasesReady,
   isPurchasesIdentityReady,
   isPurchasesSupported,
   subscriptionFromCustomerInfo,
@@ -20,7 +22,10 @@ import { useAppStore } from '@/src/store/app-store';
 
 export function useSubscription(): UserSubscription {
   const storeUser = useAppStore((s) => s.user);
+  const isGuest = useAppStore((s) => s.isGuest);
+  const guestSubscription = useAppStore((s) => s.guestSubscription);
   const { data: me } = useMe();
+  if (isGuest) return guestSubscription ?? DEFAULT_SUBSCRIPTION;
   return me?.subscription ?? storeUser?.subscription ?? DEFAULT_SUBSCRIPTION;
 }
 
@@ -37,34 +42,36 @@ export function usePlanLabel(): string {
 }
 
 /**
- * True once RevenueCat is configured and logged in as the current Mongo user.
- * Paywall should wait on this before purchase/restore.
+ * True once RevenueCat is ready for the current account or anonymous guest.
  */
 export function usePurchasesIdentityReady(): boolean {
   const userId = useAppStore((s) => s.user?._id ?? null);
   const isAuthenticated = useAppStore((s) => s.isAuthenticated);
+  const isGuest = useAppStore((s) => s.isGuest);
   const [ready, setReady] = useState(() =>
-    Boolean(userId && isPurchasesIdentityReady(userId))
+    isGuest ? isAnonymousPurchasesReady() : Boolean(userId && isPurchasesIdentityReady(userId))
   );
 
   useEffect(() => {
-    if (!isPurchasesSupported() || !isAuthenticated || !userId) {
+    if (!isPurchasesSupported() || (!isGuest && (!isAuthenticated || !userId))) {
       setReady(false);
       return;
     }
 
     let cancelled = false;
-    setReady(isPurchasesIdentityReady(userId));
+    setReady(isGuest ? isAnonymousPurchasesReady() : isPurchasesIdentityReady(userId!));
 
     void (async () => {
-      const ok = await ensurePurchasesIdentity(userId);
+      const ok = isGuest
+        ? await ensureAnonymousPurchasesIdentity()
+        : await ensurePurchasesIdentity(userId!);
       if (!cancelled) setReady(ok);
     })();
 
     return () => {
       cancelled = true;
     };
-  }, [isAuthenticated, userId]);
+  }, [isAuthenticated, isGuest, userId]);
 
   return ready;
 }
@@ -76,6 +83,7 @@ export function usePurchasesIdentityReady(): boolean {
 export function useRefreshSubscription() {
   const qc = useQueryClient();
   const setUser = useAppStore((s) => s.setUser);
+  const setGuestSubscription = useAppStore((s) => s.setGuestSubscription);
 
   return useCallback(
     async (opts?: {
@@ -91,17 +99,19 @@ export function useRefreshSubscription() {
       const intervalMs = opts?.intervalMs ?? 800;
       const syncFromRevenueCat = opts?.syncFromRevenueCat !== false;
       const nativeSubscription = subscriptionFromCustomerInfo(opts?.customerInfo);
+      const { isAuthenticated, isGuest, user: currentUser } = useAppStore.getState();
 
       // RevenueCat's purchase/restore result is authoritative for client access.
       // Keep server-side enforcement separate and reconcile it below.
+      if (isGuest) setGuestSubscription(nativeSubscription);
       if (nativeSubscription) {
-        const currentUser = useAppStore.getState().user;
         if (currentUser) {
           const optimisticUser = { ...currentUser, subscription: nativeSubscription };
           setUser(optimisticUser);
           qc.setQueryData(queryKeys.auth.me, optimisticUser);
         }
       }
+      if (!isAuthenticated) return null;
 
       for (let i = 0; i < attempts; i += 1) {
         try {
@@ -141,6 +151,6 @@ export function useRefreshSubscription() {
 
       return useAppStore.getState().user;
     },
-    [qc, setUser]
+    [qc, setGuestSubscription, setUser]
   );
 }
