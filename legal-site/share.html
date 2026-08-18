@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#f5efff" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Shared Bobble achievement</title>
+    <link rel="icon" href="./share-assets/assets/bobble-mark.png" />
+    <link rel="stylesheet" href="./share-assets/share.css" />
+    <script src="./share-assets/share.js" defer></script>
+  </head>
+  <body>
+    <main class="page-shell">
+      <a class="brand" href="https://bobble.au" aria-label="Visit Bobble website">
+        <img src="./share-assets/assets/bobble-mark.png" alt="" width="42" height="42" />
+        <span>Bobble</span>
+      </a>
+
+      <section class="share-view" id="share-view" aria-live="polite">
+        <div class="intro">
+          <p class="eyebrow">A win worth sharing</p>
+          <h1>Someone just unlocked a Bobble achievement</h1>
+          <p class="lede">A small moment of progress, captured with Bobble.</p>
+        </div>
+
+        <figure class="card-frame">
+          <div class="card-sheen" aria-hidden="true"></div>
+          <img id="achievement-card" alt="Shared Bobble achievement card" />
+        </figure>
+
+        <div class="actions" aria-label="Open or install Bobble">
+          <a class="button button-primary" id="open-app" href="#">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+            <span>Open in Bobble</span>
+          </a>
+          <a class="button button-secondary" id="install-app" href="#" rel="noopener noreferrer">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 20h14" /></svg>
+            <span id="install-label">Get the Bobble app</span>
+          </a>
+        </div>
+
+        <p class="action-note">Already have Bobble? Open the app to view this achievement there.</p>
+      </section>
+
+      <section class="invalid-view" id="invalid-view" hidden aria-live="polite">
+        <div class="invalid-orb" aria-hidden="true">
+          <span>?</span>
+        </div>
+        <p class="eyebrow">Link unavailable</p>
+        <h1>This achievement link isn’t valid</h1>
+        <p class="lede">It may be incomplete or mistyped. Ask the sender to share it again from Bobble.</p>
+        <a class="button button-secondary" href="https://bobble.au">Visit Bobble</a>
+      </section>
+
+      <footer>
+        <span>Turn thoughts into progress.</span>
+        <nav aria-label="Legal">
+          <a href="https://bobble.au/privacy-policy">Privacy</a>
+          <a href="https://bobble.au/terms-and-conditions">Terms</a>
+        </nav>
+      </footer>
+    </main>
+  </body>
+</html>

@@ -1,3 +1,4 @@
 /privacy-policy /privacy-policy.html 200
 /terms-and-conditions /terms-and-conditions.html 200
+/share /share.html 200
 /api/webhooks/revenuecat /.netlify/functions/revenuecat-webhook 200!
