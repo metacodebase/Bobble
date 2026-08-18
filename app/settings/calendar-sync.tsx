@@ -100,6 +100,7 @@ export default function CalendarSyncScreen() {
   function getCalendarProvider(calendar: Calendar.Calendar): CalendarProvider | null {
     const sourceName = (calendar.source?.name || '').toLowerCase();
     const sourceType = (calendar.source?.type || '').toString().toLowerCase();
+    const calendarType = (calendar.type || '').toString().toLowerCase();
 
     if (
       sourceName.includes('google') ||
@@ -111,7 +112,11 @@ export default function CalendarSyncScreen() {
     if (
       sourceName.includes('icloud') ||
       sourceName.includes('apple') ||
-      sourceType.includes('caldav')
+      sourceType.includes('caldav') ||
+      sourceType.includes('local') ||
+      sourceType.includes('mobileme') ||
+      calendarType.includes('local') ||
+      calendarType.includes('caldav')
     ) {
       return 'apple';
     }
