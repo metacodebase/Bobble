@@ -34,10 +34,6 @@ function routeFromNotificationData(data: Record<string, unknown> | undefined): v
     }
     return;
   }
-  if (data.type === 'streak_reminder') {
-    router.push('/capture/record' as Href);
-    return;
-  }
   if (typeof data.bobbleId === 'string') {
     router.push({ pathname: '/bobble/[id]', params: { id: data.bobbleId } } as Href);
   }

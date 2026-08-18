@@ -113,13 +113,6 @@ function NotificationPreferencesForm({
           value={prefs.taskReminders}
           onValueChange={(taskReminders) => update({ taskReminders })}
           disabled={!prefs.pushEnabled}
-        />
-        <SettingsToggleRow
-          label="Streak reminders"
-          description="Daily nudge to keep your streak alive."
-          value={prefs.streakReminders}
-          onValueChange={(streakReminders) => update({ streakReminders })}
-          disabled={!prefs.pushEnabled}
           isLast
         />
       </SettingsSection>

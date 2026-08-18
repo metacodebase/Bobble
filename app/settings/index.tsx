@@ -14,12 +14,10 @@ import {
     Moon,
     Shield,
     User,
-    Zap,
 } from 'lucide-react-native';
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text } from 'react-native';
 
-import { CalendarProviderIcon } from '@/src/components/create-account/calendar-brand-icons';
 import {
     SettingsLinkItemRow,
     SettingsToggleItemRow,
@@ -57,7 +55,6 @@ export default function SettingsScreen() {
 
   const [dailyReminders, setDailyReminders] = useState(true);
   const [taskAlerts, setTaskAlerts] = useState(true);
-  const [streakReminders, setStreakReminders] = useState(false);
   const [insightsWeekly, setInsightsWeekly] = useState(true);
   const [shareAnalytics, setShareAnalytics] = useState(true);
   const [personalisation, setPersonalisation] = useState(true);
@@ -125,12 +122,6 @@ export default function SettingsScreen() {
           icon={<AlertCircle size={22} color={colors.primary} strokeWidth={2} />}
           value={taskAlerts}
           onValueChange={setTaskAlerts}
-        />
-        <SettingsToggleItemRow
-          label="Streak reminders"
-          icon={<Zap size={22} color={colors.primary} strokeWidth={2} />}
-          value={streakReminders}
-          onValueChange={setStreakReminders}
         />
         <SettingsToggleItemRow
           label="Insights weekly"

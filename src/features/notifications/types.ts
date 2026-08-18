@@ -3,7 +3,6 @@ export interface NotificationPreferences {
   emailDigest: boolean;
   emailDigestFrequency: 'monthly' | 'quarterly';
   taskReminders: boolean;
-  streakReminders: boolean;
 }
 
 export type UpdateNotificationPreferencesBody = Partial<NotificationPreferences>;
