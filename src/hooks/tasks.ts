@@ -18,6 +18,11 @@ import {
   syncTaskToCalendar,
   type CalendarSyncResult,
 } from '@/src/services/calendar-sync';
+import {
+  removeTaskFromAppleReminders,
+  syncTasksToAppleReminders,
+  syncTaskToAppleReminders,
+} from '@/src/services/apple-reminders-sync';
 import { syncTaskWidgets } from '@/src/services/widget-sync';
 import { useAppStore } from '@/src/store/app-store';
 import { getApiErrorMessage, isProLimitError } from '@/src/utils/api-error';
@@ -56,6 +61,17 @@ function notifyCalendarSyncFailure(result: CalendarSyncResult, task: Task) {
   toast.error(message, 'Calendar sync failed');
 }
 
+async function syncTaskDestinations(task: Task) {
+  const [calendarResult, reminderResult] = await Promise.all([
+    syncTaskToCalendar(task),
+    syncTaskToAppleReminders(task),
+  ]);
+  notifyCalendarSyncFailure(calendarResult, task);
+  if (reminderResult.status === 'failed') {
+    toast.error('Task saved, but Apple Reminders could not be updated.', 'Reminder sync failed');
+  }
+}
+
 export function useTasks(filter: TaskFilterParam = 'all', enabled = true) {
   const isAuthenticated = useAppStore((s) => s.isAuthenticated);
   const isGuest = useAppStore((s) => s.isGuest);
@@ -85,7 +101,7 @@ export function useCreateTask() {
       qc.invalidateQueries({ queryKey: queryKeys.tasks.all });
       invalidateUserStats(qc);
       if (task.bobble) invalidateMindMap(qc);
-      notifyCalendarSyncFailure(await syncTaskToCalendar(task), task);
+      await syncTaskDestinations(task);
     },
     onError: (e) => handleTaskLimitError(e, 'Could not create task'),
   });
@@ -100,10 +116,17 @@ export function useCreateTasksBulk() {
       invalidateUserStats(qc);
       if (tasks.some((task) => task.bobble)) invalidateMindMap(qc);
       const result = await syncTasksToCalendar(tasks);
+      const reminderFailures = await syncTasksToAppleReminders(tasks);
       if (result.failed > 0) {
         toast.error(
           `${result.failed} task${result.failed === 1 ? '' : 's'} could not be added to your calendar.`,
           'Calendar sync incomplete'
+        );
+      }
+      if (reminderFailures > 0) {
+        toast.error(
+          `${reminderFailures} task${reminderFailures === 1 ? '' : 's'} could not be added to Apple Reminders.`,
+          'Reminder sync incomplete'
         );
       }
     },
@@ -119,7 +142,7 @@ export function useUpdateTask() {
     onSuccess: async (task) => {
       qc.invalidateQueries({ queryKey: queryKeys.tasks.all });
       invalidateUserStats(qc);
-      notifyCalendarSyncFailure(await syncTaskToCalendar(task), task);
+      await syncTaskDestinations(task);
     },
     onError: (e) => toast.error(getApiErrorMessage(e, 'Could not update task')),
   });
@@ -147,7 +170,7 @@ export function useToggleTask() {
       qc.setQueriesData<Task[]>({ queryKey: queryKeys.tasks.all }, (prev) =>
         prev?.map((task) => (task._id === updated._id ? updated : task))
       );
-      notifyCalendarSyncFailure(await syncTaskToCalendar(updated), updated);
+      await syncTaskDestinations(updated);
     },
     onSettled: () => {
       qc.invalidateQueries({ queryKey: queryKeys.tasks.all });
@@ -173,11 +196,20 @@ export function useDeleteTask() {
       toast.error(getApiErrorMessage(e, 'Could not delete task'));
     },
     onSuccess: async (_data, id) => {
-      const result = await removeTaskFromCalendar(id);
+      const [result, reminderResult] = await Promise.all([
+        removeTaskFromCalendar(id),
+        removeTaskFromAppleReminders(id),
+      ]);
       if (result.status === 'failed') {
         toast.error(
           'Task deleted, but its calendar event could not be removed.',
           'Calendar sync failed'
+        );
+      }
+      if (reminderResult.status === 'failed') {
+        toast.error(
+          'Task deleted, but its Apple Reminder could not be removed.',
+          'Reminder sync failed'
         );
       }
     },

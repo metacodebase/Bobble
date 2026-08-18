@@ -1,7 +1,19 @@
-import { AppleIcon, GoogleIcon, MicrosoftIcon } from '@/src/components/onboarding/social-icons';
-import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
+import { Image } from 'expo-image';
 
-export type CalendarProvider = 'google' | 'apple' | 'outlook';
+export type CalendarProvider =
+  | 'google'
+  | 'apple'
+  | 'outlook'
+  | 'apple-reminders'
+  | 'notion';
+
+const PROVIDER_ICONS = {
+  google: require('@/src/assets/images/calendar-sync/google-calendar.png'),
+  apple: require('@/src/assets/images/calendar-sync/apple-calendar.webp'),
+  outlook: require('@/src/assets/images/calendar-sync/outlook-calendar.png'),
+  'apple-reminders': require('@/src/assets/images/calendar-sync/apple-reminders.webp'),
+  notion: require('@/src/assets/images/calendar-sync/notion-calendar.png'),
+} as const;
 
 export function CalendarProviderIcon({
   provider,
@@ -10,14 +22,11 @@ export function CalendarProviderIcon({
   provider: CalendarProvider;
   size?: number;
 }) {
-  const colors = useBobbleColors();
-
-  switch (provider) {
-    case 'google':
-      return <GoogleIcon size={size} />;
-    case 'apple':
-      return <AppleIcon size={size} color={colors.text} />;
-    case 'outlook':
-      return <MicrosoftIcon size={size} />;
-  }
+  return (
+    <Image
+      source={PROVIDER_ICONS[provider]}
+      style={{ width: size, height: size }}
+      contentFit="contain"
+    />
+  );
 }

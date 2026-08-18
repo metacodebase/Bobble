@@ -1,5 +1,6 @@
 import { ActivityIndicator, View } from 'react-native';
 
+import { PrimaryButton } from '@/src/components/onboarding/primary-button';
 import {
   SettingsDescription,
   SettingsScreenLayout,
@@ -7,17 +8,37 @@ import {
 } from '@/src/components/settings/settings-screen-layout';
 import { SettingsToggleRow } from '@/src/components/settings/settings-toggle-row';
 import { SettingsLinkRow } from '@/src/components/settings/settings-link-row';
+import { useLogout } from '@/src/hooks/api';
 import {
   useNotificationPreferences,
   useUpdateNotificationPreferences,
 } from '@/src/hooks/use-notifications';
 import type { NotificationPreferences } from '@/src/features/notifications/types';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
+import { useAppStore } from '@/src/store/app-store';
 
 export default function NotificationsScreen() {
   const colors = useBobbleColors();
+  const isGuest = useAppStore((s) => s.isGuest);
   const preferences = useNotificationPreferences();
   const updatePreferences = useUpdateNotificationPreferences();
+  const logout = useLogout();
+
+  if (isGuest) {
+    return (
+      <SettingsScreenLayout title="Notifications">
+        <SettingsDescription>
+          Sign in or create an account to manage push notifications, email digests, and reminders.
+        </SettingsDescription>
+        <PrimaryButton
+          label="Sign in or create account"
+          loading={logout.isPending}
+          disabled={logout.isPending}
+          onPress={() => logout.mutate()}
+        />
+      </SettingsScreenLayout>
+    );
+  }
 
   if (preferences.isLoading || !preferences.data) {
     return (
@@ -36,6 +57,16 @@ export default function NotificationsScreen() {
     updatePreferences.mutate(patch);
   };
 
+  return <NotificationPreferencesForm prefs={prefs} update={update} />;
+}
+
+function NotificationPreferencesForm({
+  prefs,
+  update,
+}: {
+  prefs: NotificationPreferences;
+  update: (patch: Partial<NotificationPreferences>) => void;
+}) {
   return (
     <SettingsScreenLayout title="Notifications">
       <SettingsDescription>

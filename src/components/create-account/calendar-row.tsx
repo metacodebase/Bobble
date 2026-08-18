@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { CheckIcon } from '@/src/components/onboarding/ui-icons';
@@ -26,9 +26,9 @@ export function CalendarRow({ name, icon, onConnect, status: externalStatus, but
   const currentStatus = isControlled ? externalStatus : internalStatus;
 
   const handleConnect = () => {
-    if (currentStatus !== 'idle') return;
+    if (currentStatus === 'loading') return;
 
-    if (!isControlled) {
+    if (!isControlled && currentStatus === 'idle') {
       setInternalStatus('loading');
       setTimeout(() => {
         setInternalStatus('connected');
@@ -92,8 +92,8 @@ const styles = StyleSheet.create({
     paddingRight: 16,
   },
   iconWrapper: {
-    width: 28,
-    height: 28,
+    width: 36,
+    height: 36,
     alignItems: 'center',
     justifyContent: 'center',
   },

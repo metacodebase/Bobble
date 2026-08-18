@@ -1,27 +1,31 @@
-import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 import * as Calendar from 'expo-calendar';
 import { RefreshCw } from 'lucide-react-native';
+import { useCallback, useEffect, useState } from 'react';
+import { ActivityIndicator, Alert, StyleSheet, Text, View } from 'react-native';
 
-import { CalendarRow } from '@/src/components/create-account/calendar-row';
 import {
   CalendarProviderIcon,
   type CalendarProvider,
 } from '@/src/components/create-account/calendar-brand-icons';
+import { CalendarRow } from '@/src/components/create-account/calendar-row';
 import { PickerModal } from '@/src/components/create-account/picker-modal';
 import { SecondaryButton } from '@/src/components/home/secondary-button';
+import { PrimaryButton } from '@/src/components/onboarding/primary-button';
 import {
   SettingsDescription,
   SettingsScreenLayout,
 } from '@/src/components/settings/settings-screen-layout';
+import {
+  AppleRemindersSyncRow,
+  NotionSyncRow,
+} from '@/src/components/settings/calendar-sync-integrations';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
-import { PrimaryButton } from '@/src/components/onboarding/primary-button';
 import { resyncAllTasksToCalendar, validateCalendarConnection } from '@/src/services/calendar-sync';
-import { Typography } from '@/src/theme/fonts';
 import { useAppStore } from '@/src/store/app-store';
+import { Typography } from '@/src/theme/fonts';
 
-import { toast } from '@/src/utils/toast';
 import { ActionSheet } from '@/src/components/ui/action-sheet';
+import { toast } from '@/src/utils/toast';
 
 const PROVIDERS = [
   { id: 'google', name: 'Google Calendar', provider: 'google' as CalendarProvider },
@@ -225,22 +229,26 @@ export default function CalendarSyncScreen() {
   return (
     <SettingsScreenLayout title="Calendar Sync">
       <SettingsDescription>
-        Connect calendars to sync tasks and events from your Bobbles.
+        Connect calendars, Apple Reminders, or Notion to keep tasks from your Bobbles in sync.
       </SettingsDescription>
 
-      {loading ? (
-        <View style={styles.center}>
-          <ActivityIndicator size="large" color={colors.primary} />
-        </View>
-      ) : permissionStatus !== 'granted' ? (
-        <View style={styles.center}>
-          <Text style={[styles.message, { color: colors.textSecondary }]}>
-            Bobble needs access to your calendar to sync tasks.
-          </Text>
-          <PrimaryButton label="Grant Calendar Access" onPress={requestPermissions} />
-        </View>
-      ) : (
-        <ScrollView style={styles.list} contentContainerStyle={styles.listContent}>
+      <View>
+        <AppleRemindersSyncRow />
+        <NotionSyncRow />
+
+        {loading ? (
+          <View style={styles.center}>
+            <ActivityIndicator size="large" color={colors.primary} />
+          </View>
+        ) : permissionStatus !== 'granted' ? (
+          <View style={styles.center}>
+            <Text style={[styles.message, { color: colors.textSecondary }]}>
+              Bobble needs access to your calendar to sync tasks.
+            </Text>
+            <PrimaryButton label="Grant Calendar Access" onPress={requestPermissions} />
+          </View>
+        ) : (
+          <View>
           {PROVIDERS.map((providerItem) => {
             // Check if any calendar belonging to this provider is currently selected
             const providerCalendars = calendars.filter(
@@ -252,7 +260,7 @@ export default function CalendarSyncScreen() {
               <CalendarRow
                 key={providerItem.id}
                 name={providerItem.name}
-                icon={<CalendarProviderIcon provider={providerItem.provider} size={24} />}
+                icon={<CalendarProviderIcon provider={providerItem.provider} size={32} />}
                 status={isConnected ? 'connected' : 'idle'}
                 buttonLabel={isConnected ? 'Connected' : 'Connect'}
                 onConnect={() => {
@@ -280,8 +288,9 @@ export default function CalendarSyncScreen() {
               />
             </View>
           ) : null}
-        </ScrollView>
-      )}
+          </View>
+        )}
+      </View>
 
       <PickerModal
         visible={pickerVisible}
@@ -316,13 +325,6 @@ const styles = StyleSheet.create({
     ...Typography.body,
     textAlign: 'center',
     paddingHorizontal: 20,
-  },
-  list: {
-    flex: 1,
-  },
-  listContent: {
-    gap: 12,
-    paddingBottom: 20,
   },
   resyncSection: {
     marginTop: 8,

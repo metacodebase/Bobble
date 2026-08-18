@@ -38,4 +38,14 @@ export const API = {
     preferences: '/api/notifications/preferences',
     devices: '/api/notifications/devices',
   },
+  integrations: {
+    notion: {
+      status: '/api/integrations/notion/status',
+      authorize: '/api/integrations/notion/authorize',
+      dataSources: '/api/integrations/notion/data-sources',
+      dataSource: '/api/integrations/notion/data-source',
+      resync: '/api/integrations/notion/resync',
+      root: '/api/integrations/notion',
+    },
+  },
 } as const;

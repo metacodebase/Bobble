@@ -18,6 +18,7 @@ interface AppState {
   /** Explicit appearance; `null` follows the device light/dark setting. */
   themeOverride: 'light' | 'dark' | null;
   syncCalendarId: string | null;
+  syncReminderListId: string | null;
 
   /** Bumped after avatar upload so the stable proxy URL refetches. */
   avatarCacheKey: number;
@@ -32,6 +33,7 @@ interface AppState {
   setHasHydrated: (value: boolean) => void;
   setThemeOverride: (theme: 'light' | 'dark' | null) => void;
   setSyncCalendarId: (id: string | null) => void;
+  setSyncReminderListId: (id: string | null) => void;
   bumpAvatarCacheKey: () => void;
   clearSession: () => void;
 }
@@ -49,6 +51,7 @@ const createAppState: StateCreator<AppState> = (set) => ({
   hasHydrated: isDemoMode,
   themeOverride: null,
   syncCalendarId: null,
+  syncReminderListId: null,
   avatarCacheKey: 0,
 
   setSession: (session) =>
@@ -93,6 +96,8 @@ const createAppState: StateCreator<AppState> = (set) => ({
 
   setSyncCalendarId: (id) => set({ syncCalendarId: id }),
 
+  setSyncReminderListId: (id) => set({ syncReminderListId: id }),
+
   bumpAvatarCacheKey: () => set({ avatarCacheKey: Date.now() }),
 
   clearSession: () =>
@@ -117,7 +122,7 @@ export const useAppStore = isDemoMode
   : create<AppState>()(
       persist(createAppState, {
         name: APP_STORE_KEY,
-        version: 5,
+        version: 6,
         storage: createJSONStorage(() => secureStorage),
         migrate: (persistedState, version) => {
           const state = persistedState as Partial<AppState> & Record<string, unknown>;
@@ -139,6 +144,9 @@ export const useAppStore = isDemoMode
           if (version < 5) {
             next = { ...next, isGuest: false };
           }
+          if (version < 6) {
+            next = { ...next, syncReminderListId: null };
+          }
           return next as AppState;
         },
         onRehydrateStorage: () => () => {
@@ -153,6 +161,7 @@ export const useAppStore = isDemoMode
           hasOnboarded: state.hasOnboarded,
           themeOverride: state.themeOverride,
           syncCalendarId: state.syncCalendarId,
+          syncReminderListId: state.syncReminderListId,
         }),
       })
     );
