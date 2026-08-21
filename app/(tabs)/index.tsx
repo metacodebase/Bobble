@@ -4,9 +4,7 @@ import { TodayFocusCard } from '@/src/components/home/today-focus-card';
 import { TodayProgressCard } from '@/src/components/home/today-progress-card';
 import { BobbleMascot, type HomeVariant } from '@/src/components/onboarding/bobble-mascot';
 import { PrimaryButton } from '@/src/components/onboarding/primary-button';
-import { OverdueTaskGate } from '@/src/components/tasks/overdue-task-gate';
 import { FREE_BOBBLE_LIMIT } from '@/src/config/subscription';
-import { getIncompleteOverdueTasks } from '@/src/features/tasks/adapter';
 import { useProfile } from '@/src/hooks/profile';
 import { useTasks, useToggleTask } from '@/src/hooks/tasks';
 import { useIsPro } from '@/src/hooks/use-subscription';
@@ -83,14 +81,7 @@ export default function HomeScreen() {
     profile?.user.name?.split(' ')[0] ?? storeUser?.name?.split(' ')[0] ?? 'there';
   const avatarUrl = resolveAvatarUrl(profile?.user.avatarUrl, storeUser?.avatarUrl);
   const { data: todayTasks = [] } = useTasks('today');
-  const { data: overdueTasks = [] } = useTasks('overdue');
   const toggleTask = useToggleTask();
-  const [showOverdueGate, setShowOverdueGate] = useState(false);
-
-  const incompleteOverdueTasks = useMemo(
-    () => getIncompleteOverdueTasks(overdueTasks),
-    [overdueTasks],
-  );
 
   const focusTasks = useMemo(
     () =>
@@ -107,10 +98,6 @@ export default function HomeScreen() {
   const [focusListScrolling, setFocusListScrolling] = useState(false);
 
   const startCapture = (kind: CaptureKind = 'bobble') => {
-    if (incompleteOverdueTasks.length > 0) {
-      setShowOverdueGate(true);
-      return;
-    }
     const bobbleCount =
       profile?.stats.bobbles ?? storeUser?.gamification?.bobbles ?? 0;
     if (!isPro && bobbleCount >= FREE_BOBBLE_LIMIT) {
@@ -192,16 +179,6 @@ export default function HomeScreen() {
           />
         </View>
       </ScrollView>
-
-      <OverdueTaskGate
-        visible={showOverdueGate}
-        count={incompleteOverdueTasks.length}
-        oldestDueAt={incompleteOverdueTasks[0]?.dueAt}
-        onReview={() => {
-          setShowOverdueGate(false);
-          router.push({ pathname: '/(tabs)/tasks', params: { filter: 'overdue' } });
-        }}
-      />
     </View>
   );
 }
