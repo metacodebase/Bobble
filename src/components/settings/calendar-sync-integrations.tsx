@@ -1,6 +1,7 @@
 import * as Calendar from 'expo-calendar';
 import * as Linking from 'expo-linking';
 import { useFocusEffect } from 'expo-router';
+import * as WebBrowser from 'expo-web-browser';
 import { useCallback, useState } from 'react';
 import { Alert, Platform } from 'react-native';
 
@@ -174,7 +175,21 @@ function useNotionSync() {
         await chooseDataSource();
       } else {
         const { url } = await integrationsApi.getNotionAuthorizationUrl();
-        await Linking.openURL(url);
+        const result = await WebBrowser.openAuthSessionAsync(
+          url,
+          Linking.createURL('settings/calendar-sync')
+        );
+        if (result.type === 'success') {
+          const { queryParams } = Linking.parse(result.url);
+          if (queryParams?.notion === 'error') {
+            setError({
+              title: 'Could Not Connect Notion',
+              message: 'Notion authorization did not complete. Please try connecting again.',
+            });
+          } else {
+            await refresh();
+          }
+        }
       }
     } catch (cause) {
       setError({

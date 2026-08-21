@@ -1,6 +1,10 @@
 import { useEffect, useRef } from 'react';
 import { AppState } from 'react-native';
 
+import {
+  resyncAllTasksToAppleReminders,
+  validateAppleRemindersConnection,
+} from '@/src/services/apple-reminders-sync';
 import { resyncAllTasksToCalendar, validateCalendarConnection } from '@/src/services/calendar-sync';
 import { useAppStore } from '@/src/store/app-store';
 
@@ -13,6 +17,7 @@ export function CalendarSyncBootstrap() {
   const isGuest = useAppStore((s) => s.isGuest);
   const userId = useAppStore((s) => s.user?._id ?? null);
   const syncCalendarId = useAppStore((s) => s.syncCalendarId);
+  const syncReminderListId = useAppStore((s) => s.syncReminderListId);
   const lastRunAtRef = useRef(0);
   const initializedSessionRef = useRef<string | null>(null);
   const runningRef = useRef(false);
@@ -24,7 +29,7 @@ export function CalendarSyncBootstrap() {
       initializedSessionRef.current = null;
       return;
     }
-    if (!syncCalendarId) return;
+    if (!syncCalendarId && !syncReminderListId) return;
 
     const reconcile = async (force = false) => {
       const now = Date.now();
@@ -34,16 +39,27 @@ export function CalendarSyncBootstrap() {
       runningRef.current = true;
       lastRunAtRef.current = now;
       try {
-        const connection = await validateCalendarConnection();
-        if (connection !== 'ready') {
-          if (__DEV__) {
+        if (syncCalendarId) {
+          const connection = await validateCalendarConnection();
+          if (connection === 'ready') {
+            const result = await resyncAllTasksToCalendar();
+            if (__DEV__ && result.failed > 0) {
+              console.warn('[calendar-sync] automatic reconciliation incomplete', result);
+            }
+          } else if (__DEV__) {
             console.warn('[calendar-sync] automatic reconciliation skipped', connection);
           }
-          return;
         }
-        const result = await resyncAllTasksToCalendar();
-        if (__DEV__ && result.failed > 0) {
-          console.warn('[calendar-sync] automatic reconciliation incomplete', result);
+        if (syncReminderListId) {
+          const connection = await validateAppleRemindersConnection();
+          if (connection === 'ready') {
+            const failures = await resyncAllTasksToAppleReminders();
+            if (__DEV__ && failures > 0) {
+              console.warn('[apple-reminders] automatic reconciliation incomplete', { failures });
+            }
+          } else if (__DEV__) {
+            console.warn('[apple-reminders] automatic reconciliation skipped', connection);
+          }
         }
       } catch (error) {
         if (__DEV__) console.warn('[calendar-sync] automatic reconciliation failed', error);
@@ -61,7 +77,7 @@ export function CalendarSyncBootstrap() {
       if (state === 'active') void reconcile();
     });
     return () => subscription.remove();
-  }, [hasHydrated, isAuthenticated, isGuest, userId, syncCalendarId]);
+  }, [hasHydrated, isAuthenticated, isGuest, userId, syncCalendarId, syncReminderListId]);
 
   return null;
 }
