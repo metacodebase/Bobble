@@ -1,5 +1,5 @@
-import { Href, router } from 'expo-router';
 import { Image } from 'expo-image';
+import { Href, router } from 'expo-router';
 import { Check } from 'lucide-react-native';
 import { ImageBackground, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -56,7 +56,7 @@ export function BobbleSaveSuccess({
         </View>
 
         <View style={styles.visual}>
-          <Image source={card.image} style={styles.cardImage} contentFit="contain" />
+          <Image source={card.image} style={styles.cardImage} contentFit="fill" />
         </View>
 
         <View style={styles.card}>
@@ -147,11 +147,11 @@ const styles = StyleSheet.create({
   visual: {
     alignItems: 'center',
     justifyContent: 'center',
-    flexShrink: 1,
+    flex: 1,
     minHeight: 180,
   },
   cardImage: {
-    width: 170,
+    width: '100%',
     aspectRatio: 4096 / 5300,
     borderRadius: 16,
   },

@@ -14,10 +14,16 @@ TEAM_ID="${APPLE_TEAM_ID:-BNV5TR576V}"
 
 cd "$ROOT"
 
-echo "==> Bundle ID: $BUNDLE_ID | Team: $TEAM_ID"
+APP_VERSION="$(node -p "require('./app.json').expo.version")"
+IOS_BUILD_NUMBER="$(node -p "require('./app.json').expo.ios.buildNumber")"
+
+echo "==> Bundle ID: $BUNDLE_ID | Team: $TEAM_ID | Version: $APP_VERSION ($IOS_BUILD_NUMBER)"
 
 # Distribution cert fingerprint for N2 Therapy Australia (BNV5TR576V)
 DIST_CERT_SHA1="${APPLE_DIST_CERT_SHA1:-5DF518C89845A30E2374A1ADC1E6A8B57BB51D14}"
+
+echo "==> Syncing native iOS project..."
+npx expo prebuild --platform ios --no-install
 
 echo "==> Installing pods..."
 (cd "$IOS" && pod install)
@@ -30,6 +36,8 @@ xcodebuild \
   -destination "generic/platform=iOS" \
   -archivePath "$ARCHIVE" \
   archive \
+  MARKETING_VERSION="$APP_VERSION" \
+  CURRENT_PROJECT_VERSION="$IOS_BUILD_NUMBER" \
   CODE_SIGN_IDENTITY="$DIST_CERT_SHA1"
 
 echo "==> Exporting App Store IPA..."

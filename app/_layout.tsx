@@ -17,6 +17,7 @@ import 'react-native-reanimated';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ApiBootstrap } from '@/src/components/api-bootstrap';
+import { AdsBootstrap } from '@/src/components/ads-bootstrap';
 import { CalendarSyncBootstrap } from '@/src/components/calendar-sync-bootstrap';
 import { PurchasesBootstrap } from '@/src/components/purchases-bootstrap';
 import { PushBootstrap } from '@/src/components/push-bootstrap';
@@ -155,6 +156,7 @@ function AppShell() {
   return (
     <AppBackground>
       <ApiBootstrap />
+      <AdsBootstrap />
       <CalendarSyncBootstrap />
       <PushBootstrap />
       <PurchasesBootstrap />

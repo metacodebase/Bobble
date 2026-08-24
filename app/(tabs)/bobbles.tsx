@@ -7,6 +7,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { BOBBLE_FILTER_CHIP_STYLES } from '@/src/components/bobbles/bobble-category-config';
 import { BobbleLibraryRow } from '@/src/components/bobbles/bobble-library-row';
+import {
+  BANNER_AD_RESERVED_HEIGHT,
+  SafeBannerAd,
+} from '@/src/components/ads/safe-banner-ad';
 import { FilterChips } from '@/src/components/ui/filter-chips';
 import { ScreenHeader } from '@/src/components/ui/screen-header';
 import { ScreenLoading } from '@/src/components/ui/screen-loading';
@@ -24,6 +28,7 @@ import {
   useDeleteBobblesBulk,
 } from '@/src/hooks/bobbles';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
+import { useAdsState } from '@/src/hooks/use-ads';
 import { useNightForeground } from '@/src/hooks/use-night-foreground';
 import { useTabBarInsets } from '@/src/hooks/use-tab-bar-insets';
 import { Typography } from '@/src/theme/fonts';
@@ -34,6 +39,8 @@ export default function BobblesScreen() {
   const colors = useBobbleColors();
   const night = useNightForeground();
   const { height: tabBarHeight } = useTabBarInsets();
+  const { canRequestAds } = useAdsState();
+  const bannerOffset = canRequestAds ? BANNER_AD_RESERVED_HEIGHT : 0;
   const [filter, setFilter] = useState<BobbleFilter>('All');
   const [query, setQuery] = useState('');
   const [selectionMode, setSelectionMode] = useState(false);
@@ -183,7 +190,7 @@ export default function BobblesScreen() {
           onRefresh={refetch}
           contentContainerStyle={[
             styles.list,
-            { paddingBottom: tabBarHeight + 24 },
+            { paddingBottom: tabBarHeight + bannerOffset + 24 },
           ]}
           showsVerticalScrollIndicator={false}
           ItemSeparatorComponent={() => <View style={styles.separator} />}
@@ -222,6 +229,8 @@ export default function BobblesScreen() {
         />
       )}
 
+      <SafeBannerAd style={[styles.adBanner, { bottom: tabBarHeight }]} />
+
       {selectionMode && selectedCount > 0 ? (
         <Pressable
           onPress={handleBulkDelete}
@@ -254,6 +263,13 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     width: '100%',
     alignSelf: 'center',
+  },
+  adBanner: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+    zIndex: 10,
   },
   selectionHeader: {
     flexDirection: 'row',

@@ -6,6 +6,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { TaskFormSheet, TaskFormValues } from '@/src/components/tasks/task-form-sheet';
 import { TaskSection } from '@/src/components/tasks/task-section';
+import {
+  BANNER_AD_RESERVED_HEIGHT,
+  SafeBannerAd,
+} from '@/src/components/ads/safe-banner-ad';
 import { FAB_SIZE, FabButton } from '@/src/components/ui/fab-button';
 import { FilterChips } from '@/src/components/ui/filter-chips';
 import { ScreenHeader } from '@/src/components/ui/screen-header';
@@ -20,6 +24,7 @@ import {
   useUpdateTask,
 } from '@/src/hooks/tasks';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
+import { useAdsState } from '@/src/hooks/use-ads';
 import { useNightForeground } from '@/src/hooks/use-night-foreground';
 import { useTabBarInsets } from '@/src/hooks/use-tab-bar-insets';
 import { Typography } from '@/src/theme/fonts';
@@ -41,7 +46,9 @@ export default function TasksScreen() {
   const colors = useBobbleColors();
   const night = useNightForeground();
   const { height: tabBarHeight } = useTabBarInsets();
-  const fabBottom = tabBarHeight + 16;
+  const { canRequestAds } = useAdsState();
+  const bannerOffset = canRequestAds ? BANNER_AD_RESERVED_HEIGHT : 0;
+  const fabBottom = tabBarHeight + bannerOffset + 16;
   const { taskId: taskIdParam, filter: filterParam } = useLocalSearchParams<{
     taskId?: string;
     filter?: string;
@@ -172,6 +179,8 @@ export default function TasksScreen() {
         )}
       </ScrollView>
 
+      <SafeBannerAd style={[styles.adBanner, { bottom: tabBarHeight }]} />
+
       <FabButton bottom={fabBottom} onPress={() => setSheet({ mode: 'create' })} />
 
       <TaskFormSheet
@@ -201,6 +210,13 @@ const styles = StyleSheet.create({
     paddingTop: 4,
     width: '100%',
     alignSelf: 'center',
+  },
+  adBanner: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+    zIndex: 10,
   },
   state: {
     marginTop: 48,

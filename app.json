@@ -2,7 +2,7 @@
   "expo": {
     "name": "Bobble",
     "slug": "Bobble",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./src/assets/images/bobble-app-icon.png",
     "scheme": "bobble",
@@ -12,7 +12,7 @@
       "supportsTablet": false,
       "bundleIdentifier": "com.bobble.au",
       "associatedDomains": ["applinks:bobble.au", "applinks:www.bobble.au"],
-      "buildNumber": "7",
+      "buildNumber": "1",
       "usesAppleSignIn": true,
       "googleServicesFile": "./GoogleService-Info.plist",
       "infoPlist": {
