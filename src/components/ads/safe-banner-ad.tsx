@@ -10,12 +10,19 @@ type SafeBannerAdProps = {
 
 export const BANNER_AD_RESERVED_HEIGHT = 60;
 
+const ADMOB_BANNER_ID_PATTERN = /^ca-app-pub-\d{16}\/\d{10}$/;
+
 function getBannerId() {
   if (__DEV__) return TestIds.ADAPTIVE_BANNER;
-  return Platform.select({
+  const unitId = Platform.select({
     android: process.env.EXPO_PUBLIC_ADMOB_ANDROID_BANNER_ID,
     ios: process.env.EXPO_PUBLIC_ADMOB_IOS_BANNER_ID,
-  });
+  })?.trim();
+
+  if (!unitId || !ADMOB_BANNER_ID_PATTERN.test(unitId) || unitId.includes('3940256099942544')) {
+    return undefined;
+  }
+  return unitId;
 }
 
 export function SafeBannerAd({ style }: SafeBannerAdProps) {

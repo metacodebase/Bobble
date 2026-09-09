@@ -23,7 +23,7 @@ echo "==> Bundle ID: $BUNDLE_ID | Team: $TEAM_ID | Version: $APP_VERSION ($IOS_B
 DIST_CERT_SHA1="${APPLE_DIST_CERT_SHA1:-5DF518C89845A30E2374A1ADC1E6A8B57BB51D14}"
 
 echo "==> Syncing native iOS project..."
-npx expo prebuild --platform ios --no-install
+EXPO_PUBLIC_APP_ENV=production npx expo prebuild --platform ios --no-install
 
 echo "==> Installing pods..."
 (cd "$IOS" && pod install)

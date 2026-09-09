@@ -5,18 +5,30 @@
   },
   "build": {
     "development": {
+      "environment": "development",
+      "env": {
+        "EXPO_PUBLIC_APP_ENV": "development"
+      },
       "distribution": "internal",
       "android": {
         "buildType": "apk"
       }
     },
     "preview": {
+      "environment": "preview",
+      "env": {
+        "EXPO_PUBLIC_APP_ENV": "preview"
+      },
       "distribution": "internal",
       "android": {
         "buildType": "apk"
       }
     },
     "production": {
+      "environment": "production",
+      "env": {
+        "EXPO_PUBLIC_APP_ENV": "production"
+      },
       "autoIncrement": false,
       "android": {
         "buildType": "app-bundle"

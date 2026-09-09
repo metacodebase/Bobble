@@ -103,7 +103,7 @@ export async function fetchMe(): Promise<AuthUser> {
 }
 
 export async function deleteAccount(): Promise<{ message: string }> {
-  return { message: 'Account deleted' };
+  return { message: 'Demo session cleared' };
 }
 
 export async function changePassword(_body: ChangePasswordBody): Promise<{ message: string }> {

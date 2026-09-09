@@ -17,7 +17,12 @@ import type { ApiError } from '@/src/types/api';
 import { queryKeys } from '@/src/services/query-keys';
 import { loginPurchases, logoutPurchases } from '@/src/services/purchases';
 import { clearSessionData } from '@/src/services/session-data';
+import { shouldUseOfflineData } from '@/src/services/offline/mode';
 import { useAppStore } from '@/src/store/app-store';
+import {
+  ACCOUNT_DELETION_SUCCESS,
+  DEMO_DELETION_SUCCESS,
+} from '@/src/utils/account-deletion';
 import { getApiErrorMessage } from '@/src/utils/api-error';
 import { toast } from '@/src/utils/toast';
 
@@ -178,19 +183,21 @@ export function useDeleteAccount() {
   const clearSession = useAppStore((s) => s.clearSession);
   return useMutation({
     mutationFn: async () => {
+      const isOffline = shouldUseOfflineData();
       try {
         await unregisterPushTokenFromBackend();
       } catch {
         /* best effort */
       }
-      return authApi.deleteAccount();
+      const result = await authApi.deleteAccount();
+      return { result, isOffline };
     },
-    onSuccess: () => {
+    onSuccess: ({ isOffline }) => {
       clearSession();
       clearSessionData();
       void logoutPurchases();
       router.replace('/(auth)/splash' as Href);
-      toast.success('Your account has been deleted');
+      toast.success(isOffline ? DEMO_DELETION_SUCCESS : ACCOUNT_DELETION_SUCCESS);
     },
     onError: (e) => toast.error(getApiErrorMessage(e, 'Could not delete account')),
   });

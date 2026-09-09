@@ -162,7 +162,7 @@ ensure_keystore
 
 echo "==> Package: $PACKAGE"
 echo "==> Syncing native Android project..."
-npx expo prebuild --platform android --no-install
+EXPO_PUBLIC_APP_ENV=production npx expo prebuild --platform android --no-install
 
 inject_release_signing
 

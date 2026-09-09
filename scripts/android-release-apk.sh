@@ -10,7 +10,7 @@ APK="$APK_DIR/app-release.apk"
 cd "$ROOT"
 
 echo "==> Syncing native Android project (google-services.json, plugins, version)..."
-npx expo prebuild --platform android --no-install
+EXPO_PUBLIC_APP_ENV=production npx expo prebuild --platform android --no-install
 
 echo "==> Building release APK..."
 (cd "$ANDROID" && ./gradlew assembleRelease)

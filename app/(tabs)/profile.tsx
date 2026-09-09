@@ -1,7 +1,7 @@
 import { Href, router } from 'expo-router';
 import { Settings } from 'lucide-react-native';
 import { useCallback, useState } from 'react';
-import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 
@@ -17,8 +17,10 @@ import { useProfile } from '@/src/hooks/profile';
 import { useProfileAvatarPicker } from '@/src/hooks/use-profile-avatar-picker';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { useTabBarInsets } from '@/src/hooks/use-tab-bar-insets';
+import { shouldUseOfflineData } from '@/src/services/offline/mode';
 import { useAppStore } from '@/src/store/app-store';
 import { Typography } from '@/src/theme/fonts';
+import { confirmAccountDeletion } from '@/src/utils/account-deletion';
 import { resolveAvatarUrl } from '@/src/utils/avatar-url';
 import { androidSafeTop } from '@/src/utils/safe-padding';
 
@@ -78,18 +80,7 @@ export default function ProfileScreen() {
   );
 
   const confirmDeleteAccount = () => {
-    Alert.alert(
-      'Delete account',
-      'This will permanently delete your account and all your data. This action cannot be undone.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: () => deleteAccount.mutate(),
-        },
-      ]
-    );
+    confirmAccountDeletion(() => deleteAccount.mutate(), shouldUseOfflineData());
   };
 
   return (

@@ -1,5 +1,5 @@
 import { Href, router } from 'expo-router';
-import { Alert, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import { ProfileAvatar } from '@/src/components/create-account/profile-avatar';
 import { PrimaryButton } from '@/src/components/onboarding/primary-button';
@@ -12,8 +12,10 @@ import { PROFILE_USER } from '@/src/data/demo-data';
 import { useDeleteAccount, useLogout, useMe } from '@/src/hooks/api';
 import { useProfile } from '@/src/hooks/profile';
 import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
+import { shouldUseOfflineData } from '@/src/services/offline/mode';
 import { useAppStore } from '@/src/store/app-store';
 import { Typography } from '@/src/theme/fonts';
+import { confirmAccountDeletion } from '@/src/utils/account-deletion';
 import { visibleAccountEmail, xAccountLabel } from '@/src/utils/account-identity';
 import { resolveAvatarUrl } from '@/src/utils/avatar-url';
 
@@ -44,18 +46,7 @@ export default function SettingsAccountScreen() {
   const avatarSource = avatarUrl ? { uri: avatarUrl } : undefined;
 
   const confirmDeleteAccount = () => {
-    Alert.alert(
-      'Delete account',
-      'This will permanently delete your account and all your data. This action cannot be undone.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: () => deleteAccount.mutate(),
-        },
-      ]
-    );
+    confirmAccountDeletion(() => deleteAccount.mutate(), shouldUseOfflineData());
   };
 
   return (
