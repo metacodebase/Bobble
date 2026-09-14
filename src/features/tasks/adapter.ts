@@ -23,8 +23,7 @@ function deriveGroup(dueAt?: string | null): TaskGroup {
 }
 
 function isTodayFilterMatch(dueAt?: string | null): boolean {
-  const group = deriveGroup(dueAt);
-  return group === 'today' || group === 'overdue';
+  return deriveGroup(dueAt) === 'today';
 }
 
 function formatDueLabel(dueAt?: string | null): string {
@@ -62,7 +61,10 @@ export function filterTasksByParam(tasks: Task[], filter: TaskFilterParam): Task
     case 'today':
       return tasks.filter((task) => isTodayFilterMatch(task.dueAt));
     case 'upcoming':
-      return tasks.filter((task) => !isTodayFilterMatch(task.dueAt));
+      return tasks.filter((task) => {
+        const group = deriveGroup(task.dueAt);
+        return group === 'tomorrow' || group === 'upcoming';
+      });
     case 'done':
       return tasks.filter((task) => task.done);
     default:

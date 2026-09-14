@@ -4,12 +4,12 @@ import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { TaskFormSheet, TaskFormValues } from '@/src/components/tasks/task-form-sheet';
-import { TaskSection } from '@/src/components/tasks/task-section';
 import {
   BANNER_AD_RESERVED_HEIGHT,
   SafeBannerAd,
 } from '@/src/components/ads/safe-banner-ad';
+import { TaskFormSheet, TaskFormValues } from '@/src/components/tasks/task-form-sheet';
+import { TaskSection } from '@/src/components/tasks/task-section';
 import { FAB_SIZE, FabButton } from '@/src/components/ui/fab-button';
 import { FilterChips } from '@/src/components/ui/filter-chips';
 import { ScreenHeader } from '@/src/components/ui/screen-header';
@@ -23,8 +23,8 @@ import {
   useToggleTask,
   useUpdateTask,
 } from '@/src/hooks/tasks';
-import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { useAdsState } from '@/src/hooks/use-ads';
+import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { useNightForeground } from '@/src/hooks/use-night-foreground';
 import { useTabBarInsets } from '@/src/hooks/use-tab-bar-insets';
 import { Typography } from '@/src/theme/fonts';
@@ -48,7 +48,7 @@ export default function TasksScreen() {
   const { height: tabBarHeight } = useTabBarInsets();
   const { canRequestAds } = useAdsState();
   const bannerOffset = canRequestAds ? BANNER_AD_RESERVED_HEIGHT : 0;
-  const fabBottom = tabBarHeight + bannerOffset + 16;
+  const fabBottom = tabBarHeight + bannerOffset + 32;
   const { taskId: taskIdParam, filter: filterParam } = useLocalSearchParams<{
     taskId?: string;
     filter?: string;
@@ -70,7 +70,10 @@ export default function TasksScreen() {
   const toggleTask = useToggleTask();
   const deleteTask = useDeleteTask();
 
-  const sections = useMemo(() => buildTaskSections(tasks), [tasks]);
+  const sections = useMemo(
+    () => buildTaskSections(filter === 'Done' ? tasks : tasks.filter((task) => !task.done)),
+    [filter, tasks],
+  );
   const isSubmitting = createTask.isPending || updateTask.isPending;
 
   const openEdit = (id: string) => {
@@ -179,7 +182,7 @@ export default function TasksScreen() {
         )}
       </ScrollView>
 
-      <SafeBannerAd style={[styles.adBanner, { bottom: tabBarHeight }]} />
+      <SafeBannerAd style={[styles.adBanner, { bottom: tabBarHeight, marginBottom: 16 }]} />
 
       <FabButton bottom={fabBottom} onPress={() => setSheet({ mode: 'create' })} />
 

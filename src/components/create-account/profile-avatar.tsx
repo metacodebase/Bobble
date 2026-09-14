@@ -38,6 +38,7 @@ export function ProfileAvatar({
 }: ProfileAvatarProps) {
   const colors = useBobbleColors();
   const authToken = useAppStore((s) => s.authToken);
+  const userId = useAppStore((s) => s.user?._id);
   const avatarCacheKey = useAppStore((s) => s.avatarCacheKey);
   const [remoteFailed, setRemoteFailed] = useState(false);
   const radius = size / 2;
@@ -57,8 +58,12 @@ export function ProfileAvatar({
     if (!validRemoteUri || remoteFailed) return null;
     if (isLocalAvatarUri(validRemoteUri)) return { uri: validRemoteUri };
     if (avatarUrlNeedsAuth(validRemoteUri) && !authToken) return null;
-    return buildAvatarImageSource(validRemoteUri, authToken, avatarCacheKey);
-  }, [authToken, avatarCacheKey, remoteFailed, validRemoteUri]);
+    return buildAvatarImageSource(
+      validRemoteUri,
+      authToken,
+      `${userId ?? 'anonymous'}-${avatarCacheKey}`,
+    );
+  }, [authToken, avatarCacheKey, remoteFailed, userId, validRemoteUri]);
 
   useEffect(() => {
     setRemoteFailed(false);
@@ -89,7 +94,7 @@ export function ProfileAvatar({
           contentFit="cover"
           transition={200}
           cachePolicy="memory-disk"
-          recyclingKey={`${validRemoteUri ?? 'default'}-${avatarCacheKey}`}
+          recyclingKey={`${userId ?? 'anonymous'}-${validRemoteUri ?? 'default'}-${avatarCacheKey}`}
           onError={() => {
             if (remoteSource) setRemoteFailed(true);
           }}

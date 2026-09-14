@@ -1,13 +1,17 @@
 import { useEffect } from 'react';
 import { Platform } from 'react-native';
-import mobileAds, { AdsConsent } from 'react-native-google-mobile-ads';
 
 import { useMe } from '@/src/hooks/api';
 import { usePurchasesIdentityReady, useSubscription } from '@/src/hooks/use-subscription';
 import { disableAds, setAdsState } from '@/src/services/ads';
+import { getGoogleMobileAds } from '@/src/services/google-mobile-ads';
 import { useAppStore } from '@/src/store/app-store';
 
 async function initializeAds(canContinue: () => boolean) {
+  const adsModule = getGoogleMobileAds();
+  if (!adsModule) throw new Error('Google Mobile Ads is unavailable in this build');
+
+  const { AdsConsent } = adsModule;
   let consentInfo;
   try {
     consentInfo = await AdsConsent.gatherConsent();
@@ -31,11 +35,11 @@ async function initializeAds(canContinue: () => boolean) {
   }
   if (!canContinue()) throw new Error('Ad eligibility changed');
 
-  await mobileAds().setRequestConfiguration({
+  await adsModule.default().setRequestConfiguration({
     tagForChildDirectedTreatment: false,
     tagForUnderAgeOfConsent: false,
   });
-  await mobileAds().initialize();
+  await adsModule.default().initialize();
   return nonPersonalized;
 }
 

@@ -5,6 +5,7 @@ import { useCallback, useMemo, useState } from 'react';
 
 import type { ActionSheetOption } from '@/src/components/ui/action-sheet';
 import { useUploadAvatar } from '@/src/hooks/profile';
+import { useAppStore } from '@/src/store/app-store';
 import { toast } from '@/src/utils/toast';
 
 const PICKER_OPTIONS: ImagePicker.ImagePickerOptions = {
@@ -46,7 +47,7 @@ async function pickImage(
 
   return {
     base64,
-    mimeType: asset.mimeType ?? 'image/jpeg',
+    mimeType: asset.base64 ? 'image/jpeg' : (asset.mimeType ?? 'image/jpeg'),
     uri: asset.uri,
   };
 }
@@ -54,6 +55,7 @@ async function pickImage(
 export function useProfileAvatarPicker() {
   const [visible, setVisible] = useState(false);
   const [localPreviewUri, setLocalPreviewUri] = useState<string | null>(null);
+  const setAvatarPreviewUri = useAppStore((s) => s.setAvatarPreviewUri);
   const uploadAvatar = useUploadAvatar();
 
   const closePicker = useCallback(() => setVisible(false), []);
@@ -71,17 +73,17 @@ export function useProfileAvatarPicker() {
         const payload = await pickImage(source);
         if (!payload) return;
         setLocalPreviewUri(payload.uri);
+        setAvatarPreviewUri(payload.uri);
         uploadAvatar.mutate(
           {
             imageBase64: payload.base64,
             mimeType: payload.mimeType,
           },
           {
-            onSuccess: () => {
-              // Keep the local preview until the proxied avatar has time to load.
-              setTimeout(() => setLocalPreviewUri(null), 1200);
+            onError: () => {
+              setLocalPreviewUri(null);
+              setAvatarPreviewUri(null);
             },
-            onError: () => setLocalPreviewUri(null),
           },
         );
       } catch (error) {
@@ -89,7 +91,7 @@ export function useProfileAvatarPicker() {
         toast.error('Could not update your profile photo.');
       }
     },
-    [uploadAvatar],
+    [setAvatarPreviewUri, uploadAvatar],
   );
 
   const options = useMemo<ActionSheetOption[]>(

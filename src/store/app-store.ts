@@ -22,6 +22,7 @@ interface AppState {
 
   /** Bumped after avatar upload so the stable proxy URL refetches. */
   avatarCacheKey: number;
+  avatarPreviewUri: string | null;
 
   setSession: (session: AuthSession) => void;
   continueAsGuest: () => void;
@@ -35,6 +36,7 @@ interface AppState {
   setSyncCalendarId: (id: string | null) => void;
   setSyncReminderListId: (id: string | null) => void;
   bumpAvatarCacheKey: () => void;
+  setAvatarPreviewUri: (uri: string | null) => void;
   clearSession: () => void;
 }
 
@@ -53,6 +55,7 @@ const createAppState: StateCreator<AppState> = (set) => ({
   syncCalendarId: null,
   syncReminderListId: null,
   avatarCacheKey: 0,
+  avatarPreviewUri: null,
 
   setSession: (session) =>
     set({
@@ -100,6 +103,8 @@ const createAppState: StateCreator<AppState> = (set) => ({
 
   bumpAvatarCacheKey: () => set({ avatarCacheKey: Date.now() }),
 
+  setAvatarPreviewUri: (avatarPreviewUri) => set({ avatarPreviewUri }),
+
   clearSession: () =>
     set({
       authToken: null,
@@ -109,6 +114,7 @@ const createAppState: StateCreator<AppState> = (set) => ({
       isAuthenticated: false,
       isGuest: false,
       avatarCacheKey: 0,
+      avatarPreviewUri: null,
     }),
 });
 

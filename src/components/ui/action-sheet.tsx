@@ -27,7 +27,7 @@ export function ActionSheet({ visible, title, subtitle, options, onClose }: Acti
 
   const handlePress = (option: ActionSheetOption) => {
     onClose();
-    option.onPress?.();
+    setTimeout(() => option.onPress?.(), 350);
   };
 
   return (

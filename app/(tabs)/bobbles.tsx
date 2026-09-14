@@ -5,12 +5,12 @@ import { useCallback, useMemo, useState } from 'react';
 import { Alert, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { BOBBLE_FILTER_CHIP_STYLES } from '@/src/components/bobbles/bobble-category-config';
-import { BobbleLibraryRow } from '@/src/components/bobbles/bobble-library-row';
 import {
   BANNER_AD_RESERVED_HEIGHT,
   SafeBannerAd,
 } from '@/src/components/ads/safe-banner-ad';
+import { BOBBLE_FILTER_CHIP_STYLES } from '@/src/components/bobbles/bobble-category-config';
+import { BobbleLibraryRow } from '@/src/components/bobbles/bobble-library-row';
 import { FilterChips } from '@/src/components/ui/filter-chips';
 import { ScreenHeader } from '@/src/components/ui/screen-header';
 import { ScreenLoading } from '@/src/components/ui/screen-loading';
@@ -27,8 +27,8 @@ import {
   useDeleteBobble,
   useDeleteBobblesBulk,
 } from '@/src/hooks/bobbles';
-import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { useAdsState } from '@/src/hooks/use-ads';
+import { useBobbleColors } from '@/src/hooks/use-bobble-colors';
 import { useNightForeground } from '@/src/hooks/use-night-foreground';
 import { useTabBarInsets } from '@/src/hooks/use-tab-bar-insets';
 import { Typography } from '@/src/theme/fonts';
@@ -229,7 +229,7 @@ export default function BobblesScreen() {
         />
       )}
 
-      <SafeBannerAd style={[styles.adBanner, { bottom: tabBarHeight }]} />
+      <SafeBannerAd style={[styles.adBanner, { bottom: tabBarHeight,marginBottom: 16 }]} />
 
       {selectionMode && selectedCount > 0 ? (
         <Pressable

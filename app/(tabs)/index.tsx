@@ -75,17 +75,19 @@ export default function HomeScreen() {
   const setCaptureKind = useCaptureStore((state) => state.setCaptureKind);
   const clearRecording = useCaptureStore((state) => state.clearRecording);
   const storeUser = useAppStore((s) => s.user);
+  const avatarPreviewUri = useAppStore((s) => s.avatarPreviewUri);
   const isPro = useIsPro();
   const { data: profile } = useProfile();
   const displayName =
     profile?.user.name?.split(' ')[0] ?? storeUser?.name?.split(' ')[0] ?? 'there';
-  const avatarUrl = resolveAvatarUrl(profile?.user.avatarUrl, storeUser?.avatarUrl);
+  const avatarUrl =
+    avatarPreviewUri ?? resolveAvatarUrl(profile?.user.avatarUrl, storeUser?.avatarUrl);
   const { data: todayTasks = [] } = useTasks('today');
   const toggleTask = useToggleTask();
 
   const focusTasks = useMemo(
     () =>
-      todayTasks.map((task) => ({
+      todayTasks.filter((task) => !task.done).map((task) => ({
         id: task._id,
         title: task.title,
         done: task.done,

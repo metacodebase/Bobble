@@ -22,7 +22,7 @@ export function toAvatarLoadUrl(url?: string): string | undefined {
   if (!resolved) return undefined;
 
   if (resolved.includes('/api/profile/avatar')) {
-    return resolved;
+    return `${getConfiguredApiUrl()}${API.profile.avatar}`;
   }
 
   return `${getConfiguredApiUrl()}${API.profile.avatar}`;
@@ -31,15 +31,14 @@ export function toAvatarLoadUrl(url?: string): string | undefined {
 export function buildAvatarImageSource(
   url: string | undefined,
   authToken: string | null | undefined,
-  cacheKey = 0,
+  cacheKey: string | number = 0,
 ): ImageSource | undefined {
   const loadUrl = toAvatarLoadUrl(url);
   if (!loadUrl) return undefined;
 
-  const uri =
-    cacheKey > 0
-      ? `${loadUrl}${loadUrl.includes('?') ? '&' : '?'}v=${cacheKey}`
-      : loadUrl;
+  const uri = cacheKey
+    ? `${loadUrl}${loadUrl.includes('?') ? '&' : '?'}v=${encodeURIComponent(String(cacheKey))}`
+    : loadUrl;
 
   if (uri.includes('/api/profile/avatar') && authToken) {
     return {
